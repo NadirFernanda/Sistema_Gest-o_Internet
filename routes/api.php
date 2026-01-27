@@ -1,0 +1,18 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClienteController;
+
+Route::get('/alertas', [ClienteController::class, 'listarAlertas']);
+
+Route::post('/planos', [PlanoController::class, 'store']);
+Route::get('/planos', [PlanoController::class, 'index']);
+Route::delete('/planos/{id}', [PlanoController::class, 'destroy']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/clientes', [ClienteController::class, 'store']);
+Route::get('/clientes', [ClienteController::class, 'index']);
+Route::put('/clientes/{id}', [ClienteController::class, 'update']);
+Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
+Route::post('/alertas/disparar', [ClienteController::class, 'dispararAlertas']);

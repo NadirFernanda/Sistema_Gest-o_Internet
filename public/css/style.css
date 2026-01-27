@@ -1,0 +1,308 @@
+.alertas-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 98%;
+}
+.clientes-lista {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 12px;
+}
+.tabela-clientes {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+}
+.tabela-clientes th, .tabela-clientes td {
+    padding: 8px 10px;
+    border: 1px solid #eee;
+    text-align: left;
+}
+/* Index exclusivo */
+.index-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 98%;
+}
+/* Planos exclusivo */
+.planos-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 98%;
+}
+/* Clientes exclusivo */
+.clientes-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 98%;
+}
+/* Dashboard exclusivo */
+.dashboard-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 98%;
+}
+/* Login exclusivo */
+.login-bg {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+.login-container {
+    width: 100%;
+    max-width: 380px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px 0 rgba(0,0,0,0.07);
+    padding: 28px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.login-container img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+}
+.tabela-alertas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.98rem;
+}
+.tabela-alertas th, .tabela-alertas td {
+    border: 1px solid #eee;
+    padding: 8px 6px;
+    text-align: left;
+}
+.tabela-alertas th {
+    background: #f7b500;
+    color: #fff;
+}
+body {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 32px 32px 32px 32px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+    text-align: center;
+    min-width: 350px;
+    width: 90%;
+}
+
+.logo {
+    width: 120px;
+    margin-bottom: 18px;
+}
+
+h1 {
+    font-size: 1.3rem;
+    color: #f7b500;
+    margin-bottom: 24px;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.login-form button {
+    width: 100%;
+    padding: 10px;
+    background: #f7b500;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.login-form button:hover {
+    background: #e0a800;
+}
+
+.dashboard-actions {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.btn {
+    display: inline-block;
+    width: auto;
+    min-width: 220px;
+    max-width: 100%;
+    padding: 12px 32px;
+    background: #f7b500;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.08rem;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 18px;
+}
+
+.btn:hover {
+    background: #e0a800;
+}
+
+.btn-logout {
+    background: #aaa;
+}
+.btn-logout:hover {
+    background: #888;
+}
+
+/* --- CLIENTES --- */
+.form-cadastro {
+    margin: 24px 0 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.form-cadastro input,
+.form-cadastro select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+.form-cadastro button {
+    background: #f7b500;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 8px;
+}
+.form-cadastro button:hover {
+    background: #e0a800;
+}
+
+.tabela-clientes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.98rem;
+}
+.tabela-clientes th, .tabela-clientes td {
+    border: 1px solid #eee;
+    padding: 8px 6px;
+    text-align: left;
+}
+.tabela-clientes th {
+    background: #f7b500;
+    color: #fff;
+}
+.btn-editar, .btn-remover {
+    background: #aaa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-right: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-editar:hover {
+    background: #f7b500;
+}
+.btn-remover:hover {
+    background: #e74c3c;
+}
+
+/* --- PLANOS --- */
+.tabela-planos {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    margin-top: 18px;
+    font-size: 1.08rem;
+    margin-left: auto;
+    margin-right: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+}
+.tabela-planos th, .tabela-planos td {
+    border: 1px solid #eee;
+    padding: 14px 12px;
+    text-align: left;
+}
+.tabela-planos th {
+    background: #f7b500;
+    color: #fff;
+}
+.btn-editar-plano, .btn-remover-plano {
+    background: #aaa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-right: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-editar-plano:hover {
+    background: #f7b500;
+}
+.btn-remover-plano:hover {
+    background: #e74c3c;
+}
