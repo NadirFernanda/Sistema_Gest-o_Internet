@@ -1,0 +1,57 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="alertas-container">
+        <img src="{{ asset('img/logo.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
+        <h1>Alertas Ativos</h1>
+        <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
+        <div style="margin: 18px 0 0 0;">
+            <label for="diasAlerta">Exibir alertas para serviços que terminam em até </label>
+            <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias
+        </div>
+        <div style="margin: 24px 0 0 0; text-align: right;">
+            <button id="btnDispararAlertas" class="btn" style="background:#f7b500;color:#fff;font-weight:600;">Disparar Alertas</button>
+        </div>
+        <h2 style="margin-top:32px;">Lista de Alertas</h2>
+        <div class="alertas-lista" id="alertasLista">
+            <p>Nenhum alerta ativo no momento.</p>
+        </div>
+    </div>
+    <script src="{{ asset('js/main.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('btnDispararAlertas');
+        if (btn) {
+            btn.addEventListener('click', async function() {
+                btn.disabled = true;
+                btn.textContent = 'Enviando...';
+                // Enviar apenas o parâmetro 'dias' para o backend
+                const diasAlertaInput = document.getElementById('diasAlerta');
+                const dias = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
+                try {
+                    const res = await fetch('/api/alertas/disparar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ dias })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        if (data.enviados && data.enviados.length > 0) {
+                            alert('Alertas enviados para: ' + data.enviados.join(', '));
+                        } else {
+                            alert('Nenhum alerta foi enviado.');
+                        }
+                    } else {
+                        alert('Erro ao disparar alertas.');
+                    }
+                } catch {
+                    alert('Erro de conexão ao disparar alertas.');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Disparar Alertas';
+            });
+        }
+    });
+    </script>
+@endsection
+
