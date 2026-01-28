@@ -129,3 +129,59 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Fluxos Detalhados do Sistema
+
+### 1. Login e Acesso
+- Acesse `/login` e entre com seu e-mail e senha cadastrados.
+- Após login, você será redirecionado ao `/dashboard`.
+- Todas as áreas administrativas exigem autenticação.
+
+### 2. Dashboard
+- Tela inicial após login, com atalhos para Clientes, Planos, Alertas e Estoque de Equipamentos.
+- Menu "Relatórios" permite acessar o relatório de cobranças.
+- Botão "Sair" faz logout seguro.
+
+### 3. Gestão de Clientes
+- Clique em "Clientes" no dashboard.
+- Veja a lista de clientes cadastrados, com BI, nome, contato e ações.
+- Para cadastrar um novo cliente, preencha o formulário e clique em "Cadastrar Cliente".
+- Para editar, clique em "Editar" ao lado do cliente, altere os dados e salve.
+- Para excluir, clique em "Excluir" e confirme.
+- Para ver detalhes, clique em "Ver Ficha".
+
+### 4. Gestão de Planos
+- Clique em "Planos" no dashboard.
+- Veja a lista de planos, com cliente, nome, descrição, preço, ciclo, ativação, vencimento e status.
+- Para cadastrar um novo plano, preencha o formulário e clique em "Cadastrar Plano".
+- Para editar, clique em "Editar" ao lado do plano, altere os dados e salve.
+- Para excluir, clique em "Remover" e confirme.
+- Status dos planos é exibido com badge colorido.
+
+### 5. Relatório de Cobranças
+- Acesse pelo menu "Relatórios > Cobrança".
+- Veja todas as cobranças, com filtros avançados (cliente, descrição, status, valor, datas).
+- Exporte o relatório para Excel.
+- Status das cobranças é exibido com badge colorido.
+
+### 6. Estoque de Equipamentos
+- Clique em "Estoque de Equipamentos" no dashboard.
+- Veja a lista de equipamentos em estoque, com nome, descrição, modelo, número de série e quantidade.
+- Para cadastrar novo equipamento, clique em "Cadastrar Novo Equipamento" e preencha o formulário.
+- Exporte o estoque para Excel.
+
+### 7. Alertas
+- Clique em "Alertas" no dashboard.
+- Veja os alertas de vencimento de planos próximos.
+- Filtros para quantidade de dias.
+
+### 8. Navegação e Layout
+- Todas as telas usam layout moderno, responsivo e consistente.
+- Botões principais são amarelos, ações de exclusão em destaque.
+- Tabelas com visual limpo, badges de status e feedback visual para ações.
+
+### 9. Logout
+- Use o botão "Sair" no dashboard para encerrar a sessão com segurança.
+
+---
+Esses fluxos garantem uma experiência intuitiva e moderna para a gestão de clientes, planos, cobranças, estoque e alertas.
