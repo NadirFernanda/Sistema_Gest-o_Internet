@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facades\Pdf;
+// ...existing imports...
+
 use App\Models\Cobranca;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
@@ -10,6 +13,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CobrancaController extends Controller
 {
+    public function comprovante($id)
+    {
+        $cobranca = Cobranca::with('cliente')->findOrFail($id);
+        $pdf = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
+        return $pdf->download('comprovativo_pagamento_'.$cobranca->id.'.pdf');
+    }
     public function exportExcel(Request $request)
     {
         $query = Cobranca::with('cliente');
@@ -167,5 +176,34 @@ class CobrancaController extends Controller
     {
         $clientes = \App\Models\Cliente::orderBy('nome')->get();
         return view('cobrancas.create', compact('clientes'));
+    }
+
+    public function edit($id)
+    {
+        $cobranca = Cobranca::findOrFail($id);
+        $clientes = Cliente::orderBy('nome')->get();
+        return view('cobrancas.create', compact('cobranca', 'clientes'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'cliente_id' => 'required|exists:clientes,id',
+            'descricao' => 'required|string|max:255',
+            'valor' => 'required|numeric|min:0',
+            'data_vencimento' => 'required|date',
+            'data_pagamento' => 'nullable|date',
+            'status' => 'required|in:pendente,pago,atrasado',
+        ]);
+        $cobranca = Cobranca::findOrFail($id);
+        $cobranca->update($validated);
+        return redirect()->route('cobrancas.index')->with('success', 'Cobrança atualizada com sucesso!');
+    }
+
+    public function destroy($id)
+    {
+        $cobranca = Cobranca::findOrFail($id);
+        $cobranca->delete();
+        return redirect()->route('cobrancas.index')->with('success', 'Cobrança removida com sucesso!');
     }
 }
