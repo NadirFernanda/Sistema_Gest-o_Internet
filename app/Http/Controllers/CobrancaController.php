@@ -163,4 +163,9 @@ class CobrancaController extends Controller
         $cobranca = Cobranca::with('cliente')->findOrFail($id);
         return view('cobrancas.show', compact('cobranca'));
     }
+    public function create()
+    {
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('cobrancas.create', compact('clientes'));
+    }
 }

@@ -11,6 +11,7 @@ class Cliente extends Model
 {
     use HasFactory, Notifiable;
     protected $fillable = [
+        'bi', // número do bilhete de identidade
         'nome',
         'email',
         'contato',

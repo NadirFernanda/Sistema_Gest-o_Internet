@@ -4,10 +4,12 @@
 <link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
-    <h1>Relatório de Cobranças</h1>
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
-        <a href="{{ route('cobrancas.create') }}" class="btn btn-primary">Nova Cobrança</a>
+    <div class="relatorio-cabecalho-moderna">
+        <h1>Relatório de Cobranças</h1>
+        <div class="relatorio-cabecalho-botoes">
+            <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a href="{{ route('cobrancas.create') }}" class="btn btn-primary">Nova Cobrança</a>
+        </div>
     </div>
     <style>
     .filtro-modern-cobranca {
@@ -75,7 +77,7 @@
         }
     }
     </style>
-    <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca">
+    <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
             <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
@@ -109,7 +111,8 @@
         <button type="button" class="btn btn-secondary" style="margin-left:8px;min-width:120px" onclick="window.location='{{ route('cobrancas.index') }}'">Limpar Filtros</button>
         <a href="{{ route('cobrancas.export', request()->all()) }}" class="btn btn-success" style="margin-left:8px;min-width:140px;color:#fff;" target="_blank">Exportar Excel</a>
     </form>
-    <table class="table table-bordered table-striped mt-4" style="width:auto; min-width: 700px; font-size: 0.95rem; margin-bottom:0;">
+    <div class="tabela-cobrancas-moderna">
+    <table class="table table-bordered table-striped mt-4">
     <style>
     .relatorio-cobrancas-card table {
         table-layout: auto;
@@ -161,10 +164,93 @@
             @endforelse
         </tbody>
     </table>
-    <div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center" style="margin-top:18px;">
         {{ $cobrancas->links() }}
     </div>
+    </div>
     <!-- Botão Voltar movido para cima -->
+    <style>
+    .relatorio-cabecalho-moderna {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    .relatorio-cabecalho-moderna h1 {
+        color: #ffb800;
+        font-size: 2.1em;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    .relatorio-cabecalho-botoes {
+        display: flex;
+        gap: 18px;
+        margin-top: 6px;
+    }
+    .filtro-moderna-extra {
+        margin-bottom: 30px;
+        margin-top: 10px;
+        box-shadow: 0 2px 8px #0001;
+    }
+    .tabela-cobrancas-moderna {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px #0001;
+        padding: 18px 18px 8px 18px;
+        margin-top: 18px;
+    }
+    .tabela-cobrancas-moderna table {
+        width: 100%;
+        min-width: 700px;
+        font-size: 1.01em;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .tabela-cobrancas-moderna th {
+        background: #fffbe7;
+        color: #e09b00;
+        font-weight: bold;
+        font-size: 1.07em;
+        border-bottom: 2px solid #ffe6a0;
+    }
+    .tabela-cobrancas-moderna td {
+        background: #fff;
+        color: #222;
+        font-size: 1em;
+    }
+    .tabela-cobrancas-moderna tr {
+        border-bottom: 1px solid #f3e6b0;
+    }
+    .badge.bg-success {
+        background: #4caf50 !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 4px 12px;
+        margin: 2px 0;
+        display: inline-block;
+    }
+    .badge.bg-danger {
+        background: #e53935 !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 4px 12px;
+        margin: 2px 0;
+        display: inline-block;
+    }
+    .badge.bg-warning {
+        background: #ffb800 !important;
+        color: #222 !important;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 4px 12px;
+        margin: 2px 0;
+        display: inline-block;
+    }
+    </style>
 </div>
 </div>
 @endsection

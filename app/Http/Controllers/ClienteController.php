@@ -120,6 +120,11 @@ class ClienteController extends Controller
     public function index()
     {
         $clientes = Cliente::all();
+        // Se for chamada via API/AJAX, retorna JSON
+        if (request()->wantsJson() || request()->is('api/*')) {
+            return response()->json($clientes);
+        }
+        // Caso contrário, retorna a view normalmente
         return view('clientes', compact('clientes'));
     }
 
@@ -165,10 +170,12 @@ class ClienteController extends Controller
 
     public function update(Request $request, $id)
     {
+
         $validated = $request->validate([
             'nome' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|email|unique:clientes,email,' . $id,
             'contato' => 'sometimes|required|string|max:20|unique:clientes,contato,' . $id,
+            'bi' => 'sometimes|nullable|string|max:32',
         ]);
 
         $cliente = Cliente::findOrFail($id);

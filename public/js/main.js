@@ -69,67 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '/alertas';
         });
     }
-    // --- CLIENTES ---
-    // (Removido código que sobrescrevia a lista de clientes do backend)
-                fetch('http://127.0.0.1:8000/api/clientes')
-                    .then(async res => {
-                        let clientes = [];
-                        try {
-                            clientes = await res.json();
-                        } catch (err) {
-                            clientes = [];
-                        }
-                        const cliente = clientes[i];
-                        if (!cliente || !cliente.id) {
-                            alert('Não foi possível identificar o cliente.');
-                            return;
-                        }
-                        fetch(`http://127.0.0.1:8000/api/clientes/${cliente.id}`, {
-                            method: 'DELETE'
-                        })
-                        .then(res => {
-                            if (res.ok) {
-                                alert('Cliente removido com sucesso!');
-                                renderClientes();
-                            } else {
-                                alert('Erro ao remover cliente.');
-                            }
-                        })
-                        .catch(() => {
-                            alert('Erro de conexão ao remover cliente.');
-                        });
-                    });
-            }
-            if (e.target.classList.contains('btn-editar')) {
-                const i = e.target.getAttribute('data-i');
-                fetch('http://127.0.0.1:8000/api/clientes')
-                    .then(async res => {
-                        let clientes = [];
-                        try {
-                            clientes = await res.json();
-                        } catch (err) {
-                            clientes = [];
-                        }
-                        const c = clientes[i];
-                        if (!c) return;
-                        const setValue = (id, value) => {
-                            const el = document.getElementById(id);
-                            if (el) el.value = value;
-                        };
-                        setValue('nomeCliente', c.nome);
-                        setValue('emailCliente', c.email);
-                        setValue('contatoCliente', c.contato);
-                        setValue('dataAtivacaoCliente', c.data_ativacao || '');
-                        setValue('estadoCliente', c.estado);
-                        // Salva o id do cliente em edição
-                        document.getElementById('formCliente').setAttribute('data-edit-id', c.id);
-                    });
-            }
-        });
-        // Inicializar
-        renderClientes();
-        // (removido: preencherSelectPlanos e listeners relacionados)
-    }
+
 
     // --- PLANOS ---
     if (document.getElementById('formPlano')) {
@@ -175,7 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         lista.innerHTML = '<p>Nenhum plano cadastrado ainda.</p>';
                         return;
                     }
-                    let html = '<table class="tabela-planos"><thead><tr><th>Cliente</th><th>Nome</th><th>Descrição</th><th>Preço (Kz)</th><th>Ciclo (dias)</th><th>Ativação</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+                    let html = `<div class="tabela-cobrancas-moderna" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:18px 18px 8px 18px;margin-top:18px;overflow-x:auto;">
+                        <table class="tabela-planos" style="width:100%;min-width:700px;font-size:1.01em;background:#fff;border-radius:8px;overflow:hidden;">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Preço (Kz)</th>
+                                <th>Ciclo (dias)</th>
+                                <th>Ativação</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                                <th style="text-align:center;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
                     planos.forEach((p, i) => {
                         let clienteNome = (p.cliente && p.cliente.nome) ? p.cliente.nome : '-';
                         let ativacao = p.data_ativacao ? new Date(p.data_ativacao) : null;
@@ -185,9 +140,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             v.setDate(v.getDate() + parseInt(p.ciclo));
                             vencimento = v.toLocaleDateString();
                         }
-                        html += `<tr><td>${clienteNome}</td><td>${p.nome}</td><td>${p.descricao}</td><td>${p.preco}</td><td>${p.ciclo}</td><td>${p.data_ativacao || '-'}</td><td>${vencimento}</td><td>${p.estado || '-'}</td><td><button class=\"btn-editar-plano\" data-i=\"${i}\" data-id=\"${p.id}\">Editar</button> <button class=\"btn-remover-plano\" data-i=\"${i}\" data-id=\"${p.id}\">Remover</button></td></tr>`;
+                        // Status badge
+                        let estado = (p.estado || '-');
+                        let badge = '';
+                        if (estado === 'Ativo') badge = '<span class="badge bg-success">Ativo</span>';
+                        else if (estado === 'Em aviso') badge = '<span class="badge bg-warning text-dark">Em aviso</span>';
+                        else if (estado === 'Suspenso') badge = '<span class="badge bg-danger">Suspenso</span>';
+                        else if (estado === 'Cancelado') badge = '<span class="badge bg-danger">Cancelado</span>';
+                        else badge = `<span class="badge bg-secondary">${estado}</span>`;
+                        html += `<tr>
+                            <td><span style="font-weight:500;">${clienteNome}</span></td>
+                            <td>${p.nome}</td>
+                            <td>${p.descricao}</td>
+                            <td>Kz ${Number(p.preco).toLocaleString('pt-AO', {minimumFractionDigits:2})}</td>
+                            <td>${p.ciclo}</td>
+                            <td>${p.data_ativacao || '-'}</td>
+                            <td>${vencimento}</td>
+                            <td>${badge}</td>
+                            <td style="text-align:center;">
+                                <button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>
+                                <button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>
+                            </td>
+                        </tr>`;
                     });
-                    html += '</tbody></table>';
+                    html += '</tbody></table></div>';
                     lista.innerHTML = html;
                 })
                 .catch(() => {
@@ -267,22 +243,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = linha.querySelector('.btn-editar-plano, .btn-remover-plano').getAttribute('data-id') || null;
                 if (!id) return;
                 if (e.target.classList.contains('btn-remover-plano')) {
-                    if (confirm('Tem certeza que deseja remover este plano?')) {
+                    if (confirm('⚠️ Esta ação é irreversível!\n\nDeseja realmente remover este plano?')) {
+                        const btn = e.target;
+                        btn.disabled = true;
+                        btn.textContent = 'Removendo...';
                         fetch(`http://127.0.0.1:8000/api/planos/${id}`, { method: 'DELETE' })
                             .then(res => {
                                 if (res.ok) {
+                                    // Remover a linha da tabela sem recarregar tudo
+                                    linha.style.background = '#ffeaea';
+                                    linha.style.transition = 'opacity 0.4s';
+                                    linha.style.opacity = '0.4';
+                                    setTimeout(() => {
+                                        linha.remove();
+                                        // Se não houver mais linhas, mostrar mensagem
+                                        if (document.querySelectorAll('#planosLista tbody tr').length === 0) {
+                                            document.getElementById('planosLista').innerHTML = '<p>Nenhum plano cadastrado ainda.</p>';
+                                        }
+                                    }, 400);
                                     alert('Plano removido com sucesso!');
-                                    renderPlanos();
                                 } else if (res.status === 404) {
                                     alert('Plano já foi removido ou não existe. Atualizando lista.');
                                     renderPlanos();
                                 } else {
                                     alert('Erro ao remover plano.');
+                                    btn.disabled = false;
+                                    btn.textContent = 'Remover';
                                 }
                             })
                             .catch(() => {
                                 alert('Erro de conexão ao remover plano.');
-                                renderPlanos();
+                                btn.disabled = false;
+                                btn.textContent = 'Remover';
                             });
                     }
                 }
