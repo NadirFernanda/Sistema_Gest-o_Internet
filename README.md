@@ -1,4 +1,6 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" a*Copie o arquivo de ambiente:**
+	```bash
+	cp .env.example .envlt="Laravel Logo"></a></p>
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
@@ -12,11 +14,32 @@
 
 Este projeto é um sistema de gestão desenvolvido em Laravel Blade, com autenticação de sessão nativa do Laravel.
 
+
 ### Funcionalidades
 - Login e logout com sessão Laravel
 - Proteção de rotas administrativas (/dashboard, /clientes, /planos, /alertas)
 - Layout com partials (header e sidebar)
 - Gerenciamento de clientes, planos e alertas
+- Cadastro e gestão de equipamentos instalados para cada cliente
+
+## Fluxo de Cadastro e Gestão de Equipamentos
+
+1. **Acesse o Dashboard**
+	- Clique em "Clientes" para acessar a lista de clientes.
+
+2. **Lista de Clientes**
+	- Veja todos os clientes cadastrados.
+	- Para cada cliente, clique em "Ver Ficha" para acessar a ficha individual.
+
+3. **Ficha do Cliente**
+	- Exibe os dados do cliente selecionado.
+	- Mostra a seção "Equipamentos Instalados" com a lista de equipamentos já cadastrados para o cliente.
+	- Clique em "Adicionar Equipamento" para cadastrar um novo equipamento para este cliente.
+
+4. **Cadastro de Equipamento**
+	- Preencha o formulário com o nome do equipamento, morada (endereço) e ponto de referência.
+	- O equipamento será vinculado automaticamente ao cliente selecionado.
+	- Após o cadastro, você será redirecionado de volta à ficha do cliente, onde poderá ver o novo equipamento listado.
 
 ## Instalação e Execução
 
@@ -29,9 +52,7 @@ Este projeto é um sistema de gestão desenvolvido em Laravel Blade, com autenti
 	```bash
 	composer install
 	```
-3. **Copie o arquivo de ambiente:**
-	```bash
-	cp .env.example .env
+3. *
 	```
 4. **Gere a chave da aplicação:**
 	```bash

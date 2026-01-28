@@ -70,114 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     // --- CLIENTES ---
-    if (document.getElementById('formCliente')) {
-        // Funções auxiliares
-        function getClientes() {
-            return JSON.parse(localStorage.getItem('clientes') || '[]');
-        }
-        function setClientes(clientes) {
-            localStorage.setItem('clientes', JSON.stringify(clientes));
-        }
-        function renderClientes() {
-            const lista = document.getElementById('clientesLista');
-            fetch('http://127.0.0.1:8000/api/clientes')
-                .then(async res => {
-                    let clientes = [];
-                    try {
-                        clientes = await res.json();
-                    } catch (err) {
-                        clientes = [];
-                    }
-                    if (!clientes.length) {
-                        lista.innerHTML = '<p>Nenhum cliente cadastrado ainda.</p>';
-                        return;
-                    }
-                    let html = '<table class="tabela-clientes"><thead><tr><th>Nome</th><th>Email</th><th>Contacto</th><th>Ações</th></tr></thead><tbody>';
-                    clientes.forEach((c, i) => {
-                        html += `<tr><td>${c.nome}</td><td>${c.email || ''}</td><td>${c.contato}</td><td><button class=\"btn-editar\" data-i=\"${i}\">Editar</button> <button class=\"btn-remover\" data-i=\"${i}\">Remover</button></td></tr>`;
-                    });
-                    html += '</tbody></table>';
-                    lista.innerHTML = html;
-                })
-                .catch(() => {
-                    lista.innerHTML = '<p>Erro ao carregar clientes.</p>';
-                });
-        }
-        // Cadastro
-        document.getElementById('formCliente').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btnSubmit = this.querySelector('button[type="submit"]');
-            if (btnSubmit) btnSubmit.disabled = true;
-            const nome = document.getElementById('nomeCliente').value.trim();
-            const email = document.getElementById('emailCliente').value.trim();
-            const contato = document.getElementById('contatoCliente').value.trim();
-            let camposFaltando = [];
-            if (!nome) camposFaltando.push('nome completo');
-            if (!email) camposFaltando.push('email');
-            if (!contato) camposFaltando.push('contacto');
-            if (camposFaltando.length > 0) {
-                alert('Por favor, preencha os seguintes campos: ' + camposFaltando.join(', ') + '.');
-                if (btnSubmit) btnSubmit.disabled = false;
-                return;
-            }
-            const editId = this.getAttribute('data-edit-id');
-            let url = 'http://127.0.0.1:8000/api/clientes';
-            let method = 'POST';
-            if (editId && editId !== '') {
-                url += `/${editId}`;
-                method = 'PUT';
-            }
-            fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, contato })
-            })
-            .then(async res => {
-                let data = null;
-                try {
-                    data = await res.json();
-                } catch (err) {
-                    data = null;
-                }
-                console.log('Resposta do backend:', res.status, data);
-                if (res.ok) {
-                    alert(editId ? 'Cliente editado com sucesso!' : 'Cliente cadastrado com sucesso!');
-                    this.reset();
-                    this.removeAttribute('data-edit-id');
-                    renderClientes();
-                    if (btnSubmit) btnSubmit.disabled = false;
-                    return;
-                                    if (btnSubmit) btnSubmit.disabled = false;
-                                    if (btnSubmit) btnSubmit.disabled = false;
-                } else if (data && data.errors) {
-                    let msg = '';
-                    Object.keys(data.errors).forEach(k => {
-                        msg += `${k}: ${data.errors[k][0]}\n`;
-                    });
-                    alert('Erro: ' + msg);
-                } else if (data && data.message) {
-                    // Tradução de mensagens comuns do backend
-                    let mensagem = data.message;
-                    if (mensagem === 'The email has already been taken.') {
-                        mensagem = 'O email já está cadastrado.';
-                    } else if (mensagem === 'Please select an item in the list.') {
-                        mensagem = 'Por favor, selecione um plano válido.';
-                    }
-                    alert('Erro: ' + mensagem);
-                } else {
-                    alert(editId ? 'Erro ao editar cliente.' : 'Erro ao cadastrar cliente.');
-                    if (btnSubmit) btnSubmit.disabled = false;
-                }
-            })
-            .catch((err) => {
-                console.error('Erro de conexão ou requisição:', err);
-                alert('Erro de conexão com o servidor.');
-            });
-        });
-        // Remover e editar
-        document.getElementById('clientesLista').addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-remover')) {
-                const i = e.target.getAttribute('data-i');
+    // (Removido código que sobrescrevia a lista de clientes do backend)
                 fetch('http://127.0.0.1:8000/api/clientes')
                     .then(async res => {
                         let clientes = [];
@@ -350,18 +243,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert('Plano cadastrado com sucesso!');
                         this.reset();
                         renderPlanos();
-                        if (btnSubmit) btnSubmit.disabled = false;
-                        return;
                     } else if (data && data.error) {
-                                                if (btnSubmit) btnSubmit.disabled = false;
-                                                if (btnSubmit) btnSubmit.disabled = false;
                         alert('Erro: ' + data.error);
                     } else if (data && data.message) {
                         alert('Erro: ' + data.message);
                     } else {
                         alert('Erro ao cadastrar plano.');
-                        if (btnSubmit) btnSubmit.disabled = false;
                     }
+                    if (btnSubmit) btnSubmit.disabled = false;
                 })
                 .catch((err) => {
                     console.error('Erro de conexão ou requisição:', err);

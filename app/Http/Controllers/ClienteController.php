@@ -119,8 +119,14 @@ class ClienteController extends Controller
     }
     public function index()
     {
-        \Log::info('ClienteController@index - Listando clientes');
-        return response()->json(Cliente::all());
+        $clientes = Cliente::all();
+        return view('clientes', compact('clientes'));
+    }
+
+    public function show($id)
+    {
+        $cliente = Cliente::with('equipamentos')->findOrFail($id);
+        return view('clientes', compact('cliente'));
     }
     public function store(Request $request)
     {
