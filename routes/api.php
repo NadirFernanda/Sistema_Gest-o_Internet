@@ -9,6 +9,8 @@ Route::get('/alertas', [ClienteController::class, 'listarAlertas']);
 
 Route::post('/planos', [PlanoController::class, 'store']);
 Route::get('/planos', [PlanoController::class, 'index']);
+Route::get('/planos/{id}', [PlanoController::class, 'show']);
+Route::put('/planos/{id}', [PlanoController::class, 'update']);
 Route::delete('/planos/{id}', [PlanoController::class, 'destroy']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/clientes', [ClienteController::class, 'store']);

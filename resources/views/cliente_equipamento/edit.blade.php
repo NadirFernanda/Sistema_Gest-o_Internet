@@ -2,7 +2,8 @@
 
 @section('content')
 <div class="container" style="max-width: 600px; margin: 40px auto;">
-    <h2>Editar Vínculo de Equipamento para: {{ $cliente->nome }}</h2>
+    <h2>Editar Vínculo de Equipamento</h2>
+    <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
     <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Voltar</a>
     <form action="{{ route('cliente_equipamento.update', [$cliente->id, $vinculo->id]) }}" method="POST" style="margin-top: 20px;">
         @csrf

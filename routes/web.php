@@ -1,6 +1,7 @@
 <?php
 
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -21,6 +22,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
     Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store');
     Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show');
+    Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update');
+    Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy');
     Route::get('/planos', fn () => view('planos'))->name('planos');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
@@ -31,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store');
     Route::get('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'show'])->name('cobrancas.show');
 
+    // Relatório de Equipamentos em Estoque
+    Route::get('/relatorio-equipamentos', [\App\Http\Controllers\EquipamentoRelatorioController::class, 'index'])->name('equipamentos.relatorio');
+    Route::get('/relatorio-equipamentos/export', [\App\Http\Controllers\EquipamentoRelatorioController::class, 'exportExcel'])->name('equipamentos.relatorio.export');
+
     // Rotas de equipamentos
     Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
     Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store');
@@ -40,6 +47,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'index'])->name('estoque_equipamentos.index');
     Route::get('/estoque-equipamentos/create', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'create'])->name('estoque_equipamentos.create');
     Route::post('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'store'])->name('estoque_equipamentos.store');
+
+    // Exportação específica do estoque de equipamentos
+    Route::get('/estoque-equipamentos/export', function() {
+        $equipamentos = \App\Models\EstoqueEquipamento::orderBy('nome')->get();
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\EstoqueEquipamentosExport($equipamentos), 'estoque_equipamentos.xlsx');
+    })->name('estoque_equipamentos.export');
 
     // Vincular equipamentos do estoque a clientes
     Route::get('/clientes/{cliente}/vincular-equipamento', [\App\Http\Controllers\ClienteEquipamentoController::class, 'create'])->name('cliente_equipamento.create');

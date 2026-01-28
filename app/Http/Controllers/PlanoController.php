@@ -45,6 +45,15 @@ class PlanoController extends Controller
         \Log::info('Planos retornados', ['planos' => $planos]);
         return response()->json($planos);
     }
+
+    public function show($id)
+    {
+        $plano = Plano::with('cliente')->find($id);
+        if (!$plano) {
+            return response()->json(['error' => 'Plano não encontrado'], 404);
+        }
+        return response()->json($plano);
+    }
     public function destroy($id)
     {
         $plano = Plano::find($id);
