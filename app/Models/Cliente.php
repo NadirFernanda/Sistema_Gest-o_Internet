@@ -19,4 +19,9 @@ class Cliente extends Model
     {
         return $this->hasMany(Plano::class);
     }
+
+    public function equipamentos()
+    {
+        return $this->hasMany(Equipamento::class);
+    }
 }
