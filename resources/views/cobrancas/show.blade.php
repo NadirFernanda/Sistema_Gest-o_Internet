@@ -21,6 +21,7 @@
             </p>
         </div>
     </div>
+    <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-primary mt-3" target="_blank">Gerar Comprovante PDF</a>
     <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary mt-3">Voltar</a>
 </div>
 @endsection

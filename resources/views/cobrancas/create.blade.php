@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container" style="max-width: 600px; margin: 40px auto;">
-    <h2>Cadastrar Nova Cobrança</h2>
+    <h2>{{ isset($cobranca) ? 'Editar Cobrança' : 'Cadastrar Nova Cobrança' }}</h2>
     <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary mb-3">Voltar</a>
     <style>
         .form-modern input[type="text"],
@@ -52,14 +52,20 @@
             background: #e0a800;
         }
     </style>
-    <form action="{{ route('cobrancas.store') }}" method="POST" class="form-modern">
+    <form action="{{ isset($cobranca) ? route('cobrancas.update', $cobranca->id) : route('cobrancas.store') }}" method="POST" class="form-modern">
         @csrf
+        @if(isset($cobranca))
+            @method('PUT')
+        @endif
         <div class="form-group">
             <label for="cliente_id">Cliente <span class="text-danger">*</span></label>
             <select name="cliente_id" id="cliente_id" required>
                 <option value="">Selecione o cliente</option>
                 @foreach($clientes as $cliente)
-                    <option value="{{ $cliente->id }}" {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>{{ $cliente->nome }}</option>
+                    <option value="{{ $cliente->id }}" 
+                        {{ (old('cliente_id') ?? ($cobranca->cliente_id ?? null)) == $cliente->id ? 'selected' : '' }}>
+                        {{ $cliente->nome }}
+                    </option>
                 @endforeach
             </select>
             @error('cliente_id')
@@ -68,28 +74,28 @@
         </div>
         <div class="form-group">
             <label for="descricao">Descrição <span class="text-danger">*</span></label>
-            <input type="text" name="descricao" id="descricao" value="{{ old('descricao') }}" required>
+            <input type="text" name="descricao" id="descricao" value="{{ old('descricao', $cobranca->descricao ?? '') }}" required>
             @error('descricao')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
         </div>
         <div class="form-group">
             <label for="valor">Valor (Kz) <span class="text-danger">*</span></label>
-            <input type="number" step="0.01" min="0" name="valor" id="valor" value="{{ old('valor') }}" required>
+            <input type="number" step="0.01" min="0" name="valor" id="valor" value="{{ old('valor', $cobranca->valor ?? '') }}" required>
             @error('valor')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
         </div>
         <div class="form-group">
             <label for="data_vencimento">Data de Vencimento <span class="text-danger">*</span></label>
-            <input type="date" name="data_vencimento" id="data_vencimento" value="{{ old('data_vencimento') }}" required>
+            <input type="date" name="data_vencimento" id="data_vencimento" value="{{ old('data_vencimento', isset($cobranca) ? $cobranca->data_vencimento : '') }}" required>
             @error('data_vencimento')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
         </div>
         <div class="form-group">
             <label for="data_pagamento">Data de Pagamento</label>
-            <input type="date" name="data_pagamento" id="data_pagamento" value="{{ old('data_pagamento') }}">
+            <input type="date" name="data_pagamento" id="data_pagamento" value="{{ old('data_pagamento', $cobranca->data_pagamento ?? '') }}">
             @error('data_pagamento')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
@@ -97,15 +103,15 @@
         <div class="form-group">
             <label for="status">Status <span class="text-danger">*</span></label>
             <select name="status" id="status" required>
-                <option value="pendente" {{ old('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
-                <option value="pago" {{ old('status') == 'pago' ? 'selected' : '' }}>Pago</option>
-                <option value="atrasado" {{ old('status') == 'atrasado' ? 'selected' : '' }}>Atrasado</option>
+                <option value="pendente" {{ (old('status', $cobranca->status ?? '') == 'pendente') ? 'selected' : '' }}>Pendente</option>
+                <option value="pago" {{ (old('status', $cobranca->status ?? '') == 'pago') ? 'selected' : '' }}>Pago</option>
+                <option value="atrasado" {{ (old('status', $cobranca->status ?? '') == 'atrasado') ? 'selected' : '' }}>Atrasado</option>
             </select>
             @error('status')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
         </div>
-        <button type="submit" class="btn btn-primary">Salvar Cobrança</button>
+        <button type="submit" class="btn btn-primary">{{ isset($cobranca) ? 'Atualizar Cobrança' : 'Salvar Cobrança' }}</button>
     </form>
 </div>
 @endsection

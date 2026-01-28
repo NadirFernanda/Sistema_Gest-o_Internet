@@ -136,6 +136,7 @@
                 <th>Vencimento</th>
                 <th>Pagamento</th>
                 <th>Status</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -155,6 +156,16 @@
                         @else
                             <span class="badge bg-warning text-dark">Pendente</span>
                         @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('cobrancas.show', $cobranca->id) }}" class="btn btn-sm btn-info" title="Ver Detalhes"><i class="fas fa-eye"></i> Detalhes</a>
+                        <a href="{{ route('cobrancas.edit', $cobranca->id) }}" class="btn btn-sm btn-warning" title="Editar"><i class="fas fa-edit"></i> Editar</a>
+                        <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-sm btn-success" title="Comprovante PDF" target="_blank"><i class="fas fa-file-pdf"></i> Comprovante</a>
+                        <form action="{{ route('cobrancas.destroy', $cobranca->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Tem certeza que deseja remover esta cobrança?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" title="Remover"><i class="fas fa-trash"></i> Remover</button>
+                        </form>
                     </td>
                 </tr>
             @empty
