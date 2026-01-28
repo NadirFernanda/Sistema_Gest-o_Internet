@@ -34,9 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store');
     Route::get('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'show'])->name('cobrancas.show');
 
-    // Relatório de Equipamentos em Estoque
-    Route::get('/relatorio-equipamentos', [\App\Http\Controllers\EquipamentoRelatorioController::class, 'index'])->name('equipamentos.relatorio');
-    Route::get('/relatorio-equipamentos/export', [\App\Http\Controllers\EquipamentoRelatorioController::class, 'exportExcel'])->name('equipamentos.relatorio.export');
 
     // Rotas de equipamentos
     Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
