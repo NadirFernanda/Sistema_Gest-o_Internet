@@ -16,7 +16,135 @@
                 <input type="text" id="contatoCliente" name="contato" placeholder="Contacto" required>
                 <button type="submit">Cadastrar Cliente</button>
             </form>
-            <h2 style="margin-top:32px;">Lista de Clientes</h2>
+            <div class="busca-clientes-box-alinhada">
+                <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-clientes-form-alinhada">
+                    <div class="busca-input-wrapper">
+                        <span class="busca-icone">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#e09b00" stroke-width="2"/><path d="M20 20L17 17" stroke="#e09b00" stroke-width="2" stroke-linecap="round"/></svg>
+                        </span>
+                        <input type="text" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar cliente por nome, BI, email ou contato" autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Pesquisar</button>
+                </form>
+            </div>
+            <style>
+                .busca-clientes-box-alinhada {
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 32px;
+                    margin-bottom: 18px;
+                }
+                .busca-clientes-form-alinhada {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 12px;
+                    min-width: 340px;
+                    max-width: 480px;
+                    width: 100%;
+                }
+                .busca-input-wrapper {
+                    flex: 1;
+                    position: relative;
+                }
+                .busca-icone {
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    pointer-events: none;
+                }
+                .busca-input-wrapper input[type="text"] {
+                    width: 100%;
+                    padding: 8px 12px 8px 36px;
+                    border-radius: 8px;
+                    border: 1.5px solid #e09b00;
+                    font-size: 1.08em;
+                    background: #fffbe7;
+                    transition: border 0.2s;
+                }
+                .busca-input-wrapper input[type="text"]:focus {
+                    outline: none;
+                    border: 1.5px solid #b87d00;
+                    background: #fffde9;
+                }
+                .btn.btn-primary {
+                    background: #e09b00;
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 20px;
+                    font-weight: 500;
+                    font-size: 1.08em;
+                    box-shadow: 0 2px 8px #0001;
+                    transition: background 0.2s;
+                }
+                .btn.btn-primary:hover {
+                    background: #b87d00;
+                }
+            </style>
+            <style>
+                .busca-clientes-box {
+                    margin-top: 32px;
+                    margin-bottom: 18px;
+                    display: flex;
+                    justify-content: flex-start;
+                }
+                .busca-clientes-form {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    width: 100%;
+                    max-width: 420px;
+                }
+                .busca-input-wrapper {
+                    flex: 1;
+                }
+                .busca-clientes-form .btn.btn-primary {
+                    margin-left: auto;
+                }
+                .busca-input-wrapper {
+                    position: relative;
+                    flex: 1;
+                }
+                .busca-icone {
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    pointer-events: none;
+                }
+                .busca-input-wrapper input[type="text"] {
+                    width: 100%;
+                    padding: 8px 12px 8px 36px;
+                    border-radius: 8px;
+                    border: 1.5px solid #e09b00;
+                    font-size: 1.08em;
+                    background: #fffbe7;
+                    transition: border 0.2s;
+                }
+                .busca-input-wrapper input[type="text"]:focus {
+                    outline: none;
+                    border: 1.5px solid #b87d00;
+                    background: #fffde9;
+                }
+                .btn.btn-primary {
+                    background: #e09b00;
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 20px;
+                    font-weight: 500;
+                    font-size: 1.08em;
+                    box-shadow: 0 2px 8px #0001;
+                    transition: background 0.2s;
+                }
+                .btn.btn-primary:hover {
+                    background: #b87d00;
+                }
+            </style>
+            <h2>Lista de Clientes</h2>
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
                     <div class="clientes-lista-moderna">

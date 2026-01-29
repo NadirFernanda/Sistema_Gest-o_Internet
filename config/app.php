@@ -195,7 +195,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Pdf' => Barryvdh\DomPDF\Facades\Pdf::class,
+        'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
     ],
 
 ];
