@@ -119,7 +119,16 @@ class ClienteController extends Controller
     }
     public function index()
     {
-        $clientes = Cliente::all();
+        $query = Cliente::query();
+        if ($busca = request('busca')) {
+            $query->where(function($q) use ($busca) {
+                $q->where('nome', 'like', "%$busca%")
+                  ->orWhere('bi', 'like', "%$busca%")
+                  ->orWhere('email', 'like', "%$busca%")
+                  ->orWhere('contato', 'like', "%$busca%");
+            });
+        }
+        $clientes = $query->orderBy('nome')->paginate(12)->withQueryString();
         // Se for chamada via API/AJAX, retorna JSON
         if (request()->wantsJson() || request()->is('api/*')) {
             return response()->json($clientes);

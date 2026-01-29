@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\DomPDF\Facades\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 // ...existing imports...
 
 use App\Models\Cobranca;
@@ -17,6 +17,10 @@ class CobrancaController extends Controller
     {
         $cobranca = Cobranca::with('cliente')->findOrFail($id);
         $pdf = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
+        // Envia o comprovante por email ao cliente, se houver email válido
+        if ($cobranca->cliente && filter_var($cobranca->cliente->email, FILTER_VALIDATE_EMAIL)) {
+            $cobranca->cliente->notify(new \App\Notifications\ComprovantePagamentoEmail($cobranca));
+        }
         return $pdf->download('comprovativo_pagamento_'.$cobranca->id.'.pdf');
     }
     public function exportExcel(Request $request)
