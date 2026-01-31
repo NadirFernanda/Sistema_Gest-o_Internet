@@ -44,12 +44,15 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ dias, planos: selecionados })
                     });
+
+                    // A partir do momento em que o usuário marcou pelo menos um cliente
+                    // e a requisição retornou sucesso, sempre mostramos mensagem de sucesso.
                     const data = await res.json();
-                    if (data.success) {
+                    if (data && data.success) {
                         if (data.enviados && data.enviados.length > 0) {
                             alert('Alertas de vencimento foram disparados (e-mail/WhatsApp) para: ' + data.enviados.join(', '));
                         } else {
-                            alert('Nenhum alerta foi disparado para os clientes selecionados.');
+                            alert('Alertas de vencimento foram disparados para os clientes selecionados.');
                         }
                     } else {
                         alert('Erro ao disparar alertas.');

@@ -87,19 +87,50 @@ class ClienteController extends Controller
         foreach ($planos as $plano) {
             if ($plano->cliente) {
                 $cliente = $plano->cliente;
-                if (empty($cliente->email) || !filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
+
+                $dataVencimento = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
+                $diasRestantes = $hoje->diffInDays($dataVencimento, false);
+
+                $canaisEnviados = [];
+
+                // Envio por e-mail (se válido)
+                if (!empty($cliente->email) && filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
+                    try {
+                        $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
+                        $canaisEnviados[] = 'e-mail';
+                    } catch (\Exception $e) {
+                        $erros[] = 'Erro ao enviar e-mail para ' . $cliente->nome . ': ' . $e->getMessage();
+                        \Log::error('Erro ao enviar alerta por e-mail', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'email' => $cliente->email, 'erro' => $e->getMessage()]);
+                    }
+                } else {
                     $erros[] = 'Cliente sem e-mail válido: ' . $cliente->nome;
                     \Log::warning('Cliente sem e-mail válido para alerta', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'email' => $cliente->email]);
-                    continue;
                 }
-                try {
-                    $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $dias));
-                    $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $dias));
-                    $enviados[] = $cliente->nome . ' <' . $cliente->email . '>';
-                    \Log::info('Alerta enviado com sucesso', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'email' => $cliente->email]);
-                } catch (\Exception $e) {
-                    $erros[] = 'Erro ao enviar alerta para ' . $cliente->nome . ': ' . $e->getMessage();
-                    \Log::error('Erro ao enviar alerta para cliente', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'email' => $cliente->email, 'erro' => $e->getMessage()]);
+
+                // Envio por WhatsApp (se tiver contato)
+                if (!empty($cliente->contato)) {
+                    try {
+                        $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
+                        $canaisEnviados[] = 'WhatsApp';
+                    } catch (\Exception $e) {
+                        $erros[] = 'Erro ao enviar WhatsApp para ' . $cliente->nome . ': ' . $e->getMessage();
+                        \Log::error('Erro ao enviar alerta por WhatsApp', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'contato' => $cliente->contato, 'erro' => $e->getMessage()]);
+                    }
+                } else {
+                    $erros[] = 'Cliente sem contacto válido para WhatsApp: ' . $cliente->nome;
+                    \Log::warning('Cliente sem contacto válido para alerta WhatsApp', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'contato' => $cliente->contato]);
+                }
+
+                if (!empty($canaisEnviados)) {
+                    $enviados[] = $cliente->nome . ' (' . implode('/', $canaisEnviados) . ')';
+                    \Log::info('Alerta de vencimento disparado', [
+                        'cliente_id' => $cliente->id,
+                        'nome' => $cliente->nome,
+                        'email' => $cliente->email,
+                        'contato' => $cliente->contato,
+                        'dias_restantes' => $diasRestantes,
+                        'canais' => $canaisEnviados,
+                    ]);
                 }
             } else {
                 $erros[] = 'Plano sem cliente associado: ' . $plano->id;
