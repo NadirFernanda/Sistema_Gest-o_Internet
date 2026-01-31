@@ -7,10 +7,25 @@ use Illuminate\Http\Request;
 
 class EstoqueEquipamentoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $equipamentos = EstoqueEquipamento::all();
-        return view('estoque_equipamentos.index', compact('equipamentos'));
+        $query = EstoqueEquipamento::query();
+
+        if ($busca = trim((string) $request->query('busca', ''))) {
+            $query->where(function ($q) use ($busca) {
+                $q->where('nome', 'ILIKE', "%{$busca}%")
+                    ->orWhere('descricao', 'ILIKE', "%{$busca}%")
+                    ->orWhere('modelo', 'ILIKE', "%{$busca}%")
+                    ->orWhere('numero_serie', 'ILIKE', "%{$busca}%");
+            });
+        }
+
+        $equipamentos = $query->orderBy('nome')->get();
+
+        return view('estoque_equipamentos.index', [
+            'equipamentos' => $equipamentos,
+            'busca' => $busca ?? '',
+        ]);
     }
 
     public function create()

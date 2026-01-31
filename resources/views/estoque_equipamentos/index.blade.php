@@ -13,6 +13,18 @@
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
+    <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="estoque-busca-form">
+        <input
+            type="text"
+            name="busca"
+            value="{{ request('busca') }}"
+            placeholder="Pesquisar por nome, modelo ou nº de série..."
+        >
+        <button type="submit">Pesquisar</button>
+        @if(request('busca'))
+            <a href="{{ route('estoque_equipamentos.index') }}" class="btn-limpar-busca">Limpar</a>
+        @endif
+    </form>
     <div class="estoque-tabela-moderna">
         <table class="tabela-estoque-moderna">
             <thead>
@@ -69,6 +81,40 @@
     margin-top: 6px;
     flex-wrap: wrap;
     justify-content: center;
+}
+.estoque-busca-form {
+    margin: 0 0 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+.estoque-busca-form input[type="text"] {
+    flex: 1;
+    min-width: 220px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+.estoque-busca-form button[type="submit"] {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #f7b500;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.estoque-busca-form .btn-limpar-busca {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #aaa;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
 }
 .estoque-tabela-moderna {
     background: #fff;
