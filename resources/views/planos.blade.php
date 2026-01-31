@@ -34,7 +34,7 @@
             <button
                 type="button"
                 id="btnBuscarPlanos"
-                style="padding:8px 16px; border-radius:8px; border:none; background:#3498db; color:#fff; cursor:pointer; white-space:nowrap;"
+                style="padding:8px 16px; border-radius:8px; border:none; background:#f7b500; color:#fff; cursor:pointer; white-space:nowrap;"
             >
                 Pesquisar
             </button>
