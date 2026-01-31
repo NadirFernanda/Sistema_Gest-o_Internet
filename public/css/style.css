@@ -9,6 +9,49 @@
     min-width: 350px;
     width: 98%;
 }
+.alertas-toolbar {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.alertas-filtro {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.96rem;
+}
+.alertas-filtro-label {
+    color: #444;
+}
+.alertas-input-dias {
+    width: 70px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+}
+.alertas-filtro-sufixo {
+    color: #555;
+}
+.btn-alertas {
+    background: #f7b500;
+    color: #fff;
+    font-weight: 600;
+}
+.alertas-titulo-lista {
+    margin-top: 28px;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    color: #333;
+}
+.alertas-lista {
+    margin-top: 8px;
+    overflow-x: auto;
+}
 .clientes-lista {
     overflow-x: auto;
     width: 100%;
