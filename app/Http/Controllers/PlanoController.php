@@ -39,10 +39,22 @@ class PlanoController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $planos = Plano::with('cliente')->get();
-        \Log::info('Planos retornados', ['planos' => $planos]);
+        $query = Plano::with('cliente');
+
+        if ($busca = $request->query('busca')) {
+            $busca = trim($busca);
+            $query->where(function ($q) use ($busca) {
+                $q->where('nome', 'ILIKE', "%{$busca}%")
+                    ->orWhere('descricao', 'ILIKE', "%{$busca}%");
+            })->orWhereHas('cliente', function ($q) use ($busca) {
+                $q->where('nome', 'ILIKE', "%{$busca}%");
+            });
+        }
+
+        $planos = $query->get();
+        \Log::info('Planos retornados', ['total' => $planos->count()]);
         return response()->json($planos);
     }
 

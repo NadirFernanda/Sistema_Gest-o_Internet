@@ -24,6 +24,21 @@
             <button type="submit">Cadastrar Plano</button>
         </form>
         <h2 style="margin-top:32px;">Lista de Planos</h2>
+        <div class="busca-planos-form" style="margin:12px 0 4px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input
+                type="text"
+                id="buscaPlanos"
+                placeholder="Pesquisar por plano ou cliente..."
+                style="flex:1; min-width:220px; padding:8px 10px; border-radius:8px; border:1px solid #ccc;"
+            >
+            <button
+                type="button"
+                id="btnBuscarPlanos"
+                style="padding:8px 16px; border-radius:8px; border:none; background:#3498db; color:#fff; cursor:pointer; white-space:nowrap;"
+            >
+                Pesquisar
+            </button>
+        </div>
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
         </div>

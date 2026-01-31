@@ -101,9 +101,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         }
 
+        function getFiltroPlanos() {
+            const input = document.getElementById('buscaPlanos');
+            return input ? input.value.trim() : '';
+        }
+
         function renderPlanos() {
             const lista = document.getElementById('planosLista');
-            fetch('/api/planos')
+            const filtro = encodeURIComponent(getFiltroPlanos());
+            const url = filtro ? `/api/planos?busca=${filtro}` : '/api/planos';
+            fetch(url)
                 .then(async res => {
                     let planos = [];
                     try {
@@ -298,6 +305,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+        // Busca de planos
+        const btnBuscarPlanos = document.getElementById('btnBuscarPlanos');
+        if (btnBuscarPlanos) {
+            btnBuscarPlanos.addEventListener('click', function(e) {
+                e.preventDefault();
+                renderPlanos();
+            });
+        }
+        const inputBuscaPlanos = document.getElementById('buscaPlanos');
+        if (inputBuscaPlanos) {
+            inputBuscaPlanos.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    renderPlanos();
+                }
+            });
+        }
         // Inicializar
         preencherSelectClientesPlano();
         renderPlanos();
