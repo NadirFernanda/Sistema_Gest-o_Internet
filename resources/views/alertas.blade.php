@@ -4,18 +4,15 @@
     <div class="alertas-container">
         <img src="{{ asset('img/logo.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Alertas Ativos</h1>
-        <a href="{{ route('dashboard') }}" class="btn btn-voltar-dashboard">Voltar ao Dashboard</a>
-
-        <div class="alertas-toolbar">
-            <div class="alertas-filtro">
-                <label for="diasAlerta" class="alertas-filtro-label">Exibir alertas para serviços que terminam em até</label>
-                <input type="number" id="diasAlerta" value="5" min="1" max="30" class="alertas-input-dias"> 
-                <span class="alertas-filtro-sufixo">dias</span>
-            </div>
-            <button id="btnDispararAlertas" class="btn btn-alertas">Disparar Alertas</button>
+        <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
+        <div style="margin: 18px 0 0 0;">
+            <label for="diasAlerta">Exibir alertas para serviços que terminam em até </label>
+            <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias
         </div>
-
-        <h2 class="alertas-titulo-lista">Lista de Alertas</h2>
+        <div style="margin: 24px 0 0 0; text-align: right;">
+            <button id="btnDispararAlertas" class="btn" style="background:#f7b500;color:#fff;font-weight:600;">Disparar Alertas</button>
+        </div>
+        <h2 style="margin-top:32px;">Lista de Alertas</h2>
         <div class="alertas-lista" id="alertasLista">
             <p>Nenhum alerta ativo no momento.</p>
         </div>
