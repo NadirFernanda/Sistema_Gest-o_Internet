@@ -40,17 +40,26 @@ class ClienteController extends Controller
         })->values();
         return response()->json($alertas);
     }
-    /**
-     * Dispara alertas de vencimento para uma lista de planos (por e-mail).
-     * Espera receber um array de planos (plano_id, diasRestantes) no request.
-     */
     public function dispararAlertas(Request $request)
     {
-        $dias = $request->input('dias', 5); // padrão 5 dias
+        // Dias usados como limite de vencimento (mesma lógica da listagem)
+        $dias = (int) $request->input('dias', 5); // padrão 5 dias
         $hoje = now();
-        $planosRaw = \App\Models\Plano::with('cliente')
-            ->whereNotNull('data_ativacao')
-            ->get();
+
+        // Opcional: lista de IDs de planos selecionados na tela de alertas
+        $idsSelecionados = $request->input('planos', []);
+        if (!is_array($idsSelecionados)) {
+            $idsSelecionados = [];
+        }
+
+        $queryPlanos = \App\Models\Plano::with('cliente')
+            ->whereNotNull('data_ativacao');
+
+        if (!empty($idsSelecionados)) {
+            $queryPlanos->whereIn('id', $idsSelecionados);
+        }
+
+        $planosRaw = $queryPlanos->get();
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
             if (!$plano->data_ativacao || !$plano->ciclo) {
                 \Log::info('Plano ignorado: data_ativacao ou ciclo ausente', ['plano_id' => $plano->id, 'data_ativacao' => $plano->data_ativacao, 'ciclo' => $plano->ciclo]);

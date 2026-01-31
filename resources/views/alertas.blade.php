@@ -28,11 +28,21 @@
                 // Enviar apenas o parâmetro 'dias' para o backend
                 const diasAlertaInput = document.getElementById('diasAlerta');
                 const dias = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
+                const selecionados = Array.from(document.querySelectorAll('#alertasLista .chk-alerta:checked'))
+                    .map(cb => parseInt(cb.dataset.planoId))
+                    .filter(id => !isNaN(id));
+
+                if (!selecionados.length) {
+                    alert('Selecione pelo menos um cliente para disparar o alerta.');
+                    btn.disabled = false;
+                    btn.textContent = 'Disparar Alertas';
+                    return;
+                }
                 try {
                     const res = await fetch('/api/alertas/disparar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ dias })
+                        body: JSON.stringify({ dias, planos: selecionados })
                     });
                     const data = await res.json();
                     if (data.success) {
