@@ -4,11 +4,9 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use App\Services\WhatsAppService;
 
-class ClienteVencimentoWhatsApp extends Notification implements ShouldQueue
+class ClienteVencimentoWhatsApp extends Notification
 {
     use Queueable;
 
