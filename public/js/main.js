@@ -27,13 +27,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         lista.innerHTML = '<p>Nenhum alerta ativo no momento.</p>';
                         return;
                     }
-                    let html = '<table class="tabela-alertas"><thead><tr><th>Cliente</th><th>Plano</th><th>Contacto</th><th>Termina em</th><th>Data de Término</th></tr></thead><tbody>';
+                    let html = '<table class="tabela-alertas"><thead><tr>' +
+                        '<th style="text-align:center;"><input type="checkbox" id="selecionarTodosAlertas"></th>' +
+                        '<th>Cliente</th><th>Plano</th><th>Contacto</th><th>Termina em</th><th>Data de Término</th></tr></thead><tbody>';
                     alertas.forEach(a => {
                         let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
-                        html += `<tr data-plano-id="${a.id}"${destaque}><td>${a.nome}</td><td>${a.plano}</td><td>${a.contato}</td><td><b>${a.diasRestantes} dias</b></td><td>${a.dataTermino}</td></tr>`;
+                        html += `<tr data-plano-id="${a.id}"${destaque}>` +
+                            `<td style="text-align:center;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}"></td>` +
+                            `<td>${a.nome}</td><td>${a.plano}</td><td>${a.contato}</td>` +
+                            `<td><b>${a.diasRestantes} dias</b></td><td>${a.dataTermino}</td>` +
+                            `</tr>`;
                     });
                     html += '</tbody></table>';
                     lista.innerHTML = html;
+
+                    const chkTodos = document.getElementById('selecionarTodosAlertas');
+                    if (chkTodos) {
+                        chkTodos.addEventListener('change', function() {
+                            const itens = document.querySelectorAll('#alertasLista .chk-alerta');
+                            itens.forEach(cb => { cb.checked = chkTodos.checked; });
+                        });
+                    }
                 })
                 .catch(() => {
                     lista.innerHTML = '<p>Erro ao carregar alertas.</p>';
