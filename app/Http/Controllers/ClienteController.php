@@ -147,6 +147,7 @@ class ClienteController extends Controller
         \Log::info('Entrou no método store do ClienteController', ['request' => $request->all()]);
         try {
             $validated = $request->validate([
+                'bi' => 'required|string|max:32|unique:clientes,bi',
                 'nome' => 'required|string|max:255',
                 'email' => 'required|email|unique:clientes,email',
                 'contato' => 'required|string|max:20|unique:clientes,contato',

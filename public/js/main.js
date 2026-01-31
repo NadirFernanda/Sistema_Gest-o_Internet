@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const select = document.getElementById('clientePlano');
             if (!select) return;
             const valorAtual = select.value;
-            fetch('http://127.0.0.1:8000/api/clientes')
+            fetch('/api/clientes')
                 .then(async res => {
                     let clientes = [];
                     try {
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function renderPlanos() {
             const lista = document.getElementById('planosLista');
-            fetch('http://127.0.0.1:8000/api/planos')
+            fetch('/api/planos')
                 .then(async res => {
                     let planos = [];
                     try {
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Por favor, preencha os seguintes campos: ' + camposFaltando.join(', ') + '.');
                 return;
             }
-            let url = 'http://127.0.0.1:8000/api/planos';
+            let url = '/api/planos';
             let method = 'POST';
             const editId = this.getAttribute('data-edit-id');
             if (editId && editId !== '') {
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const btn = e.target;
                         btn.disabled = true;
                         btn.textContent = 'Removendo...';
-                        fetch(`http://127.0.0.1:8000/api/planos/${id}`, { method: 'DELETE' })
+                        fetch(`/api/planos/${id}`, { method: 'DELETE' })
                             .then(res => {
                                 if (res.ok) {
                                     // Remover a linha da tabela sem recarregar tudo
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 if (e.target.classList.contains('btn-editar-plano')) {
-                    fetch(`http://127.0.0.1:8000/api/planos/${id}`)
+                    fetch(`/api/planos/${id}`)
                         .then(async res => {
                             let p = null;
                             try { p = await res.json(); } catch (err) { p = null; }
