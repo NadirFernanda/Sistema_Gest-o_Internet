@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alertas.forEach(a => {
                         let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
                         html += `<tr data-plano-id="${a.id}"${destaque}>` +
-                            `<td style="text-align:center;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}"></td>` +
+                            `<td style="text-align:center;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}"></td>` +
                             `<td>${a.nome}</td><td>${a.plano}</td><td>${a.contato}</td>` +
                             `<td><b>${a.diasRestantes} dias</b></td><td>${a.dataTermino}</td>` +
                             `</tr>`;
