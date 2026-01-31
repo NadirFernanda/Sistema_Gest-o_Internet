@@ -45,14 +45,21 @@
                         body: JSON.stringify({ dias, planos: selecionados })
                     });
 
-                    // A partir do momento em que o usuário marcou pelo menos um cliente
-                    // e a requisição retornou sucesso, sempre mostramos mensagem de sucesso.
                     const data = await res.json();
                     if (data && data.success) {
-                        if (data.enviados && data.enviados.length > 0) {
-                            alert('Alertas de vencimento foram disparados (e-mail/WhatsApp) para: ' + data.enviados.join(', '));
+                        const selecionadosElems = Array.from(document.querySelectorAll('#alertasLista .chk-alerta:checked'));
+                        const destinatarios = selecionadosElems.map(cb => {
+                            const nome = cb.dataset.nome || '';
+                            const contato = cb.dataset.contato || '';
+                            return contato ? `${nome} (${contato})` : nome;
+                        }).filter(txt => txt.trim() !== '');
+
+                        if (destinatarios.length === 1) {
+                            alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp de ${destinatarios[0]}.`);
+                        } else if (destinatarios.length > 1) {
+                            alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp dos seguintes clientes: ${destinatarios.join(', ')}.`);
                         } else {
-                            alert('Alertas de vencimento foram disparados para os clientes selecionados.');
+                            alert('Alertas de vencimento foram enviados com sucesso para o WhatsApp dos clientes selecionados.');
                         }
                     } else {
                         alert('Erro ao disparar alertas.');
