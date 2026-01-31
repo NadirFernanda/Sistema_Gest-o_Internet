@@ -128,12 +128,14 @@ class ClienteController extends Controller
                   ->orWhere('contato', 'like', "%$busca%");
             });
         }
-        $clientes = $query->orderBy('nome')->paginate(12)->withQueryString();
-        // Se for chamada via API/AJAX, retorna JSON
+        // Se for chamada via API/AJAX (ex.: /api/clientes), retorna lista simples em JSON
         if (request()->wantsJson() || request()->is('api/*')) {
+            $clientes = $query->orderBy('nome')->get();
             return response()->json($clientes);
         }
-        // Caso contrário, retorna a view normalmente
+
+        // Caso contrário, usa paginação para a listagem na view web
+        $clientes = $query->orderBy('nome')->paginate(12)->withQueryString();
         return view('clientes', compact('clientes'));
     }
 
