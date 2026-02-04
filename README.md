@@ -548,13 +548,14 @@ Esta secção resume, passo a passo, as principais configurações feitas neste 
 1. Repositório criado no GitHub, configurado como **público**.
 2. Projeto Laravel existente na pasta local `PROJECTO` foi ligado ao repositório remoto com os comandos (exemplo):
 
-  ```bash
-  git init
-  git add .
-  git commit -m "Initial commit"
-  git branch -M main
-  git remote add origin https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
-  git push -u origin main
+cd /var/www/sgmrtexas
+git pull
+npm install
+npm run build
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
   ```
 
 ### 2. Configuração de arquivos de controle (.gitignore e .gitattributes)
