@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="clientes-container">
-        <img src="{{ asset('img/logo.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Gestão de Clientes</h1>
         <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
 

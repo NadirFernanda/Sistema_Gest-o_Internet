@@ -7,7 +7,7 @@
 <body style="background:#f8f8f8;padding:0;margin:0;">
     <div style="max-width:520px;margin:40px auto;background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;padding:32px 32px 24px 32px;">
         <div style="text-align:center;margin-bottom:24px;">
-            <img src="{{ $logoUrl }}" alt="AgolaWifi Logo" style="max-width:160px;max-height:80px;">
+            <img src="{{ asset('img/logo2.jpeg') }}" alt="AgolaWifi Logo" style="max-width:160px;max-height:80px;">
         </div>
         <h2 style="color:#222;text-align:center;margin-bottom:24px;">Olá, <span style="color:#e09b00;">{{ $nomeCliente }}</span>!</h2>
         @if(isset($cobranca) && $cobranca->status === 'pago')

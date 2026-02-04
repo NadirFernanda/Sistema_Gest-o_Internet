@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <img src="{{ asset('img/logo.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Dashboard Administrativo</h1>
         <p>Bem-vindo ao painel de gestão de clientes e planos.</p>
         <div class="dashboard-actions">
