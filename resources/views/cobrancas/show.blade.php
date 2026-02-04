@@ -7,7 +7,7 @@
         <div class="card-body">
             <h5 class="card-title">{{ $cobranca->descricao }}</h5>
             <p><strong>Cliente:</strong> {{ $cobranca->cliente->nome ?? '-' }}</p>
-            <p><strong>Valor:</strong> R$ {{ number_format($cobranca->valor, 2, ',', '.') }}</p>
+            <p><strong>Valor:</strong> Kz {{ number_format($cobranca->valor, 2, ',', '.') }}</p>
             <p><strong>Vencimento:</strong> {{ $cobranca->data_vencimento }}</p>
             <p><strong>Pagamento:</strong> {{ $cobranca->data_pagamento ?? '-' }}</p>
             <p><strong>Status:</strong>
