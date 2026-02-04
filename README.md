@@ -48,9 +48,19 @@
 - Cadastro, edição e remoção de planos.
 - Exibição de status com badge colorido.
 
+
 ### 5. Relatório de Cobranças
 - Listagem e filtros por cliente, descrição, status, valor e datas.
 - Exportação para Excel.
+- **Relatórios automáticos:** O sistema gera e envia automaticamente relatórios de cobranças em três períodos:
+  - **Diário:** Relatório das cobranças do dia, enviado por e-mail e salvo em `storage/app/relatorios`.
+  - **Semanal:** Relatório das cobranças da semana atual, enviado por e-mail e salvo em `storage/app/relatorios`.
+  - **Mensal:** Relatório das cobranças do mês atual, enviado por e-mail e salvo em `storage/app/relatorios`.
+  - Os comandos são agendados via Laravel Scheduler e podem ser executados manualmente:
+    - `php artisan relatorio:cobrancas-diario`
+    - `php artisan relatorio:cobrancas-semanal`
+    - `php artisan relatorio:cobrancas-mensal`
+  - O e-mail de envio é definido pela variável `MAIL_FROM_ADDRESS` no `.env`.
 
 ### 6. Estoque de Equipamentos
 - Cadastro e gestão de equipamentos em estoque (nome, descrição, modelo, número de série, quantidade).
