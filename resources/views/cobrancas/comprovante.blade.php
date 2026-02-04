@@ -16,7 +16,7 @@
 <body>
     <div class="comprovante-box">
         <div style="text-align:center;margin-bottom:16px;">
-            <img src="{{ public_path('img/logo.jpeg') }}" alt="Logotipo" style="max-width:140px;max-height:80px;">
+            <img src="{{ public_path('img/logo2.jpeg') }}" alt="Logotipo" style="max-width:140px;max-height:80px;">
         </div>
         <h2>Comprovativo de Pagamento</h2>
         <div class="info"><span class="label">Cliente:</span> {{ $cobranca->cliente->nome ?? '-' }}</div>

@@ -3,7 +3,7 @@
 @section('content')
 <div class="login-bg">
     <div class="login-container">
-        <img src="{{ asset('img/logo.jpeg') }}" alt="Logo">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logo">
         <h2 style="font-weight: 700; font-size: 1.7rem; margin-bottom: 16px; color: #222; text-align: center;">Entrar</h2>
         <form method="POST" action="{{ route('login') }}" style="width: 100%;">
             @csrf
