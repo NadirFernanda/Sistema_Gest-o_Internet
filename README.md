@@ -1,3 +1,82 @@
+---
+
+## Deploy e Atualização em Produção (Passo a Passo)
+
+### 1. Acesse o servidor e entre na pasta do sistema
+
+```bash
+ssh usuario@SEU_SERVIDOR
+cd /var/www/sgmrtexas
+```
+
+### 2. Baixe as últimas alterações do repositório
+
+```bash
+git pull
+```
+
+### 3. Instale/atualize dependências PHP
+
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+### 4. Instale/atualize dependências do front-end (Vite)
+
+```bash
+npm install
+npm run build
+```
+
+### 5. Gere a chave da aplicação (se necessário)
+
+```bash
+php artisan key:generate
+```
+
+### 6. Execute as migrações do banco de dados
+
+```bash
+php artisan migrate --force
+```
+
+### 7. Gere o link de storage
+
+```bash
+php artisan storage:link
+```
+
+### 8. Limpe e gere o cache de configs, rotas e views
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+### 9. Ajuste permissões das pastas (se necessário)
+
+```bash
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+### 10. Reinicie serviços PHP-FPM e Nginx (se necessário)
+
+```bash
+sudo systemctl restart php8.2-fpm
+sudo systemctl reload nginx
+```
+
+### 11. Agende o cron do Laravel Scheduler
+
+```bash
+crontab -e
+# Adicione (ou confirme) esta linha:
+* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
+```
+
+Pronto! O sistema estará atualizado e rodando em produção.
 ## Sistema de Gestão de Internet (Laravel)
 
 > Sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
@@ -540,3 +619,15 @@ Embora estas configurações sejam feitas diretamente na interface do GitHub (e 
 ---
 
 Para dúvidas técnicas do framework, consulte também a [documentação oficial do Laravel](https://laravel.com/docs).
+Na imagem, o botão "Exportar Excel" está visível na interface de cobranças, mas ele serve para exportação manual do relatório filtrado na tela.
+
+Os relatórios automáticos (diário, semanal, mensal) que implementamos NÃO aparecem como botões na interface. Eles são gerados automaticamente pelo sistema e:
+
+São salvos na pasta storage/app/relatorios do servidor.
+São enviados por e-mail para o endereço configurado no .env.
+Resumo:
+
+O botão "Exportar Excel" é para exportação manual.
+Os relatórios automáticos não têm botão na interface, pois são gerados e enviados automaticamente pelo agendamento do Laravel (Scheduler).
+Se quiser que esses relatórios automáticos também apareçam como botões para download na interface, posso implementar isso para você! Deseja adicionar esses botões na tela?
+
