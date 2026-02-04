@@ -15,7 +15,7 @@ class ClienteSeeder extends Seeder
                 'nome' => 'Cliente Teste 1',
                 'email' => 'cliente1@example.com',
                 'contato' => '11999999999',
-                'data_ativacao' => Carbon::now()->subDays(10),
+                // 'data_ativacao' removido para alinhar com a tabela
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -23,7 +23,7 @@ class ClienteSeeder extends Seeder
                 'nome' => 'Cliente Teste 2',
                 'email' => 'cliente2@example.com',
                 'contato' => '11888888888',
-                'data_ativacao' => Carbon::now()->subDays(5),
+                // 'data_ativacao' removido para alinhar com a tabela
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

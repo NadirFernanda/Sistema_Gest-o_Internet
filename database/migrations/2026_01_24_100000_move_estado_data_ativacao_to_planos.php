@@ -24,10 +24,6 @@ return new class extends Migration {
         Schema::table('planos', function (Blueprint $table) {
             $table->dropColumn(['estado', 'data_ativacao']);
         });
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->string('plano')->nullable();
-            $table->date('data_ativacao')->nullable();
-            $table->string('estado')->default('Ativo');
-        });
+        // As colunas removidas de clientes são tratadas em outras migrations.
     }
 };

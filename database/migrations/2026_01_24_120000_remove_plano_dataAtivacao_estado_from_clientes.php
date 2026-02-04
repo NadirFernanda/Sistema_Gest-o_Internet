@@ -14,6 +14,9 @@ return new class extends Migration {
             if (Schema::hasColumn('clientes', 'estado')) {
                 $table->dropColumn('estado');
             }
+            if (Schema::hasColumn('clientes', 'data_ativacao')) {
+                $table->dropColumn('data_ativacao');
+            }
         });
     }
 
@@ -21,7 +24,6 @@ return new class extends Migration {
     {
         Schema::table('clientes', function (Blueprint $table) {
             $table->string('plano')->nullable();
-            $table->date('data_ativacao')->nullable();
             $table->string('estado')->default('Ativo');
         });
     }
