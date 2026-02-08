@@ -11,6 +11,10 @@
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Dashboard Administrativo</h1>
         <p>Bem-vindo ao painel de gestão de clientes e planos.</p>
+        @auth
+        @php $activeRole = session('acting_as_role') ?: (auth()->user()->getRoleNames()->first() ?? '—'); @endphp
+        <div class="active-role-banner">Atuando como: <strong>{{ $activeRole }}</strong></div>
+        @endauth
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
             <a href="{{ route('planos') }}" class="btn">Planos</a>
