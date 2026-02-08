@@ -51,10 +51,10 @@ Route::middleware('auth')->group(function () {
     // User management (admin)
     Route::get('/admin/users/create', [\App\Http\Controllers\UserController::class, 'create'])
         ->name('admin.users.create')
-        ->middleware('permission:users.create');
+        ->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':users.create');
     Route::post('/admin/users', [\App\Http\Controllers\UserController::class, 'store'])
         ->name('admin.users.store')
-        ->middleware('permission:users.create');
+        ->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':users.create');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
