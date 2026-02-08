@@ -264,6 +264,18 @@ h1 {
     background: #f7b500;
     color: #fff;
 }
+
+/* Custom select component styles */
+.custom-select-wrapper { position: relative; width: 100%; }
+.custom-select { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.custom-select .selected { color: #222; }
+.custom-select .chev { margin-left: 12px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid #444; }
+.custom-select.open { box-shadow: 0 6px 18px rgba(0,0,0,0.12); border-color: #f7b500; }
+.custom-select-options { position: absolute; left: 0; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #ddd; border-radius: 6px; max-height: 220px; overflow: auto; z-index: 50; box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
+.custom-select-option { padding: 10px 12px; cursor: pointer; }
+.custom-select-option:hover { background: #f7b500; color: #fff; }
+.custom-select-option.active { background: #f7b500; color: #fff; font-weight:600; }
+.custom-select-placeholder { color: #666; }
 .form-cadastro button {
     background: #f7b500;
     color: #fff;

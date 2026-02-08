@@ -43,7 +43,7 @@
 
                     <div class="form-group full-width">
                         <label class="form-label">Papel</label>
-                        <select name="role" class="form-control">
+                        <select name="role" class="form-control" data-placeholder="-- Selecionar --">
                             <option value="">-- Selecionar --</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role }}">{{ $role }}</option>
@@ -60,3 +60,7 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/custom-select.js') }}?v={{ filemtime(public_path('js/custom-select.js')) }}"></script>
+@endpush
