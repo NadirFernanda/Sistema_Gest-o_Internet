@@ -1,5 +1,9 @@
 name: Dependency Audit
 
+permissions:
+  contents: read
+  issues: write
+
 on:
   schedule:
     # Runs weekly on Monday at 02:00 UTC
@@ -35,15 +39,33 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y jq || true
 
-      - name: Fail on critical or high composer vulnerabilities
-        run: |
-          if [ -s composer-audit.json ] && jq -e 'any(..; .severity? == "critical" or .severity? == "high")' composer-audit.json >/dev/null; then
-            echo "Critical or high vulnerability found by composer audit"
-            cat composer-audit.json
-            exit 1
-          else
-            echo "No critical or high composer vulnerabilities found"
-          fi
+      - name: Create issue and fail on critical or high composer vulnerabilities
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'composer-audit.json';
+            if (!fs.existsSync(path)) {
+              core.info('composer-audit.json not present');
+              return;
+            }
+            const payload = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const text = JSON.stringify(payload);
+            if (text.includes('"severity":"critical"') || text.includes('"severity":"high"')) {
+              const title = `Dependency audit: composer high/critical vulnerabilities in ${context.repo.repo}`;
+              const body = 'Composer audit report (JSON attached below):\n\n' + '```json\n' + JSON.stringify(payload, null, 2) + '\n```';
+              const labels = ['security','dependency-audit'];
+              // determine assignee: assign to repo owner if owner is a user
+              const repo = await github.rest.repos.get({ owner: context.repo.owner, repo: context.repo.repo });
+              let assignees = [];
+              if (repo && repo.data && repo.data.owner && repo.data.owner.type === 'User') {
+                assignees = [repo.data.owner.login];
+              }
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels, assignees });
+              throw new Error('High/critical composer vulnerabilities found');
+            } else {
+              core.info('No critical or high composer vulnerabilities found');
+            }
 
   npm-audit:
     name: npm Audit
@@ -72,12 +94,29 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y jq || true
 
-      - name: Fail on critical or high npm vulnerabilities
-        run: |
-          if [ -s npm-audit.json ] && jq -e 'any(..; .severity? == "critical" or .severity? == "high")' npm-audit.json >/dev/null; then
-            echo "Critical or high vulnerability found by npm audit"
-            cat npm-audit.json
-            exit 1
-          else
-            echo "No critical or high npm vulnerabilities found"
-          fi
+      - name: Create issue and fail on critical or high npm vulnerabilities
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'npm-audit.json';
+            if (!fs.existsSync(path)) {
+              core.info('npm-audit.json not present');
+              return;
+            }
+            const payload = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const text = JSON.stringify(payload);
+            if (text.includes('"severity":"critical"') || text.includes('"severity":"high"')) {
+              const title = `Dependency audit: npm high/critical vulnerabilities in ${context.repo.repo}`;
+              const body = 'npm audit report (JSON attached below):\n\n' + '```json\n' + JSON.stringify(payload, null, 2) + '\n```';
+              const labels = ['security','dependency-audit'];
+              const repo = await github.rest.repos.get({ owner: context.repo.owner, repo: context.repo.repo });
+              let assignees = [];
+              if (repo && repo.data && repo.data.owner && repo.data.owner.type === 'User') {
+                assignees = [repo.data.owner.login];
+              }
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels, assignees });
+              throw new Error('High/critical npm vulnerabilities found');
+            } else {
+              core.info('No critical or high npm vulnerabilities found');
+            }
