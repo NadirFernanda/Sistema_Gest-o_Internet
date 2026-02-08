@@ -4,6 +4,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\PasswordController;
 
 // Login routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -42,6 +43,10 @@ Route::middleware('auth')->group(function () {
     // Rotas de equipamentos
     Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
     Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store')->middleware('permission:estoque.create');
+    
+    // Self-service password change
+    Route::get('password/change', [PasswordController::class, 'edit'])->name('password.change');
+    Route::post('password/change', [PasswordController::class, 'update'])->name('password.update');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
