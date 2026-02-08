@@ -20,28 +20,28 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
-    Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store');
+    Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store')->middleware('permission:clientes.create');
     Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show');
-    Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update');
-    Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy');
+    Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware('permission:clientes.edit');
+    Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware('permission:clientes.delete');
     Route::get('/planos', fn () => view('planos'))->name('planos');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças
     Route::get('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'index'])->name('cobrancas.index');
-    Route::get('/cobrancas/export', [\App\Http\Controllers\CobrancaController::class, 'exportExcel'])->name('cobrancas.export');
-    Route::get('/cobrancas/create', [\App\Http\Controllers\CobrancaController::class, 'create'])->name('cobrancas.create');
-    Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store');
+    Route::get('/cobrancas/export', [\App\Http\Controllers\CobrancaController::class, 'exportExcel'])->name('cobrancas.export')->middleware('permission:cobrancas.export');
+    Route::get('/cobrancas/create', [\App\Http\Controllers\CobrancaController::class, 'create'])->name('cobrancas.create')->middleware('permission:cobrancas.create');
+    Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store')->middleware('permission:cobrancas.create');
     Route::get('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'show'])->name('cobrancas.show');
     Route::get('/cobrancas/{id}/comprovante', [\App\Http\Controllers\CobrancaController::class, 'comprovante'])->name('cobrancas.comprovante');
-    Route::get('/cobrancas/{id}/edit', [\App\Http\Controllers\CobrancaController::class, 'edit'])->name('cobrancas.edit');
-    Route::put('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'update'])->name('cobrancas.update');
-    Route::delete('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'destroy'])->name('cobrancas.destroy');
+    Route::get('/cobrancas/{id}/edit', [\App\Http\Controllers\CobrancaController::class, 'edit'])->name('cobrancas.edit')->middleware('permission:cobrancas.edit');
+    Route::put('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'update'])->name('cobrancas.update')->middleware('permission:cobrancas.edit');
+    Route::delete('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'destroy'])->name('cobrancas.destroy')->middleware('permission:cobrancas.delete');
 
 
     // Rotas de equipamentos
     Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
-    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store');
+    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store')->middleware('permission:estoque.create');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
