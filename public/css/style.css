@@ -215,7 +215,7 @@ h1 {
 }
 
 /* Header user role display */
-.user-menu{float:right;display:flex;align-items:center;gap:12px}
+.user-menu{float:none;display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px}
 .user-info{display:flex;align-items:center;gap:8px}
 .user-email{font-weight:600;color:#333}
 .role-active{font-size:0.9rem;color:#444}
