@@ -204,6 +204,23 @@ h1 {
     background: #888;
 }
 
+/* Ghost button used for "Voltar" and other secondary links */
+.btn-ghost {
+    display: inline-block;
+    width: auto;
+    padding: 8px 14px;
+    background: transparent;
+    color: #444;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    text-decoration: none;
+}
+.btn-ghost:hover {
+    background: #f7b500;
+    color: #fff;
+    border-color: #f7b500;
+}
+
 /* Specific style for the create-user button (keeps other buttons unchanged) */
 .btn-create-user {
     /* match default .btn appearance to keep all buttons yellow */
