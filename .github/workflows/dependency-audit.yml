@@ -35,14 +35,14 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y jq || true
 
-      - name: Fail on critical composer vulnerabilities
+      - name: Fail on critical or high composer vulnerabilities
         run: |
-          if [ -s composer-audit.json ] && jq -e 'any(..; .severity? == "critical")' composer-audit.json >/dev/null; then
-            echo "Critical vulnerability found by composer audit"
+          if [ -s composer-audit.json ] && jq -e 'any(..; .severity? == "critical" or .severity? == "high")' composer-audit.json >/dev/null; then
+            echo "Critical or high vulnerability found by composer audit"
             cat composer-audit.json
             exit 1
           else
-            echo "No critical composer vulnerabilities found"
+            echo "No critical or high composer vulnerabilities found"
           fi
 
   npm-audit:
@@ -72,12 +72,12 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y jq || true
 
-      - name: Fail on critical npm vulnerabilities
+      - name: Fail on critical or high npm vulnerabilities
         run: |
-          if [ -s npm-audit.json ] && jq -e 'any(..; .severity? == "critical")' npm-audit.json >/dev/null; then
-            echo "Critical vulnerability found by npm audit"
+          if [ -s npm-audit.json ] && jq -e 'any(..; .severity? == "critical" or .severity? == "high")' npm-audit.json >/dev/null; then
+            echo "Critical or high vulnerability found by npm audit"
             cat npm-audit.json
             exit 1
           else
-            echo "No critical npm vulnerabilities found"
+            echo "No critical or high npm vulnerabilities found"
           fi
