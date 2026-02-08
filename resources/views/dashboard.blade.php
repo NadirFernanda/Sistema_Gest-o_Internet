@@ -14,13 +14,6 @@
         @auth
         @php $activeRole = session('acting_as_role') ?: (auth()->user()->getRoleNames()->first() ?? '—'); @endphp
         <div class="active-role-banner">Atuando como: <strong>{{ $activeRole }}</strong></div>
-            <div class="rbac-debug" style="margin:12px 0;padding:10px;border:1px dashed #888;background:#fcfcfc;">
-                <strong>Debug RBAC (temporário):</strong>
-                <div>Email: {{ auth()->user()->email }}</div>
-                <div>Roles: {{ implode(', ', auth()->user()->getRoleNames()->toArray() ?: []) }}</div>
-                <div>Permissões: {{ implode(', ', auth()->user()->getAllPermissions()->pluck('name')->toArray() ?: []) }}</div>
-                <div>can('users.create'): {{ auth()->user()->can('users.create') ? 'yes' : 'no' }}</div>
-            </div>
         @endauth
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
@@ -36,7 +29,7 @@
             </div>
 
             @can('users.create')
-                <a href="{{ route('admin.users.create') }}" class="btn" style="background:#5cb85c;width:100%;">Criar utilizador</a>
+                <a href="{{ route('admin.users.create') }}" class="btn" style="background:#007bff;color:#ffffff;width:100%;">Criar utilizador</a>
             @endcan
 
             <!-- Button to change password -->
