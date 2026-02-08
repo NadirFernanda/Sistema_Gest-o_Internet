@@ -14,6 +14,8 @@
 </head>
 <body>
 
+    {{-- Header partial (shows user info, role badge, etc.) --}}
+    @include('layouts.partials.header')
 
     @auth
         <main style="min-height: 100vh;">
