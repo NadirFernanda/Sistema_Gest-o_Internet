@@ -2,14 +2,17 @@
 
 @section('content')
 <div class="container">
-    <div class="card mx-auto" style="max-width:640px">
+    <div class="card mx-auto create-card" style="max-width:640px">
         <div class="card-header">Criar Usuário</div>
+        <div class="card-top-actions">
+            <button type="submit" form="create-user-form" class="btn btn-primary btn-submit-top">Criar</button>
+        </div>
         <div class="card-body">
             @if(session('status'))
                 <div class="alert alert-success">{{ session('status') }}</div>
             @endif
 
-            <form method="POST" action="{{ route('admin.users.store') }}">
+            <form id="create-user-form" method="POST" action="{{ route('admin.users.store') }}">
                 @csrf
 
                 <div class="mb-3">
@@ -48,9 +51,8 @@
                     </select>
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar</a>
-                    <button class="btn btn-primary">Criar</button>
+                <div class="mt-3">
+                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar</a>
                 </div>
             </form>
         </div>

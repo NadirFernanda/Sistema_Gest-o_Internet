@@ -405,6 +405,50 @@ h1 {
     font-size: 1.4rem;
     color: #222;
 }
+/* Create user card modern styles */
+.create-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    padding: 0;
+    overflow: visible;
+}
+.create-card .card-header {
+    font-weight: 700;
+    padding: 18px 22px;
+    border-bottom: 1px solid #f1f1f1;
+    text-align: center;
+    background: transparent;
+}
+.card-top-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 20px 0 20px;
+}
+.btn-submit-top {
+    padding: 10px 18px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(247,181,0,0.16);
+}
+.create-card .card-body {
+    padding: 22px 28px 28px 28px;
+}
+.form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #e6e6e6; }
+.btn-ghost {
+    display: inline-block;
+    background: transparent;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+.btn-ghost:hover { background: #fafafa; }
+
+@media (max-width: 600px) {
+    .card-top-actions { justify-content: center; padding: 10px 12px 0 12px; }
+    .btn-submit-top { width: 100%; }
+}
 .btn-back {
     position: absolute;
     left: 50%;
