@@ -206,11 +206,12 @@ h1 {
 
 /* Specific style for the create-user button (keeps other buttons unchanged) */
 .btn-create-user {
-    background: #007bff;
+    /* match default .btn appearance to keep all buttons yellow */
+    background: #f7b500;
     color: #ffffff;
 }
 .btn-create-user:hover {
-    background: #0069d9;
+    background: #e0a800;
 }
 
 /* Header user role display */
