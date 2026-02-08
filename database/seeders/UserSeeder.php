@@ -15,28 +15,28 @@ class UserSeeder extends Seeder
     {
         // Create an admin user
         $admin = User::firstOrCreate([
-            'email' => 'admin@example.com',
+            'email' => 'admin@sgangolawifi.ao',
         ], [
             'name' => 'Administrador',
-            'password' => bcrypt('admin123'),
+            'password' => bcrypt('passwor'),
         ]);
         $admin->assignRole('Administrador');
 
         // Create a gestor user
         $gestor = User::firstOrCreate([
-            'email' => 'gestor@example.com',
+            'email' => 'gesor@angolawifi.ao',
         ], [
             'name' => 'Gestor',
-            'password' => bcrypt('gestor123'),
+            'password' => bcrypt('password'),
         ]);
         $gestor->assignRole('Gestor');
 
         // Create a colaborador user
         $colab = User::firstOrCreate([
-            'email' => 'colaborador@example.com',
+            'email' => 'colaborador@angolawifi.ao',
         ], [
             'name' => 'Colaborador',
-            'password' => bcrypt('colab123'),
+            'password' => bcrypt('password'),
         ]);
         $colab->assignRole('Colaborador');
     }
