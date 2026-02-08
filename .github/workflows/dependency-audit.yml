@@ -30,6 +30,20 @@ jobs:
         with:
           name: composer-audit
           path: composer-audit.json
+      
+      - name: Ensure jq is available
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq || true
+
+      - name: Fail on critical composer vulnerabilities
+        run: |
+          if [ -s composer-audit.json ] && jq -e 'any(..; .severity? == "critical")' composer-audit.json >/dev/null; then
+            echo "Critical vulnerability found by composer audit"
+            cat composer-audit.json
+            exit 1
+          else
+            echo "No critical composer vulnerabilities found"
+          fi
 
   npm-audit:
     name: npm Audit
@@ -53,3 +67,17 @@ jobs:
         with:
           name: npm-audit
           path: npm-audit.json
+
+      - name: Ensure jq is available
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq || true
+
+      - name: Fail on critical npm vulnerabilities
+        run: |
+          if [ -s npm-audit.json ] && jq -e 'any(..; .severity? == "critical")' npm-audit.json >/dev/null; then
+            echo "Critical vulnerability found by npm audit"
+            cat npm-audit.json
+            exit 1
+          else
+            echo "No critical npm vulnerabilities found"
+          fi
