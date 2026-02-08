@@ -47,6 +47,14 @@ Route::middleware('auth')->group(function () {
     // Self-service password change
     Route::get('password/change', [PasswordController::class, 'edit'])->name('password.change');
     Route::post('password/change', [PasswordController::class, 'update'])->name('password.update');
+
+    // User management (admin)
+    Route::get('/admin/users/create', [\App\Http\Controllers\UserController::class, 'create'])
+        ->name('admin.users.create')
+        ->middleware('permission:users.create');
+    Route::post('/admin/users', [\App\Http\Controllers\UserController::class, 'store'])
+        ->name('admin.users.store')
+        ->middleware('permission:users.create');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {

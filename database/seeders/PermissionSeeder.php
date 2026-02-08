@@ -18,6 +18,8 @@ class PermissionSeeder extends Seeder
             'clientes.view', 'clientes.create', 'clientes.edit', 'clientes.delete',
             // Planos
             'planos.view', 'planos.create', 'planos.edit', 'planos.delete',
+            // Usuários
+            'users.view', 'users.create', 'users.edit', 'users.delete',
             // Cobranças
             'cobrancas.view', 'cobrancas.create', 'cobrancas.edit', 'cobrancas.delete', 'cobrancas.export',
             // Estoque
