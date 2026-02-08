@@ -54,13 +54,8 @@ jobs:
             if (text.includes('"severity":"critical"') || text.includes('"severity":"high"')) {
               const title = `Dependency audit: composer high/critical vulnerabilities in ${context.repo.repo}`;
               const body = 'Composer audit report (JSON attached below):\n\n' + '```json\n' + JSON.stringify(payload, null, 2) + '\n```';
-              const labels = ['security','dependency-audit'];
-              // determine assignee: assign to repo owner if owner is a user
-              const repo = await github.rest.repos.get({ owner: context.repo.owner, repo: context.repo.repo });
-              let assignees = [];
-              if (repo && repo.data && repo.data.owner && repo.data.owner.type === 'User') {
-                assignees = [repo.data.owner.login];
-              }
+              const labels = ['security','dependency-audit','triage'];
+              const assignees = ['NadirFernada'];
               await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels, assignees });
               throw new Error('High/critical composer vulnerabilities found');
             } else {
@@ -109,12 +104,8 @@ jobs:
             if (text.includes('"severity":"critical"') || text.includes('"severity":"high"')) {
               const title = `Dependency audit: npm high/critical vulnerabilities in ${context.repo.repo}`;
               const body = 'npm audit report (JSON attached below):\n\n' + '```json\n' + JSON.stringify(payload, null, 2) + '\n```';
-              const labels = ['security','dependency-audit'];
-              const repo = await github.rest.repos.get({ owner: context.repo.owner, repo: context.repo.repo });
-              let assignees = [];
-              if (repo && repo.data && repo.data.owner && repo.data.owner.type === 'User') {
-                assignees = [repo.data.owner.login];
-              }
+              const labels = ['security','dependency-audit','triage'];
+              const assignees = ['NadirFernada'];
               await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels, assignees });
               throw new Error('High/critical npm vulnerabilities found');
             } else {
