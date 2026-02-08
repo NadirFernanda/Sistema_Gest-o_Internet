@@ -75,3 +75,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'update'])->name('cliente_equipamento.update');
     Route::delete('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'destroy'])->name('cliente_equipamento.destroy');
 });
+
+// Temporary probe route - remove after testing
+Route::get('/_probe/hasroles', function () {
+    return response()->json([
+        'trait_exists' => trait_exists(\Spatie\Permission\Traits\HasRoles::class),
+        'php_sapi' => php_sapi_name(),
+        'app_env' => env('APP_ENV'),
+    ]);
+});
