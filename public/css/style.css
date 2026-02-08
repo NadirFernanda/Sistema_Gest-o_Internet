@@ -177,10 +177,10 @@ h1 {
 }
 
 .btn {
-    display: inline-block;
-    width: auto;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     min-width: 220px;
-    max-width: 100%;
     padding: 12px 32px;
     background: #f7b500;
     color: #fff;
@@ -191,7 +191,6 @@ h1 {
     text-align: center;
     cursor: pointer;
     transition: background 0.2s;
-    margin-bottom: 18px;
 }
 
 .btn:hover {
