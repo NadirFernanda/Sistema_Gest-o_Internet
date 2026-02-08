@@ -207,18 +207,20 @@ h1 {
 /* Ghost button used for "Voltar" and other secondary links */
 .btn-ghost {
     display: inline-block;
-    width: auto;
-    padding: 8px 14px;
-    background: transparent;
-    color: #444;
-    border: 1px solid transparent;
-    border-radius: 6px;
+    box-sizing: border-box;
+    padding: 12px 20px;
+    background: #f7b500;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
     text-decoration: none;
+    font-size: 1.08rem;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 .btn-ghost:hover {
-    background: #f7b500;
+    background: #e0a800;
     color: #fff;
-    border-color: #f7b500;
 }
 
 /* Specific style for the create-user button (keeps other buttons unchanged) */
