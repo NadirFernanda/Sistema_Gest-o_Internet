@@ -17,7 +17,7 @@
 <div class="change-password-wrapper">
   <div class="change-card">
     <div class="change-card-header">
-      <a href="{{ url()->previous() }}" class="btn btn-back">← Voltar</a>
+      <a href="{{ url()->previous() }}" onclick="event.preventDefault(); history.back();" class="btn btn-back">← Voltar</a>
       <h2>Alterar senha</h2>
     </div>
 
