@@ -21,28 +21,28 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
-    Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':clientes.create');
+    Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
     Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show');
-    Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':clientes.edit');
-    Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':clientes.delete');
+    Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
+    Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', fn () => view('planos'))->name('planos');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças
     Route::get('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'index'])->name('cobrancas.index');
-    Route::get('/cobrancas/export', [\App\Http\Controllers\CobrancaController::class, 'exportExcel'])->name('cobrancas.export')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.export');
-    Route::get('/cobrancas/create', [\App\Http\Controllers\CobrancaController::class, 'create'])->name('cobrancas.create')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.create');
-    Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.create');
+    Route::get('/cobrancas/export', [\App\Http\Controllers\CobrancaController::class, 'exportExcel'])->name('cobrancas.export')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.export');
+    Route::get('/cobrancas/create', [\App\Http\Controllers\CobrancaController::class, 'create'])->name('cobrancas.create')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.create');
+    Route::post('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'store'])->name('cobrancas.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.create');
     Route::get('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'show'])->name('cobrancas.show');
     Route::get('/cobrancas/{id}/comprovante', [\App\Http\Controllers\CobrancaController::class, 'comprovante'])->name('cobrancas.comprovante');
-    Route::get('/cobrancas/{id}/edit', [\App\Http\Controllers\CobrancaController::class, 'edit'])->name('cobrancas.edit')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.edit');
-    Route::put('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'update'])->name('cobrancas.update')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.edit');
-    Route::delete('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'destroy'])->name('cobrancas.destroy')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':cobrancas.delete');
+    Route::get('/cobrancas/{id}/edit', [\App\Http\Controllers\CobrancaController::class, 'edit'])->name('cobrancas.edit')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.edit');
+    Route::put('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'update'])->name('cobrancas.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.edit');
+    Route::delete('/cobrancas/{id}', [\App\Http\Controllers\CobrancaController::class, 'destroy'])->name('cobrancas.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.delete');
 
 
     // Rotas de equipamentos
     Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
-    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store')->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':estoque.create');
+    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':estoque.create');
     
     // Self-service password change
     Route::get('password/change', [PasswordController::class, 'edit'])->name('password.change');
@@ -51,10 +51,10 @@ Route::middleware('auth')->group(function () {
     // User management (admin)
     Route::get('/admin/users/create', [\App\Http\Controllers\UserController::class, 'create'])
         ->name('admin.users.create')
-        ->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':users.create');
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.create');
     Route::post('/admin/users', [\App\Http\Controllers\UserController::class, 'store'])
         ->name('admin.users.store')
-        ->middleware(\Spatie\Permission\Middlewares\PermissionMiddleware::class . ':users.create');
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.create');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
