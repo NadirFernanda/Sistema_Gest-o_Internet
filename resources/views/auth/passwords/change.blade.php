@@ -1,6 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+.change-password-wrapper{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:2rem;
+}
+.change-card{width:100%;max-width:720px;}
+.form-actions{display:flex;gap:1rem;align-items:center;margin-top:1rem}
+@media (max-width:576px){.change-card{padding:1rem;margin:0 0.5rem}}
+</style>
+
 <div class="change-password-wrapper">
   <div class="change-card">
     <div class="change-card-header">
