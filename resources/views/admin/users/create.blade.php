@@ -19,8 +19,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">E-mail</label>
-                    <input class="form-control" name="email" value="{{ old('email') }}" required>
+                    <label class="form-label">E-mail (use apenas o local-part ou e‑mail completo)</label>
+                    <div class="input-group">
+                        <input class="form-control" name="email" value="{{ old('email') }}" placeholder="ex: joao ou joao@" required>
+                    </div>
+                    <small class="text-muted">Se você digitar apenas 'joao', o domínio <strong>@sgmrtexas.angolawifi.ao</strong> será anexado automaticamente.</small>
                     @error('email')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
 
