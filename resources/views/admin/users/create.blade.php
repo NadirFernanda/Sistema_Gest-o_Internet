@@ -7,7 +7,7 @@
             <div class="card-header">Criar Usuário</div>
             <div class="card-subtitle">Adicione um novo usuário e atribua um papel</div>
             <div class="card-top-actions">
-                <button type="submit" form="create-user-form" class="btn btn-primary btn-submit-top">Criar</button>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar</a>
             </div>
             <div class="card-body">
             @if(session('status'))
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="form-footer">
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar</a>
+                    <button type="submit" class="btn btn-primary">Criar</button>
                 </div>
             </form>
         </div>
