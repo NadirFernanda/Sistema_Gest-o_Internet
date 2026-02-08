@@ -430,9 +430,12 @@ h1 {
     border-radius: 10px;
     box-shadow: 0 6px 18px rgba(247,181,0,0.16);
 }
+.card-top-actions { margin-bottom: 16px; }
+.btn-submit-top { margin-bottom: 6px; }
 .create-card .card-body {
     padding: 22px 28px 28px 28px;
 }
+.create-card .mt-3 { margin-top: 18px; }
 .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #e6e6e6; }
 .btn-ghost {
     display: inline-block;
