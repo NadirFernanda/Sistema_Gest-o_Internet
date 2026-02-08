@@ -29,7 +29,7 @@
             </div>
 
             @can('users.create')
-                <a href="{{ route('admin.users.create') }}" class="btn" style="background:#007bff;color:#ffffff;width:100%;">Criar utilizador</a>
+                <a href="{{ route('admin.users.create') }}" class="btn btn-create-user">Criar utilizador</a>
             @endcan
 
             <!-- Button to change password -->

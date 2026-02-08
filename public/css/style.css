@@ -204,6 +204,15 @@ h1 {
     background: #888;
 }
 
+/* Specific style for the create-user button (keeps other buttons unchanged) */
+.btn-create-user {
+    background: #007bff;
+    color: #ffffff;
+}
+.btn-create-user:hover {
+    background: #0069d9;
+}
+
 /* Header user role display */
 .user-menu{float:right;display:flex;align-items:center;gap:12px}
 .user-info{display:flex;align-items:center;gap:8px}
