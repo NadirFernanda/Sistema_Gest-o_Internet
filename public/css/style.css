@@ -249,6 +249,21 @@ h1 {
     border-radius: 6px;
     font-size: 1rem;
 }
+/* Make select highlight match the yellow button color */
+.form-cadastro select {
+    background: #fff;
+    color: #222;
+}
+.form-cadastro select:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(247,181,0,0.12);
+    border-color: #f7b500;
+}
+.form-cadastro select option:hover,
+.form-cadastro select option:checked {
+    background: #f7b500;
+    color: #fff;
+}
 .form-cadastro button {
     background: #f7b500;
     color: #fff;
