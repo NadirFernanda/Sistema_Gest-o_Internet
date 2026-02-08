@@ -14,6 +14,13 @@
         @auth
         @php $activeRole = session('acting_as_role') ?: (auth()->user()->getRoleNames()->first() ?? '—'); @endphp
         <div class="active-role-banner">Atuando como: <strong>{{ $activeRole }}</strong></div>
+            <div class="rbac-debug" style="margin:12px 0;padding:10px;border:1px dashed #888;background:#fcfcfc;">
+                <strong>Debug RBAC (temporário):</strong>
+                <div>Email: {{ auth()->user()->email }}</div>
+                <div>Roles: {{ implode(', ', auth()->user()->getRoleNames()->toArray() ?: []) }}</div>
+                <div>Permissões: {{ implode(', ', auth()->user()->getAllPermissions()->pluck('name')->toArray() ?: []) }}</div>
+                <div>can('users.create'): {{ auth()->user()->can('users.create') ? 'yes' : 'no' }}</div>
+            </div>
         @endauth
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
@@ -27,6 +34,10 @@
                     <a href="{{ route('cobrancas.index') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Cobrança</a>
                 </div>
             </div>
+
+            @can('users.create')
+                <a href="{{ route('admin.users.create') }}" class="btn" style="background:#5cb85c;width:100%;">Criar utilizador</a>
+            @endcan
 
             <!-- Button to change password -->
             <a href="{{ route('password.change') }}" class="btn" style="background:#f0ad4e;width:100%;">Alterar senha</a>
