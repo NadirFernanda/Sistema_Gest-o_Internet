@@ -17,10 +17,10 @@
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
 
-            <div class="dropdown" style="display:inline-block;position:relative;">
+            <div class="dropdown" style="display:block;position:relative;width:100%;">
                 <button class="btn" id="relatoriosBtn" type="button" style="width:100%;">Relatórios ▼</button>
-                <div id="relatoriosMenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #ccc;z-index:10;min-width:180px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                    <a href="{{ route('cobrancas.index') }}" class="btn" style="display:block;text-align:left;border-radius:0;">Cobrança</a>
+                <div id="relatoriosMenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #ccc;z-index:10;min-width:180px;box-shadow:0 2px 8px rgba(0,0,0,0.08);width:100%;">
+                    <a href="{{ route('cobrancas.index') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Cobrança</a>
                 </div>
             </div>
 
