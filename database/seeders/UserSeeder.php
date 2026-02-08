@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
 
         // Create a gestor user
         $gestor = User::firstOrCreate([
-            'email' => 'gesor@angolawifi.ao',
+            'email' => 'gestor@sgmrtexas.ispbie.ao',
         ], [
             'name' => 'Gestor',
             'password' => bcrypt('password'),
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
 
         // Create a colaborador user
         $colab = User::firstOrCreate([
-            'email' => 'colaborador@angolawifi.ao',
+            'email' => 'colaborador@sgmrtexas.ispbie.ao',
         ], [
             'name' => 'Colaborador',
             'password' => bcrypt('password'),
