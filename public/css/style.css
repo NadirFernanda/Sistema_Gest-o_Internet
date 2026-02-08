@@ -346,3 +346,77 @@ h1 {
     margin: 2px 0;
     display: inline-block;
 }
+
+/* Change password card */
+.change-password-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0 80px 0;
+}
+.change-card {
+    width: 520px;
+    max-width: 92%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+    padding: 28px 28px 22px 28px;
+    text-align: center;
+}
+.change-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+}
+.change-card-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #222;
+}
+.btn-back {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: -46px;
+    background: transparent;
+    color: #555;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+.change-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+.change-form .form-label { text-align: left; font-weight: 600; color: #333; }
+.change-form .form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+.btn-ghost {
+    display: inline-block;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .change-card { padding: 20px; }
+    .btn-back { position: relative; left: 0; transform: none; margin-top: 0; }
+    .form-actions { flex-direction: column; }
+}
