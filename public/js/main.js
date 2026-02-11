@@ -310,7 +310,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                             document.getElementById('nomePlano').value = p.nome;
                             document.getElementById('descricaoPlano').value = p.descricao;
-                            document.getElementById('precoPlano').value = p.preco;
+                            const hiddenPreco = document.getElementById('precoPlano');
+                            const displayPreco = document.getElementById('precoPlanoDisplay');
+                            if (hiddenPreco) hiddenPreco.value = p.preco;
+                            if (displayPreco) {
+                                const n = parseFloat(p.preco);
+                                if (!isNaN(n)) displayPreco.value = 'Kz ' + Number(n).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                else displayPreco.value = '';
+                            }
                             document.getElementById('cicloPlano').value = p.ciclo;
                             document.getElementById('dataAtivacaoPlano').value = p.data_ativacao || '';
                             document.getElementById('estadoPlano').value = p.estado || '';

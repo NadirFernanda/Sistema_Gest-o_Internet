@@ -56,7 +56,7 @@
                 return v;
             }
             function formatNumber(num){
-                return Number(num).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+                return 'Kz ' + Number(num).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
             display.addEventListener('input', function(e){
                 const raw = unformat(this.value);
