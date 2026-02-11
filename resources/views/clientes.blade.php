@@ -162,7 +162,16 @@
         {{-- Se estiver na ficha de um cliente específico --}}
         @if(isset($cliente))
             <div class="ficha-cliente" style="margin-top:32px;">
-                <h2>Ficha do Cliente: {{ $cliente->nome }}</h2>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin-left:auto;margin-right:auto;">
+                    <h2 style="margin:0;">Ficha do Cliente: {{ $cliente->nome }}</h2>
+                    <div>
+                        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary" style="margin-right:8px;">Download PDF</a>
+                        <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
+                            @csrf
+                            <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">

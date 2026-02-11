@@ -213,7 +213,7 @@ class ClienteController extends Controller
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
-        $pdf = \Barryvdh\DomPDF\Facade::loadView('clientes.ficha', compact('cliente'));
+        $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
         return $pdf->download('ficha_cliente_'.$cliente->id.'.pdf');
     }
 
@@ -234,7 +234,7 @@ class ClienteController extends Controller
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
-        $pdf = \Barryvdh\DomPDF\Facade::loadView('clientes.ficha', compact('cliente'));
+        $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
         $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
         $attachments = [];
         $attachments[] = ['content' => $pdf->output(), 'name' => $filename, 'mime' => 'application/pdf'];
