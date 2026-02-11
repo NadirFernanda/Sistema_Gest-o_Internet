@@ -145,7 +145,15 @@
                             <td>{{ $c->descricao ?? '-' }}</td>
                             <td>{{ number_format($c->valor, 2, ',', '.') }} Kz</td>
                             <td>{{ $c->data_vencimento ? \Carbon\Carbon::parse($c->data_vencimento)->format('d/m/Y') : 'Sem data' }}</td>
-                            <td>{{ $c->estado ?? '-' }}</td>
+                            <td>
+                                @if(isset($c->status) && $c->status === 'pago')
+                                    <span class="badge cobranca-pago">Pago</span>
+                                @elseif(isset($c->status) && $c->status === 'atrasado')
+                                    <span class="badge" style="background:#dc3545;">Atrasado</span>
+                                @else
+                                    <span class="badge cobranca-pendente">Pendente</span>
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
