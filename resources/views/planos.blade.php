@@ -57,6 +57,8 @@
         /* simple modal styles */
         #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1200; }
         #templatesModal .modal { background:#fff; width:90%; max-width:900px; border-radius:8px; padding:16px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
+        /* make modal content scrollable when taller than viewport */
+        #templatesModal .modal { max-height: 90vh; overflow:auto; }
         #templatesModal table { width:100%; border-collapse:collapse; }
         #templatesModal th, #templatesModal td { padding:8px 6px; border-bottom:1px solid #eee; text-align:left; }
         #templatesModal .controls { display:flex; gap:8px; margin-bottom:8px; }
@@ -217,18 +219,28 @@
                                 }
 
                                 function showCreateForm(){
-                                        formContainer.style.display = 'block';
-                                        formContainer.innerHTML = formHtml();
-                                        bindForm();
+                                    formContainer.style.display = 'block';
+                                    formContainer.innerHTML = formHtml();
+                                    bindForm();
+                                    // focus and bring the first input into view
+                                    setTimeout(() => {
+                                        const first = formContainer.querySelector('input[name="name"]');
+                                        if(first){ try{ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
+                                    }, 60);
                                 }
 
                                 function showEditForm(id){
-                                        formContainer.style.display = 'block';
-                                        formContainer.innerHTML = '<div>Carregando...</div>';
-                                        fetch(`/plan-templates/${id}/json`).then(r => r.json()).then(t => {
-                                                formContainer.innerHTML = formHtml(t);
-                                                bindForm(id);
-                                        }).catch(()=>{ formContainer.innerHTML = '<div>Erro ao carregar modelo.</div>'; });
+                                    formContainer.style.display = 'block';
+                                    formContainer.innerHTML = '<div>Carregando...</div>';
+                                    fetch(`/plan-templates/${id}/json`).then(r => r.json()).then(t => {
+                                        formContainer.innerHTML = formHtml(t);
+                                        bindForm(id);
+                                        // focus name input when editing and ensure visible
+                                        setTimeout(() => {
+                                            const first = formContainer.querySelector('input[name="name"]');
+                                            if(first){ try{ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
+                                        }, 60);
+                                    }).catch(()=>{ formContainer.innerHTML = '<div>Erro ao carregar modelo.</div>'; });
                                 }
 
                                 function formHtml(data){
