@@ -6,7 +6,7 @@
         <h1>Gestão de Planos</h1>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
             <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
-            <a href="{{ route('plan-templates.index') }}" target="_blank" class="btn" style="background:#2a6fda;">Gerir Modelos</a>
+            <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn" style="background:#2a6fda;">Gerir Modelos</a>
             <button type="button" id="refreshTemplatesBtn" class="btn" style="background:#6c757d;">Atualizar Modelos</button>
         </div>
         <form id="formPlano" class="form-cadastro">
@@ -271,13 +271,19 @@
                                 function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
                                 function escapeAttr(s){ if(!s) return ''; return String(s).replace(/"/g,'&quot;'); }
 
-                                // open modal via existing Manage Models button (we'll add handler)
-                                const manageBtn = document.querySelector('a[href="{{ route('plan-templates.index') }}"]');
+                                // open modal via Manage Models button (use stable id)
+                                const manageBtn = document.getElementById('manageTemplatesBtn');
                                 if(manageBtn){ manageBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); }); }
                                 document.getElementById('refreshTemplatesBtn').addEventListener('click', loadTemplates);
                                 document.getElementById('reloadTemplatesBtn').addEventListener('click', loadList);
                                 document.getElementById('newTemplateBtn').addEventListener('click', showCreateForm);
-                                document.getElementById('closeTemplatesModal').addEventListener('click', closeModal);
+
+                                // robust close handlers: support clicking backdrop, the close button, and Escape key
+                                modal.addEventListener('click', function(e){
+                                    if(e.target && e.target.id === 'templatesModal') closeModal();
+                                    if(e.target && e.target.id === 'closeTemplatesModal') closeModal();
+                                });
+                                document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal && modal.style.display === 'flex') closeModal(); });
                         })();
         })();
     </script>
