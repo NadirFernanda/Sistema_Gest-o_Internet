@@ -6,6 +6,12 @@
         <h1>Gestão de Clientes</h1>
         <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
 
+        <style>
+            @media print {
+                .no-print { display: none !important; }
+            }
+        </style>
+
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
             <form id="formCliente" class="form-cadastro" method="POST" action="{{ url('/clientes') }}">
@@ -164,13 +170,15 @@
             <div class="ficha-cliente" style="margin-top:32px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin-left:auto;margin-right:auto;">
                     <h2 style="margin:0;">Ficha do Cliente: {{ $cliente->nome }}</h2>
-                    <div>
-                        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary" style="margin-right:8px;">Download PDF</a>
-                        <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
-                            @csrf
-                            <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
-                        </form>
-                    </div>
+                </div>
+
+                {{-- Toolbar com ações (ficam acima da ficha, não fazem parte do documento impresso) --}}
+                <div style="max-width:900px;margin:12px auto 0;display:flex;justify-content:flex-end;gap:8px;" class="no-print">
+                    <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
+                    <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
+                        @csrf
+                        <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
+                    </form>
                 </div>
 
                 <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
