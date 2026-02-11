@@ -449,6 +449,11 @@ class ClienteController extends Controller
      * Cria uma URL assinada temporária para download da ficha (válida por X minutos).
      * Rota protegida por `auth` — retorna a URL que pode ser usada por cURL/browser.
      */
+public function create()
+    {
+        return view('clientes.create');
+    }
+
     public function createSignedUrl($id)
     {
         // gera URL assinada para a rota nomeada 'clientes.ficha.signed'
