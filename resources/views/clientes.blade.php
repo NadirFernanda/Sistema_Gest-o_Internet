@@ -4,24 +4,54 @@
     <div class="clientes-container">
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Gestão de Clientes</h1>
-        <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
+
+        <div class="hero-ctas" style="margin:8px 0 12px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
+            {{-- o botão de cadastrar aparece na listagem; mantemos consistência com a versão abaixo --}} 
+        </div>
 
         <style>
             @media print { .no-print { display: none !important; } }
 
-            /* Espaçamento global para botões dentro do container de clientes
-               Mantém layout compacto mas evita que botões fiquem colados. */
-            .clientes-container .btn { display: inline-block; margin: 8px 8px 8px 0; }
-            /* Se dois botões estiverem juntos, garante gap lateral consistente */
+            /* Hero CTAs: menores e inline para evitar blocos largos */
+            .hero-ctas .btn-cta {
+                display:inline-flex !important;
+                align-items:center;
+                justify-content:center;
+                padding:10px 18px;
+                min-width:140px;
+                border-radius:10px;
+                background:#f7b500;
+                color:#000;
+                font-weight:700;
+                box-shadow:0 4px 12px rgba(0,0,0,0.06);
+                text-decoration:none;
+            }
+            .hero-ctas .btn-cta:hover { background:#e0a800; }
+
+            /* Espaçamento global para botões dentro do container de clientes (override local) */
+            .clientes-container .btn { display: inline-block; margin: 6px 6px 6px 0; width: auto !important; }
             .clientes-container .btn + .btn { margin-left: 8px; }
 
             /* Alternativa: botões de listas e ações pequenas mantêm tamanho reduzido */
-            .clientes-container .btn.btn-sm { min-width: 90px; }
+            .clientes-container .btn.btn-sm { min-width: 64px; padding:8px 10px; font-size:0.95rem; }
+
+            /* Compact card layout */
+            .clientes-lista-moderna { gap: 12px; }
+            .cliente-item-moderna { padding: 12px 16px; border-radius:10px; }
+            .cliente-info-moderna { gap: 12px; font-size: 1rem; }
+            .cliente-bi { color: #d18f00; font-weight:700; }
+            .cliente-botoes-moderna .btn { border-radius:8px; padding:8px 10px; min-width:56px; }
+
+            @media (max-width:768px) {
+                .cliente-item-moderna { flex-direction: column; align-items:flex-start; gap:10px; }
+                .cliente-botoes-moderna { width:100%; display:flex; gap:8px; flex-wrap:wrap; }
+            }
         </style>
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
-            <a href="{{ url('/clientes/create') }}" class="btn btn-primary">Cadastrar Cliente</a>
+            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta" style="min-width:140px;">Cadastrar Cliente</a>
             <style>
                 .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
                 .busca-planos-input {
