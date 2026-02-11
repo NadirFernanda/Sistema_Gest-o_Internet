@@ -14,7 +14,11 @@
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
-            <a href="{{ route('clientes.create') }}" class="btn btn-primary">Cadastrar Cliente</a>
+            @if(Route::has('clientes.create'))
+                <a href="{{ route('clientes.create') }}" class="btn btn-primary">Cadastrar Cliente</a>
+            @else
+                <button class="btn btn-primary" disabled>Cadastro indisponível</button>
+            @endif
             <style>
                 .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
                 .busca-planos-input {
