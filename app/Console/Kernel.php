@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\GerarRelatorioCobrancasSemanal::class,
         \App\Console\Commands\GerarRelatorioCobrancasMensal::class,
         \App\Console\Commands\GerarFichaPdf::class,
+        \App\Console\Commands\TestDomPdf::class,
+        \App\Console\Commands\TestFicha::class,
     ];
 
     protected function schedule(Schedule $schedule)
