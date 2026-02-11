@@ -44,24 +44,34 @@
             <div class="card mb-3">
                 <div class="card-header">Equipamentos Associados</div>
                 <div class="card-body p-0">
-                    @if($cliente->equipamentos && $cliente->equipamentos->count())
+                    @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
                     <table class="table mb-0">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Nome/Modelo</th>
+                                <th>Nome / Modelo</th>
                                 <th>Série</th>
-                                <th>Estado</th>
+                                <th>Quantidade / Morada</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($cliente->equipamentos as $eq)
+                            @foreach($cliente->equipamentos ?? [] as $eq)
                             <tr>
                                 <td>{{ $eq->id }}</td>
                                 <td>{{ $eq->nome ?? $eq->modelo ?? '-' }}</td>
                                 <td>{{ $eq->numero_serie ?? '-' }}</td>
-                                <td>{{ $eq->estado ?? '-' }}</td>
+                                <td>{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
                             </tr>
+                            @endforeach
+
+                            @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
+                                @php $est = $vinc->equipamento; @endphp
+                                <tr>
+                                    <td>{{ $vinc->id }}</td>
+                                    <td>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</td>
+                                    <td>{{ $est->numero_serie ?? '-' }}</td>
+                                    <td>{{ $vinc->quantidade }}x • {{ $vinc->morada }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>

@@ -26,6 +26,11 @@ class Cliente extends Model
         return $this->hasMany(Equipamento::class);
     }
 
+    public function clienteEquipamentos()
+    {
+        return $this->hasMany(ClienteEquipamento::class);
+    }
+
     public function cobrancas()
     {
         return $this->hasMany(Cobranca::class);

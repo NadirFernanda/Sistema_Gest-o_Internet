@@ -190,7 +190,11 @@ class ClienteController extends Controller
      */
     public function ficha($id)
     {
-        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(20); }])->findOrFail($id);
+        $cliente = Cliente::with([
+            'equipamentos',
+            'clienteEquipamentos.equipamento',
+            'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(20); }
+        ])->findOrFail($id);
         return view('clientes.ficha', compact('cliente'));
     }
 
