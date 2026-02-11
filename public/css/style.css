@@ -621,6 +621,43 @@ h1 {
     max-width: 480px;
 }
 
+/* Tidy the client create form inputs so they look like regular form fields
+   instead of tall empty cards (targets the form on the clientes page). */
+.clientes-container .form-cadastro {
+    flex-direction: row;
+    align-items: center;
+}
+.clientes-container .form-cadastro input {
+    min-height: 44px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #ffffff;
+    box-shadow: none;
+    font-size: 1rem;
+    color: #333;
+    box-sizing: border-box;
+}
+.clientes-container .form-cadastro input::placeholder {
+    color: #777;
+}
+.clientes-container .form-cadastro button {
+    min-height: 44px;
+    padding: 10px 20px;
+    align-self: stretch;
+}
+
+/* Ensure edit form inputs are consistent and compact */
+.form-editar-campo input {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #e0c36a;
+    background: #fff;
+    box-sizing: border-box;
+    font-size: 1.02em;
+}
+
 @media (max-width: 880px) {
     .clientes-container .dashboard-actions { justify-content: stretch; }
     .clientes-container .dashboard-actions .btn { width: 100%; min-width: unset; max-width: unset; }
