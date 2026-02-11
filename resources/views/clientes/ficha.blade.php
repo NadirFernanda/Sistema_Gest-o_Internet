@@ -32,6 +32,12 @@
 
         .section-title { font-weight:700; margin:8px 0 10px; text-align:left; }
         .muted { color:var(--muted); font-size:0.9rem; }
+        /* Badges */
+        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#fff; }
+        .badge-planos { background:#0d6efd; }
+        .badge-cobrancas { background:#dc3545; }
+        .badge-cobrancas.pago { background:#28a745; }
+        .badge-cobrancas.pendente { background:#ffc107; color:#222; }
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
@@ -138,7 +144,7 @@
                                         <td>{{ $pl->nome ?? '-' }}</td>
                                         <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
                                         <td>{{ $pl->ciclo ?? '-' }}</td>
-                                        <td>{{ $pl->estado ?? '-' }}</td>
+                                        <td><span class="badge-planos">{{ $pl->estado ?? '-' }}</span></td>
                                     </tr>
                                 @endforeach
                             </tbody>

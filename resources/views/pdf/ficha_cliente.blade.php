@@ -30,6 +30,11 @@
         .col-serie { width:15%; }
         .col-quant { width:8%; text-align:center; }
         .col-morada { width:27%; }
+        /* Badges for PDF */
+        .badge { display:inline-block; padding:3px 7px; border-radius:6px; color:#fff; font-size:11px; }
+        .badge.plan { background:#0d6efd; }
+        .badge.cobranca-pago { background:#28a745; }
+        .badge.cobranca-pendente { background:#ffc107; color:#222; }
 
         /* Small helpers */
         .muted { color:#666; font-size:11px; }
@@ -73,7 +78,7 @@
                             <td>{{ $pl->nome }}</td>
                             <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
                             <td>{{ $pl->ciclo ?? '-' }}</td>
-                            <td>{{ $pl->estado ?? '-' }}</td>
+                            <td><span class="badge plan">{{ $pl->estado ?? '-' }}</span></td>
                         </tr>
                         @endforeach
                     </tbody>

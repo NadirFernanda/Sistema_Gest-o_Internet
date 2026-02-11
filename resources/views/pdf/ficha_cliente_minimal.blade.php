@@ -9,6 +9,10 @@
         .section-title { font-weight:700; margin:8px 0; }
         ul { padding-left:18px; margin:6px 0 12px 0; }
         li { margin-bottom:6px; }
+        .badge { display:inline-block; padding:3px 7px; border-radius:6px; color:#fff; font-size:11px; }
+        .badge.plan { background:#0d6efd; }
+        .badge.cobranca-pago { background:#28a745; }
+        .badge.cobranca-pendente { background:#ffc107; color:#222; }
     </style>
 </head>
 <body>
@@ -22,7 +26,7 @@
     @if($cliente->planos && $cliente->planos->count())
         <ul>
         @foreach($cliente->planos as $pl)
-            <li>{{ $pl->nome }} — {{ $pl->estado ?? '-' }}</li>
+            <li>{{ $pl->nome }} — <span class="badge plan">{{ $pl->estado ?? '-' }}</span></li>
         @endforeach
         </ul>
     @else
