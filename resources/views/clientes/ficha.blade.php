@@ -42,8 +42,8 @@
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
         <div style="display:flex;gap:10px;flex-direction:column;">
             <!-- Primary actions: big Ficha button (download+email) and back button -->
-            <a id="ficha-download-send-btn" href="{{ route('clientes.ficha.download_send', $cliente->id) }}" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%">Ficha</a>
-            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:10px 14px; font-size:0.95rem; border-radius:8px; width:100%; margin-top:8px;">Voltar ao Dashboard</a>
+            <a id="ficha-download-send-btn" href="{{ route('clientes.ficha.download_send', $cliente->id) }}" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; display:inline-block; min-width:220px;">Ficha</a>
+            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:10px 14px; font-size:0.95rem; border-radius:8px; display:inline-block; min-width:220px; margin-top:8px;">Voltar ao Dashboard</a>
 
             <!-- Compact secondary actions removed as per UI change -->
 
