@@ -172,14 +172,11 @@ document.addEventListener('DOMContentLoaded', function(){
                 return resp.blob();
             })
             .then(blob => {
-                const filename = 'ficha_cliente_{{ $cliente->id }}.pdf';
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                URL.revokeObjectURL(link.href);
+                // Open generated PDF blob in a new tab so browser shows it inline
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+                // schedule revoke after a short delay to allow tab to load
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
             })
             .catch(err => {
                 if (err && err.message !== 'not-authenticated') alert('Erro ao baixar PDF: ' + err.message);

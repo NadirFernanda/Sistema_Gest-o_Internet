@@ -362,6 +362,14 @@ class ClienteController extends Controller
     public function fichaPdfPublic($id)
     {
         // Note: this intentionally bypasses auth for quick testing only.
-        return $this->fichaPdf($id);
+        // Call the main generator but if it returns a RedirectResponse (redirect()->back()),
+        // convert that into a 500 error so curl/tests receive a clear non-HTML PDF response.
+        $response = $this->fichaPdf($id);
+        if ($response instanceof \Illuminate\Http\RedirectResponse) {
+            \Log::warning('Public ficha download attempted but generator returned a redirect', ['cliente_id' => $id]);
+            return response('Erro ao gerar PDF (ver logs do servidor).', 500)
+                ->header('Content-Type', 'text/plain');
+        }
+        return $response;
     }
 }
