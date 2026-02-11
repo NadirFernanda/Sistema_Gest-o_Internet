@@ -31,10 +31,10 @@
                 }
                 .busca-planos-input::placeholder { color:#9b9b9b; }
                 .busca-planos-btn {
-                    height:48px; padding:0 18px; border-radius:10px; border:none; background:#e09b00; color:#fff; font-weight:700;
+                    height:48px; padding:0 18px; border-radius:10px; border:none; background:#ffb800; color:#fff; font-weight:700;
                     box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
                 }
-                .busca-planos-btn:hover { background:#c88600; }
+                .busca-planos-btn:hover { background:#e09b00; }
                 @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
             </style>
 
