@@ -50,7 +50,8 @@
     <style>
         /* simple modal styles */
         #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1200; }
-        #templatesModal .modal { background:#fff; width:90%; max-width:900px; border-radius:8px; padding:16px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
+        /* make modal wider so table fits without internal scroll */
+        #templatesModal .modal { background:#fff; width:96%; max-width:1400px; border-radius:8px; padding:24px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
         /* expand modal instead of forcing an internal scroll */
         #templatesModal .modal { max-height: none; overflow: visible; }
         #templatesModal table { width:100%; border-collapse:collapse; }
