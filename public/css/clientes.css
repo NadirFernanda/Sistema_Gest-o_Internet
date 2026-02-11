@@ -1,6 +1,10 @@
 /* Extracted styles for clientes list (mobile-friendly, grid-based) */
 @media print { .no-print { display: none !important; } }
 
+/* Logo + hero CTAs (moved from inline template) */
+.logo { display: block; margin: 12px auto; max-width: 140px; }
+.hero-ctas { display: flex; gap: 12px; justify-content: center; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+
 /* Hero CTA */
 .hero-ctas .btn-cta {
   display: inline-flex !important;

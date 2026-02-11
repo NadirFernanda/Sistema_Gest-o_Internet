@@ -7,14 +7,12 @@
 
         <div class="hero-ctas">
             <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
-            {{-- o botão de cadastrar aparece na listagem; mantemos consistência com a versão abaixo --}} 
+            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta">Cadastrar Cliente</a>
         </div>
         <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
-            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta">Cadastrar Cliente</a>
-
             <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-planos-form">
                 <input type="text" name="busca" id="buscaClientes" placeholder="Pesquisar cliente por nome, BI, email ou contato" class="busca-planos-input" value="{{ request('busca') }}">
                 <button type="submit" class="busca-planos-btn">Pesquisar</button>
