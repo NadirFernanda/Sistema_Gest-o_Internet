@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use App\Models\Cliente;
+use Barryvdh\DomPDF\Facade as Pdf;
 
 class ClienteController extends Controller
 {
@@ -304,16 +305,36 @@ class ClienteController extends Controller
 
         \Log::info('fichaPdfAndSend called', ['cliente_id' => $id, 'user_id' => auth()->id() ?? null]);
 
-        $result = $this->generateFichaPdfBytes($cliente);
-        if (! $result['ok']) {
-            // If generation failed, return a plain text error so callers (curl) don't get HTML login
-            return response($result['message'], 500)->header('Content-Type', 'text/plain');
+        // prepare embedded logo data to avoid remote fetch issues in PDF renderers
+        $logoData = null;
+        $logoPath = public_path('img/logo2.jpeg');
+        if (file_exists($logoPath)) {
+            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $data = base64_encode(file_get_contents($logoPath));
+            $logoData = 'data:image/' . $type . ';base64,' . $data;
         }
 
-        $output = $result['output'];
-        $filename = $result['filename'];
+        // Try to generate PDF using the same facade as CobrancaController (DomPDF)
+        try {
+            if (class_exists(\Barryvdh\DomPDF\Facade::class)) {
+                $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
+                $output = $pdf->output();
+            } else {
+                // fallback to existing generator helper which tries DomPDF, mPDF, etc.
+                $result = $this->generateFichaPdfBytes($cliente);
+                if (! $result['ok']) {
+                    return response($result['message'], 500)->header('Content-Type', 'text/plain');
+                }
+                $output = $result['output'];
+            }
+        } catch (\Exception $e) {
+            \Log::error('Erro ao gerar PDF da ficha (fichaPdfAndSend)', ['erro' => $e->getMessage()]);
+            return response('Erro ao gerar PDF. Verifique os logs do servidor.', 500)->header('Content-Type', 'text/plain');
+        }
 
-        // Prepare attachments (include ficha itself and recent cobrancas)
+        $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
+
+        // Prepare attachments (attach ficha + recent cobrancas)
         $attachments = [];
         $attachments[] = ['content' => $output, 'name' => $filename, 'mime' => 'application/pdf'];
 
@@ -326,7 +347,7 @@ class ClienteController extends Controller
                     $mpdfC->WriteHTML($htmlC);
                     $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                 } else {
-                    $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
+                    $pdfC = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
                     $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                 }
             } catch (\Exception $e) {
@@ -334,6 +355,7 @@ class ClienteController extends Controller
             }
         }
 
+        // Send email (best-effort) but do not block download on failure
         try {
             if (! empty($cliente->email) && filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
                 \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $attachments));
@@ -341,8 +363,16 @@ class ClienteController extends Controller
                 \Log::warning('Cliente sem e-mail válido - não será enviado e-mail (fichaPdfAndSend)', ['cliente_id' => $cliente->id]);
             }
         } catch (\Exception $e) {
-            // Log and continue to return the PDF so the user still receives the file locally
             \Log::error('Erro ao enviar ficha por email (fichaPdfAndSend)', ['erro' => $e->getMessage()]);
+        }
+
+        // Return download (behaves like CobrancaController::comprovante)
+        try {
+            if (isset($pdf) && method_exists($pdf, 'download')) {
+                return $pdf->download($filename);
+            }
+        } catch (\Exception $e) {
+            // ignore and fall through to stream download
         }
 
         $headers = [
