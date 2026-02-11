@@ -34,19 +34,32 @@ class GerarFichaPdf extends Command
         }
 
         try {
-            $pdf = \PDF::loadView('pdf.ficha_cliente', compact('cliente'));
+            // Render the view to HTML first (helpful for debugging)
+            $html = view('pdf.ficha_cliente', compact('cliente'))->render();
 
-            $output = $pdf->output();
-
+            // Ensure storage dir exists
             $dir = storage_path('app/fichas');
             if (! is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
 
+            // Save HTML for inspection
+            file_put_contents($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.html", $html);
+
+            // Configure DOMPDF options: enable remote assets and set paper size
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('a4', 'portrait');
+            if (method_exists($pdf, 'setOptions')) {
+                $pdf->setOptions(['isRemoteEnabled' => true, 'enable_php' => false]);
+            }
+
+            $output = $pdf->output();
+
             $path = $dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.pdf";
             file_put_contents($path, $output);
 
             $this->info("Ficha salva em: {$path}");
+            $this->info("HTML salvo em: " . ($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.html"));
             return 0;
         } catch (\Exception $e) {
             $this->error('Erro ao gerar PDF: ' . $e->getMessage());
