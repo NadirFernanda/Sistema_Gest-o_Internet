@@ -650,3 +650,33 @@ h1 {
     .form-editar-grid { grid-template-columns: 1fr; }
     .ficha-cliente .btn { width: 100%; margin-left: 0; }
 }
+
+/* Small visual refinements: subtle shadows, spacing and hover polish */
+.form-editar-cliente-moderna {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.form-editar-campo input {
+    transition: box-shadow 0.16s ease, transform 0.08s ease;
+}
+.form-editar-campo input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(224,155,0,0.08);
+}
+.form-editar-botoes { gap: 18px; }
+.ficha-cliente .btn {
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.ficha-cliente .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+}
+.clientes-lista-moderna .cliente-item-moderna { padding: 18px 26px; }
+.cliente-botoes-moderna .btn { padding: 10px 14px; }
+
+/* Slightly reduce intensity of primary yellow for better contrast on hover */
+.btn, .btn-ghost, .btn-create-user, .btn.btn-primary {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+.btn:hover, .btn-ghost:hover, .btn-create-user:hover, .btn.btn-primary:hover {
+    filter: brightness(0.95);
+}
