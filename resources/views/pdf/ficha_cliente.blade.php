@@ -44,8 +44,6 @@
         tr { page-break-inside: avoid; }
         thead { display:table-header-group; }
     </style>
-        thead th { background:#f6f6f6; font-weight:700; }
-        footer { margin-top:12px; font-size:10px; color:#999; text-align:center; }
     </style>
 </head>
 <body>
