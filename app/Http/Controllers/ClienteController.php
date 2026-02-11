@@ -288,6 +288,73 @@ class ClienteController extends Controller
             return redirect()->back()->with('error', 'Erro ao enviar e-mail.');
         }
     }
+
+    /**
+     * Gera a ficha em PDF, envia por e-mail ao cliente e retorna o PDF para download
+     * Este método combina as ações de `fichaPdf` e `sendFichaEmail` em um único clique.
+     */
+    public function fichaPdfAndSend(Request $request, $id)
+    {
+        $cliente = Cliente::with([
+            'equipamentos',
+            'planos',
+            'clienteEquipamentos.equipamento',
+            'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
+        ])->findOrFail($id);
+
+        \Log::info('fichaPdfAndSend called', ['cliente_id' => $id, 'user_id' => auth()->id() ?? null]);
+
+        $result = $this->generateFichaPdfBytes($cliente);
+        if (! $result['ok']) {
+            // If generation failed, return a plain text error so callers (curl) don't get HTML login
+            return response($result['message'], 500)->header('Content-Type', 'text/plain');
+        }
+
+        $output = $result['output'];
+        $filename = $result['filename'];
+
+        // Prepare attachments (include ficha itself and recent cobrancas)
+        $attachments = [];
+        $attachments[] = ['content' => $output, 'name' => $filename, 'mime' => 'application/pdf'];
+
+        $cobrancas = $cliente->cobrancas()->whereIn('status', ['pendente','atrasado'])->orderBy('data_vencimento', 'asc')->limit(10)->get();
+        foreach ($cobrancas as $cobranca) {
+            try {
+                if (class_exists(\Mpdf\Mpdf::class)) {
+                    $htmlC = view('cobrancas.comprovante', compact('cobranca'))->render();
+                    $mpdfC = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                    $mpdfC->WriteHTML($htmlC);
+                    $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+                } else {
+                    $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
+                    $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Falha ao gerar PDF da cobranca para anexar (fichaPdfAndSend)', ['cobranca_id' => $cobranca->id, 'erro' => $e->getMessage()]);
+            }
+        }
+
+        try {
+            if (! empty($cliente->email) && filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
+                \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $attachments));
+            } else {
+                \Log::warning('Cliente sem e-mail válido - não será enviado e-mail (fichaPdfAndSend)', ['cliente_id' => $cliente->id]);
+            }
+        } catch (\Exception $e) {
+            // Log and continue to return the PDF so the user still receives the file locally
+            \Log::error('Erro ao enviar ficha por email (fichaPdfAndSend)', ['erro' => $e->getMessage()]);
+        }
+
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Length' => strlen($output),
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->streamDownload(function () use ($output) {
+            echo $output;
+        }, $filename, $headers);
+    }
     public function store(Request $request)
     {
         \Log::info('Entrou no método store do ClienteController', ['request' => $request->all()]);

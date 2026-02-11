@@ -41,8 +41,9 @@
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
         <div style="display:flex;gap:10px;flex-direction:column;">
-            <!-- Primary action replaced by a back button -->
-            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%;">Voltar ao Dashboard</a>
+            <!-- Primary actions: big Ficha button (download+email) and back button -->
+            <a id="ficha-download-send-btn" href="{{ route('clientes.ficha.download_send', $cliente->id) }}" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%">Ficha</a>
+            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:10px 14px; font-size:0.95rem; border-radius:8px; width:100%; margin-top:8px;">Voltar ao Dashboard</a>
 
             <!-- Compact secondary actions -->
             <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
