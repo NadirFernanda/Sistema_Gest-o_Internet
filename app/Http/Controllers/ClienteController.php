@@ -171,7 +171,7 @@ class ClienteController extends Controller
         $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Length' => strlen($output),
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
         return response($output, 200, $headers);
