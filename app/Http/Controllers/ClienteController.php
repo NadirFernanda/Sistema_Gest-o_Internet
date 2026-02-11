@@ -32,12 +32,12 @@ class ClienteController extends Controller
             $output = null;
 
             // Prefer mPDF when available (more tolerant on servers)
-            if (class_exists('\\Mpdf\\Mpdf')) {
+            if (class_exists(\Mpdf\Mpdf::class)) {
                 try {
                     $html = view('pdf.ficha_cliente', compact('cliente'))->render();
-                    $mpdf = new \\Mpdf\\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                    $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
                     $mpdf->WriteHTML($html);
-                    $output = $mpdf->Output('', \\Mpdf\\Output\\Destination::STRING_RETURN);
+                    $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
                 } catch (\Exception $e) {
                     \Log::warning('mPDF exception generating ficha (will fallback to DOMPDF)', ['error' => $e->getMessage()]);
                     $output = null;
@@ -83,12 +83,12 @@ class ClienteController extends Controller
         $output = null;
 
         // Prefer mPDF for email attachments
-        if (class_exists('\\Mpdf\\Mpdf')) {
+        if (class_exists(\Mpdf\Mpdf::class)) {
             try {
                 $html = view('pdf.ficha_cliente', compact('cliente'))->render();
-                $mpdf = new \\Mpdf\\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
                 $mpdf->WriteHTML($html);
-                $output = $mpdf->Output('', \\Mpdf\\Output\\Destination::STRING_RETURN);
+                $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
             } catch (\Exception $e) {
                 \Log::warning('mPDF exception generating ficha for email (will fallback to DOMPDF)', ['error' => $e->getMessage()]);
                 $output = null;
@@ -310,19 +310,19 @@ class ClienteController extends Controller
         // attach recent/pending cobrancas as PDFs (limit 10)
         $cobrancas = $cliente->cobrancas()->whereIn('status', ['pendente','atrasado'])->orderBy('data_vencimento', 'asc')->limit(10)->get();
         foreach ($cobrancas as $cobranca) {
-            try {
-                if (class_exists('\\Mpdf\\Mpdf')) {
-                    $htmlC = view('cobrancas.comprovante', compact('cobranca'))->render();
-                    $mpdfC = new \\Mpdf\\Mpdf(['tempDir' => sys_get_temp_dir()]);
-                    $mpdfC->WriteHTML($htmlC);
-                    $attachments[] = ['content' => $mpdfC->Output('', \\Mpdf\\Output\\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
-                } else {
-                    $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
-                    $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+                try {
+                    if (class_exists(\Mpdf\Mpdf::class)) {
+                        $htmlC = view('cobrancas.comprovante', compact('cobranca'))->render();
+                        $mpdfC = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                        $mpdfC->WriteHTML($htmlC);
+                        $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+                    } else {
+                        $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
+                        $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Falha ao gerar PDF da cobranca para anexar', ['cobranca_id' => $cobranca->id, 'erro' => $e->getMessage()]);
                 }
-            } catch (\Exception $e) {
-                \Log::warning('Falha ao gerar PDF da cobranca para anexar', ['cobranca_id' => $cobranca->id, 'erro' => $e->getMessage()]);
-            }
         }
 
         try {
