@@ -260,40 +260,62 @@
                 <button class="btn btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" style="margin-left:8px;">Excluir Cliente</button>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
-                <ul>
-                    @php
-                        $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
-                        $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
-                    @endphp
+                @php
+                    $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
+                    $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
+                @endphp
 
-                    @if($hasEquip || $hasVincs)
-                        @if($hasEquip)
-                            @foreach($cliente->equipamentos as $equipamento)
-                                <li>
-                                    <strong>{{ $equipamento->nome }}</strong>
-                                    @if(!empty($equipamento->morada)) - Morada: {{ $equipamento->morada }} @endif
-                                    @if($equipamento->ponto_referencia) (Ponto de referência: {{ $equipamento->ponto_referencia }}) @endif
-                                </li>
-                            @endforeach
-                        @endif
+                @if($hasEquip || $hasVincs)
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Modelo</th>
+                                <th>Morada</th>
+                                <th>Ponto de Referência</th>
+                                <th>Quantidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($hasEquip)
+                                @foreach($cliente->equipamentos as $equipamento)
+                                    <tr>
+                                        <td>{{ $equipamento->nome }}</td>
+                                        <td>{{ $equipamento->modelo ?? '-' }}</td>
+                                        <td>{{ $equipamento->morada ?? '-' }}</td>
+                                        <td>{{ $equipamento->ponto_referencia ?? '-' }}</td>
+                                        <td>1</td>
+                                        <td></td>
+                                    </tr>
+                                @endforeach
+                            @endif
 
-                        @if($hasVincs)
-                            <li><strong>Vínculos do Estoque:</strong></li>
-                            @foreach($cliente->clienteEquipamentos as $vinc)
-                                @php $est = $vinc->equipamento; @endphp
-                                <li>
-                                    <strong>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</strong>
-                                    @if(!empty($est->numero_serie)) - S/N: {{ $est->numero_serie }} @endif
-                                    - Quantidade: {{ $vinc->quantidade }}
-                                    @if(!empty($vinc->morada)) - Morada: {{ $vinc->morada }} @endif
-                                    @if(!empty($vinc->ponto_referencia)) (Ref: {{ $vinc->ponto_referencia }}) @endif
-                                </li>
-                            @endforeach
-                        @endif
-                    @else
-                        <li>Nenhum equipamento cadastrado para este cliente.</li>
-                    @endif
-                </ul>
+                            @if($hasVincs)
+                                @foreach($cliente->clienteEquipamentos as $v)
+                                    @php $est = $v->equipamento; @endphp
+                                    <tr>
+                                        <td>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</td>
+                                        <td>{{ $est->modelo ?? '-' }}</td>
+                                        <td>{{ $v->morada ?? '-' }}</td>
+                                        <td>{{ $v->ponto_referencia ?? '-' }}</td>
+                                        <td>{{ $v->quantidade ?? 1 }}</td>
+                                        <td>
+                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn btn-sm btn-warning">Editar</a>
+                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja remover este equipamento?')">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                @else
+                    <p>Nenhum equipamento cadastrado para este cliente.</p>
+                @endif
             </div>
         @endif
     </div>
