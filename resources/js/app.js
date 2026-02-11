@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	try {
 		document.querySelectorAll('.select').forEach(function(el){
 			if (el && !el.classList.contains('choices-initialized')){
-				new Choices(el, { searchEnabled: false, itemSelectText: '', shouldSort: false });
+				window._choicesMap = window._choicesMap || {};
+				window._choicesMap[el.id] = new Choices(el, { searchEnabled: false, itemSelectText: '', shouldSort: false });
 				el.classList.add('choices-initialized');
 			}
 		});
