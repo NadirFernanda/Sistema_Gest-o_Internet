@@ -177,30 +177,7 @@
                 </form>
             </div>
 
-            <style>
-                .ficha-toolbar {
-                    max-width: 900px;
-                    margin: 8px auto 0;
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 8px;
-                    align-items: center;
-                    padding: 0 8px;
-                }
-                .ficha-toolbar .btn {
-                    min-width: 160px;
-                }
-                @media (max-width: 768px) {
-                    .ficha-toolbar {
-                        flex-direction: column;
-                        align-items: stretch;
-                        gap: 10px;
-                        padding: 0 12px;
-                    }
-                    .ficha-toolbar a, .ficha-toolbar form { display: block; width: 100%; }
-                    .ficha-toolbar .btn { width: 100%; box-sizing: border-box; }
-                }
-            </style>
+            {{-- ficha-toolbar styles moved to resources/css/app.css (Vite) --}}
 
             <div class="ficha-cliente" style="margin-top:12px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin-left:auto;margin-right:auto;">
