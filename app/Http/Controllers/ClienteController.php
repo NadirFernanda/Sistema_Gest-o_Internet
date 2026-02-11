@@ -161,7 +161,18 @@ class ClienteController extends Controller
                 $output = null;
             }
         }
-        return response()->streamDownload(function() use ($output) { echo $output; }, 'ficha_cliente_'.$cliente->id.'.pdf', ['Content-Type' => 'application/pdf']);
+        // If PDF generation still failed, return a clear error and log it (avoids opening a blank tab)
+        if (empty($output) || strlen($output) < 2000) {
+            \Log::error('Failed to generate ficha PDF - empty output', ['cliente_id' => $cliente->id]);
+            return redirect()->back()->with('error', 'Erro ao gerar PDF. Verifique os logs do servidor.');
+        }
+
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Length' => strlen($output),
+        ];
+
+        return response()->streamDownload(function() use ($output) { echo $output; }, 'ficha_cliente_'.$cliente->id.'.pdf', $headers);
     }
 
     /**
