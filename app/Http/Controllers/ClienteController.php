@@ -149,9 +149,7 @@ class ClienteController extends Controller
             $logoData = 'data:image/' . $type . ';base64,' . $data;
         }
 
-        if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
-            return ['ok' => false, 'message' => 'Gerar PDF requer barryvdh/laravel-dompdf instalado.', 'output' => null, 'filename' => null];
-        }
+        // Try DomPDF first if available; otherwise fall through to other generators (mPDF fallback).
 
         $output = null;
         try {
