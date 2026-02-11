@@ -112,12 +112,22 @@ class ClienteController extends Controller
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
         ])->findOrFail($id);
+        \Log::info('fichaPdf called', ['cliente_id' => $id, 'user_id' => auth()->id() ?? null]);
+        // prepare embedded logo data to avoid remote fetch issues in PDF renderers
+        $logoData = null;
+        $logoPath = public_path('img/logo2.jpeg');
+        if (file_exists($logoPath)) {
+            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $data = base64_encode(file_get_contents($logoPath));
+            $logoData = 'data:image/' . $type . ';base64,' . $data;
+        }
+
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
         $output = null;
         try {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
             $output = $pdf->output();
         } catch (\Exception $e) {
             \Log::warning('DOMPDF exception generating ficha', ['error' => $e->getMessage()]);
@@ -127,7 +137,7 @@ class ClienteController extends Controller
         // fallback: if output appears too small or failed, try minimal DOMPDF template
         if (empty($output) || strlen($output) < 2000) {
             try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
                 $output = $pdf->output();
             } catch (\Exception $e) {
                 \Log::warning('DOMPDF exception generating minimal ficha', ['error' => $e->getMessage()]);
@@ -140,7 +150,7 @@ class ClienteController extends Controller
             try {
                 if (class_exists('\Mpdf\Mpdf')) {
                     $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
-                    $html = view('pdf.ficha_cliente_minimal', compact('cliente'))->render();
+                    $html = view('pdf.ficha_cliente_minimal', compact('cliente','logoData'))->render();
                     $mpdf->WriteHTML($html);
                     $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
                 } else {
@@ -165,15 +175,26 @@ class ClienteController extends Controller
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
         ])->findOrFail($id);
+        \Log::info('sendFichaEmail called', ['cliente_id' => $id, 'user_id' => auth()->id() ?? null]);
         if (empty($cliente->email) || !filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', 'Cliente sem e-mail válido.');
         }
+        // prepare embedded logo data for reliable PDF rendering
+        $logoData = null;
+        $logoPath = public_path('img/logo2.jpeg');
+        if (file_exists($logoPath)) {
+            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $data = base64_encode(file_get_contents($logoPath));
+            $logoData = 'data:image/' . $type . ';base64,' . $data;
+        }
+
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
+
         $output = null;
         try {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente', 'logoData'));
             $output = $pdf->output();
         } catch (\Exception $e) {
             \Log::warning('DOMPDF exception generating ficha for email', ['error' => $e->getMessage()]);
@@ -181,7 +202,7 @@ class ClienteController extends Controller
         }
         if (empty($output) || strlen($output) < 2000) {
             try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
                 $output = $pdf->output();
             } catch (\Exception $e) {
                 \Log::warning('DOMPDF minimal template failed for email', ['error' => $e->getMessage()]);
@@ -192,7 +213,7 @@ class ClienteController extends Controller
             try {
                 if (class_exists('\Mpdf\Mpdf')) {
                     $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
-                    $html = view('pdf.ficha_cliente_minimal', compact('cliente'))->render();
+                    $html = view('pdf.ficha_cliente_minimal', compact('cliente','logoData'))->render();
                     $mpdf->WriteHTML($html);
                     $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
                 } else {
