@@ -274,9 +274,14 @@
                                 // open modal via Manage Models button (use stable id)
                                 const manageBtn = document.getElementById('manageTemplatesBtn');
                                 if(manageBtn){ manageBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); }); }
-                                document.getElementById('refreshTemplatesBtn').addEventListener('click', loadTemplates);
-                                document.getElementById('reloadTemplatesBtn').addEventListener('click', loadList);
-                                document.getElementById('newTemplateBtn').addEventListener('click', showCreateForm);
+                                const refreshBtnEl = document.getElementById('refreshTemplatesBtn');
+                                if(refreshBtnEl) refreshBtnEl.addEventListener('click', loadTemplates);
+                                if(modal){
+                                    const reloadBtn = modal.querySelector('#reloadTemplatesBtn');
+                                    if(reloadBtn) reloadBtn.addEventListener('click', loadList);
+                                    const newBtn = modal.querySelector('#newTemplateBtn');
+                                    if(newBtn) newBtn.addEventListener('click', showCreateForm);
+                                }
 
                                 // robust close handlers: support clicking backdrop, the close button, and Escape key
                                 modal.addEventListener('click', function(e){
