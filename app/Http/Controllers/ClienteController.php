@@ -167,12 +167,14 @@ class ClienteController extends Controller
             return redirect()->back()->with('error', 'Erro ao gerar PDF. Verifique os logs do servidor.');
         }
 
+        $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
         $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Length' => strlen($output),
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
-        return response()->streamDownload(function() use ($output) { echo $output; }, 'ficha_cliente_'.$cliente->id.'.pdf', $headers);
+        return response($output, 200, $headers);
     }
 
     /**
