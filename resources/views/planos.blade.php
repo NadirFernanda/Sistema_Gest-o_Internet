@@ -56,6 +56,12 @@
         #templatesModal table { width:100%; border-collapse:collapse; }
         #templatesModal th, #templatesModal td { padding:8px 6px; border-bottom:1px solid #eee; text-align:left; }
         #templatesModal .controls { display:flex; gap:8px; margin-bottom:8px; }
+        /* Ensure modal primary buttons use the project yellow even if Bootstrap is present */
+        #templatesModal .btn-primary--fixed {
+            background: #f7b500 !important;
+            color: #000 !important;
+            box-shadow: 0 6px 18px rgba(247,181,0,0.18) !important;
+        }
         #templatesModal .small-btn { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
     </style>
     <script>
@@ -168,7 +174,7 @@
                                             </div>
                                         </div>
                                         <div class="controls">
-                                                <button id="newTemplateBtn" class="small-btn btn btn-primary">Novo Modelo</button>
+                                                <button id="newTemplateBtn" class="small-btn btn btn-primary btn-primary--fixed">Novo Modelo</button>
                                             <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
                                         </div>
                                         <div id="templatesListContainer"><em>Carregando...</em></div>
