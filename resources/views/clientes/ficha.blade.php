@@ -2,6 +2,18 @@
 
 @section('content')
 <div class="container">
+    <style>
+        @media print { .no-print { display: none !important; } }
+        .ficha-header { max-width:900px; margin:12px auto 0; text-align:center; }
+        .ficha-header .ficha-logo { display:block; margin:0 auto 8px; max-width:120px; height:auto; }
+        .ficha-cliente { max-width:900px; margin:12px auto; }
+        .cliente-dados-moderna { padding:18px 24px; }
+        .ficha-equip-table table, .ficha-plano-table table { width:100%; border-collapse:separate; border-spacing:0; }
+        .ficha-equip-table th, .ficha-equip-table td, .ficha-plano-table th, .ficha-plano-table td { padding:8px 10px; border:1px solid #eee; vertical-align:top; }
+        .ficha-equip-table thead th, .ficha-plano-table thead th { background:#fff9e6; font-weight:700; }
+        .ficha-equip-table td, .ficha-plano-table td { font-size:0.95rem; }
+        .section-title { font-weight:700; margin:10px 0; text-align:center; }
+    </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
         <button id="download-ficha-btn" data-url="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</button>

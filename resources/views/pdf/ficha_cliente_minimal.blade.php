@@ -3,7 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <title>Ficha do Cliente - Minimal</title>
-    <style>body{font-family: sans-serif; font-size:12px; padding:12px;}</style>
+    <style>
+        body{font-family: Arial, Helvetica, sans-serif; font-size:13px; padding:12px; color:#222;}
+        h2 { text-align:center; margin-bottom:10px; }
+        .section-title { font-weight:700; margin:8px 0; }
+        ul { padding-left:18px; margin:6px 0 12px 0; }
+        li { margin-bottom:6px; }
+    </style>
 </head>
 <body>
     <h2>Ficha do Cliente</h2>

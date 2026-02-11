@@ -5,21 +5,32 @@
 @endphp
 <!doctype html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <title>Ficha do Cliente - {{ $cliente->nome }}</title>
     <style>
-        /* Minimal, DOMPDF-friendly styles */
-        html, body { margin:0; padding:0; font-family: sans-serif; color:#222; font-size:12px; }
-        .header { text-align:center; margin-bottom:8px; }
+        /* PDF-friendly layout: clearer tables, spacing and print-safe rules */
+        html, body { margin:0; padding:18px; font-family: Arial, Helvetica, sans-serif; color:#222; font-size:13px; line-height:1.35; }
+        .header { text-align:center; margin-bottom:10px; }
         .header img, .ficha-logo { max-width:80px; width:auto; height:auto; display:block; margin:0 auto 6px auto; }
-        .title { font-size:16px; font-weight:700; margin-bottom:4px; }
+        .title { font-size:16px; font-weight:700; margin-bottom:6px; }
         .small { font-size:10px; color:#666; }
-        .section { margin-bottom:10px; }
-        .label { font-weight:700; display:inline-block; width:140px; vertical-align:top; }
-        .value { display:inline-block; max-width:360px; }
-        table { width:100%; border-collapse:collapse; margin-top:6px; }
-        th, td { padding:6px 6px; border:1px solid #ddd; }
+        .section { margin-bottom:14px; }
+        .section-title { font-weight:700; margin:10px 0 6px; }
+        .label { font-weight:700; display:inline-block; width:120px; vertical-align:top; }
+        .value { display:inline-block; max-width:420px; }
+
+        /* Tables: clear spacing and readable columns for PDF */
+        table { width:100%; border-collapse:separate; border-spacing:0; margin-top:6px; font-size:12px; }
+        th, td { padding:8px 10px; border:1px solid #e7e7e7; vertical-align:top; }
+        thead th { background:#f6f6f6; font-weight:700; text-align:left; }
+        tbody tr:nth-child(odd) td { background: #fff; }
+
+        /* Small helpers */
+        .muted { color:#666; font-size:11px; }
+        footer { margin-top:16px; font-size:11px; color:#999; text-align:center; }
+
+        /* Avoid page-break inside table rows */
+        tr { page-break-inside: avoid; }
+        thead { display:table-header-group; }
+    </style>
         thead th { background:#f6f6f6; font-weight:700; }
         footer { margin-top:12px; font-size:10px; color:#999; text-align:center; }
     </style>
