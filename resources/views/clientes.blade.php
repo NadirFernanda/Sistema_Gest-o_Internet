@@ -168,7 +168,7 @@
             <div class="ficha-cliente" style="margin-top:32px;">
                 <h2>Ficha do Cliente: {{ $cliente->nome }}</h2>
 
-                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;display:none;">
+                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
                         <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
                         <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
@@ -177,7 +177,7 @@
                     </div>
                 </div>
 
-                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna">
+                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
                     @csrf
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
