@@ -357,7 +357,7 @@ h1 {
 }
 .tabela-planos th {
     background: #fffbe7;
-    color: #0d6efd;
+    color: #f7b500;
     font-weight: bold;
     font-size: 1.07em;
     border-bottom: 2px solid #ffe6a0;
@@ -406,7 +406,7 @@ h1 {
     display: inline-block;
 }
 .badge.bg-warning {
-    background: #0d6efd !important;
+    background: #f7b500 !important;
     color: #222 !important;
     font-weight: 500;
     border-radius: 6px;

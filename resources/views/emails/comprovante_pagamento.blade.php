@@ -9,7 +9,7 @@
         <div style="text-align:center;margin-bottom:24px;">
             <img src="{{ asset('img/logo2.jpeg') }}" alt="AgolaWifi Logo" style="max-width:160px;max-height:80px;">
         </div>
-        <h2 style="color:#222;text-align:center;margin-bottom:24px;">Olá, <span style="color:#0d6efd;">{{ $nomeCliente }}</span>!</h2>
+        <h2 style="color:#222;text-align:center;margin-bottom:24px;">Olá, <span style="color:#f7b500;">{{ $nomeCliente }}</span>!</h2>
         @if(isset($cobranca) && $cobranca->status === 'pago')
             <p style="font-size:1.1em;color:#333;text-align:center;margin-bottom:24px;">
                 <strong>Seu pagamento foi confirmado!</strong><br>

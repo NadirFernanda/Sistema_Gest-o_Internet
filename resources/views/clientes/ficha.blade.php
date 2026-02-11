@@ -4,7 +4,7 @@
 <div class="container">
     <style>
         @media print { .no-print { display: none !important; } }
-        :root { --muted:#6b6b6b; --accent:#0d6efd; --soft:#f6f7fb; }
+        :root { --muted:#6b6b6b; --accent:#f7b500; --soft:#f6f7fb; }
         .ficha-header { max-width:980px; margin:18px auto 6px; text-align:center; }
         .ficha-header .ficha-logo { display:block; margin:0 auto 6px; max-width:120px; height:auto; }
         .ficha-cliente { max-width:980px; margin:12px auto; }

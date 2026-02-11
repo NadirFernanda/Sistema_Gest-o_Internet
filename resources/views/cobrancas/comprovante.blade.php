@@ -33,7 +33,7 @@
             @elseif($cobranca->status === 'atrasado')
                 <span style="color:#e53935;font-weight:bold;">Atrasado</span>
             @else
-                <span style="color:#0d6efd;font-weight:bold;">Pendente</span>
+                <span style="color:#f7b500;font-weight:bold;">Pendente</span>
             @endif
         </div>
         <hr>
