@@ -9,3 +9,27 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Ficha toolbar styles (moved from inline Blade) */
+.ficha-toolbar {
+    max-width: 900px;
+    margin: 8px auto 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    align-items: center;
+    padding: 0 8px;
+}
+.ficha-toolbar .btn {
+    min-width: 160px;
+}
+@media (max-width: 768px) {
+    .ficha-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 0 12px;
+    }
+    .ficha-toolbar a, .ficha-toolbar form { display: block; width: 100%; }
+    .ficha-toolbar .btn { width: 100%; box-sizing: border-box; }
+}
