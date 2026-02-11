@@ -36,6 +36,26 @@
     .ficha-toolbar .btn { width: 100%; box-sizing: border-box; min-width:0; }
 }
 
+/* Apply same responsive toolbar pattern to other header toolbars */
+.relatorio-cabecalho-botoes,
+.relatorio-cabecalho-moderna > .relatorio-cabecalho-botoes,
+.relatorio-cabecalho-moderna .relatorio-cabecalho-botoes {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.relatorio-cabecalho-botoes .btn,
+.relatorio-cabecalho-moderna .relatorio-cabecalho-botoes .btn {
+    display: inline-block;
+    min-width: 160px;
+}
+@media (max-width: 768px) {
+    .relatorio-cabecalho-botoes { flex-direction: column; gap:10px; }
+    .relatorio-cabecalho-botoes .btn { width:100%; min-width:0; }
+}
+
     /* Ficha header logo */
     .ficha-header { text-align: center; margin: 12px auto 0; }
     .ficha-logo { max-height: 90px; height: auto; display: inline-block; }
