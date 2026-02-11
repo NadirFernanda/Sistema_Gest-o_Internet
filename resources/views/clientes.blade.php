@@ -26,12 +26,12 @@
                 .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
                 .busca-planos-input {
                     box-sizing: border-box;
-                    flex:1; min-width:220px; height:48px; padding:12px 16px; border-radius:10px; border:1px solid #d9d9d9;
-                    background:#fff; font-size:1rem; line-height:1.2; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222; display:block;
+                    flex:1; min-width:220px; height:40px; padding:10px 14px; border-radius:8px; border:1px solid #d9d9d9;
+                    background:#fff; font-size:0.98rem; line-height:1.1; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222; display:block;
                 }
                 .busca-planos-input::placeholder { color:#9b9b9b; }
                 .busca-planos-btn {
-                    height:48px; padding:0 18px; border-radius:10px; border:none; background:#ffb800; color:#fff; font-weight:700;
+                    height:40px; padding:0 14px; border-radius:8px; border:none; background:#ffb800; color:#fff; font-weight:700;
                     box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
                 }
                 .busca-planos-btn:hover { background:#e09b00; }
