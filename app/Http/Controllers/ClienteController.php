@@ -213,12 +213,41 @@ class ClienteController extends Controller
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
-        $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
-        $output = $pdf->output();
-        // fallback: if output appears too small, render a minimal template
-        if (strlen($output) < 2000) {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+        $output = null;
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
             $output = $pdf->output();
+        } catch (\Exception $e) {
+            \Log::warning('DOMPDF exception generating ficha', ['error' => $e->getMessage()]);
+            $output = null;
+        }
+
+        // fallback: if output appears too small or failed, try minimal DOMPDF template
+        if (empty($output) || strlen($output) < 2000) {
+            try {
+                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+                $output = $pdf->output();
+            } catch (\Exception $e) {
+                \Log::warning('DOMPDF exception generating minimal ficha', ['error' => $e->getMessage()]);
+                $output = null;
+            }
+        }
+
+        // If still empty, try mPDF as a robust fallback
+        if (empty($output) || strlen($output) < 2000) {
+            try {
+                if (class_exists('\Mpdf\Mpdf')) {
+                    $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                    $html = view('pdf.ficha_cliente_minimal', compact('cliente'))->render();
+                    $mpdf->WriteHTML($html);
+                    $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+                } else {
+                    \Log::warning('mPDF not available for fallback generation.');
+                }
+            } catch (\Exception $e) {
+                \Log::error('mPDF exception generating ficha', ['error' => $e->getMessage()]);
+                $output = null;
+            }
         }
         return response()->streamDownload(function() use ($output) { echo $output; }, 'ficha_cliente_'.$cliente->id.'.pdf', ['Content-Type' => 'application/pdf']);
     }
@@ -240,11 +269,37 @@ class ClienteController extends Controller
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
-        $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
-        $output = $pdf->output();
-        if (strlen($output) < 2000) {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+        $output = null;
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
             $output = $pdf->output();
+        } catch (\Exception $e) {
+            \Log::warning('DOMPDF exception generating ficha for email', ['error' => $e->getMessage()]);
+            $output = null;
+        }
+        if (empty($output) || strlen($output) < 2000) {
+            try {
+                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+                $output = $pdf->output();
+            } catch (\Exception $e) {
+                \Log::warning('DOMPDF minimal template failed for email', ['error' => $e->getMessage()]);
+                $output = null;
+            }
+        }
+        if (empty($output) || strlen($output) < 2000) {
+            try {
+                if (class_exists('\Mpdf\Mpdf')) {
+                    $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                    $html = view('pdf.ficha_cliente_minimal', compact('cliente'))->render();
+                    $mpdf->WriteHTML($html);
+                    $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+                } else {
+                    \Log::warning('mPDF not available for email fallback generation.');
+                }
+            } catch (\Exception $e) {
+                \Log::error('mPDF exception generating ficha for email', ['error' => $e->getMessage()]);
+                $output = null;
+            }
         }
         $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
         $attachments = [];

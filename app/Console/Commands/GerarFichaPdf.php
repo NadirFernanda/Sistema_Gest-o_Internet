@@ -85,6 +85,28 @@ class GerarFichaPdf extends Command
                 $this->error('Erro ao gerar PDF de debug: ' . $e->getMessage());
             }
 
+            // If DOMPDF produced an empty/invalid PDF, try mPDF as a fallback
+            try {
+                $stat = @filesize($path) ?: 0;
+                if ($stat < 1024 || strpos(file_get_contents($path), '/Type /Page') === false) {
+                    if (class_exists('\Mpdf\Mpdf')) {
+                        $this->info('DOMPDF output looks invalid or empty — trying mPDF fallback...');
+                        $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                        $mpdf->WriteHTML($html);
+                        $mpdf->Output($path, \Mpdf\Output\Destination::FILE);
+                        $this->info('mPDF fallback saved to: ' . $path);
+                        // Also replace debug PDF with mPDF version
+                        $mpdf->WriteHTML($plainHtml);
+                        $mpdf->Output($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}_debug.pdf", \Mpdf\Output\Destination::FILE);
+                        $this->info('mPDF debug PDF saved.');
+                    } else {
+                        $this->warn('mPDF not installed; cannot attempt mPDF fallback.');
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->error('Erro no fallback mPDF: ' . $e->getMessage());
+            }
+
             return 0;
         } catch (\Exception $e) {
             $this->error('Erro ao gerar PDF: ' . $e->getMessage());
