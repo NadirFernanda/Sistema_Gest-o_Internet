@@ -261,34 +261,37 @@
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
                 <ul>
-                    @forelse($cliente->equipamentos as $equipamento)
-                        <li>
-                            <strong>{{ $equipamento->nome }}</strong> - Morada: {{ $equipamento->morada }}
-                            @if($equipamento->ponto_referencia)
-                                (Ponto de referência: {{ $equipamento->ponto_referencia }})
-                            @endif
-                        </li>
-                    @empty
+                    @php
+                        $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
+                        $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
+                    @endphp
+
+                    @if($hasEquip || $hasVincs)
+                        @if($hasEquip)
+                            @foreach($cliente->equipamentos as $equipamento)
+                                <li>
+                                    <strong>{{ $equipamento->nome }}</strong>
+                                    @if(!empty($equipamento->morada)) - Morada: {{ $equipamento->morada }} @endif
+                                    @if($equipamento->ponto_referencia) (Ponto de referência: {{ $equipamento->ponto_referencia }}) @endif
+                                </li>
+                            @endforeach
+                        @endif
+
+                        @if($hasVincs)
+                            <li><strong>Vínculos do Estoque:</strong></li>
+                            @foreach($cliente->clienteEquipamentos as $vinc)
+                                @php $est = $vinc->equipamento; @endphp
+                                <li>
+                                    <strong>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</strong>
+                                    @if(!empty($est->numero_serie)) - S/N: {{ $est->numero_serie }} @endif
+                                    - Quantidade: {{ $vinc->quantidade }}
+                                    @if(!empty($vinc->morada)) - Morada: {{ $vinc->morada }} @endif
+                                    @if(!empty($vinc->ponto_referencia)) (Ref: {{ $vinc->ponto_referencia }}) @endif
+                                </li>
+                            @endforeach
+                        @endif
+                    @else
                         <li>Nenhum equipamento cadastrado para este cliente.</li>
-                    @endforelse
-                    @if(isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count())
-                        <li><strong>Vínculos do Estoque:</strong></li>
-                        @foreach($cliente->clienteEquipamentos as $vinc)
-                            @php $est = $vinc->equipamento; @endphp
-                            <li>
-                                <strong>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</strong>
-                                @if($est->numero_serie)
-                                    - S/N: {{ $est->numero_serie }}
-                                @endif
-                                - Quantidade: {{ $vinc->quantidade }}
-                                @if($vinc->morada)
-                                    - Morada: {{ $vinc->morada }}
-                                @endif
-                                @if($vinc->ponto_referencia)
-                                    (Ref: {{ $vinc->ponto_referencia }})
-                                @endif
-                            </li>
-                        @endforeach
                     @endif
                 </ul>
             </div>
