@@ -174,7 +174,7 @@
                                             </div>
                                         </div>
                                         <div class="controls">
-                                                <button id="newTemplateBtn" class="small-btn btn btn-primary btn-primary--fixed">Novo Modelo</button>
+                                                <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#000;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
                                             <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
                                         </div>
                                         <div id="templatesListContainer"><em>Carregando...</em></div>
