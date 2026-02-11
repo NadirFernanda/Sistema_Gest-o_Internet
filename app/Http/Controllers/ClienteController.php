@@ -214,7 +214,13 @@ class ClienteController extends Controller
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
         $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
-        return $pdf->download('ficha_cliente_'.$cliente->id.'.pdf');
+        $output = $pdf->output();
+        // fallback: if output appears too small, render a minimal template
+        if (strlen($output) < 2000) {
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+            $output = $pdf->output();
+        }
+        return response()->streamDownload(function() use ($output) { echo $output; }, 'ficha_cliente_'.$cliente->id.'.pdf', ['Content-Type' => 'application/pdf']);
     }
 
     /**
@@ -235,9 +241,14 @@ class ClienteController extends Controller
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
         $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
+        $output = $pdf->output();
+        if (strlen($output) < 2000) {
+            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
+            $output = $pdf->output();
+        }
         $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
         $attachments = [];
-        $attachments[] = ['content' => $pdf->output(), 'name' => $filename, 'mime' => 'application/pdf'];
+        $attachments[] = ['content' => $output, 'name' => $filename, 'mime' => 'application/pdf'];
 
         // attach recent/pending cobrancas as PDFs (limit 10)
         $cobrancas = $cliente->cobrancas()->whereIn('status', ['pendente','atrasado'])->orderBy('data_vencimento', 'asc')->limit(10)->get();
