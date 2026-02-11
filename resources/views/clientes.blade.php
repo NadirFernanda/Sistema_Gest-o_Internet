@@ -345,9 +345,17 @@
                 e.preventDefault();
                 const formEditarClienteEl = document.getElementById('formEditarCliente');
                 if (formEditarClienteEl && (formEditarClienteEl.style.display === 'none' || formEditarClienteEl.style.display === '')) {
+                    // preenche os inputs com os valores atuais do cliente
+                    const editBIEl = document.getElementById('editBI');
+                    const editNomeEl = document.getElementById('editNome');
+                    const editEmailEl = document.getElementById('editEmail');
+                    const editContatoEl = document.getElementById('editContato');
+                    if (editBIEl) editBIEl.value = {!! json_encode($cliente->bi ?? '') !!};
+                    if (editNomeEl) editNomeEl.value = {!! json_encode($cliente->nome ?? '') !!};
+                    if (editEmailEl) editEmailEl.value = {!! json_encode($cliente->email ?? '') !!};
+                    if (editContatoEl) editContatoEl.value = {!! json_encode($cliente->contato ?? '') !!};
                     formEditarClienteEl.style.display = 'block';
                     if (clienteDados) clienteDados.style.display = 'none';
-                    const editNomeEl = document.getElementById('editNome');
                     if (editNomeEl) editNomeEl.focus();
                     location.hash = 'formEditarCliente';
                 } else if (formEditarClienteEl) {
@@ -360,9 +368,17 @@
         if (location.hash === '#formEditarCliente') {
             const formEditarClienteEl = document.getElementById('formEditarCliente');
             if (formEditarClienteEl) {
+                // preencher campos antes de mostrar
+                const editBIEl = document.getElementById('editBI');
+                const editNomeEl = document.getElementById('editNome');
+                const editEmailEl = document.getElementById('editEmail');
+                const editContatoEl = document.getElementById('editContato');
+                if (editBIEl) editBIEl.value = {!! json_encode($cliente->bi ?? '') !!};
+                if (editNomeEl) editNomeEl.value = {!! json_encode($cliente->nome ?? '') !!};
+                if (editEmailEl) editEmailEl.value = {!! json_encode($cliente->email ?? '') !!};
+                if (editContatoEl) editContatoEl.value = {!! json_encode($cliente->contato ?? '') !!};
                 formEditarClienteEl.style.display = 'block';
                 if (clienteDados) clienteDados.style.display = 'none';
-                const editNomeEl = document.getElementById('editNome');
                 if (editNomeEl) editNomeEl.focus();
             }
         }
