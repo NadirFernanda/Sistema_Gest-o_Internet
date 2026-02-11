@@ -642,6 +642,17 @@ h1 {
 .ficha-cliente a.btn { text-decoration: none; }
 .ficha-cliente .btn-danger { background: #e74c3c; color: #fff; }
 
+/* Make "Excluir" buttons use the logo's neutral gray instead of bright red.
+   Target button elements with the .btn-danger class so badges remain unchanged. */
+button.btn-danger, .btn.btn-danger {
+    background: #aaa; /* neutral logo gray (matches .btn-logout) */
+    color: #fff;
+    border: none;
+}
+button.btn-danger:hover, .btn.btn-danger:hover {
+    background: #888;
+}
+
 /* Make edit form grid responsive to avoid overflow */
 @media (max-width: 920px) {
     .form-editar-grid { grid-template-columns: 1fr 1fr; }
