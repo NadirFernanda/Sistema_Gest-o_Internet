@@ -729,11 +729,11 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     filter: brightness(0.95);
 }
 
-/* === Accent overrides: enforce blue theme and fix dropdown option highlights === */
+/* === Accent overrides: enforce yellow theme and fix dropdown option highlights === */
 :root {
-    --accent: #0d6efd;
-    --accent-600: #0b5ed7;
-    --accent-rgba: rgba(13,110,253,0.12);
+    --accent: #f7b500;
+    --accent-600: #e0a800;
+    --accent-rgba: rgba(247,181,0,0.12);
 }
 
 /* Buttons and primary actions */
@@ -741,7 +741,7 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     background: var(--accent) !important;
     border-color: var(--accent) !important;
     color: #fff !important;
-    box-shadow: 0 10px 30px rgba(13,110,253,0.12) !important;
+    box-shadow: 0 10px 30px rgba(247,181,0,0.12) !important;
 }
 .btn:hover, .btn-ghost:hover, .btn-create-user:hover, .btn.btn-primary:hover {
     background: var(--accent-600) !important;
@@ -755,7 +755,7 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     box-shadow: 0 6px 18px var(--accent-rgba) !important;
 }
 
-/* Custom select / dropdown option styles (override yellow highlights)
+/* Custom select / dropdown option styles (override previous highlights)
    Note: some browsers limit option styling; we apply strongest selectors available */
 .form-cadastro select, select.form-control, .custom-select {
     -webkit-appearance: none;
@@ -766,7 +766,7 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     background: var(--accent) !important;
     color: #fff !important;
 }
-.custom-select.open { border-color: var(--accent) !important; box-shadow: 0 8px 28px rgba(13,110,253,0.12) !important; }
+.custom-select.open { border-color: var(--accent) !important; box-shadow: 0 8px 28px rgba(247,181,0,0.12) !important; }
 .custom-select-option:hover { background: var(--accent-600) !important; color: #fff !important; }
 
 /* Card accent and badges */
