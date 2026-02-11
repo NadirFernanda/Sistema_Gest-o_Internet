@@ -12,7 +12,7 @@
         /* Minimal, DOMPDF-friendly styles */
         html, body { margin:0; padding:0; font-family: sans-serif; color:#222; font-size:12px; }
         .header { text-align:center; margin-bottom:8px; }
-        .header img, .ficha-logo { max-width:140px; width:auto; height:auto; display:block; margin:0 auto 6px auto; }
+        .header img, .ficha-logo { max-width:80px; width:auto; height:auto; display:block; margin:0 auto 6px auto; }
         .title { font-size:16px; font-weight:700; margin-bottom:4px; }
         .small { font-size:10px; color:#666; }
         .section { margin-bottom:10px; }
