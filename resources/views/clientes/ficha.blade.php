@@ -45,17 +45,7 @@
             <a id="ficha-download-send-btn" href="{{ route('clientes.ficha.download_send', $cliente->id) }}" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%">Ficha</a>
             <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:10px 14px; font-size:0.95rem; border-radius:8px; width:100%; margin-top:8px;">Voltar ao Dashboard</a>
 
-            <!-- Compact secondary actions -->
-            <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
-                <div style="display:flex;gap:8px;">
-                    <button id="more-actions-toggle" class="btn btn-outline-secondary" style="padding:8px 12px;border-radius:8px;">Mais ações ▾</button>
-                    <a href="#" id="download-ficha-inline" class="btn btn-light" style="padding:8px 12px;border-radius:8px;display:none;">Download sessão</a>
-                </div>
-                <form id="ficha-send-form" action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline-block;margin:0;">
-                    @csrf
-                    <button type="submit" class="btn btn-success" style="padding:8px 12px;border-radius:8px;">Enviar por e‑mail</button>
-                </form>
-            </div>
+            <!-- Compact secondary actions removed as per UI change -->
 
             <!-- Hidden original authenticated download button (kept for JS handler) -->
             <button id="download-ficha-btn" data-url="{{ route('clientes.ficha.pdf', $cliente->id) }}" style="display:none;">AuthDownload</button>
@@ -251,21 +241,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     // Signed-URL button removed — no signed-download handler
 
-    // More actions toggle: show inline download (authenticated) when clicked
-    if (moreToggle) {
-        moreToggle.addEventListener('click', function(e){
-            e.preventDefault();
-            if (inlineDownloadLink.style.display === 'none' || inlineDownloadLink.style.display === '') {
-                inlineDownloadLink.style.display = 'inline-block';
-                moreToggle.textContent = 'Mais ações ▴';
-                // attach handler to inline link (uses same auth download logic)
-                inlineDownloadLink.onclick = function(ev){ ev.preventDefault(); document.getElementById('download-ficha-btn').click(); };
-            } else {
-                inlineDownloadLink.style.display = 'none';
-                moreToggle.textContent = 'Mais ações ▾';
-            }
-        });
-    }
+    // More actions toggle removed as the related UI buttons were deleted
 });
 </script>
 @endpush

@@ -112,10 +112,6 @@
             {{-- Toolbar com ações (fica acima do cartão da ficha, fora do cartão impresso) --}}
             <div class="ficha-toolbar no-print">
                 <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
-                <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
-                    @csrf
-                    <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
-                </form>
             </div>
 
             {{-- ficha-toolbar styles moved to resources/css/app.css (Vite) --}}
