@@ -18,7 +18,7 @@
             <td>{{ $cobranca->cliente->nome ?? '-' }}</td>
             <td>{{ $cobranca->descricao }}</td>
             <td>Kz {{ number_format($cobranca->valor, 2, ',', '.') }}</td>
-            <td>{{ $cobranca->data_vencimento }}</td>
+            <td>{{ $cobranca->data_vencimento ? \Carbon\Carbon::parse($cobranca->data_vencimento)->format('d/m/Y') : '' }}</td>
             <td>{{ $cobranca->data_pagamento ?? '-' }}</td>
             <td>{{ ucfirst($cobranca->status) }}</td>
         </tr>

@@ -8,7 +8,7 @@
             <h5 class="card-title">{{ $cobranca->descricao }}</h5>
             <p><strong>Cliente:</strong> {{ $cobranca->cliente->nome ?? '-' }}</p>
             <p><strong>Valor:</strong> Kz {{ number_format($cobranca->valor, 2, ',', '.') }}</p>
-            <p><strong>Vencimento:</strong> {{ $cobranca->data_vencimento }}</p>
+            <p><strong>Vencimento:</strong> {{ $cobranca->data_vencimento ? \Carbon\Carbon::parse($cobranca->data_vencimento)->format('d/m/Y') : 'Sem data' }}</p>
             <p><strong>Pagamento:</strong> {{ $cobranca->data_pagamento ?? '-' }}</p>
             <p><strong>Status:</strong>
                 @if($cobranca->status === 'pago')

@@ -25,7 +25,7 @@
         <div class="info"><span class="label">Contacto:</span> {{ $cobranca->cliente->contato ?? '-' }}</div>
         <div class="info"><span class="label">Descrição:</span> {{ $cobranca->descricao }}</div>
         <div class="info"><span class="label">Valor Pago:</span> Kz {{ number_format($cobranca->valor, 2, ',', '.') }}</div>
-        <div class="info"><span class="label">Data de Vencimento:</span> {{ $cobranca->data_vencimento }}</div>
+        <div class="info"><span class="label">Data de Vencimento:</span> {{ $cobranca->data_vencimento ? \Carbon\Carbon::parse($cobranca->data_vencimento)->format('d/m/Y') : 'Sem data' }}</div>
         <div class="info"><span class="label">Data de Pagamento:</span> {{ $cobranca->data_pagamento ?? '-' }}</div>
         <div class="info"><span class="label">Status:</span> 
             @if($cobranca->status === 'pago')
