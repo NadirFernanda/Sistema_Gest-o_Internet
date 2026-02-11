@@ -2,8 +2,10 @@
 
 @section('content')
     <div class="planos-container">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-        <h1>Gestão de Planos</h1>
+        <div class="planos-header">
+            <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
+            <h1>Gestão de Planos</h1>
+        </div>
         <div class="hero-ctas">
             <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
             <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a>

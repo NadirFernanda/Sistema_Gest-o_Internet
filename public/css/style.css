@@ -362,6 +362,10 @@ h1 {
 }
 .planos-container .logo { display: block; margin: 8px auto 10px; max-width: 140px; }
 .planos-container .hero-ctas { display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+
+/* header wrapper for logo + title */
+.planos-container .planos-header { text-align: center; margin-bottom: 6px; }
+.planos-container .planos-header h1 { margin: 6px 0 14px; color: #f7b500; font-size: 1.5rem; font-weight: 800; }
 .planos-container .hero-ctas .btn-cta,
 .planos-container .hero-ctas a.btn,
 .planos-container .hero-ctas button.btn {
