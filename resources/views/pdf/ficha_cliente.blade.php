@@ -33,7 +33,7 @@
 
     <div class="card">
         <div class="section">
-            <div><span class="label">ID:</span><span class="value">{{ $cliente->id }}</span></div>
+            {{-- ID removido por solicitação do usuário --}}
             <div><span class="label">Nome / Razão social:</span><span class="value">{{ $cliente->nome }}</span></div>
             <div><span class="label">BI / NIF:</span><span class="value">{{ $cliente->bi ?? '-' }}</span></div>
             <div><span class="label">Contacto (WhatsApp):</span><span class="value">{{ $cliente->contato ?? '-' }}</span></div>

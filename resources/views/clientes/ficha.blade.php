@@ -24,7 +24,7 @@
             <div class="card mb-3">
                 <div class="card-header">Dados do Cliente</div>
                 <div class="card-body">
-                    <p><strong>ID:</strong> {{ $cliente->id }}</p>
+                    {{-- ID removido da ficha conforme solicitado --}}
                     <p><strong>Nome / Razão social:</strong> {{ $cliente->nome }}</p>
                     <p><strong>BI / NIF:</strong> {{ $cliente->bi }}</p>
                     <p><strong>Contacto (WhatsApp):</strong> {{ $cliente->contato }}</p>

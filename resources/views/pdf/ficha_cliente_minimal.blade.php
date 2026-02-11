@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Ficha do Cliente</h2>
-    <p><strong>ID:</strong> {{ $cliente->id }}</p>
+    {{-- ID removido por solicitação do usuário --}}
     <p><strong>Nome:</strong> {{ $cliente->nome }}</p>
     <p><strong>Contacto:</strong> {{ $cliente->contato ?? '-' }}</p>
     <p><strong>Email:</strong> {{ $cliente->email ?? '-' }}</p>
