@@ -167,18 +167,19 @@
 
         {{-- Se estiver na ficha de um cliente específico --}}
         @if(isset($cliente))
-            <div class="ficha-cliente" style="margin-top:32px;">
+
+            {{-- Toolbar com ações (fica acima do cartão da ficha, fora do cartão impresso) --}}
+            <div class="ficha-toolbar no-print" style="max-width:900px;margin:8px auto 0;display:flex;justify-content:flex-end;gap:8px;">
+                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
+                <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
+                    @csrf
+                    <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
+                </form>
+            </div>
+
+            <div class="ficha-cliente" style="margin-top:12px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin-left:auto;margin-right:auto;">
                     <h2 style="margin:0;">Ficha do Cliente: {{ $cliente->nome }}</h2>
-                </div>
-
-                {{-- Toolbar com ações (ficam acima da ficha, não fazem parte do documento impresso) --}}
-                <div style="max-width:900px;margin:12px auto 0;display:flex;justify-content:flex-end;gap:8px;" class="no-print">
-                    <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
-                    <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
-                        @csrf
-                        <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
-                    </form>
                 </div>
 
                 <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
