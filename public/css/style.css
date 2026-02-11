@@ -355,6 +355,33 @@ h1 {
     .planos-container table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .planos-container thead th { position: relative; }
 }
+
+/* Planos header: center logo and align hero CTAs side-by-side */
+.planos-container {
+    /* ensure header area can center content */
+}
+.planos-container .logo { display: block; margin: 8px auto 10px; max-width: 140px; }
+.planos-container .hero-ctas { display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.planos-container .hero-ctas .btn-cta,
+.planos-container .hero-ctas a.btn,
+.planos-container .hero-ctas button.btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    min-width: 220px !important;
+    padding: 12px 18px !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.06) !important;
+    text-align: center !important;
+}
+
+@media (max-width:900px) {
+    .planos-container .hero-ctas .btn-cta,
+    .planos-container .hero-ctas a.btn,
+    .planos-container .hero-ctas button.btn { min-width: 100%; }
+}
 .role-badge{background:#f7b500;color:#fff;padding:4px 8px;border-radius:8px;margin-left:6px;font-weight:600}
 .user-actions a{margin-left:10px;color:inherit;text-decoration:none}
 .link-button{background:none;border:none;color:inherit;cursor:pointer;padding:0;font:inherit}
