@@ -11,13 +11,11 @@
         </form>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <div>
-                <h4>Ficha do Cliente</h4>
-                <p class="mb-0">Emitido: {{ now()->toDateString() }}</p>
-            </div>
-        </div>
+    {{-- Cabeçalho da ficha com logotipo --}}
+    <div class="ficha-header" style="max-width:900px;margin:12px auto 0;text-align:center;">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo">
+        <h4 style="margin-top:8px;">Ficha do Cliente</h4>
+        <p class="mb-0">Emitido: {{ now()->toDateString() }}</p>
     </div>
 
     <div class="row">

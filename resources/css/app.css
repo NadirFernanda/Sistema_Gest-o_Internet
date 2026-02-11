@@ -33,3 +33,8 @@
     .ficha-toolbar a, .ficha-toolbar form { display: block; width: 100%; }
     .ficha-toolbar .btn { width: 100%; box-sizing: border-box; }
 }
+
+    /* Ficha header logo */
+    .ficha-header { text-align: center; margin: 12px auto 0; }
+    .ficha-logo { max-height: 90px; height: auto; display: inline-block; }
+
