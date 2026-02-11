@@ -18,11 +18,6 @@ Route::get('/', function () {
 
 // Rotas protegidas por auth
 
-// Temporary: ensure create page available without permission middleware
-Route::get('/clientes/create', [\App\Http\Controllers\ClienteController::class, 'create'])
-    ->name('clientes.create')
-    ->middleware('auth');
-
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
