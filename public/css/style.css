@@ -584,3 +584,45 @@ h1 {
     .btn-back { position: relative; left: 0; transform: none; margin-top: 0; }
     .form-actions { flex-direction: column; }
 }
+
+/* --- CLIENT-SPECIFIC LAYOUT FIXES ---
+   Target: avoid giant full-width yellow blocks and input overflow on client detail pages
+*/
+.clientes-container .dashboard-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+.clientes-container .dashboard-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 10px 18px;
+    min-width: 180px;
+    max-width: 320px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.clientes-container .form-cadastro {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+.clientes-container .form-cadastro input,
+.clientes-container .form-cadastro select {
+    flex: 1 1 200px;
+    min-width: 140px;
+    width: auto;
+}
+.clientes-container .form-cadastro button {
+    flex: 1 1 100%;
+    max-width: 480px;
+}
+
+@media (max-width: 880px) {
+    .clientes-container .dashboard-actions { justify-content: stretch; }
+    .clientes-container .dashboard-actions .btn { width: 100%; min-width: unset; max-width: unset; }
+    .clientes-container .form-cadastro { flex-direction: column; }
+}
