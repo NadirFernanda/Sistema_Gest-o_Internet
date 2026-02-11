@@ -135,7 +135,7 @@
 }
 .tabela-estoque-moderna th {
     background: #fffbe7;
-    color: #e09b00;
+    color: #0d6efd;
     font-weight: bold;
     font-size: 1.09em;
     border-bottom: 2px solid #ffe6a0;
