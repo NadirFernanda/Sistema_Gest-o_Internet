@@ -32,7 +32,7 @@
         .col-morada { width:27%; }
         /* Badges for PDF */
         .badge { display:inline-block; padding:3px 7px; border-radius:6px; color:#fff; font-size:11px; }
-        .badge.plan { background:#0d6efd; }
+        .badge.plan { background:#ffc107; color:#222; }
         .badge.cobranca-pago { background:#28a745; }
         .badge.cobranca-pendente { background:#ffc107; color:#222; }
 
@@ -69,7 +69,7 @@
             @if(isset($cliente->planos) && $cliente->planos->count())
                 <table>
                     <thead>
-                        <tr><th>#</th><th>Plano</th><th>Ativação</th><th>Ciclo (dias)</th><th>Estado</th></tr>
+                        <tr><th>Nº</th><th>Plano</th><th>Ativação</th><th>Ciclo (dias)</th><th>Estado</th></tr>
                     </thead>
                     <tbody>
                         @foreach($cliente->planos as $pl)
@@ -94,7 +94,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-id">#</th>
+                            <th class="col-id">Nº</th>
                             <th class="col-nome">Nome</th>
                             <th class="col-modelo">Modelo</th>
                             <th class="col-serie">Série</th>
@@ -136,7 +136,7 @@
             @if($cliente->cobrancas && $cliente->cobrancas->count())
                 <table>
                     <thead>
-                        <tr><th>#</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th></tr>
+                        <tr><th>Nº</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         @foreach($cliente->cobrancas as $c)

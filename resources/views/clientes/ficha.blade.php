@@ -33,10 +33,9 @@
         .section-title { font-weight:700; margin:8px 0 10px; text-align:left; }
         .muted { color:var(--muted); font-size:0.9rem; }
         /* Badges */
-        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#fff; }
-        .badge-planos { background:#0d6efd; }
-        .badge-cobrancas { background:#dc3545; }
-        .badge-cobrancas.pago { background:#28a745; }
+        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#222; background:#ffc107; }
+        .badge-cobrancas { background:#ffc107; }
+        .badge-cobrancas.pago { background:#28a745; color:#fff; }
         .badge-cobrancas.pendente { background:#ffc107; color:#222; }
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
@@ -98,7 +97,7 @@
                     <table class="table mb-0">
                         <thead>
                             <tr>
-                                <th class="col-id">#</th>
+                                <th class="col-id">Nº</th>
                                 <th class="col-nome">Nome</th>
                                 <th class="col-modelo">Modelo</th>
                                 <th class="col-serie">Série</th>
@@ -143,7 +142,7 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>Nº</th>
                                     <th>Nome do Plano</th>
                                     <th>Data Ativação</th>
                                     <th>Ciclo (dias)</th>
@@ -174,8 +173,8 @@
                     @if($cliente->cobrancas && $cliente->cobrancas->count())
                     <table class="table mb-0">
                         <thead>
-                            <tr>
-                                <th>#</th>
+                                <tr>
+                                <th>Nº</th>
                                 <th>Descrição</th>
                                 <th>Valor</th>
                                 <th>Vencimento</th>

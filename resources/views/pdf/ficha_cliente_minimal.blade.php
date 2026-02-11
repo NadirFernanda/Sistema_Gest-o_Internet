@@ -10,7 +10,7 @@
         ul { padding-left:18px; margin:6px 0 12px 0; }
         li { margin-bottom:6px; }
         .badge { display:inline-block; padding:3px 7px; border-radius:6px; color:#fff; font-size:11px; }
-        .badge.plan { background:#0d6efd; }
+        .badge.plan { background:#ffc107; color:#222; }
         .badge.cobranca-pago { background:#28a745; }
         .badge.cobranca-pendente { background:#ffc107; color:#222; }
     </style>
