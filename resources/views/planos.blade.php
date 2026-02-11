@@ -285,15 +285,17 @@
 
                                 // robust handlers: support clicking backdrop, the close button, Escape key
                                 modal.addEventListener('click', function(e){
+                                    // debug: log clicks inside modal
+                                    try { console.debug('[templatesModal] click on', e.target && (e.target.id || e.target.className || e.target.tagName)); } catch(_){}
                                     // backdrop click
                                     if(e.target && e.target.id === 'templatesModal') return closeModal();
                                     // close button
                                     if(e.target && e.target.id === 'closeTemplatesModal') return closeModal();
                                     // delegated handlers for buttons that may be re-rendered
                                     const newBtn = e.target.closest && e.target.closest('#newTemplateBtn');
-                                    if(newBtn) return showCreateForm();
+                                    if(newBtn) { try{ console.debug('delegated: newTemplateBtn'); }catch(_){}; return showCreateForm(); }
                                     const reloadBtn = e.target.closest && e.target.closest('#reloadTemplatesBtn');
-                                    if(reloadBtn) return loadList();
+                                    if(reloadBtn) { try{ console.debug('delegated: reloadTemplatesBtn'); }catch(_){}; return loadList(); }
                                 });
                                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal && modal.style.display === 'flex') closeModal(); });
                         })();
