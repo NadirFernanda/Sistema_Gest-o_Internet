@@ -2,18 +2,20 @@
 
 @section('content')
 <div class="container">
+    {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
+    <div class="ficha-toolbar no-print">
+        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
+        <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
+            @csrf
+            <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
+        </form>
+    </div>
+
     <div class="card mb-3">
-        <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="card-body">
             <div>
                 <h4>Ficha do Cliente</h4>
                 <p class="mb-0">Emitido: {{ now()->toDateString() }}</p>
-            </div>
-            <div class="text-end">
-                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
-                <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
-                    @csrf
-                    <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
-                </form>
             </div>
         </div>
     </div>
