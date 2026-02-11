@@ -34,71 +34,48 @@
                 </form>
             </div>
             <style>
+                /* Search box: large rounded orange bar with icon and full-width button */
                 .busca-clientes-box-alinhada {
                     width: 100%;
-                    // salvar via ajax
-                    formEditarCliente.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const id = this.dataset.clienteId;
-                        const payload = {
-                            bi: document.getElementById('editBI').value,
-                            nome: document.getElementById('editNome').value,
-                            email: document.getElementById('editEmail').value,
-                            contato: document.getElementById('editContato').value
-                        };
-                        fetch(`/clientes/${id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify(payload)
-                        }).then(res => res.json()).then(data => {
-                            if (data.success) {
-                                // atualiza a ficha e fecha o form com efeito
-                                const cliente = data.cliente;
-                                if (clienteDados) {
-                                    clienteDados.innerHTML = `<h5>${escapeHtml(cliente.nome)}</h5>` +
-                                        `<p>${escapeHtml(cliente.bi || '')}</p>` +
-                                        `<p>${escapeHtml(cliente.contato || '')}</p>`;
-                                }
-                                // use close helper to animate + clear fields
-                                closeEditForm({removeHash:true});
-                                // notifica
-                                alert('Dados atualizados com sucesso!');
-                            } else {
-                                alert('Erro ao atualizar.');
-                            }
-                        }).catch(err => {
-                            console.error(err);
-                            alert('Erro ao atualizar.');
-                        });
-                    });
+                    display: flex;
+                    justify-content: center;
+                    margin-top: 12px;
+                }
+                .busca-clientes-form-alinhada {
+                    width: 100%;
+                    max-width: 980px;
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 10px;
+                    align-items: center;
+                }
+                .busca-input-wrapper { position: relative; }
+                .busca-input-wrapper .busca-icone { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+                .busca-input-wrapper input {
+                    width: 100%;
+                    padding: 16px 18px 16px 52px;
+                    border-radius: 999px;
+                    border: none;
+                    background: #e09b00;
+                    color: #fff;
+                    font-size: 1.05rem;
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+                }
+                .busca-input-wrapper input::placeholder { color: rgba(255,255,255,0.9); }
                 .btn.btn-primary {
                     background: #e09b00;
                     color: #fff;
                     border: none;
-                    border-radius: 8px;
-                    padding: 8px 32px;
-                    font-weight: 500;
-                    font-size: 1.08em;
-                    box-shadow: 0 2px 8px #0001;
-                    transition: background 0.2s;
-                    white-space: nowrap;
+                    border-radius: 10px;
+                    padding: 12px 18px;
+                    font-weight: 700;
+                    font-size: 1.05rem;
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
                 }
-                .btn.btn-primary:hover {
-                    background: #b87d00;
-                }
+                .btn.btn-primary:hover { background: #b87d00; }
                 @media (max-width: 768px) {
-                    .busca-clientes-form-alinhada {
-                        grid-template-columns: 1fr;
-                        row-gap: 10px;
-                        max-width: 100%;
-                    }
-                    .btn.btn-primary {
-                        width: 100%;
-                        text-align: center;
-                    }
+                    .busca-clientes-form-alinhada { max-width: 100%; }
+                    .btn.btn-primary { width: 100%; }
                 }
             </style>
             <h2>Lista de Clientes</h2>
