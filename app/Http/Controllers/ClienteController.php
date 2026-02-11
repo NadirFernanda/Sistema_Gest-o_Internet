@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use App\Models\Cliente;
 
 class ClienteController extends Controller
@@ -328,5 +329,29 @@ class ClienteController extends Controller
         $cliente->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Cria uma URL assinada temporária para download da ficha (válida por X minutos).
+     * Rota protegida por `auth` — retorna a URL que pode ser usada por cURL/browser.
+     */
+    public function createSignedUrl($id)
+    {
+        // gera URL assinada para a rota nomeada 'clientes.ficha.signed'
+        $url = URL::temporarySignedRoute('clientes.ficha.signed', now()->addMinutes(10), ['cliente' => $id]);
+        return response()->json(['url' => $url]);
+    }
+
+    /**
+     * Serve a ficha em PDF através de uma rota assinada (ignora sessão, mas requer assinatura válida).
+     * Esta função delega para `fichaPdf` para reutilizar a lógica de geração.
+     */
+    public function fichaPdfSigned(Request $request, $id)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403, 'URL inválida ou expirada');
+        }
+        // Reutiliza a geração existente (retorna streamDownload ou erro)
+        return $this->fichaPdf($id);
     }
 }

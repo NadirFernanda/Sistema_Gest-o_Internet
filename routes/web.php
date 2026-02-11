@@ -26,6 +26,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');
     Route::post('/clientes/{cliente}/ficha/send', [\App\Http\Controllers\ClienteController::class, 'sendFichaEmail'])->name('clientes.ficha.send');
+    // Gera uma URL assinada temporária para download sem sessão
+    Route::get('/clientes/{cliente}/ficha/signed-url', [\App\Http\Controllers\ClienteController::class, 'createSignedUrl'])->name('clientes.ficha.signed.url');
+    
+    // Download latest automatic reports (diario|semanal|mensal) from storage/app/relatorios
+    Route::get('/relatorios/download/{period}', [\App\Http\Controllers\RelatorioController::class, 'download'])
+        ->name('relatorios.download');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', fn () => view('planos'))->name('planos');
@@ -87,3 +93,8 @@ Route::get('/_probe/hasroles', function () {
         'app_env' => env('APP_ENV'),
     ]);
 });
+
+// Rota pública apenas via URL assinada para permitir download temporário sem sessão
+Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfSigned'])
+    ->name('clientes.ficha.signed')
+    ->middleware('signed');
