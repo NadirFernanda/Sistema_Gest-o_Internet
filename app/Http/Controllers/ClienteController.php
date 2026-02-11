@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use App\Models\Cliente;
-use Barryvdh\DomPDF\Facade as Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ClienteController extends Controller
 {
@@ -153,7 +153,7 @@ class ClienteController extends Controller
 
         $output = null;
         try {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
+            $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
             $output = $pdf->output();
         } catch (\Exception $e) {
             \Log::warning('DOMPDF exception generating ficha', ['error' => $e->getMessage()]);
@@ -163,7 +163,7 @@ class ClienteController extends Controller
         // fallback: if output appears too small or failed, try minimal DOMPDF template
         if (empty($output) || strlen($output) < 2000) {
             try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
+                $pdf = Pdf::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
                 $output = $pdf->output();
             } catch (\Exception $e) {
                 \Log::warning('DOMPDF exception generating minimal ficha', ['error' => $e->getMessage()]);
@@ -221,26 +221,26 @@ class ClienteController extends Controller
             $logoData = 'data:image/' . $type . ';base64,' . $data;
         }
 
-        if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
+        if (!class_exists(\Barryvdh\DomPDF\Facade\Pdf::class) && !class_exists(Pdf::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
 
         $output = null;
-        try {
-            $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente', 'logoData'));
-            $output = $pdf->output();
-        } catch (\Exception $e) {
-            \Log::warning('DOMPDF exception generating ficha for email', ['error' => $e->getMessage()]);
-            $output = null;
-        }
-        if (empty($output) || strlen($output) < 2000) {
             try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
+                $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente', 'logoData'));
                 $output = $pdf->output();
             } catch (\Exception $e) {
-                \Log::warning('DOMPDF minimal template failed for email', ['error' => $e->getMessage()]);
+                \Log::warning('DOMPDF exception generating ficha for email', ['error' => $e->getMessage()]);
                 $output = null;
             }
+        if (empty($output) || strlen($output) < 2000) {
+                try {
+                    $pdf = Pdf::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
+                    $output = $pdf->output();
+                } catch (\Exception $e) {
+                    \Log::warning('DOMPDF minimal template failed for email', ['error' => $e->getMessage()]);
+                    $output = null;
+                }
         }
         if (empty($output) || strlen($output) < 2000) {
             try {
@@ -271,7 +271,7 @@ class ClienteController extends Controller
                         $mpdfC->WriteHTML($htmlC);
                         $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                     } else {
-                        $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
+                        $pdfC = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
                         $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                     }
                 } catch (\Exception $e) {
@@ -314,7 +314,8 @@ class ClienteController extends Controller
 
         // Try to generate PDF using the same facade as CobrancaController (DomPDF)
         try {
-            if (class_exists(\Barryvdh\DomPDF\Facade::class)) {
+            // check for the actual DomPDF facade class (Pdf) or the imported alias
+            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class) || class_exists(Pdf::class)) {
                 $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
                 $output = $pdf->output();
             } else {
