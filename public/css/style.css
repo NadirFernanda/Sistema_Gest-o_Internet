@@ -626,3 +626,27 @@ h1 {
     .clientes-container .dashboard-actions .btn { width: 100%; min-width: unset; max-width: unset; }
     .clientes-container .form-cadastro { flex-direction: column; }
 }
+
+/* Fixes for client detail (ficha) page */
+.ficha-cliente .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 10px 18px;
+    min-width: 160px;
+    margin: 8px 10px 8px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.ficha-cliente a.btn { text-decoration: none; }
+.ficha-cliente .btn-danger { background: #e74c3c; color: #fff; }
+
+/* Make edit form grid responsive to avoid overflow */
+@media (max-width: 920px) {
+    .form-editar-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .form-editar-grid { grid-template-columns: 1fr; }
+    .ficha-cliente .btn { width: 100%; margin-left: 0; }
+}
