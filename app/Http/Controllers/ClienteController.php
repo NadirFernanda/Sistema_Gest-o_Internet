@@ -192,6 +192,7 @@ class ClienteController extends Controller
     {
         $cliente = Cliente::with([
             'equipamentos',
+            'planos',
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(20); }
         ])->findOrFail($id);
@@ -205,6 +206,7 @@ class ClienteController extends Controller
     {
         $cliente = Cliente::with([
             'equipamentos',
+            'planos',
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
         ])->findOrFail($id);
@@ -222,6 +224,7 @@ class ClienteController extends Controller
     {
         $cliente = Cliente::with([
             'equipamentos',
+            'planos',
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
         ])->findOrFail($id);

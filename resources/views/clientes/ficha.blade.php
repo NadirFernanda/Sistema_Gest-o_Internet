@@ -39,7 +39,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">Equipamentos Associados</div>
@@ -77,6 +76,37 @@
                     </table>
                     @else
                         <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
+                    @endif
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Planos Contratados</div>
+                <div class="card-body p-0">
+                    @if(isset($cliente->planos) && $cliente->planos->count())
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nome do Plano</th>
+                                    <th>Data Ativação</th>
+                                    <th>Ciclo (dias)</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($cliente->planos as $pl)
+                                    <tr>
+                                        <td>{{ $pl->id }}</td>
+                                        <td>{{ $pl->nome ?? '-' }}</td>
+                                        <td>{{ optional($pl->data_ativacao)->toDateString() ?? '-' }}</td>
+                                        <td>{{ $pl->ciclo ?? '-' }}</td>
+                                        <td>{{ $pl->estado ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <p class="p-3 mb-0">Nenhum plano contratado.</p>
                     @endif
                 </div>
             </div>
