@@ -184,6 +184,52 @@ class ClienteController extends Controller
         $cliente = Cliente::with('equipamentos')->findOrFail($id);
         return view('clientes', compact('cliente'));
     }
+
+    /**
+     * Exibe a ficha detalhada imprimível do cliente
+     */
+    public function ficha($id)
+    {
+        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(20); }])->findOrFail($id);
+        return view('clientes.ficha', compact('cliente'));
+    }
+
+    /**
+     * Retorna a ficha em PDF (requer barryvdh/laravel-dompdf instalado)
+     */
+    public function fichaPdf($id)
+    {
+        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }])->findOrFail($id);
+        if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
+            return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
+        }
+        $pdf = \Barryvdh\DomPDF\Facade::loadView('clientes.ficha', compact('cliente'));
+        return $pdf->download('ficha_cliente_'.$cliente->id.'.pdf');
+    }
+
+    /**
+     * Gera a ficha em PDF e envia por e-mail para o cliente
+     */
+    public function sendFichaEmail(Request $request, $id)
+    {
+        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }])->findOrFail($id);
+        if (empty($cliente->email) || !filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', 'Cliente sem e-mail válido.');
+        }
+        if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
+            return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
+        }
+        $pdf = \Barryvdh\DomPDF\Facade::loadView('clientes.ficha', compact('cliente'));
+        $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
+        // enviar por mailable simples
+        try {
+            \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $pdf->output(), $filename));
+            return redirect()->back()->with('success', 'Ficha enviada por e-mail para ' . $cliente->email);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao enviar ficha por email', ['erro' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Erro ao enviar e-mail.');
+        }
+    }
     public function store(Request $request)
     {
         \Log::info('Entrou no método store do ClienteController', ['request' => $request->all()]);

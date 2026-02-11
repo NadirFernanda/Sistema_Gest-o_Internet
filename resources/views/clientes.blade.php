@@ -108,6 +108,7 @@
                             </div>
                             <div class="cliente-botoes-moderna">
                                 <a href="{{ route('clientes.show', $c->id) }}" class="btn btn-sm btn-info">Ver Ficha</a>
+                                <a href="{{ route('clientes.ficha', $c->id) }}" class="btn btn-sm btn-secondary">Ficha (PDF)</a>
                                 <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn btn-sm btn-warning">Editar</a>
                                 <button class="btn btn-sm btn-danger btn-excluir-cliente" data-id="{{ $c->id }}">Excluir</button>
                             </div>

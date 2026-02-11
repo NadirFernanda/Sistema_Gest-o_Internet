@@ -25,4 +25,9 @@ class Cliente extends Model
     {
         return $this->hasMany(Equipamento::class);
     }
+
+    public function cobrancas()
+    {
+        return $this->hasMany(Cobranca::class);
+    }
 }
