@@ -41,7 +41,21 @@
             .cliente-item-moderna { padding: 12px 16px; border-radius:10px; }
             .cliente-info-moderna { gap: 12px; font-size: 1rem; }
             .cliente-bi { color: #d18f00; font-weight:700; }
-            .cliente-botoes-moderna .btn { border-radius:8px; padding:8px 10px; min-width:56px; }
+            .cliente-botoes-moderna .btn {
+                border-radius:8px;
+                padding:0 12px;
+                /* Force consistent size so text doesn't wrap differently per client */
+                min-width:120px;
+                max-width:120px;
+                height:42px;
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                box-sizing:border-box;
+            }
 
             @media (max-width:768px) {
                 .cliente-item-moderna { flex-direction: column; align-items:flex-start; gap:10px; }
@@ -124,10 +138,23 @@
                         .cliente-botoes-moderna {
                             display: flex;
                             gap: 10px;
+                            align-items: center;
                         }
-                        .btn.btn-sm {
-                            min-width: 90px;
-                            font-size: 1em;
+                        /* Ensure all small buttons in the list have identical width and prevent wrapping */
+                        .cliente-botoes-moderna .btn.btn-sm,
+                        .clientes-container .btn.btn-sm {
+                            min-width:120px;
+                            max-width:120px;
+                            height:42px;
+                            padding:0 12px;
+                            white-space:nowrap;
+                            overflow:hidden;
+                            text-overflow:ellipsis;
+                            display:inline-flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:1em;
+                            box-sizing:border-box;
                         }
                     </style>
                 @else
