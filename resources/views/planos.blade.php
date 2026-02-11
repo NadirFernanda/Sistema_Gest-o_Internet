@@ -320,4 +320,27 @@
                         })();
         })();
     </script>
+    <script>
+        // Populate `#clientePlano` with clients from the server (returns JSON when Accept: application/json)
+        document.addEventListener('DOMContentLoaded', function(){
+            const clienteSelect = document.getElementById('clientePlano');
+            if(!clienteSelect) return;
+            fetch('/clientes', { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.ok ? response.json() : Promise.reject())
+                .then(list => {
+                    const items = Array.isArray(list) ? list : (list.data || []);
+                    items.forEach(c => {
+                        try {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = (c.nome || c.name) + (c.bi ? ' — ' + c.bi : '');
+                            clienteSelect.appendChild(opt);
+                        } catch(_) { /* ignore malformed entries */ }
+                    });
+                })
+                .catch(() => {
+                    // silently ignore - leaving the default option if request fails
+                });
+        });
+    </script>
 @endsection
