@@ -7,7 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    {{-- Cache-busting query to force browsers to fetch updated CSS after deploy --}}
+    {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Cache-busting query to force browsers to fetch updated CSS after deploy (legacy styles) --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
 
     @stack('styles')
