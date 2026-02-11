@@ -4,7 +4,7 @@
 <div class="container">
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
-        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary" target="_blank" rel="noopener">Download PDF</a>
+        <button id="download-ficha-btn" data-url="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</button>
         <form id="ficha-send-form" action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
             @csrf
             <button type="submit" class="btn btn-sm btn-primary">Enviar por e-mail</button>
@@ -146,3 +146,44 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('download-ficha-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const url = btn.dataset.url;
+        btn.disabled = true;
+        fetch(url, { credentials: 'same-origin' })
+            .then(resp => {
+                if (!resp.ok) {
+                    // if server returned HTML (login) redirect user to login
+                    const ct = resp.headers.get('content-type') || '';
+                    if (ct.indexOf('text/html') !== -1) {
+                        window.location = '/login';
+                        throw new Error('not-authenticated');
+                    }
+                    throw new Error('HTTP ' + resp.status);
+                }
+                return resp.blob();
+            })
+            .then(blob => {
+                const filename = 'ficha_cliente_{{ $cliente->id }}.pdf';
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(link.href);
+            })
+            .catch(err => {
+                if (err && err.message !== 'not-authenticated') alert('Erro ao baixar PDF: ' + err.message);
+            })
+            .finally(() => { btn.disabled = false; });
+    });
+});
+</script>
+@endpush
