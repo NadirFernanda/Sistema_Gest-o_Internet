@@ -253,6 +253,48 @@ h1 {
 .planos-container .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .planos-container .actions .btn { min-width: 110px; padding: 10px 14px; border-radius: 8px; }
 
+/* Action buttons: modern, compact and consistent */
+.planos-container .actions { align-items: flex-end; }
+.planos-container .actions { flex-direction: row; }
+.planos-container .actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    min-width: 100px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+    transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+}
+.planos-container .actions .btn:hover { transform: translateY(-1px); }
+
+/* Edit (primary) */
+.planos-container .actions .btn.btn-primary {
+    background: linear-gradient(180deg,#f7b500,#e6a300);
+    color: #fff;
+    border: none;
+}
+
+/* Remove (destructive) */
+.planos-container .actions .btn.btn-danger, .planos-container .actions .btn.btn-secondary.remove {
+    background: transparent;
+    color: #d32f2f;
+    border: 1px solid rgba(211,47,47,0.12);
+    box-shadow: none;
+}
+.planos-container .actions .btn.btn-danger:hover, .planos-container .actions .btn.btn-secondary.remove:hover {
+    background: rgba(211,47,47,0.06);
+    border-color: #d32f2f;
+    color: #d32f2f;
+}
+
+@media (max-width:700px) {
+    .planos-container .actions { flex-direction: column; align-items: stretch; }
+    .planos-container .actions .btn { width: 100%; min-width: 0; }
+}
+
 @media (max-width: 900px) {
     .planos-container { padding: 18px; }
     .planos-container table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
