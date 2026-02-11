@@ -26,7 +26,7 @@
         <input type="text" name="estado">
       </div>
       <div style="margin-top:12px">
-        <button class="btn" type="submit" style="background:#f7b500;color:#fff;">Salvar Modelo</button>
+        <button class="btn btn-primary" type="submit">Salvar Modelo</button>
         <a href="{{ route('plan-templates.index') }}" class="btn">Cancelar</a>
       </div>
     </form>

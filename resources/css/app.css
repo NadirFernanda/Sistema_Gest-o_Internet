@@ -72,3 +72,32 @@
     }
     .choices__inner { border-radius: 10px; }
 
+    /* Standard button styles (system default: logo colors)
+       - Primary: yellow (accent)
+       - Secondary: gray
+    */
+    .btn {
+        display:inline-block;
+        padding:8px 14px;
+        border-radius:8px;
+        border:none;
+        cursor:pointer;
+        font-weight:600;
+        color:#fff;
+        background:#6c757d; /* fallback gray */
+    }
+    .btn-primary {
+        background: #f7b500;
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(247,181,0,0.18);
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+    }
+    .small-btn {
+        padding:6px 10px;
+        border-radius:6px;
+        font-size:0.95rem;
+    }
+

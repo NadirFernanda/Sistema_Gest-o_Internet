@@ -10,7 +10,7 @@
             <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias
         </div>
         <div style="margin: 24px 0 0 0; text-align: right;">
-            <button id="btnDispararAlertas" class="btn" style="background:#f7b500;color:#fff;font-weight:600;">Disparar Alertas</button>
+            <button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>
         </div>
         <h2 style="margin-top:32px;">Lista de Alertas</h2>
         <div class="alertas-lista" id="alertasLista">

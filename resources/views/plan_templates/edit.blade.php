@@ -27,7 +27,7 @@
         <input type="text" name="estado" value="{{ old('estado', $template->estado) }}">
       </div>
       <div style="margin-top:12px">
-        <button class="btn" type="submit" style="background:#f7b500;color:#fff;">Salvar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
         <a href="{{ route('plan-templates.index') }}" class="btn">Cancelar</a>
       </div>
     </form>

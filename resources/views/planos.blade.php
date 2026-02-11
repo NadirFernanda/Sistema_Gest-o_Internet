@@ -5,9 +5,9 @@
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Gestão de Planos</h1>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-            <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
-            <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn" style="background:#2a6fda;">Gerir Modelos</a>
-            <button type="button" id="refreshTemplatesBtn" class="btn" style="background:#6c757d;">Atualizar Modelos</button>
+            <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-secondary">Gerir Modelos</a>
+            <button type="button" id="refreshTemplatesBtn" class="btn btn-secondary">Atualizar Modelos</button>
         </div>
         <form id="formPlano" class="form-cadastro">
             <select id="templateSelector" class="select">
@@ -40,13 +40,7 @@
                 placeholder="Pesquisar por plano ou cliente..."
                 style="flex:1; min-width:220px; padding:8px 10px; border-radius:8px; border:1px solid #ccc;"
             >
-            <button
-                type="button"
-                id="btnBuscarPlanos"
-                style="padding:8px 16px; border-radius:8px; border:none; background:#f7b500; color:#fff; cursor:pointer; white-space:nowrap;"
-            >
-                Pesquisar
-            </button>
+                <button type="button" id="btnBuscarPlanos" class="btn btn-primary">Pesquisar</button>
         </div>
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
@@ -170,12 +164,12 @@
                                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                                             <h3 style="margin:0">Modelos de Plano</h3>
                                             <div>
-                                                <button id="closeTemplatesModal" class="small-btn" style="background:#eee">Fechar</button>
+                                                <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
                                             </div>
                                         </div>
                                         <div class="controls">
-                                            <button id="newTemplateBtn" class="small-btn" style="background:#2a6fda; color:#fff">Novo Modelo</button>
-                                            <button id="reloadTemplatesBtn" class="small-btn" style="background:#6c757d; color:#fff">Recarregar</button>
+                                                <button id="newTemplateBtn" class="small-btn btn btn-primary">Novo Modelo</button>
+                                            <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
                                         </div>
                                         <div id="templatesListContainer"><em>Carregando...</em></div>
                                         <div id="templateFormContainer" style="margin-top:12px; display:none;"></div>
@@ -209,7 +203,7 @@
                                         if(!list.length){ listContainer.innerHTML = '<div>Nenhum modelo cadastrado.</div>'; return; }
                                         let html = '<table><thead><tr><th>Nome</th><th>Preço</th><th>Ciclo</th><th>Estado</th><th></th></tr></thead><tbody>';
                                         list.forEach(t => {
-                                                html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td style="text-align:right;"><button class="editBtn small-btn" data-id="${t.id}" style="background:#ffc107">Editar</button> <button class="delBtn small-btn" data-id="${t.id}" style="background:#dc3545;color:#fff">Apagar</button></td></tr>`;
+                                                html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td style="text-align:right;"><button class="editBtn small-btn btn btn-primary" data-id="${t.id}">Editar</button> <button class="delBtn small-btn btn btn-secondary" data-id="${t.id}">Apagar</button></td></tr>`;
                                         });
                                         html += '</tbody></table>';
                                         listContainer.innerHTML = html;
@@ -255,8 +249,8 @@
                                                 <div style="margin-top:8px;"><input name="estado" placeholder="Estado" value="${escapeAttr(data.estado||'')}" style="padding:8px;border:1px solid #ccc;border-radius:6px;" /></div>
                                                 <div style="margin-top:8px;"><textarea name="description" placeholder="Descrição" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;">${escapeAttr(data.description||'')}</textarea></div>
                                                 <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
-                                                    <button type="button" id="cancelTemplateForm" class="small-btn" style="background:#eee">Cancelar</button>
-                                                    <button type="submit" class="small-btn" style="background:#28a745;color:#fff">Salvar</button>
+                                                    <button type="button" id="cancelTemplateForm" class="small-btn btn btn-secondary">Cancelar</button>
+                                                    <button type="submit" class="small-btn btn btn-primary">Salvar</button>
                                                 </div>
                                             </form>`;
                                 }
