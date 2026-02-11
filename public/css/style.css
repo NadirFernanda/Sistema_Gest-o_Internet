@@ -742,7 +742,7 @@ button.btn-danger:hover, .btn.btn-danger:hover {
 .btn, .btn-ghost, .btn-create-user, .btn.btn-primary, .btn-submit-top, .btn-editar-plano, .btn-remover-plano {
     background: var(--accent) !important;
     border-color: var(--accent) !important;
-    color: #000 !important; /* dark text for better contrast on yellow */
+    color: #fff !important; /* white text for better legibility on yellow */
     box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
     padding: 8px 12px !important;
     min-width: unset !important;
