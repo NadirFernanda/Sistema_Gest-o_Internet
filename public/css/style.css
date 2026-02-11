@@ -239,6 +239,25 @@ h1 {
 .user-info{display:flex;align-items:center;gap:8px}
 .user-email{font-weight:600;color:#333}
 .role-active{font-size:0.9rem;color:#444}
+
+/* Planos: improved table visuals */
+.planos-container .table-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: visible; margin-top: 8px; }
+.planos-container table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; background: transparent; }
+.planos-container thead th { background: #f7b500; color: #fff; padding: 18px 20px; text-align: left; font-weight: 800; font-size: 1.02rem; position: sticky; top: 0; z-index: 3; }
+.planos-container tbody td { padding: 20px 18px; vertical-align: middle; color: #222; font-size: 0.98rem; border-top: 1px solid rgba(247,181,0,0.08); }
+.planos-container tbody tr:nth-child(even) { background: #fffaf2; }
+.planos-container tbody tr:hover { background: #fffef8; }
+.planos-container .status-badge { display: inline-block; padding: 8px 12px; border-radius: 8px; font-weight: 700; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+.planos-container .status-badge.ativo { background: #4caf50; }
+.planos-container .status-badge.aviso { background: #f7b500; color: #fff; }
+.planos-container .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.planos-container .actions .btn { min-width: 110px; padding: 10px 14px; border-radius: 8px; }
+
+@media (max-width: 900px) {
+    .planos-container { padding: 18px; }
+    .planos-container table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .planos-container thead th { position: relative; }
+}
 .role-badge{background:#f7b500;color:#fff;padding:4px 8px;border-radius:8px;margin-left:6px;font-weight:600}
 .user-actions a{margin-left:10px;color:inherit;text-decoration:none}
 .link-button{background:none;border:none;color:inherit;cursor:pointer;padding:0;font:inherit}
