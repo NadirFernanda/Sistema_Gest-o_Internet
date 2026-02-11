@@ -69,6 +69,22 @@ class GerarFichaPdf extends Command
 
             $this->info("Ficha salva em: {$path}");
             $this->info("HTML salvo em: " . ($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.html"));
+            // Also generate a minimal debug PDF (plain text) to check DOMPDF rendering
+            try {
+                $plainHtml = '<html><body><h1>Ficha de Cliente (Debug)</h1><p>ID: ' . e($cliente->id) . '</p><p>Nome: ' . e($cliente->nome) . '</p></body></html>';
+                $plainPdf = \PDF::loadHTML($plainHtml);
+                $plainPdf->setPaper('a4', 'portrait');
+                if (method_exists($plainPdf, 'setOptions')) {
+                    $plainPdf->setOptions(['isRemoteEnabled' => true, 'enable_php' => false]);
+                }
+                $plainPath = $dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}_debug.pdf";
+                file_put_contents($plainPath, $plainPdf->output());
+                file_put_contents($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}_debug.html", $plainHtml);
+                $this->info("Debug PDF salvo em: {$plainPath}");
+            } catch (\Exception $e) {
+                $this->error('Erro ao gerar PDF de debug: ' . $e->getMessage());
+            }
+
             return 0;
         } catch (\Exception $e) {
             $this->error('Erro ao gerar PDF: ' . $e->getMessage());
