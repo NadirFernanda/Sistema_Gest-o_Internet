@@ -354,4 +354,14 @@ class ClienteController extends Controller
         // Reutiliza a geração existente (retorna streamDownload ou erro)
         return $this->fichaPdf($id);
     }
+
+    /**
+     * TEMPORARY: Serve ficha PDF publicly for testing (no auth, no signature).
+     * REMOVE after verification.
+     */
+    public function fichaPdfPublic($id)
+    {
+        // Note: this intentionally bypasses auth for quick testing only.
+        return $this->fichaPdf($id);
+    }
 }

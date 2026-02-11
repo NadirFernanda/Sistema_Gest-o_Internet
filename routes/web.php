@@ -98,3 +98,7 @@ Route::get('/_probe/hasroles', function () {
 Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfSigned'])
     ->name('clientes.ficha.signed')
     ->middleware('signed');
+
+// TEMPORARY public download for testing (no auth, remove after testing)
+Route::get('/clientes/{cliente}/ficha/public-download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfPublic'])
+    ->name('clientes.ficha.public');
