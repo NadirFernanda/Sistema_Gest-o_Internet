@@ -398,13 +398,29 @@ class ClienteController extends Controller
         \Log::info('Entrou no método store do ClienteController', ['request' => $request->all()]);
         try {
             $validated = $request->validate([
-                'bi' => 'required|string|max:32|unique:clientes,bi',
+                'bi_tipo' => 'required|string|in:BI,NIF,Outro',
+                'bi_numero' => 'required|string|max:64',
+                'bi_tipo_outro' => 'nullable|string|max:64',
                 'nome' => 'required|string|max:255',
                 'email' => 'required|email|unique:clientes,email',
                 'contato' => 'required|string|max:20|unique:clientes,contato',
             ]);
 
-            $cliente = Cliente::create($validated);
+            // Compose the stored `bi` value. If user selected Outro and provided a label,
+            // prefix the number with the label to keep context (e.g. "Passaporte:12345").
+            $biValue = $validated['bi_numero'];
+            if (isset($validated['bi_tipo']) && $validated['bi_tipo'] === 'Outro' && !empty($validated['bi_tipo_outro'])) {
+                $biValue = $validated['bi_tipo_outro'] . ':' . $validated['bi_numero'];
+            }
+
+            $data = [
+                'bi' => $biValue,
+                'nome' => $validated['nome'],
+                'email' => $validated['email'],
+                'contato' => $validated['contato'],
+            ];
+
+            $cliente = Cliente::create($data);
             \Log::info('Cliente cadastrado', ['cliente' => $cliente]);
 
             return response()->json([
@@ -431,16 +447,40 @@ class ClienteController extends Controller
 
     public function update(Request $request, $id)
     {
-
-        $validated = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'bi_tipo' => 'sometimes|required_with:bi_numero|string|in:BI,NIF,Outro',
+            'bi_numero' => 'sometimes|required_with:bi_tipo|string|max:64',
+            'bi_tipo_outro' => 'nullable|string|max:64',
             'nome' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|email|unique:clientes,email,' . $id,
             'contato' => 'sometimes|required|string|max:20|unique:clientes,contato,' . $id,
-            'bi' => 'sometimes|nullable|string|max:32',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()->messages()], 422);
+        }
+
+        $data = $validator->validated();
+
+        // If BI fields were provided, compose the stored `bi` value and ensure uniqueness
+        if (isset($data['bi_tipo']) && isset($data['bi_numero'])) {
+            $biValue = $data['bi_numero'];
+            if ($data['bi_tipo'] === 'Outro' && !empty($data['bi_tipo_outro'])) {
+                $biValue = $data['bi_tipo_outro'] . ':' . $data['bi_numero'];
+            }
+
+            $exists = Cliente::where('bi', $biValue)->where('id', '!=', $id)->exists();
+            if ($exists) {
+                return response()->json(['success' => false, 'errors' => ['bi_numero' => ['Já existe um cliente cadastrado com este documento.']]], 422);
+            }
+            $data['bi'] = $biValue;
+        }
+
+        // Only keep the allowed updatable fields for update
+        $updatable = array_intersect_key($data, array_flip(['bi','nome','email','contato']));
+
         $cliente = Cliente::findOrFail($id);
-        $cliente->update($validated);
+        $cliente->update($updatable);
 
         return response()->json(['success' => true, 'cliente' => $cliente]);
     }
