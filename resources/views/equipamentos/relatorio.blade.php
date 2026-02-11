@@ -75,7 +75,7 @@
     <table class="table table-bordered table-striped mt-4" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">
         <thead style="background:#f7b500;color:#fff;">
             <tr>
-                <th>ID</th>
+                <th>Nº</th>
                 <th>Nome</th>
                 <th>Descrição</th>
                 <th>Modelo</th>

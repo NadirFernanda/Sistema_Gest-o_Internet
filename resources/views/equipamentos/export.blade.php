@@ -1,7 +1,7 @@
 <table>
     <thead>
         <tr>
-            <th>ID</th>
+            <th>Nº</th>
             <th>Nome</th>
             <th>Descrição</th>
             <th>Modelo</th>
