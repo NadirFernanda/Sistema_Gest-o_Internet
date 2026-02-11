@@ -4,10 +4,10 @@
     <div class="planos-container">
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Gestão de Planos</h1>
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
-            <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-secondary">Gerir Modelos</a>
-            <button type="button" id="refreshTemplatesBtn" class="btn btn-secondary">Atualizar Modelos</button>
+        <div class="hero-ctas">
+            <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
+            <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a>
+            <button type="button" id="refreshTemplatesBtn" class="btn btn-cta">Atualizar Modelos</button>
         </div>
         <form id="formPlano" class="form-cadastro">
             <select id="templateSelector" class="select">
@@ -33,14 +33,14 @@
             <button type="submit">Cadastrar Plano</button>
         </form>
         <h2 style="margin-top:32px;">Lista de Planos</h2>
-        <div class="busca-planos-form" style="margin:12px 0 4px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <div class="busca-planos-form">
             <input
                 type="text"
                 id="buscaPlanos"
+                class="busca-planos-input"
                 placeholder="Pesquisar por plano ou cliente..."
-                style="flex:1; min-width:220px; padding:8px 10px; border-radius:8px; border:1px solid #ccc;"
             >
-                <button type="button" id="btnBuscarPlanos" class="btn btn-primary">Pesquisar</button>
+            <button type="button" id="btnBuscarPlanos" class="busca-planos-btn">Pesquisar</button>
         </div>
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
@@ -51,15 +51,15 @@
         /* simple modal styles */
         #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1200; }
         #templatesModal .modal { background:#fff; width:90%; max-width:900px; border-radius:8px; padding:16px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
-        /* make modal content scrollable when taller than viewport */
-        #templatesModal .modal { max-height: 90vh; overflow:auto; }
+        /* expand modal instead of forcing an internal scroll */
+        #templatesModal .modal { max-height: none; overflow: visible; }
         #templatesModal table { width:100%; border-collapse:collapse; }
         #templatesModal th, #templatesModal td { padding:8px 6px; border-bottom:1px solid #eee; text-align:left; }
         #templatesModal .controls { display:flex; gap:8px; margin-bottom:8px; }
         /* Ensure modal primary buttons use the project yellow even if Bootstrap is present */
         #templatesModal .btn-primary--fixed {
             background: #f7b500 !important;
-            color: #000 !important;
+            color: #fff !important;
             box-shadow: 0 6px 18px rgba(247,181,0,0.18) !important;
         }
         #templatesModal .small-btn { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
@@ -174,7 +174,7 @@
                                             </div>
                                         </div>
                                         <div class="controls">
-                                                <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#000;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
+                                                <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#fff;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
                                             <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
                                         </div>
                                         <div id="templatesListContainer"><em>Carregando...</em></div>
