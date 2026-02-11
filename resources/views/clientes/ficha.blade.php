@@ -4,10 +4,10 @@
 <div class="container">
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
-        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
-        <form action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
+        <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary" target="_blank" rel="noopener">Download PDF</a>
+        <form id="ficha-send-form" action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
             @csrf
-            <button class="btn btn-sm btn-primary">Enviar por e-mail</button>
+            <button type="submit" class="btn btn-sm btn-primary">Enviar por e-mail</button>
         </form>
     </div>
 
@@ -98,7 +98,7 @@
                                     <tr>
                                         <td>{{ $pl->id }}</td>
                                         <td>{{ $pl->nome ?? '-' }}</td>
-                                        <td>{{ optional($pl->data_ativacao)->toDateString() ?? '-' }}</td>
+                                        <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
                                         <td>{{ $pl->ciclo ?? '-' }}</td>
                                         <td>{{ $pl->estado ?? '-' }}</td>
                                     </tr>
@@ -131,7 +131,7 @@
                                 <td>{{ $c->id }}</td>
                                 <td>{{ $c->descricao ?? '-' }}</td>
                                 <td>{{ number_format($c->valor, 2, ',', '.') }} Kz</td>
-                                <td>{{ optional($c->data_vencimento)->toDateString() }}</td>
+                                <td>{{ $c->data_vencimento ? \Carbon\Carbon::parse($c->data_vencimento)->format('d/m/Y') : 'Sem data' }}</td>
                                 <td>{{ $c->estado ?? '-' }}</td>
                             </tr>
                             @endforeach
