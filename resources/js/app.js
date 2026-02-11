@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.select').forEach(function(el){
 			if (el && !el.classList.contains('choices-initialized')){
 				window._choicesMap = window._choicesMap || {};
-				window._choicesMap[el.id] = new Choices(el, { searchEnabled: false, itemSelectText: '', shouldSort: false });
+				window._choicesMap[el.id] = new Choices(el, { searchEnabled: false, itemSelectText: '', shouldSort: false, allowHTML: false });
 				el.classList.add('choices-initialized');
 			}
 		});

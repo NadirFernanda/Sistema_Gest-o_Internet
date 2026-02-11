@@ -112,7 +112,8 @@
                 const refreshBtn = document.getElementById('refreshTemplatesBtn');
                 if(!tplSelect) return;
 
-                function loadTemplates(){
+                // expose a global loader so other modules (modal) can refresh templates
+                window.loadTemplates = function(){
                     fetch('{{ route('plan-templates.list.json') }}')
                         .then(r => r.json())
                         .then(list => {
@@ -131,7 +132,7 @@
                                 });
                             }
                         }).catch(()=>{});
-                }
+                };
 
                 tplSelect.addEventListener('change', function(){
                     const id = this.value;
@@ -150,10 +151,13 @@
                         }).catch(()=>{});
                 });
 
-                if(refreshBtn) refreshBtn.addEventListener('click', loadTemplates);
+                // safe caller wrapper in case the loader isn't available (prevents ReferenceError)
+                function callLoadTemplates(){ if(typeof window.loadTemplates === 'function'){ try{ window.loadTemplates(); }catch(_){} } }
+
+                if(refreshBtn) refreshBtn.addEventListener('click', callLoadTemplates);
 
                 // initial load
-                loadTemplates();
+                callLoadTemplates();
             })();
                         // Modal for managing templates
                         (function(){
@@ -255,7 +259,7 @@
                                                 const method = id?'PUT':'POST';
                                                 fetch(url, { method: 'POST', headers: {'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override': method }, body: fd })
                                                         .then(r => { if(r.ok) return r.text(); throw new Error('Erro'); })
-                                                        .then(()=>{ loadList(); loadTemplates(); formContainer.style.display='none'; })
+                                                .then(()=>{ loadList(); callLoadTemplates(); formContainer.style.display='none'; })
                                                         .catch(()=> alert('Erro ao salvar.'));
                                         });
                                 }
@@ -263,8 +267,8 @@
                                 function deleteTemplate(id){
                                         if(!confirm('Confirma apagar este modelo?')) return;
                                         fetch(`/plan-templates/${id}`, { method:'POST', headers:{ 'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override':'DELETE' } })
-                                                .then(r => { if(r.ok) return r.text(); throw new Error('Erro'); })
-                                                .then(()=>{ loadList(); loadTemplates(); })
+                                            .then(r => { if(r.ok) return r.text(); throw new Error('Erro'); })
+                                            .then(()=>{ loadList(); callLoadTemplates(); })
                                                 .catch(()=> alert('Erro ao apagar.'));
                                 }
 
