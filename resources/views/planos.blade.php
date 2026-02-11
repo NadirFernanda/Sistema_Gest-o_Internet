@@ -6,6 +6,10 @@
         <h1>Gestão de Planos</h1>
         <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
         <form id="formPlano" class="form-cadastro">
+            <select id="templateSelector">
+                <option value="">Usar modelo (opcional)</option>
+            </select>
+            
             <select id="clientePlano" required>
                 <option value="">Selecione o cliente</option>
             </select>
@@ -88,6 +92,38 @@
                     if(!isNaN(n)) hidden.value = n.toFixed(2);
                 });
             }
+            // load templates and hook selector
+            (function(){
+                const tplSelect = document.getElementById('templateSelector');
+                if(!tplSelect) return;
+                fetch('{{ route('plan-templates.list.json') }}')
+                    .then(r => r.json())
+                    .then(list => {
+                        list.forEach(t => {
+                            const opt = document.createElement('option');
+                            opt.value = t.id;
+                            opt.textContent = t.name + (t.preco ? ' — Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2}) : '');
+                            tplSelect.appendChild(opt);
+                        });
+                    }).catch(()=>{});
+
+                tplSelect.addEventListener('change', function(){
+                    const id = this.value;
+                    if(!id) return;
+                    fetch(`/plan-templates/${id}/json`)
+                        .then(r => r.json())
+                        .then(t => {
+                            if(t.name) document.getElementById('nomePlano').value = t.name;
+                            if(t.description) document.getElementById('descricaoPlano').value = t.description;
+                            if(t.preco){
+                                document.getElementById('precoPlano').value = Number(t.preco).toFixed(2);
+                                document.getElementById('precoPlanoDisplay').value = 'Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2});
+                            }
+                            if(t.ciclo) document.getElementById('cicloPlano').value = t.ciclo;
+                            if(t.estado) document.getElementById('estadoPlano').value = t.estado;
+                        }).catch(()=>{});
+                });
+            })();
         })();
     </script>
 @endsection

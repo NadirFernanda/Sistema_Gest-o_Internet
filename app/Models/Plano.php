@@ -13,10 +13,16 @@ class Plano extends Model
         'descricao',
         'preco',
         'ciclo',
+        'template_id',
         'cliente_id',
         'estado',
         'data_ativacao',
     ];
+
+    public function template()
+    {
+        return $this->belongsTo(PlanTemplate::class, 'template_id');
+    }
 
     public function cliente()
     {

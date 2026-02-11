@@ -1,6 +1,55 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Usage: ./scripts/deploy.sh [branch]
+# Example: ./scripts/deploy.sh main
+
+BRANCH=${1:-main}
+APP_DIR="/var/www/sgmrtexas"
+
+echo "Deploying branch '$BRANCH' into $APP_DIR"
+
+cd "$APP_DIR"
+
+echo "Fetching latest..."
+git fetch --all --prune
+git checkout "$BRANCH"
+git pull origin "$BRANCH"
+
+echo "Installing PHP dependencies..."
+composer install --no-dev --optimize-autoloader
+
+echo "Installing/building front-end assets..."
+if [ -f package-lock.json ] || [ -f pnpm-lock.yaml ]; then
+  npm ci
+else
+  npm install
+fi
+npm run build
+
+echo "Running migrations..."
+php artisan migrate --force
+
+echo "Linking storage (if needed)..."
+php artisan storage:link || true
+
+echo "Caching config, routes and views..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+echo "Setting permissions..."
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+echo "Restarting services..."
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+
+echo "Deploy finished successfully."
+#!/usr/bin/env bash
+set -euo pipefail
+
 # Deploy script for sgmrtexas
 # Usage: ./scripts/deploy.sh [branch]
 # Example: ./scripts/deploy.sh main

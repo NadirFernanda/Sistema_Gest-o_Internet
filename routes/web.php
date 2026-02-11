@@ -70,6 +70,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users', [\App\Http\Controllers\UserController::class, 'store'])
         ->name('admin.users.store')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.create');
+    
+    // Plan templates (catalog of reusable plans)
+    Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');
+    Route::get('/plan-templates/create', [\App\Http\Controllers\PlanTemplateController::class, 'create'])->name('plan-templates.create');
+    Route::post('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'store'])->name('plan-templates.store');
+    Route::get('/plan-templates/{plan_template}/edit', [\App\Http\Controllers\PlanTemplateController::class, 'edit'])->name('plan-templates.edit');
+    Route::put('/plan-templates/{plan_template}', [\App\Http\Controllers\PlanTemplateController::class, 'update'])->name('plan-templates.update');
+    Route::delete('/plan-templates/{plan_template}', [\App\Http\Controllers\PlanTemplateController::class, 'destroy'])->name('plan-templates.destroy');
+    // JSON endpoint
+    Route::get('/plan-templates/{plan_template}/json', [\App\Http\Controllers\PlanTemplateController::class, 'json'])->name('plan-templates.json');
+    Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
