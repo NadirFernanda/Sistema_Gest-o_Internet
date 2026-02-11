@@ -40,7 +40,10 @@ Route::middleware('auth')->group(function () {
         ->name('relatorios.download');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
-    Route::get('/planos', fn () => view('planos'))->name('planos');
+    Route::get('/planos', function () {
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('planos', compact('clientes'));
+    })->name('planos');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças

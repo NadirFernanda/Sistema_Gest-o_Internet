@@ -18,6 +18,11 @@
             
             <select id="clientePlano" class="select" required>
                 <option value="">Selecione o cliente</option>
+                @if(isset($clientes) && count($clientes))
+                    @foreach($clientes as $c)
+                        <option value="{{ $c->id }}">{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
+                    @endforeach
+                @endif
             </select>
             <input type="text" id="nomePlano" placeholder="Nome do plano" required>
             <input type="text" id="descricaoPlano" placeholder="Descrição" required>
