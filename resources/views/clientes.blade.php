@@ -276,6 +276,16 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // small helper to avoid injecting HTML from server data
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
         const form = document.getElementById('formCliente');
         if (form) {
             form.addEventListener('submit', function(e) {
@@ -442,10 +452,34 @@
                     if (data.success) {
                         msgSpan.textContent = 'Dados atualizados com sucesso!';
                         msgSpan.style.color = 'green';
-                        document.getElementById('editBI').value = data.cliente.bi;
-                        document.getElementById('editNome').value = data.cliente.nome;
-                        document.getElementById('editEmail').value = data.cliente.email;
-                        document.getElementById('editContato').value = data.cliente.contato;
+                        // update ficha (read-only block) with new data
+                        const clienteDadosBlock = document.querySelector('.cliente-dados-moderna');
+                        if (clienteDadosBlock) {
+                            clienteDadosBlock.innerHTML = `
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
+                                    <div><strong>BI/NIF:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.bi || '-')}</div></div>
+                                    <div><strong>Nome:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.nome || '-')}</div></div>
+                                    <div><strong>Email:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.email || '-')}</div></div>
+                                    <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">${escapeHtml(data.cliente.contato || '-')}</div></div>
+                                </div>
+                            `;
+                        }
+                        // hide edit form, clear fields and remove hash
+                        const formEditar = document.getElementById('formEditarCliente');
+                        if (formEditar) {
+                            formEditar.style.display = 'none';
+                            const fbi = document.getElementById('editBI');
+                            const fnome = document.getElementById('editNome');
+                            const femail = document.getElementById('editEmail');
+                            const fcont = document.getElementById('editContato');
+                            if (fbi) fbi.value = '';
+                            if (fnome) fnome.value = '';
+                            if (femail) femail.value = '';
+                            if (fcont) fcont.value = '';
+                        }
+                        if (history && history.replaceState) {
+                            history.replaceState(null, null, window.location.pathname + window.location.search);
+                        }
                     } else if (data.errors) {
                         let msg = 'Erro ao atualizar: ';
                         for (const [campo, mensagens] of Object.entries(data.errors)) {
