@@ -34,8 +34,17 @@ class GerarFichaPdf extends Command
         }
 
         try {
+            // Prepare logo as data URI (embed) to avoid remote fetch issues
+            $logoData = null;
+            $logoPath = public_path('img/logo2.jpeg');
+            if (file_exists($logoPath)) {
+                $type = mime_content_type($logoPath) ?: 'image/jpeg';
+                $data = base64_encode(file_get_contents($logoPath));
+                $logoData = "data:{$type};base64,{$data}";
+            }
+
             // Render the view to HTML first (helpful for debugging)
-            $html = view('pdf.ficha_cliente', compact('cliente'))->render();
+            $html = view('pdf.ficha_cliente', compact('cliente', 'logoData'))->render();
 
             // Ensure storage dir exists
             $dir = storage_path('app/fichas');
