@@ -12,7 +12,7 @@
         /* Minimal, DOMPDF-friendly styles */
         html, body { margin:0; padding:0; font-family: sans-serif; color:#222; font-size:12px; }
         .header { text-align:center; margin-bottom:8px; }
-        .header img { width:100px; height:auto; display:block; margin:0 auto 6px auto; }
+        .header img, .ficha-logo { max-width:140px; width:auto; height:auto; display:block; margin:0 auto 6px auto; }
         .title { font-size:16px; font-weight:700; margin-bottom:4px; }
         .small { font-size:10px; color:#666; }
         .section { margin-bottom:10px; }
@@ -26,7 +26,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ $logo }}" alt="logo">
+        <img class="ficha-logo" src="{{ $logo }}" alt="logo">
         <div class="title">Ficha do Cliente</div>
         <div class="small">Emitido: {{ now()->toDateString() }}</div>
     </div>
@@ -52,7 +52,7 @@
                         <tr>
                             <td>{{ $pl->id }}</td>
                             <td>{{ $pl->nome }}</td>
-                            <td>{{ optional($pl->data_ativacao)->toDateString() ?? '-' }}</td>
+                            <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
                             <td>{{ $pl->ciclo ?? '-' }}</td>
                             <td>{{ $pl->estado ?? '-' }}</td>
                         </tr>
@@ -109,7 +109,7 @@
                             <td>{{ $c->id }}</td>
                             <td>{{ $c->descricao ?? '-' }}</td>
                             <td>{{ number_format($c->valor, 2, ',', '.') }} Kz</td>
-                            <td>{{ optional($c->data_vencimento)->toDateString() ?? '-' }}</td>
+                            <td>{{ $c->data_vencimento ? \Carbon\Carbon::parse($c->data_vencimento)->format('d/m/Y') : 'Sem data' }}</td>
                             <td>{{ $c->estado ?? '-' }}</td>
                         </tr>
                         @endforeach

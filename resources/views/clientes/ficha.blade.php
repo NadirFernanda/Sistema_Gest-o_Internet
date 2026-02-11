@@ -14,7 +14,7 @@
 
     {{-- Cabeçalho da ficha com logotipo --}}
     <div class="ficha-header" style="max-width:900px;margin:12px auto 0;text-align:center;">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo" style="max-width:220px;height:auto;display:block;margin:0 auto 8px;">
         <h4 style="margin-top:8px;">Ficha do Cliente</h4>
         <p class="mb-0">Emitido: {{ now()->toDateString() }}</p>
     </div>
@@ -194,7 +194,20 @@ document.addEventListener('DOMContentLoaded', function(){
                 })
                 .then(json => {
                     if (json.url) {
-                        window.open(json.url, '_blank');
+                        // fetch signed URL and open PDF blob to avoid landing on HTML/login pages
+                        return fetch(json.url).then(r => {
+                            if (!r.ok) throw new Error('HTTP ' + r.status);
+                            const ct = r.headers.get('content-type') || '';
+                            if (ct.indexOf('application/pdf') === -1) {
+                                // server returned HTML or error page
+                                return r.text().then(txt => { throw new Error('unexpected content'); });
+                            }
+                            return r.blob();
+                        }).then(blob => {
+                            const blobUrl = URL.createObjectURL(blob);
+                            window.open(blobUrl, '_blank');
+                            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+                        });
                     } else {
                         alert('Não foi possível gerar a URL assinada');
                     }
