@@ -4,7 +4,12 @@
 <div class="container" style="max-width: 600px; margin: 40px auto;">
     <h2>Editar Vínculo de Equipamento</h2>
     <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
-    <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Voltar</a>
+    <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar
+    </a>
     <form action="{{ route('cliente_equipamento.update', [$cliente->id, $vinculo->id]) }}" method="POST" style="margin-top: 20px;">
         @csrf
         @method('PUT')

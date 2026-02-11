@@ -4,7 +4,12 @@
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     <h2>Vincular Equipamento ao Cliente</h2>
     <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
-    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Voltar à Ficha do Cliente</a>
+    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar à Ficha do Cliente
+    </a>
     <form action="{{ route('cliente_equipamento.store', $cliente->id) }}" method="POST" style="margin-top: 20px;">
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>

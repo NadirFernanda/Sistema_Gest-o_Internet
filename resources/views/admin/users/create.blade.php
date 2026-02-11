@@ -7,7 +7,12 @@
             <div class="card-header">Criar Usuário</div>
             <div class="card-subtitle">Adicione um novo usuário e atribua um papel</div>
             <div class="card-top-actions">
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+                        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Voltar
+                </a>
             </div>
             <div class="card-body">
             @if(session('status'))

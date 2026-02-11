@@ -58,7 +58,12 @@
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
     <div class="mb-3 d-flex justify-content-between align-items-center">
-        <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Voltar ao Dashboard
+        </a>
     </div>
     <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:32px;">Relatório de Equipamentos em Estoque</h1>
     <form method="GET" action="{{ route('equipamentos.relatorio') }}" class="filtro-modern-cobranca" style="margin-bottom:32px;">

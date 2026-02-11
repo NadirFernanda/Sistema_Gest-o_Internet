@@ -22,6 +22,11 @@
         </div>
     </div>
     <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-primary mt-3" target="_blank">Gerar Comprovante PDF</a>
-    <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary mt-3">Voltar</a>
+    <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary mt-3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar
+    </a>
 </div>
 @endsection

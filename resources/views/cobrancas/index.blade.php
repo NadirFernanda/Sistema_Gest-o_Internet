@@ -7,7 +7,12 @@
     <div class="relatorio-cabecalho-moderna">
         <h1>Relatório de Cobranças</h1>
         <div class="relatorio-cabecalho-botoes">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+                    <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Voltar ao Dashboard
+            </a>
             <a href="{{ route('cobrancas.create') }}" class="btn btn-primary">Nova Cobrança</a>
         </div>
     </div>

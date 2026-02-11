@@ -5,7 +5,12 @@
     <div class="estoque-cabecalho-moderna">
         <h1>Estoque de Equipamentos</h1>
         <div class="estoque-cabecalho-botoes">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
+                    <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Voltar ao Dashboard
+            </a>
             <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-primary">Cadastrar Novo Equipamento</a>
             <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-success" style="color:#fff; min-width:180px;" target="_blank">Exportar Estoque Excel</a>
         </div>
