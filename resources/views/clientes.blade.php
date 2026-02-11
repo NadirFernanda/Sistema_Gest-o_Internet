@@ -182,19 +182,19 @@
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
                             <label for="editBI"><strong>BI/NIF:</strong></label>
-                            <input type="text" id="editBI" name="bi" value="" placeholder="{{ $cliente->bi ?? 'BI / NIF' }}" required>
+                            <input type="text" id="editBI" name="bi" value="" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editNome"><strong>Nome:</strong></label>
-                            <input type="text" id="editNome" name="nome" value="" placeholder="{{ $cliente->nome }}" required>
+                            <input type="text" id="editNome" name="nome" value="" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editEmail"><strong>Email:</strong></label>
-                            <input type="email" id="editEmail" name="email" value="" placeholder="{{ $cliente->email ?? 'Email' }}" required>
+                            <input type="email" id="editEmail" name="email" value="" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editContato"><strong>Contacto (WhatsApp):</strong></label>
-                            <input type="text" id="editContato" name="contato" value="" placeholder="{{ $cliente->contato ?? 'Contacto (WhatsApp)' }}" required>
+                            <input type="text" id="editContato" name="contato" value="" required>
                         </div>
                         <div class="form-editar-botoes">
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
@@ -359,6 +359,15 @@
                     if (editNomeEl) editNomeEl.focus();
                     location.hash = 'formEditarCliente';
                 } else if (formEditarClienteEl) {
+                    // limpar campos quando fechar sem salvar
+                    const editBIEl2 = document.getElementById('editBI');
+                    const editNomeEl2 = document.getElementById('editNome');
+                    const editEmailEl2 = document.getElementById('editEmail');
+                    const editContatoEl2 = document.getElementById('editContato');
+                    if (editBIEl2) editBIEl2.value = '';
+                    if (editNomeEl2) editNomeEl2.value = '';
+                    if (editEmailEl2) editEmailEl2.value = '';
+                    if (editContatoEl2) editContatoEl2.value = '';
                     formEditarClienteEl.style.display = 'none';
                     if (clienteDados) clienteDados.style.display = 'block';
                 }
