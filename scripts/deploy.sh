@@ -1,6 +1,64 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Deploy script for sgmrtexas
+# Usage: ./scripts/deploy.sh [branch]
+# Example: ./scripts/deploy.sh main
+
+BRANCH="${1:-main}"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+echo "[deploy] project root: $PROJECT_ROOT"
+cd "$PROJECT_ROOT"
+
+echo "[deploy] fetching from origin..."
+git fetch origin --prune
+
+echo "[deploy] checking out branch $BRANCH"
+git checkout "$BRANCH"
+git pull origin "$BRANCH"
+
+echo "[deploy] installing PHP dependencies (no-dev)..."
+composer install --no-dev --optimize-autoloader
+
+if command -v npm >/dev/null 2>&1; then
+  echo "[deploy] npm found — installing node deps and building assets"
+  # prefer CI for reproducible installs; falls back to npm install if package-lock.json missing
+  if [ -f package-lock.json ]; then
+    npm ci
+  else
+    npm install
+  fi
+  npm run build
+else
+  echo "[deploy] npm not found — skipping frontend build (you may copy public/build manually)"
+fi
+
+echo "[deploy] ensure storage link"
+php artisan storage:link || true
+
+echo "[deploy] (optional) apply migrations (set APPLY_MIGRATIONS=1 to enable)"
+if [ "${APPLY_MIGRATIONS:-0}" = "1" ]; then
+  php artisan migrate --force
+fi
+
+echo "[deploy] clearing and rebuilding caches"
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+echo "[deploy] fix ownership of runtime dirs"
+sudo chown -R www-data:www-data storage bootstrap/cache || true
+
+echo "[deploy] restart PHP-FPM and reload webserver (best-effort)"
+sudo systemctl restart php8.4-fpm 2>/dev/null || sudo systemctl restart php8.2-fpm 2>/dev/null || true
+sudo systemctl reload nginx 2>/dev/null || true
+
+echo "[deploy] done"
+#!/usr/bin/env bash
+set -euo pipefail
+
 # Simple deploy script for /var/www/sgmrtexas
 # Usage:
 #   sudo bash scripts/deploy.sh
