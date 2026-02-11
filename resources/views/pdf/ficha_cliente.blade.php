@@ -18,10 +18,18 @@
         .value { display:inline-block; max-width:420px; }
 
         /* Tables: clear spacing and readable columns for PDF */
-        table { width:100%; border-collapse:separate; border-spacing:0; margin-top:6px; font-size:12px; }
-        th, td { padding:8px 10px; border:1px solid #e7e7e7; vertical-align:top; }
+        table { width:100%; border-collapse:separate; border-spacing:0; margin-top:6px; font-size:12px; table-layout:fixed; }
+        th, td { padding:8px 10px; border:1px solid #e7e7e7; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; }
         thead th { background:#f6f6f6; font-weight:700; text-align:left; }
         tbody tr:nth-child(odd) td { background: #fff; }
+
+        /* Column widths for PDF */
+        .col-id { width:6%; }
+        .col-nome { width:28%; }
+        .col-modelo { width:16%; }
+        .col-serie { width:15%; }
+        .col-quant { width:8%; text-align:center; }
+        .col-morada { width:27%; }
 
         /* Small helpers */
         .muted { color:#666; font-size:11px; }
@@ -81,34 +89,34 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Nome</th>
-                            <th>Modelo</th>
-                            <th>Série</th>
-                            <th>Quantidade</th>
-                            <th>Morada / Referência</th>
+                            <th class="col-id">#</th>
+                            <th class="col-nome">Nome</th>
+                            <th class="col-modelo">Modelo</th>
+                            <th class="col-serie">Série</th>
+                            <th class="col-quant">Quantidade</th>
+                            <th class="col-morada">Morada / Referência</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($cliente->equipamentos ?? [] as $eq)
                         <tr>
-                            <td>{{ $eq->id }}</td>
-                            <td>{{ $eq->nome ?? '-' }}</td>
-                            <td>{{ $eq->modelo ?? '-' }}</td>
-                            <td>{{ $eq->numero_serie ?? '-' }}</td>
-                            <td>{{ $eq->quantidade ?? '1' }}</td>
-                            <td>{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
+                            <td class="col-id">{{ $eq->id }}</td>
+                            <td class="col-nome">{{ $eq->nome ?? '-' }}</td>
+                            <td class="col-modelo">{{ $eq->modelo ?? '-' }}</td>
+                            <td class="col-serie">{{ $eq->numero_serie ?? '-' }}</td>
+                            <td class="col-quant">{{ $eq->quantidade ?? '1' }}</td>
+                            <td class="col-morada">{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
                         </tr>
                         @endforeach
                         @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
                             @php $est = $vinc->equipamento; @endphp
                             <tr>
-                                <td>{{ $vinc->id }}</td>
-                                <td>{{ $est->nome ?? '-' }}</td>
-                                <td>{{ $est->modelo ?? '-' }}</td>
-                                <td>{{ $est->numero_serie ?? '-' }}</td>
-                                <td>{{ $vinc->quantidade ?? '1' }}</td>
-                                <td>{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                <td class="col-id">{{ $vinc->id }}</td>
+                                <td class="col-nome">{{ $est->nome ?? '-' }}</td>
+                                <td class="col-modelo">{{ $est->modelo ?? '-' }}</td>
+                                <td class="col-serie">{{ $est->numero_serie ?? '-' }}</td>
+                                <td class="col-quant">{{ $vinc->quantidade ?? '1' }}</td>
+                                <td class="col-morada">{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

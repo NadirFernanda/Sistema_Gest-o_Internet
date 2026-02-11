@@ -4,15 +4,34 @@
 <div class="container">
     <style>
         @media print { .no-print { display: none !important; } }
-        .ficha-header { max-width:900px; margin:12px auto 0; text-align:center; }
-        .ficha-header .ficha-logo { display:block; margin:0 auto 8px; max-width:120px; height:auto; }
-        .ficha-cliente { max-width:900px; margin:12px auto; }
-        .cliente-dados-moderna { padding:18px 24px; }
-        .ficha-equip-table table, .ficha-plano-table table { width:100%; border-collapse:separate; border-spacing:0; }
-        .ficha-equip-table th, .ficha-equip-table td, .ficha-plano-table th, .ficha-plano-table td { padding:8px 10px; border:1px solid #eee; vertical-align:top; }
-        .ficha-equip-table thead th, .ficha-plano-table thead th { background:#fff9e6; font-weight:700; }
-        .ficha-equip-table td, .ficha-plano-table td { font-size:0.95rem; }
-        .section-title { font-weight:700; margin:10px 0; text-align:center; }
+        :root { --muted:#6b6b6b; --accent:#0d6efd; --soft:#f6f7fb; }
+        .ficha-header { max-width:980px; margin:18px auto 6px; text-align:center; }
+        .ficha-header .ficha-logo { display:block; margin:0 auto 6px; max-width:120px; height:auto; }
+        .ficha-cliente { max-width:980px; margin:12px auto; }
+        .cliente-dados-moderna { padding:18px 22px; }
+
+        /* Card and header */
+        .card { border:1px solid #e9ecef; border-radius:6px; overflow:hidden; background:#fff; }
+        .card-header { background:#fbfbfd; color:#222; font-weight:700; padding:10px 14px; border-bottom:1px solid #eef0f3; }
+        .card-body { padding:12px 14px; }
+
+        /* Tables: fixed layout, readable spacing and wrapping */
+        .table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; font-size:0.95rem; }
+        .table th, .table td { padding:8px 10px; border:1px solid #f0f0f0; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; }
+        .table thead th { background:var(--soft); font-weight:700; color:#222; }
+        .table tbody tr td { background:#fff; }
+        .table tbody tr:nth-child(odd) td { background:#fcfcfd; }
+
+        /* Column helpers for better desktop widths */
+        .col-id { width:6%; }
+        .col-nome { width:28%; }
+        .col-modelo { width:16%; }
+        .col-serie { width:15%; }
+        .col-quant { width:8%; text-align:center; }
+        .col-morada { width:27%; }
+
+        .section-title { font-weight:700; margin:8px 0 10px; text-align:left; }
+        .muted { color:var(--muted); font-size:0.9rem; }
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
@@ -60,35 +79,35 @@
                     <table class="table mb-0">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Nome</th>
-                                <th>Modelo</th>
-                                <th>Série</th>
-                                <th>Quantidade</th>
-                                <th>Morada / Referência</th>
+                                <th class="col-id">#</th>
+                                <th class="col-nome">Nome</th>
+                                <th class="col-modelo">Modelo</th>
+                                <th class="col-serie">Série</th>
+                                <th class="col-quant">Quantidade</th>
+                                <th class="col-morada">Morada / Referência</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($cliente->equipamentos ?? [] as $eq)
-                            <tr>
-                                <td>{{ $eq->id }}</td>
-                                <td>{{ $eq->nome ?? '-' }}</td>
-                                <td>{{ $eq->modelo ?? '-' }}</td>
-                                <td>{{ $eq->numero_serie ?? '-' }}</td>
-                                <td>{{ $eq->quantidade ?? '1' }}</td>
-                                <td>{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
-                            </tr>
+                                <tr>
+                                    <td class="col-id">{{ $eq->id }}</td>
+                                    <td class="col-nome">{{ $eq->nome ?? '-' }}</td>
+                                    <td class="col-modelo">{{ $eq->modelo ?? '-' }}</td>
+                                    <td class="col-serie">{{ $eq->numero_serie ?? '-' }}</td>
+                                    <td class="col-quant">{{ $eq->quantidade ?? '1' }}</td>
+                                    <td class="col-morada">{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
+                                </tr>
                             @endforeach
 
                             @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
                                 @php $est = $vinc->equipamento; @endphp
                                 <tr>
-                                    <td>{{ $vinc->id }}</td>
-                                    <td>{{ $est->nome ?? '-' }}</td>
-                                    <td>{{ $est->modelo ?? '-' }}</td>
-                                    <td>{{ $est->numero_serie ?? '-' }}</td>
-                                    <td>{{ $vinc->quantidade ?? '1' }}</td>
-                                    <td>{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                    <td class="col-id">{{ $vinc->id }}</td>
+                                    <td class="col-nome">{{ $est->nome ?? '-' }}</td>
+                                    <td class="col-modelo">{{ $est->modelo ?? '-' }}</td>
+                                    <td class="col-serie">{{ $est->numero_serie ?? '-' }}</td>
+                                    <td class="col-quant">{{ $vinc->quantidade ?? '1' }}</td>
+                                    <td class="col-morada">{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
