@@ -11,9 +11,9 @@
             <form id="formCliente" class="form-cadastro" method="POST" action="{{ url('/clientes') }}">
                 @csrf
                 <input type="text" id="nomeCliente" name="nome" placeholder="Nome completo" required>
-                <input type="text" id="biCliente" name="bi" placeholder="BI (Bilhete de Identidade)" required>
+                <input type="text" id="biCliente" name="bi" placeholder="BI / NIF" required>
                 <input type="email" id="emailCliente" name="email" placeholder="Email" required>
-                <input type="text" id="contatoCliente" name="contato" placeholder="Contacto" required>
+                <input type="text" id="contatoCliente" name="contato" placeholder="Contacto (WhatsApp)" required>
                 <button type="submit">Cadastrar Cliente</button>
             </form>
             <div class="busca-clientes-box-alinhada">
@@ -108,7 +108,7 @@
                         <div class="cliente-item-moderna">
                             <div class="cliente-info-moderna">
                                 <span class="cliente-nome">{{ $c->nome }}</span>
-                                <span class="cliente-bi"><strong>BI:</strong> {{ $c->bi ?? '-' }}</span>
+                                <span class="cliente-bi"><strong>BI/NIF:</strong> {{ $c->bi ?? '-' }}</span>
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
                             <div class="cliente-botoes-moderna">
@@ -171,8 +171,8 @@
                     @csrf
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
-                            <label for="editBI"><strong>BI:</strong></label>
-                            <input type="text" id="editBI" name="bi" value="{{ $cliente->bi ?? '' }}" placeholder="BI (Bilhete de Identidade)" required>
+                            <label for="editBI"><strong>BI/NIF:</strong></label>
+                            <input type="text" id="editBI" name="bi" value="{{ $cliente->bi ?? '' }}" placeholder="BI / NIF" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editNome"><strong>Nome:</strong></label>
@@ -183,8 +183,8 @@
                             <input type="email" id="editEmail" name="email" value="{{ $cliente->email }}" required>
                         </div>
                         <div class="form-editar-campo">
-                            <label for="editContato"><strong>Contato:</strong></label>
-                            <input type="text" id="editContato" name="contato" value="{{ $cliente->contato }}" required>
+                            <label for="editContato"><strong>Contacto (WhatsApp):</strong></label>
+                            <input type="text" id="editContato" name="contato" value="{{ $cliente->contato }}" placeholder="Contacto (WhatsApp)" required>
                         </div>
                         <div class="form-editar-botoes">
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
