@@ -168,7 +168,7 @@
             <div class="ficha-cliente" style="margin-top:32px;">
                 <h2>Ficha do Cliente: {{ $cliente->nome }}</h2>
 
-                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
+                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;display:none;">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
                         <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
                         <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
@@ -177,24 +177,24 @@
                     </div>
                 </div>
 
-                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
+                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna">
                     @csrf
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
                             <label for="editBI"><strong>BI/NIF:</strong></label>
-                            <input type="text" id="editBI" name="bi" value="{{ $cliente->bi ?? '' }}" placeholder="BI / NIF" required>
+                            <input type="text" id="editBI" name="bi" value="" placeholder="{{ $cliente->bi ?? 'BI / NIF' }}" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editNome"><strong>Nome:</strong></label>
-                            <input type="text" id="editNome" name="nome" value="{{ $cliente->nome }}" required>
+                            <input type="text" id="editNome" name="nome" value="" placeholder="{{ $cliente->nome }}" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editEmail"><strong>Email:</strong></label>
-                            <input type="email" id="editEmail" name="email" value="{{ $cliente->email }}" required>
+                            <input type="email" id="editEmail" name="email" value="" placeholder="{{ $cliente->email ?? 'Email' }}" required>
                         </div>
                         <div class="form-editar-campo">
                             <label for="editContato"><strong>Contacto (WhatsApp):</strong></label>
-                            <input type="text" id="editContato" name="contato" value="{{ $cliente->contato }}" placeholder="Contacto (WhatsApp)" required>
+                            <input type="text" id="editContato" name="contato" value="" placeholder="{{ $cliente->contato ?? 'Contacto (WhatsApp)' }}" required>
                         </div>
                         <div class="form-editar-botoes">
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
