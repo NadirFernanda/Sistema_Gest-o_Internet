@@ -7,9 +7,16 @@
         <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
 
         <style>
-            @media print {
-                .no-print { display: none !important; }
-            }
+            @media print { .no-print { display: none !important; } }
+
+            /* Espaçamento global para botões dentro do container de clientes
+               Mantém layout compacto mas evita que botões fiquem colados. */
+            .clientes-container .btn { display: inline-block; margin: 8px 8px 8px 0; }
+            /* Se dois botões estiverem juntos, garante gap lateral consistente */
+            .clientes-container .btn + .btn { margin-left: 8px; }
+
+            /* Alternativa: botões de listas e ações pequenas mantêm tamanho reduzido */
+            .clientes-container .btn.btn-sm { min-width: 90px; }
         </style>
 
         {{-- Se estiver na listagem de clientes --}}
