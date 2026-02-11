@@ -3,6 +3,7 @@
 @section('content')
 
 <div class="container">
+    <a href="{{ route('clientes') }}" class="btn btn-secondary mb-3">Voltar</a>
     <div class="client-card">
         <header class="client-card-header">
             <h2>Cadastrar Cliente</h2>
