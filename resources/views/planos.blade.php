@@ -25,24 +25,20 @@
             <button type="submit">Cadastrar Plano</button>
         </form>
         <h2 style="margin-top:32px;">Lista de Planos</h2>
-        <style>
-            .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
-            .busca-planos-input {
-                flex:1; min-width:220px; height:48px; padding:12px 16px; border-radius:10px; border:1px solid #d9d9d9;
-                background:#fff; font-size:1rem; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222;
-            }
-            .busca-planos-input::placeholder { color:#9b9b9b; }
-            .busca-planos-btn {
-                height:48px; padding:0 18px; border-radius:10px; border:none; background:#e09b00; color:#fff; font-weight:700;
-                box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap;
-            }
-            .busca-planos-btn:hover { background:#c88600; }
-            @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
-        </style>
-
-        <div class="busca-planos-form">
-            <input type="text" id="buscaPlanos" placeholder="Pesquisar por plano ou cliente..." class="busca-planos-input">
-            <button type="button" id="btnBuscarPlanos" class="busca-planos-btn">Pesquisar</button>
+        <div class="busca-planos-form" style="margin:12px 0 4px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input
+                type="text"
+                id="buscaPlanos"
+                placeholder="Pesquisar por plano ou cliente..."
+                style="flex:1; min-width:220px; padding:8px 10px; border-radius:8px; border:1px solid #ccc;"
+            >
+            <button
+                type="button"
+                id="btnBuscarPlanos"
+                style="padding:8px 16px; border-radius:8px; border:none; background:#f7b500; color:#fff; cursor:pointer; white-space:nowrap;"
+            >
+                Pesquisar
+            </button>
         </div>
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
