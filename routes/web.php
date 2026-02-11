@@ -18,11 +18,19 @@ Route::get('/', function () {
 
 // Rotas protegidas por auth
 
+// Temporary: ensure create page available without permission middleware
+Route::get('/clientes/create', [\App\Http\Controllers\ClienteController::class, 'create'])
+    ->name('clientes.create')
+    ->middleware('auth');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
+    Route::get('/clientes/create', [\App\Http\Controllers\ClienteController::class, 'create'])
+        ->name('clientes.create')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
     Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
-    Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show');
+    Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show')->whereNumber('cliente');
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');
     Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
