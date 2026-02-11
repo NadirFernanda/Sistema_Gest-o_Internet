@@ -198,6 +198,7 @@
                         </div>
                         <div class="form-editar-botoes">
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            <button type="button" id="btnCancelarEditar" class="btn btn-secondary" style="margin-left:12px;">Cancelar</button>
                             <span id="msgAtualizaCliente" style="margin-left:16px;font-weight:bold;"></span>
                         </div>
                     </div>
@@ -370,6 +371,30 @@
                     if (editContatoEl2) editContatoEl2.value = '';
                     formEditarClienteEl.style.display = 'none';
                     if (clienteDados) clienteDados.style.display = 'block';
+                }
+            });
+        }
+        // Cancel button: fecha o form e limpa campos
+        const btnCancelarEditar = document.getElementById('btnCancelarEditar');
+        if (btnCancelarEditar) {
+            btnCancelarEditar.addEventListener('click', function(e) {
+                e.preventDefault();
+                const formEditarClienteEl = document.getElementById('formEditarCliente');
+                const editBIEl = document.getElementById('editBI');
+                const editNomeEl = document.getElementById('editNome');
+                const editEmailEl = document.getElementById('editEmail');
+                const editContatoEl = document.getElementById('editContato');
+                if (editBIEl) editBIEl.value = '';
+                if (editNomeEl) editNomeEl.value = '';
+                if (editEmailEl) editEmailEl.value = '';
+                if (editContatoEl) editContatoEl.value = '';
+                if (formEditarClienteEl) formEditarClienteEl.style.display = 'none';
+                if (clienteDados) clienteDados.style.display = 'block';
+                // remove hash da URL sem recarregar
+                if (history && history.replaceState) {
+                    history.replaceState(null, null, window.location.pathname + window.location.search);
+                } else {
+                    location.hash = '';
                 }
             });
         }
