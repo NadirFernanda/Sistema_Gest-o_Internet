@@ -60,3 +60,15 @@
     .ficha-header { text-align: center; margin: 12px auto 0; }
     .ficha-logo { max-height: 90px; height: auto; display: inline-block; }
 
+
+    /* Choices.js theme overrides to match project yellow accent */
+    .choices__list--dropdown .choices__item--highlight {
+        background: #f7b500 !important;
+        color: #000 !important;
+    }
+    .choices__list--dropdown .choices__item {
+        background: #fff;
+        color: #222;
+    }
+    .choices__inner { border-radius: 10px; }
+
