@@ -357,7 +357,8 @@ class ClienteController extends Controller
         // Send email (best-effort) but do not block download on failure
         try {
             if (! empty($cliente->email) && filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
-                \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $attachments));
+                // Use Notification pattern (same as comprovante) which is already working in the app
+                $cliente->notify(new \App\Notifications\FichaClienteEmail($cliente, $attachments));
             } else {
                 \Log::warning('Cliente sem e-mail válido - não será enviado e-mail (fichaPdfAndSend)', ['cliente_id' => $cliente->id]);
             }
