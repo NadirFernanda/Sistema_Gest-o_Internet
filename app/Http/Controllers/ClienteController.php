@@ -113,7 +113,32 @@ class ClienteController extends Controller
             'clienteEquipamentos.equipamento',
             'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
         ])->findOrFail($id);
+
         \Log::info('fichaPdf called', ['cliente_id' => $id, 'user_id' => auth()->id() ?? null]);
+
+        $result = $this->generateFichaPdfBytes($cliente);
+        if (! $result['ok']) {
+            return redirect()->back()->with('error', $result['message']);
+        }
+
+        $filename = $result['filename'];
+        $output = $result['output'];
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Length' => strlen($output),
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->streamDownload(function () use ($output) {
+            echo $output;
+        }, $filename, $headers);
+    }
+
+    /**
+     * Helper: generate PDF bytes for a given Cliente and return status + output.
+     */
+    private function generateFichaPdfBytes(Cliente $cliente)
+    {
         // prepare embedded logo data to avoid remote fetch issues in PDF renderers
         $logoData = null;
         $logoPath = public_path('img/logo2.jpeg');
@@ -124,8 +149,9 @@ class ClienteController extends Controller
         }
 
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
-            return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
+            return ['ok' => false, 'message' => 'Gerar PDF requer barryvdh/laravel-dompdf instalado.', 'output' => null, 'filename' => null];
         }
+
         $output = null;
         try {
             $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
@@ -162,23 +188,14 @@ class ClienteController extends Controller
                 $output = null;
             }
         }
-        // If PDF generation still failed, return a clear error and log it (avoids opening a blank tab)
+
         if (empty($output) || strlen($output) < 2000) {
             \Log::error('Failed to generate ficha PDF - empty output', ['cliente_id' => $cliente->id]);
-            return redirect()->back()->with('error', 'Erro ao gerar PDF. Verifique os logs do servidor.');
+            return ['ok' => false, 'message' => 'Erro ao gerar PDF. Verifique os logs do servidor.', 'output' => null, 'filename' => null];
         }
 
         $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
-        $headers = [
-            'Content-Type' => 'application/pdf',
-            'Content-Length' => strlen($output),
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        // Stream the PDF back to the client to avoid accidental extra output
-        return response()->streamDownload(function () use ($output) {
-            echo $output;
-        }, $filename, $headers);
+        return ['ok' => true, 'message' => 'ok', 'output' => $output, 'filename' => $filename];
     }
 
     /**
@@ -351,8 +368,30 @@ class ClienteController extends Controller
         if (! $request->hasValidSignature()) {
             abort(403, 'URL inválida ou expirada');
         }
-        // Reutiliza a geração existente (retorna streamDownload ou erro)
-        return $this->fichaPdf($id);
+        // Generate PDF bytes directly and return with enforced PDF headers
+        $cliente = Cliente::with([
+            'equipamentos',
+            'planos',
+            'clienteEquipamentos.equipamento',
+            'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
+        ])->findOrFail($id);
+
+        $result = $this->generateFichaPdfBytes($cliente);
+        if (! $result['ok']) {
+            return response($result['message'], 500)->header('Content-Type', 'text/plain');
+        }
+
+        $output = $result['output'];
+        $filename = $result['filename'];
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Length' => strlen($output),
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ];
+
+        return response()->stream(function () use ($output) {
+            echo $output;
+        }, 200, $headers);
     }
 
     /**
