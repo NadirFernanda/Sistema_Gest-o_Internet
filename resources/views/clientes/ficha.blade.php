@@ -42,8 +42,8 @@
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
         <div style="display:flex;gap:10px;flex-direction:column;">
-            <!-- Primary action: signed URL (now primary) -->
-            <button id="download-ficha-signed-btn" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%;">Baixar (URL assinada)</button>
+            <!-- Primary action replaced by a back button -->
+            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; width:100%;">Voltar ao Dashboard</a>
 
             <!-- Compact secondary actions -->
             <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
@@ -241,39 +241,7 @@ document.addEventListener('DOMContentLoaded', function(){
             })
             .finally(() => { btn.disabled = false; });
     });
-    if (btnSigned) {
-        btnSigned.addEventListener('click', function(e){
-            e.preventDefault();
-            btnSigned.disabled = true;
-            fetch(`/clientes/{{ $cliente->id }}/ficha/signed-url`, { credentials: 'same-origin' })
-                .then(r => {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
-                })
-                .then(json => {
-                    if (json.url) {
-                        // fetch signed URL and open PDF blob to avoid landing on HTML/login pages
-                        return fetch(json.url).then(r => {
-                            if (!r.ok) throw new Error('HTTP ' + r.status);
-                            const ct = r.headers.get('content-type') || '';
-                            if (ct.indexOf('application/pdf') === -1) {
-                                // server returned HTML or error page
-                                return r.text().then(txt => { throw new Error('unexpected content'); });
-                            }
-                            return r.blob();
-                        }).then(blob => {
-                            const blobUrl = URL.createObjectURL(blob);
-                            window.open(blobUrl, '_blank');
-                            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-                        });
-                    } else {
-                        alert('Não foi possível gerar a URL assinada');
-                    }
-                })
-                .catch(err => alert('Erro ao solicitar URL assinada: ' + err.message))
-                .finally(() => btnSigned.disabled = false);
-        });
-    }
+    // Signed-URL button removed — no signed-download handler
 
     // More actions toggle: show inline download (authenticated) when clicked
     if (moreToggle) {
