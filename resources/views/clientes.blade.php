@@ -22,62 +22,25 @@
                 <input type="text" id="contatoCliente" name="contato" placeholder="Contacto (WhatsApp)" required>
                 <button type="submit">Cadastrar Cliente</button>
             </form>
-            <div class="busca-clientes-box-alinhada">
-                <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-clientes-form-alinhada">
-                    <div class="busca-input-wrapper">
-                        <span class="busca-icone">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#e09b00" stroke-width="2"/><path d="M20 20L17 17" stroke="#e09b00" stroke-width="2" stroke-linecap="round"/></svg>
-                        </span>
-                        <input type="text" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar cliente por nome, BI, email ou contato" autocomplete="off">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Pesquisar</button>
-                </form>
-            </div>
             <style>
-                /* Search box: large rounded orange bar with icon and full-width button */
-                .busca-clientes-box-alinhada {
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                    margin-top: 12px;
+                .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
+                .busca-planos-input {
+                    flex:1; min-width:220px; height:48px; padding:12px 16px; border-radius:10px; border:1px solid #d9d9d9;
+                    background:#fff; font-size:1rem; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222;
                 }
-                .busca-clientes-form-alinhada {
-                    width: 100%;
-                    max-width: 980px;
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 10px;
-                    align-items: center;
+                .busca-planos-input::placeholder { color:#9b9b9b; }
+                .busca-planos-btn {
+                    height:48px; padding:0 18px; border-radius:10px; border:none; background:#e09b00; color:#fff; font-weight:700;
+                    box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap;
                 }
-                .busca-input-wrapper { position: relative; }
-                .busca-input-wrapper .busca-icone { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-                .busca-input-wrapper input {
-                    width: 100%;
-                    padding: 16px 18px 16px 52px;
-                    border-radius: 999px;
-                    border: none;
-                    background: #e09b00;
-                    color: #fff;
-                    font-size: 1.05rem;
-                    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-                }
-                .busca-input-wrapper input::placeholder { color: rgba(255,255,255,0.9); }
-                .btn.btn-primary {
-                    background: #e09b00;
-                    color: #fff;
-                    border: none;
-                    border-radius: 10px;
-                    padding: 12px 18px;
-                    font-weight: 700;
-                    font-size: 1.05rem;
-                    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-                }
-                .btn.btn-primary:hover { background: #b87d00; }
-                @media (max-width: 768px) {
-                    .busca-clientes-form-alinhada { max-width: 100%; }
-                    .btn.btn-primary { width: 100%; }
-                }
+                .busca-planos-btn:hover { background:#c88600; }
+                @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
             </style>
+
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-planos-form">
+                <input type="text" name="busca" id="buscaClientes" placeholder="Pesquisar cliente por nome, BI, email ou contato" class="busca-planos-input" value="{{ request('busca') }}">
+                <button type="submit" class="busca-planos-btn">Pesquisar</button>
+            </form>
             <h2>Lista de Clientes</h2>
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
