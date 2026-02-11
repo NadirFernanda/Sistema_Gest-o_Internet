@@ -356,6 +356,16 @@
                 }
             });
         }
+        // If page opened with hash, show the edit form automatically
+        if (location.hash === '#formEditarCliente') {
+            const formEditarClienteEl = document.getElementById('formEditarCliente');
+            if (formEditarClienteEl) {
+                formEditarClienteEl.style.display = 'block';
+                if (clienteDados) clienteDados.style.display = 'none';
+                const editNomeEl = document.getElementById('editNome');
+                if (editNomeEl) editNomeEl.focus();
+            }
+        }
         const formEditarCliente = document.getElementById('formEditarCliente');
         if (formEditarCliente) {
             formEditarCliente.addEventListener('submit', function(e) {
