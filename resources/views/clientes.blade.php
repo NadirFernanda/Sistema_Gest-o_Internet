@@ -31,10 +31,10 @@
                 }
                 .busca-planos-input::placeholder { color:#9b9b9b; }
                 .busca-planos-btn {
-                    height:40px; padding:0 14px; border-radius:8px; border:none; background:#0d6efd; color:#fff; font-weight:700;
+                    height:40px; padding:0 14px; border-radius:8px; border:none; background:#f7b500; color:#fff; font-weight:700;
                     box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
                 }
-                .busca-planos-btn:hover { background:#0b5ed7; }
+                .busca-planos-btn:hover { background:#e0a800; }
                 @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
             </style>
 
@@ -85,7 +85,7 @@
                             align-items: center;
                         }
                         .cliente-bi {
-                            color: #0d6efd;
+                            color: #f7b500;
                             font-weight: bold;
                         }
                         .cliente-nome {
@@ -195,7 +195,7 @@
                     margin-top: 8px;
                 }
                 .form-editar-botoes .btn-primary {
-                    background: #0d6efd;
+                    background: #f7b500;
                     color: #fff;
                     font-size: 1.15em;
                     font-weight: bold;
@@ -205,7 +205,7 @@
                     transition: background 0.2s;
                 }
                 .form-editar-botoes .btn-primary:hover {
-                    background: #0b5ed7;
+                    background: #e0a800;
                 }
                 .form-editar-cliente-moderna.closing {
                     opacity: 0;

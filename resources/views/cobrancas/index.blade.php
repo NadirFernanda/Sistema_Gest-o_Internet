@@ -189,7 +189,7 @@
         margin-bottom: 18px;
     }
     .relatorio-cabecalho-moderna h1 {
-        color: #0d6efd;
+        color: #f7b500;
         font-size: 2.1em;
         font-weight: bold;
         margin-bottom: 0;
@@ -221,7 +221,7 @@
     }
     .tabela-cobrancas-moderna th {
         background: #fffbe7;
-        color: #0b5ed7;
+        color: #e0a800;
         font-weight: bold;
         font-size: 1.07em;
         border-bottom: 2px solid #ffe6a0;
@@ -253,7 +253,7 @@
         display: inline-block;
     }
     .badge.bg-warning {
-        background: #0d6efd !important;
+        background: #f7b500 !important;
         color: #222 !important;
         font-weight: 500;
         border-radius: 6px;
