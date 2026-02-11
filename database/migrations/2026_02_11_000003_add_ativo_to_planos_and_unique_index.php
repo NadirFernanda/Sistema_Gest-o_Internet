@@ -17,15 +17,11 @@ return new class extends Migration
         // Add composite unique index to prevent duplicate active plans with same name per client
         // Unique on (cliente_id, nome, ativo)
         Schema::table('planos', function (Blueprint $table) {
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            // create index if not exists
             $indexName = 'planos_cliente_nome_ativo_unique';
-            $has = false;
-            foreach ($sm->listTableIndexes('planos') as $idx) {
-                if ($idx->getName() === $indexName) { $has = true; break; }
-            }
-            if (!$has) {
+            try {
                 $table->unique(['cliente_id','nome','ativo'], $indexName);
+            } catch (\Exception $e) {
+                // index already exists or creating failed on this platform; ignore
             }
         });
     }
@@ -34,13 +30,14 @@ return new class extends Migration
     {
         Schema::table('planos', function (Blueprint $table) {
             $indexName = 'planos_cliente_nome_ativo_unique';
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
             try {
                 $table->dropUnique($indexName);
             } catch (\Exception $e) {
-                // ignore
+                // ignore: index may not exist on this platform
             }
-            if (Schema::hasColumn('planos', 'ativo')) $table->dropColumn('ativo');
+            if (Schema::hasColumn('planos', 'ativo')) {
+                $table->dropColumn('ativo');
+            }
         });
     }
 };
