@@ -40,6 +40,16 @@
             .clientes-lista-moderna { gap: 12px; }
             .cliente-item-moderna { padding: 12px 16px; border-radius:10px; }
             .cliente-info-moderna { gap: 12px; font-size: 1rem; }
+            /* Allow info column to shrink properly in flex and prevent wrapping that pushes buttons out of alignment */
+            .cliente-info-moderna { flex:1; min-width:0; }
+            .cliente-nome, .cliente-bi, .cliente-contato {
+                display:inline-block;
+                max-width:420px;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                vertical-align:middle;
+            }
             .cliente-bi { color: #d18f00; font-weight:700; }
             .cliente-botoes-moderna .btn {
                 border-radius:8px;
