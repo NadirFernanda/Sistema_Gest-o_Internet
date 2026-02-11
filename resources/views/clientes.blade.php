@@ -271,6 +271,25 @@
                     @empty
                         <li>Nenhum equipamento cadastrado para este cliente.</li>
                     @endforelse
+                    @if(isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count())
+                        <li><strong>Vínculos do Estoque:</strong></li>
+                        @foreach($cliente->clienteEquipamentos as $vinc)
+                            @php $est = $vinc->equipamento; @endphp
+                            <li>
+                                <strong>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</strong>
+                                @if($est->numero_serie)
+                                    - S/N: {{ $est->numero_serie }}
+                                @endif
+                                - Quantidade: {{ $vinc->quantidade }}
+                                @if($vinc->morada)
+                                    - Morada: {{ $vinc->morada }}
+                                @endif
+                                @if($vinc->ponto_referencia)
+                                    (Ref: {{ $vinc->ponto_referencia }})
+                                @endif
+                            </li>
+                        @endforeach
+                    @endif
                 </ul>
             </div>
         @endif
