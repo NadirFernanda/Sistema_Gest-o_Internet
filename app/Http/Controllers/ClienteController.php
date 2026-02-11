@@ -174,7 +174,10 @@ class ClienteController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        return response($output, 200, $headers);
+        // Stream the PDF back to the client to avoid accidental extra output
+        return response()->streamDownload(function () use ($output) {
+            echo $output;
+        }, $filename, $headers);
     }
 
     /**
