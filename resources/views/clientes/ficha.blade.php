@@ -61,17 +61,21 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Nome / Modelo</th>
+                                <th>Nome</th>
+                                <th>Modelo</th>
                                 <th>Série</th>
-                                <th>Quantidade / Morada</th>
+                                <th>Quantidade</th>
+                                <th>Morada / Referência</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($cliente->equipamentos ?? [] as $eq)
                             <tr>
                                 <td>{{ $eq->id }}</td>
-                                <td>{{ $eq->nome ?? $eq->modelo ?? '-' }}</td>
+                                <td>{{ $eq->nome ?? '-' }}</td>
+                                <td>{{ $eq->modelo ?? '-' }}</td>
                                 <td>{{ $eq->numero_serie ?? '-' }}</td>
+                                <td>{{ $eq->quantidade ?? '1' }}</td>
                                 <td>{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
                             </tr>
                             @endforeach
@@ -80,9 +84,11 @@
                                 @php $est = $vinc->equipamento; @endphp
                                 <tr>
                                     <td>{{ $vinc->id }}</td>
-                                    <td>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</td>
+                                    <td>{{ $est->nome ?? '-' }}</td>
+                                    <td>{{ $est->modelo ?? '-' }}</td>
                                     <td>{{ $est->numero_serie ?? '-' }}</td>
-                                    <td>{{ $vinc->quantidade }}x • {{ $vinc->morada }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                    <td>{{ $vinc->quantidade ?? '1' }}</td>
+                                    <td>{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
