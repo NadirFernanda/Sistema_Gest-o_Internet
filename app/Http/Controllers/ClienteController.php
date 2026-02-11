@@ -203,7 +203,11 @@ class ClienteController extends Controller
      */
     public function fichaPdf($id)
     {
-        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }])->findOrFail($id);
+        $cliente = Cliente::with([
+            'equipamentos',
+            'clienteEquipamentos.equipamento',
+            'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
+        ])->findOrFail($id);
         if (!class_exists(\Barryvdh\DomPDF\Facade::class)) {
             return redirect()->back()->with('error', 'Gerar PDF requer barryvdh/laravel-dompdf instalado.');
         }
@@ -216,7 +220,11 @@ class ClienteController extends Controller
      */
     public function sendFichaEmail(Request $request, $id)
     {
-        $cliente = Cliente::with(['equipamentos', 'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }])->findOrFail($id);
+        $cliente = Cliente::with([
+            'equipamentos',
+            'clienteEquipamentos.equipamento',
+            'cobrancas' => function($q) { $q->orderBy('data_vencimento', 'desc')->limit(50); }
+        ])->findOrFail($id);
         if (empty($cliente->email) || !filter_var($cliente->email, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', 'Cliente sem e-mail válido.');
         }
