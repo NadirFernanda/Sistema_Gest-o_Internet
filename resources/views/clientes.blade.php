@@ -5,92 +5,15 @@
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
         <h1>Gestão de Clientes</h1>
 
-        <div class="hero-ctas" style="margin:8px 0 12px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;">
+        <div class="hero-ctas">
             <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
             {{-- o botão de cadastrar aparece na listagem; mantemos consistência com a versão abaixo --}} 
         </div>
-
-        <style>
-            @media print { .no-print { display: none !important; } }
-
-            /* Hero CTAs: menores e inline para evitar blocos largos */
-            .hero-ctas .btn-cta {
-                display:inline-flex !important;
-                align-items:center;
-                justify-content:center;
-                padding:10px 18px;
-                min-width:140px;
-                border-radius:10px;
-                background:#f7b500;
-                color:#000;
-                font-weight:700;
-                box-shadow:0 4px 12px rgba(0,0,0,0.06);
-                text-decoration:none;
-            }
-            .hero-ctas .btn-cta:hover { background:#e0a800; }
-
-            /* Espaçamento global para botões dentro do container de clientes (override local) */
-            .clientes-container .btn { display: inline-block; margin: 6px 6px 6px 0; width: auto !important; }
-            .clientes-container .btn + .btn { margin-left: 8px; }
-
-            /* Alternativa: botões de listas e ações pequenas mantêm tamanho reduzido */
-            .clientes-container .btn.btn-sm { min-width: 64px; padding:8px 10px; font-size:0.95rem; }
-
-            /* Compact card layout */
-            .clientes-lista-moderna { gap: 12px; }
-            .cliente-item-moderna { padding: 12px 16px; border-radius:10px; }
-            .cliente-info-moderna { gap: 12px; font-size: 1rem; }
-            /* Allow info column to shrink properly in flex and prevent wrapping that pushes buttons out of alignment */
-            .cliente-info-moderna { flex:1; min-width:0; }
-            .cliente-nome, .cliente-bi, .cliente-contato {
-                display:inline-block;
-                max-width:420px;
-                white-space:nowrap;
-                overflow:hidden;
-                text-overflow:ellipsis;
-                vertical-align:middle;
-            }
-            .cliente-bi { color: #d18f00; font-weight:700; }
-            .cliente-botoes-moderna .btn {
-                border-radius:8px;
-                padding:0 12px;
-                /* Force consistent size so text doesn't wrap differently per client */
-                min-width:120px;
-                max-width:120px;
-                height:42px;
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                white-space:nowrap;
-                overflow:hidden;
-                text-overflow:ellipsis;
-                box-sizing:border-box;
-            }
-
-            @media (max-width:768px) {
-                .cliente-item-moderna { flex-direction: column; align-items:flex-start; gap:10px; }
-                .cliente-botoes-moderna { width:100%; display:flex; gap:8px; flex-wrap:wrap; }
-            }
-        </style>
+        <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
             <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta">Cadastrar Cliente</a>
-            <style>
-                .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
-                .busca-planos-input {
-                    box-sizing: border-box;
-                    flex:1; min-width:220px; height:40px; padding:10px 14px; border-radius:8px; border:1px solid #d9d9d9;
-                    background:#fff; font-size:0.98rem; line-height:1.1; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222; display:block;
-                }
-                .busca-planos-input::placeholder { color:#9b9b9b; }
-                .busca-planos-btn {
-                    height:40px; padding:0 14px; border-radius:8px; border:none; background:#f7b500; color:#fff; font-weight:700;
-                    box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
-                }
-                .busca-planos-btn:hover { background:#e0a800; }
-                @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
-            </style>
 
             <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-planos-form">
                 <input type="text" name="busca" id="buscaClientes" placeholder="Pesquisar cliente por nome, BI, email ou contato" class="busca-planos-input" value="{{ request('busca') }}">
@@ -116,57 +39,7 @@
                         </div>
                         @endforeach
                     </div>
-                    <style>
-                        .clientes-lista-moderna {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 18px;
-                            margin-top: 18px;
-                        }
-                        .cliente-item-moderna {
-                            display: flex;
-                            align-items: center;
-                            justify-content: space-between;
-                            background: #fffbe7;
-                            border-radius: 8px;
-                            padding: 16px 24px;
-                            box-shadow: 0 2px 8px #0001;
-                        }
-                        .cliente-info-moderna {
-                            display: flex;
-                            gap: 18px;
-                            font-size: 1.1em;
-                            align-items: center;
-                        }
-                        .cliente-bi {
-                            color: #f7b500;
-                            font-weight: bold;
-                        }
-                        .cliente-nome {
-                            font-weight: 500;
-                        }
-                        .cliente-botoes-moderna {
-                            display: flex;
-                            gap: 10px;
-                            align-items: center;
-                        }
-                        /* Ensure all small buttons in the list have identical width and prevent wrapping */
-                        .cliente-botoes-moderna .btn.btn-sm,
-                        .clientes-container .btn.btn-sm {
-                            min-width:120px;
-                            max-width:120px;
-                            height:42px;
-                            padding:0 12px;
-                            white-space:nowrap;
-                            overflow:hidden;
-                            text-overflow:ellipsis;
-                            display:inline-flex;
-                            align-items:center;
-                            justify-content:center;
-                            font-size:1em;
-                            box-sizing:border-box;
-                        }
-                    </style>
+                    {{-- styles moved to public/css/clientes.css --}}
                 @else
                     <p>Nenhum cliente cadastrado ainda.</p>
                 @endif

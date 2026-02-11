@@ -1,0 +1,87 @@
+/* Extracted styles for clientes list (mobile-friendly, grid-based) */
+@media print { .no-print { display: none !important; } }
+
+/* Hero CTA */
+.hero-ctas .btn-cta {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  min-width: 140px;
+  border-radius: 10px;
+  background: #f7b500;
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  text-decoration: none;
+}
+.hero-ctas .btn-cta:hover { background: #e0a800; }
+
+/* Button spacing inside container */
+.clientes-container .btn { display: inline-block; margin: 6px 6px 6px 0; width: auto; }
+.clientes-container .btn + .btn { margin-left: 8px; }
+
+/* Search form */
+.busca-planos-form { margin: 12px 0 4px 0; display:flex; gap:12px; align-items:center; }
+.busca-planos-input {
+  box-sizing: border-box;
+  flex:1; min-width:220px; height:40px; padding:10px 14px; border-radius:8px; border:1px solid #d9d9d9;
+  background:#fff; font-size:0.98rem; line-height:1.1; box-shadow:0 6px 18px rgba(0,0,0,0.04); color:#222; display:block;
+}
+.busca-planos-input::placeholder { color:#9b9b9b; }
+.busca-planos-btn {
+  height:40px; padding:0 14px; border-radius:8px; border:none; background:#f7b500; color:#fff; font-weight:700;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
+}
+.busca-planos-btn:hover { background:#e0a800; }
+@media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
+
+/* Clients list - using grid to stabilise layout */
+.clientes-lista-moderna { display:flex; flex-direction:column; gap:18px; margin-top:18px; }
+.cliente-item-moderna {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  background: #fffbe7;
+  border-radius: 8px;
+  padding: 16px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.cliente-info-moderna { display:flex; gap:18px; font-size:1.1em; align-items:center; min-width:0; }
+.cliente-nome, .cliente-bi, .cliente-contato {
+  display:inline-block;
+  max-width:420px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  vertical-align:middle;
+}
+.cliente-bi { color: #f7b500; font-weight:700; }
+
+/* Buttons: avoid fixed widths, use padding so they adapt and wrap on small screens */
+.cliente-botoes-moderna { display:flex; gap:10px; align-items:center; }
+.cliente-botoes-moderna .btn.btn-sm, .clientes-container .btn.btn-sm {
+  padding:8px 14px;
+  height:42px;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1em;
+  border-radius:8px;
+  box-sizing:border-box;
+}
+
+@media (max-width:768px) {
+  .cliente-item-moderna { grid-template-columns: 1fr; }
+  .cliente-botoes-moderna { width:100%; display:flex; gap:8px; flex-wrap:wrap; }
+  .cliente-nome, .cliente-bi, .cliente-contato { max-width:100%; white-space:normal; }
+}
+
+/* Table fragment styling kept for ficha equipment table compatibility */
+.ficha-equip-table .table { width:100%; border-collapse: separate; }
+.ficha-equip-table th, .ficha-equip-table td { vertical-align: middle; padding: 12px 10px; border: 1px solid #eee; }
+.ficha-equip-table thead th { background: #fff9e6; color: #222; font-weight: 600; text-align: left; }
+.ficha-equip-table .table .btn { min-width: 100px; margin-right:8px; }
+@media (max-width:768px) { .ficha-equip-table th:nth-child(2), .ficha-equip-table td:nth-child(2), .ficha-equip-table th:nth-child(3), .ficha-equip-table td:nth-child(3) { display:none; } .ficha-equip-table .table .btn { display:block; margin:8px 0; } }
