@@ -167,7 +167,17 @@
         @if(isset($cliente))
             <div class="ficha-cliente" style="margin-top:32px;">
                 <h2>Ficha do Cliente: {{ $cliente->nome }}</h2>
-                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna">
+
+                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
+                        <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
+                        <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
+                        <div><strong>Email:</strong><div style="margin-top:6px">{{ $cliente->email ?? '-' }}</div></div>
+                        <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">{{ $cliente->contato ?? '-' }}</div></div>
+                    </div>
+                </div>
+
+                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
                     @csrf
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
@@ -242,7 +252,7 @@
                 }
                 </style>
                 <a href="{{ route('clientes') }}" class="btn btn-secondary">Voltar à Lista</a>
-                <a href="#formEditarCliente" class="btn btn-warning" style="margin-left:8px;">Editar Cliente</a>
+                <a href="#" id="btnMostrarEditar" class="btn btn-warning" style="margin-left:8px;">Editar Cliente</a>
                 <button class="btn btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" style="margin-left:8px;">Excluir Cliente</button>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
@@ -328,6 +338,24 @@
         });
         // Edição completa do cliente
         @if(isset($cliente))
+        const btnMostrarEditar = document.getElementById('btnMostrarEditar');
+        const clienteDados = document.querySelector('.cliente-dados-moderna');
+        if (btnMostrarEditar) {
+            btnMostrarEditar.addEventListener('click', function(e) {
+                e.preventDefault();
+                const formEditarClienteEl = document.getElementById('formEditarCliente');
+                if (formEditarClienteEl && (formEditarClienteEl.style.display === 'none' || formEditarClienteEl.style.display === '')) {
+                    formEditarClienteEl.style.display = 'block';
+                    if (clienteDados) clienteDados.style.display = 'none';
+                    const editNomeEl = document.getElementById('editNome');
+                    if (editNomeEl) editNomeEl.focus();
+                    location.hash = 'formEditarCliente';
+                } else if (formEditarClienteEl) {
+                    formEditarClienteEl.style.display = 'none';
+                    if (clienteDados) clienteDados.style.display = 'block';
+                }
+            });
+        }
         const formEditarCliente = document.getElementById('formEditarCliente');
         if (formEditarCliente) {
             formEditarCliente.addEventListener('submit', function(e) {
