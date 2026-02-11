@@ -736,12 +736,16 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     --accent-rgba: rgba(247,181,0,0.12);
 }
 
-/* Buttons and primary actions */
+/* Buttons and primary actions
+   Adjusted: use dark text on yellow, reduce heavy !important overrides so Vite/app.css can control small variants.
+*/
 .btn, .btn-ghost, .btn-create-user, .btn.btn-primary, .btn-submit-top, .btn-editar-plano, .btn-remover-plano {
     background: var(--accent) !important;
     border-color: var(--accent) !important;
-    color: #fff !important;
-    box-shadow: 0 10px 30px rgba(247,181,0,0.12) !important;
+    color: #000 !important; /* dark text for better contrast on yellow */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
+    padding: 8px 12px !important;
+    min-width: unset !important;
 }
 .btn:hover, .btn-ghost:hover, .btn-create-user:hover, .btn.btn-primary:hover {
     background: var(--accent-600) !important;
