@@ -225,9 +225,22 @@ class ClienteController extends Controller
         }
         $pdf = \Barryvdh\DomPDF\Facade::loadView('clientes.ficha', compact('cliente'));
         $filename = 'ficha_cliente_'.$cliente->id.'.pdf';
-        // enviar por mailable simples
+        $attachments = [];
+        $attachments[] = ['content' => $pdf->output(), 'name' => $filename, 'mime' => 'application/pdf'];
+
+        // attach recent/pending cobrancas as PDFs (limit 10)
+        $cobrancas = $cliente->cobrancas()->whereIn('status', ['pendente','atrasado'])->orderBy('data_vencimento', 'asc')->limit(10)->get();
+        foreach ($cobrancas as $cobranca) {
+            try {
+                $pdfC = \Barryvdh\DomPDF\Facade::loadView('cobrancas.comprovante', compact('cobranca'));
+                $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
+            } catch (\Exception $e) {
+                \Log::warning('Falha ao gerar PDF da cobranca para anexar', ['cobranca_id' => $cobranca->id, 'erro' => $e->getMessage()]);
+            }
+        }
+
         try {
-            \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $pdf->output(), $filename));
+            \Mail::to($cliente->email)->send(new \App\Mail\FichaClienteMail($cliente, $attachments));
             return redirect()->back()->with('success', 'Ficha enviada por e-mail para ' . $cliente->email);
         } catch (\Exception $e) {
             \Log::error('Erro ao enviar ficha por email', ['erro' => $e->getMessage()]);

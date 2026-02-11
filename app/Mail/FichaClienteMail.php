@@ -12,16 +12,15 @@ class FichaClienteMail extends Mailable
 
     public $cliente;
     public $filename;
-    public $pdfContent;
+    public $attachments = [];
 
     /**
      * Create a new message instance.
      */
-    public function __construct($cliente, $pdfContent, $filename)
+    public function __construct($cliente, array $attachments = [])
     {
         $this->cliente = $cliente;
-        $this->pdfContent = $pdfContent;
-        $this->filename = $filename;
+        $this->attachments = $attachments; // array of ['content'=>, 'name'=>, 'mime'=>]
     }
 
     /**
@@ -33,9 +32,12 @@ class FichaClienteMail extends Mailable
             ->view('emails.ficha_cliente')
             ->with(['cliente' => $this->cliente]);
 
-        $mail->attachData($this->pdfContent, $this->filename, [
-            'mime' => 'application/pdf',
-        ]);
+        foreach ($this->attachments as $att) {
+            if (!empty($att['content']) && !empty($att['name'])) {
+                $mime = $att['mime'] ?? 'application/pdf';
+                $mail->attachData($att['content'], $att['name'], ['mime' => $mime]);
+            }
+        }
 
         return $mail;
     }
