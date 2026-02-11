@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\SuperUserSeeder::class);
         $this->call(\Database\Seeders\ClienteSeeder::class);
         $this->call(\Database\Seeders\PlanoSeeder::class);
+        $this->call(\Database\Seeders\PlanTemplateSeeder::class);
     }
 }
