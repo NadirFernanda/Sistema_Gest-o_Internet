@@ -83,6 +83,14 @@ class ClienteController extends Controller
         return view('clientes', compact('clientes'));
     }
 
+    /**
+     * Show the form to create a new Cliente (separate page)
+     */
+    public function create()
+    {
+        return view('clientes.create');
+    }
+
     public function show($id)
     {
         $cliente = Cliente::with(['equipamentos', 'clienteEquipamentos.equipamento'])->findOrFail($id);
