@@ -30,49 +30,44 @@
             <style>
                 .busca-clientes-box-alinhada {
                     width: 100%;
-                    display: flex;
-                    justify-content: flex-end;
-                    margin-top: 32px;
-                    margin-bottom: 18px;
-                }
-                .busca-clientes-form-alinhada {
-                    display: grid;
-                    grid-template-columns: minmax(0, 1fr) auto;
-                    align-items: stretch;
-                    column-gap: 16px;
-                    width: 100%;
-                    max-width: 700px;
-                }
-                .busca-input-wrapper {
-                    position: relative;
-                    min-width: 0;
-                }
-                .busca-icone {
-                    position: absolute;
-                    left: 0px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    pointer-events: none;
-                    width: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .busca-input-wrapper input[type="text"] {
-                    width: 100%;
-                    padding: 8px 12px 8px 52px;
-                    border-radius: 8px;
-                    border: 1.5px solid #e09b00;
-                    font-size: 1.08em;
-                    background: #fffbe7;
-                    transition: border 0.2s;
-                    box-sizing: border-box;
-                }
-                .busca-input-wrapper input[type="text"]:focus {
-                    outline: none;
-                    border: 1.5px solid #b87d00;
-                    background: #fffde9;
-                }
+                    // salvar via ajax
+                    formEditarCliente.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const id = this.dataset.clienteId;
+                        const payload = {
+                            bi: document.getElementById('editBI').value,
+                            nome: document.getElementById('editNome').value,
+                            email: document.getElementById('editEmail').value,
+                            contato: document.getElementById('editContato').value
+                        };
+                        fetch(`/clientes/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify(payload)
+                        }).then(res => res.json()).then(data => {
+                            if (data.success) {
+                                // atualiza a ficha e fecha o form com efeito
+                                const cliente = data.cliente;
+                                if (clienteDados) {
+                                    clienteDados.innerHTML = `<h5>${escapeHtml(cliente.nome)}</h5>` +
+                                        `<p>${escapeHtml(cliente.bi || '')}</p>` +
+                                        `<p>${escapeHtml(cliente.contato || '')}</p>`;
+                                }
+                                // use close helper to animate + clear fields
+                                closeEditForm({removeHash:true});
+                                // notifica
+                                alert('Dados atualizados com sucesso!');
+                            } else {
+                                alert('Erro ao atualizar.');
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                            alert('Erro ao atualizar.');
+                        });
+                    });
                 .btn.btn-primary {
                     background: #e09b00;
                     color: #fff;
@@ -213,6 +208,9 @@
                     max-width: 900px;
                     margin-left: auto;
                     margin-right: auto;
+                    transition: opacity 240ms ease, transform 240ms ease;
+                    opacity: 1;
+                    transform: translateY(0);
                 }
                 .form-editar-grid {
                     display: grid;
@@ -250,6 +248,10 @@
                 }
                 .form-editar-botoes .btn-primary:hover {
                     background: #e09b00;
+                }
+                .form-editar-cliente-moderna.closing {
+                    opacity: 0;
+                    transform: translateY(6px);
                 }
                 </style>
                 <a href="{{ route('clientes') }}" class="btn btn-secondary">Voltar à Lista</a>
@@ -351,6 +353,31 @@
         @if(isset($cliente))
         const btnMostrarEditar = document.getElementById('btnMostrarEditar');
         const clienteDados = document.querySelector('.cliente-dados-moderna');
+        function closeEditForm({removeHash = false} = {}) {
+            const formEditarClienteEl = document.getElementById('formEditarCliente');
+            const clienteDadosBlock = document.querySelector('.cliente-dados-moderna');
+            if (!formEditarClienteEl) return;
+            // apply closing class for fade
+            formEditarClienteEl.classList.add('closing');
+            setTimeout(() => {
+                formEditarClienteEl.style.display = 'none';
+                formEditarClienteEl.classList.remove('closing');
+                // clear fields
+                const editBIEl2 = document.getElementById('editBI');
+                const editNomeEl2 = document.getElementById('editNome');
+                const editEmailEl2 = document.getElementById('editEmail');
+                const editContatoEl2 = document.getElementById('editContato');
+                if (editBIEl2) editBIEl2.value = '';
+                if (editNomeEl2) editNomeEl2.value = '';
+                if (editEmailEl2) editEmailEl2.value = '';
+                if (editContatoEl2) editContatoEl2.value = '';
+                if (clienteDadosBlock) clienteDadosBlock.style.display = 'block';
+                if (removeHash && history && history.replaceState) {
+                    history.replaceState(null, null, window.location.pathname + window.location.search);
+                }
+            }, 240);
+        }
+
         if (btnMostrarEditar) {
             btnMostrarEditar.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -370,43 +397,18 @@
                     if (editNomeEl) editNomeEl.focus();
                     location.hash = 'formEditarCliente';
                 } else if (formEditarClienteEl) {
-                    // limpar campos quando fechar sem salvar
-                    const editBIEl2 = document.getElementById('editBI');
-                    const editNomeEl2 = document.getElementById('editNome');
-                    const editEmailEl2 = document.getElementById('editEmail');
-                    const editContatoEl2 = document.getElementById('editContato');
-                    if (editBIEl2) editBIEl2.value = '';
-                    if (editNomeEl2) editNomeEl2.value = '';
-                    if (editEmailEl2) editEmailEl2.value = '';
-                    if (editContatoEl2) editContatoEl2.value = '';
-                    formEditarClienteEl.style.display = 'none';
-                    if (clienteDados) clienteDados.style.display = 'block';
+                    closeEditForm({removeHash:false});
                 }
             });
         }
         // Cancel button: fecha o form e limpa campos
-        const btnCancelarEditar = document.getElementById('btnCancelarEditar');
-        if (btnCancelarEditar) {
-            btnCancelarEditar.addEventListener('click', function(e) {
-                e.preventDefault();
-                const formEditarClienteEl = document.getElementById('formEditarCliente');
-                const editBIEl = document.getElementById('editBI');
-                const editNomeEl = document.getElementById('editNome');
-                const editEmailEl = document.getElementById('editEmail');
-                const editContatoEl = document.getElementById('editContato');
-                if (editBIEl) editBIEl.value = '';
-                if (editNomeEl) editNomeEl.value = '';
-                if (editEmailEl) editEmailEl.value = '';
-                if (editContatoEl) editContatoEl.value = '';
-                if (formEditarClienteEl) formEditarClienteEl.style.display = 'none';
-                if (clienteDados) clienteDados.style.display = 'block';
-                // remove hash da URL sem recarregar
-                if (history && history.replaceState) {
-                    history.replaceState(null, null, window.location.pathname + window.location.search);
-                } else {
-                    location.hash = '';
+                const btnCancelar = document.getElementById('btnCancelarEditar');
+                if (btnCancelar) {
+                    btnCancelar.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        closeEditForm({removeHash:true});
+                    });
                 }
-            });
         }
         // If page opened with hash, show the edit form automatically
         if (location.hash === '#formEditarCliente') {
