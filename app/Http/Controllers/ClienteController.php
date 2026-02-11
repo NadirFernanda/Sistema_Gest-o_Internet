@@ -15,9 +15,11 @@ class ClienteController extends Controller
     {
         $dias = $request->input('dias', 5);
         $hoje = now()->startOfDay();
+
         $planosRaw = \App\Models\Plano::with('cliente')
             ->where('estado', 'Ativo')
             ->get();
+
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
             if (!$plano->data_ativacao || !$plano->ciclo) {
                 return false;
@@ -26,125 +28,23 @@ class ClienteController extends Controller
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
             return $diasRestantes >= 0 && $diasRestantes <= $dias;
         });
-        $alertas = $planos->map(function($plano) use ($hoje) {
+
+        $alertas = $planos->map(function ($plano) use ($hoje) {
             $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
-            $output = null;
+            return [
+                'plano_id' => $plano->id,
+                'cliente_id' => $plano->cliente?->id,
+                'cliente_nome' => $plano->cliente?->nome,
+                'data_termino' => $dataTermino->toDateString(),
+                'dias_restantes' => $diasRestantes,
+            ];
+        })->values();
 
-            // Prefer mPDF when available (more tolerant on servers)
-            if (class_exists(\Mpdf\Mpdf::class)) {
-                try {
-                    $html = view('pdf.ficha_cliente', compact('cliente'))->render();
-                    $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
-                    $mpdf->WriteHTML($html);
-                    $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
-                } catch (\Exception $e) {
-                    \Log::warning('mPDF exception generating ficha (will fallback to DOMPDF)', ['error' => $e->getMessage()]);
-                    $output = null;
-                }
-            }
-
-            // Fallback to DOMPDF if mPDF unavailable or failed
-            if (empty($output) || strlen($output) < 2000) {
-                try {
-                    $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
-                    $output = $pdf->output();
-                } catch (\Exception $e) {
-                    \Log::warning('DOMPDF exception generating ficha', ['error' => $e->getMessage()]);
-                    $output = null;
-                }
-            }
-
-            // Try minimal DOMPDF template if still too small
-            if (empty($output) || strlen($output) < 2000) {
-                try {
-                    $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
-                    $output = $pdf->output();
-                } catch (\Exception $e) {
-                    \Log::warning('DOMPDF exception generating minimal ficha', ['error' => $e->getMessage()]);
-                    $output = null;
-                }
-            }
-            $dataVencimento = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
-            $diasRestantes = $hoje->diffInDays($dataVencimento, false);
-            if ($plano->estado !== 'Ativo') {
-                \Log::info('Plano ignorado: estado não ativo', ['plano_id' => $plano->id, 'estado' => $plano->estado]);
-                return false;
-            }
-            if ($diasRestantes > $dias || $diasRestantes < 0) {
-                \Log::info('Plano ignorado: diasRestantes fora do filtro', ['plano_id' => $plano->id, 'diasRestantes' => $diasRestantes, 'filtro' => $dias]);
-                return false;
-            }
-            \Log::info('Plano elegível para alerta', ['plano_id' => $plano->id, 'diasRestantes' => $diasRestantes, 'data_ativacao' => $plano->data_ativacao, 'ciclo' => $plano->ciclo, 'estado' => $plano->estado]);
-            return true;
-        });
-
-        $enviados = [];
-        $output = null;
-
-        // Prefer mPDF for email attachments
-        if (class_exists(\Mpdf\Mpdf::class)) {
-            try {
-                $html = view('pdf.ficha_cliente', compact('cliente'))->render();
-                $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
-                $mpdf->WriteHTML($html);
-                $output = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
-            } catch (\Exception $e) {
-                \Log::warning('mPDF exception generating ficha for email (will fallback to DOMPDF)', ['error' => $e->getMessage()]);
-                $output = null;
-            }
-        }
-
-        // Fallback to DOMPDF
-        if (empty($output) || strlen($output) < 2000) {
-            try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente', compact('cliente'));
-                $output = $pdf->output();
-            } catch (\Exception $e) {
-                \Log::warning('DOMPDF exception generating ficha for email', ['error' => $e->getMessage()]);
-                $output = null;
-            }
-        }
-        if (empty($output) || strlen($output) < 2000) {
-            try {
-                $pdf = \Barryvdh\DomPDF\Facade::loadView('pdf.ficha_cliente_minimal', compact('cliente'));
-                $output = $pdf->output();
-            } catch (\Exception $e) {
-                \Log::warning('DOMPDF minimal template failed for email', ['error' => $e->getMessage()]);
-                $output = null;
-            }
-        }
-                    } catch (\Exception $e) {
-                        $erros[] = 'Erro ao enviar WhatsApp para ' . $cliente->nome . ': ' . $e->getMessage();
-                        \Log::error('Erro ao enviar alerta por WhatsApp', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'contato' => $cliente->contato, 'erro' => $e->getMessage()]);
-                    }
-                } else {
-                    $erros[] = 'Cliente sem contacto válido para WhatsApp: ' . $cliente->nome;
-                    \Log::warning('Cliente sem contacto válido para alerta WhatsApp', ['cliente_id' => $cliente->id, 'nome' => $cliente->nome, 'contato' => $cliente->contato]);
-                }
-
-                if (!empty($canaisEnviados)) {
-                    $enviados[] = $cliente->nome . ' (' . implode('/', $canaisEnviados) . ')';
-                    \Log::info('Alerta de vencimento disparado', [
-                        'cliente_id' => $cliente->id,
-                        'nome' => $cliente->nome,
-                        'email' => $cliente->email,
-                        'contato' => $cliente->contato,
-                        'dias_restantes' => $diasRestantes,
-                        'canais' => $canaisEnviados,
-                    ]);
-                }
-            } else {
-                $erros[] = 'Plano sem cliente associado: ' . $plano->id;
-                \Log::warning('Plano sem cliente associado', ['plano_id' => $plano->id]);
-            }
-        }
-        \Log::info('dispararAlertas - Enviados:', ['enviados' => $enviados, 'erros' => $erros]);
         return response()->json([
             'success' => true,
-            'enviados' => $enviados,
-            'erros' => $erros,
-            'total_planos' => $planos->count()
+            'alertas' => $alertas,
+            'total' => $planos->count()
         ]);
     }
 
