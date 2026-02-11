@@ -51,7 +51,7 @@
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
-            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta" style="min-width:140px;">Cadastrar Cliente</a>
+            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta">Cadastrar Cliente</a>
             <style>
                 .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
                 .busca-planos-input {
