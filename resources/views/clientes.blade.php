@@ -14,14 +14,7 @@
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
-            <form id="formCliente" class="form-cadastro" method="POST" action="{{ url('/clientes') }}">
-                @csrf
-                <input type="text" id="nomeCliente" name="nome" placeholder="Nome completo" required>
-                <input type="text" id="biCliente" name="bi" placeholder="BI / NIF" required>
-                <input type="email" id="emailCliente" name="email" placeholder="Email" required>
-                <input type="text" id="contatoCliente" name="contato" placeholder="Contacto (WhatsApp)" required>
-                <button type="submit">Cadastrar Cliente</button>
-            </form>
+            <a href="{{ route('clientes.create') }}" class="btn btn-primary">Cadastrar Cliente</a>
             <style>
                 .busca-planos-form { margin:12px 0 4px 0; display:flex; gap:12px; align-items:center; }
                 .busca-planos-input {
@@ -318,6 +311,7 @@
                 .replace(/'/g, '&#039;');
         }
         const form = document.getElementById('formCliente');
+        // (Formulário de cadastro de cliente agora abre em página separada)
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
