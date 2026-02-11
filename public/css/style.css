@@ -728,3 +728,54 @@ button.btn-danger:hover, .btn.btn-danger:hover {
 .btn:hover, .btn-ghost:hover, .btn-create-user:hover, .btn.btn-primary:hover {
     filter: brightness(0.95);
 }
+
+/* === Accent overrides: enforce blue theme and fix dropdown option highlights === */
+:root {
+    --accent: #0d6efd;
+    --accent-600: #0b5ed7;
+    --accent-rgba: rgba(13,110,253,0.12);
+}
+
+/* Buttons and primary actions */
+.btn, .btn-ghost, .btn-create-user, .btn.btn-primary, .btn-submit-top, .btn-editar-plano, .btn-remover-plano {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+    box-shadow: 0 10px 30px rgba(13,110,253,0.12) !important;
+}
+.btn:hover, .btn-ghost:hover, .btn-create-user:hover, .btn.btn-primary:hover {
+    background: var(--accent-600) !important;
+    border-color: var(--accent-600) !important;
+    filter: none !important;
+}
+
+/* Focus outlines and form accents */
+.form-control:focus, .form-cadastro select:focus, .form-control:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 6px 18px var(--accent-rgba) !important;
+}
+
+/* Custom select / dropdown option styles (override yellow highlights)
+   Note: some browsers limit option styling; we apply strongest selectors available */
+.form-cadastro select, select.form-control, .custom-select {
+    -webkit-appearance: none;
+    appearance: none;
+}
+.form-cadastro select option, .custom-select-option { background: transparent !important; color: inherit !important; }
+.form-cadastro select option:checked, .form-cadastro select option[selected], .custom-select-option.active, .custom-select-option:hover {
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+.custom-select.open { border-color: var(--accent) !important; box-shadow: 0 8px 28px rgba(13,110,253,0.12) !important; }
+.custom-select-option:hover { background: var(--accent-600) !important; color: #fff !important; }
+
+/* Card accent and badges */
+.card-accent { background: linear-gradient(90deg,var(--accent),var(--accent-600)) !important; }
+.tabela-clientes th, .tabela-planos th, .tabela-alertas th { background: var(--accent) !important; color: #fff !important; }
+.role-badge, .badge.bg-warning { background: var(--accent) !important; color: #fff !important; }
+
+/* small helper: ensure native select highlight in WebKit uses accent when open */
+select::-ms-expand { display: none; }
+select:focus::-ms-value { background: var(--accent) !important; color: #fff !important; }
+
+/* end overrides */
