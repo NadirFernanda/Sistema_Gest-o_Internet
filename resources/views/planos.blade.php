@@ -11,7 +11,8 @@
             </select>
             <input type="text" id="nomePlano" placeholder="Nome do plano" required>
             <input type="text" id="descricaoPlano" placeholder="Descrição" required>
-            <input type="number" id="precoPlano" placeholder="Preço (Kz)" min="0" required>
+            <input type="hidden" name="preco" id="precoPlano">
+            <input type="text" id="precoPlanoDisplay" placeholder="Preço (Kz)" required>
             <input type="number" id="cicloPlano" placeholder="Ciclo de serviço (dias)" min="1" required>
             <input type="date" id="dataAtivacaoPlano" placeholder="Data de ativação" required>
             <select id="estadoPlano" required>
@@ -43,4 +44,50 @@
             <p>Nenhum plano cadastrado ainda.</p>
         </div>
     </div>
+    <script>
+        (function(){
+            const display = document.getElementById('precoPlanoDisplay');
+            const hidden = document.getElementById('precoPlano');
+            function unformat(value){
+                if(!value) return '';
+                // remove non numeric except comma and dot
+                let v = value.replace(/[^0-9,\.]/g, '');
+                v = v.replace(/,/g, '.');
+                return v;
+            }
+            function formatNumber(num){
+                return Number(num).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+            }
+            display.addEventListener('input', function(e){
+                const raw = unformat(this.value);
+                const n = parseFloat(raw);
+                if(!isNaN(n)) {
+                    hidden.value = n.toFixed(2);
+                } else {
+                    hidden.value = '';
+                }
+            });
+            display.addEventListener('blur', function(){
+                const raw = unformat(this.value);
+                const n = parseFloat(raw);
+                if(!isNaN(n)) this.value = formatNumber(n);
+            });
+            display.addEventListener('focus', function(){
+                // show editable raw number when focusing
+                const raw = hidden.value;
+                if(raw) this.value = raw.replace('.', ',');
+                else this.value = '';
+            });
+            // ensure hidden has value before any submit triggered by other scripts
+            const form = document.getElementById('formPlano');
+            if(form){
+                form.addEventListener('submit', function(){
+                    // make sure hidden has plain dot-decimal string
+                    const raw = unformat(display.value);
+                    const n = parseFloat(raw);
+                    if(!isNaN(n)) hidden.value = n.toFixed(2);
+                });
+            }
+        })();
+    </script>
 @endsection
