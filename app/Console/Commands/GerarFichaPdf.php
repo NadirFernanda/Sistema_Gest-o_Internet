@@ -55,17 +55,33 @@ class GerarFichaPdf extends Command
             // Save HTML for inspection
             file_put_contents($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.html", $html);
 
-            // Configure DOMPDF options: enable remote assets and set paper size
-            $pdf = \PDF::loadHTML($html);
-            $pdf->setPaper('a4', 'portrait');
-            if (method_exists($pdf, 'setOptions')) {
-                $pdf->setOptions(['isRemoteEnabled' => true, 'enable_php' => false]);
-            }
-
-            $output = $pdf->output();
 
             $path = $dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.pdf";
-            file_put_contents($path, $output);
+
+            // Prefer mPDF if available (more robust on some hosts)
+            if (class_exists('\\Mpdf\\Mpdf')) {
+                try {
+                    $mpdf = new \\Mpdf\\Mpdf(['tempDir' => sys_get_temp_dir()]);
+                    $mpdf->WriteHTML($html);
+                    $mpdf->Output($path, \\Mpdf\\Output\\Destination::FILE);
+                } catch (\Exception $e) {
+                    \Log::warning('mPDF generation failed in CLI; falling back to DOMPDF', ['error' => $e->getMessage()]);
+                }
+            }
+
+            // If file not created by mPDF, try DOMPDF
+            if (!file_exists($path) || filesize($path) < 1024) {
+                try {
+                    $pdf = \PDF::loadHTML($html);
+                    $pdf->setPaper('a4', 'portrait');
+                    if (method_exists($pdf, 'setOptions')) {
+                        $pdf->setOptions(['isRemoteEnabled' => true, 'enable_php' => false]);
+                    }
+                    file_put_contents($path, $pdf->output());
+                } catch (\Exception $e) {
+                    \Log::warning('DOMPDF generation failed in CLI', ['error' => $e->getMessage()]);
+                }
+            }
 
             $this->info("Ficha salva em: {$path}");
             $this->info("HTML salvo em: " . ($dir . DIRECTORY_SEPARATOR . "ficha_cliente_{$id}.html"));
