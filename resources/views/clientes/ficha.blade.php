@@ -5,6 +5,7 @@
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print">
         <button id="download-ficha-btn" data-url="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</button>
+        <button id="download-ficha-signed-btn" class="btn btn-sm btn-info">Download (signed URL)</button>
         <form id="ficha-send-form" action="{{ route('clientes.ficha.send', $cliente->id) }}" method="post" style="display:inline;">
             @csrf
             <button type="submit" class="btn btn-sm btn-primary">Enviar por e-mail</button>
@@ -151,6 +152,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
     const btn = document.getElementById('download-ficha-btn');
+    const btnSigned = document.getElementById('download-ficha-signed-btn');
     if (!btn) return;
     btn.addEventListener('click', function(e){
         e.preventDefault();
@@ -184,6 +186,26 @@ document.addEventListener('DOMContentLoaded', function(){
             })
             .finally(() => { btn.disabled = false; });
     });
+    if (btnSigned) {
+        btnSigned.addEventListener('click', function(e){
+            e.preventDefault();
+            btnSigned.disabled = true;
+            fetch('{{ route('clientes.ficha.signed.url', $cliente->id) }}', { credentials: 'same-origin' })
+                .then(r => {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(json => {
+                    if (json.url) {
+                        window.open(json.url, '_blank');
+                    } else {
+                        alert('Não foi possível gerar a URL assinada');
+                    }
+                })
+                .catch(err => alert('Erro ao solicitar URL assinada: ' + err.message))
+                .finally(() => btnSigned.disabled = false);
+        });
+    }
 });
 </script>
 @endpush
