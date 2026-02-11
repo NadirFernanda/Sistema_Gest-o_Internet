@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function(){
         btnSigned.addEventListener('click', function(e){
             e.preventDefault();
             btnSigned.disabled = true;
-            fetch('{{ route('clientes.ficha.signed.url', $cliente->id) }}', { credentials: 'same-origin' })
+            fetch(`/clientes/{{ $cliente->id }}/ficha/signed-url`, { credentials: 'same-origin' })
                 .then(r => {
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     return r.json();
