@@ -264,9 +264,36 @@
                     $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
                     $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
                 @endphp
+                <style>
+                    /* Ficha: tabela de equipamentos */
+                    .ficha-equip-table .table {
+                        width: 100%;
+                        border-collapse: separate;
+                    }
+                    .ficha-equip-table th, .ficha-equip-table td {
+                        vertical-align: middle;
+                        padding: 12px 10px;
+                        border: 1px solid #eee;
+                    }
+                    .ficha-equip-table thead th {
+                        background: #fff9e6;
+                        color: #222;
+                        font-weight: 600;
+                        text-align: left;
+                    }
+                    .ficha-equip-table .table-responsive { overflow-x: auto; }
+                    .ficha-equip-table .table .btn { min-width: 100px; margin-right:8px; }
+                    @media (max-width: 768px) {
+                        .ficha-equip-table th:nth-child(2), .ficha-equip-table td:nth-child(2) { display:none; }
+                        .ficha-equip-table th:nth-child(3), .ficha-equip-table td:nth-child(3) { display:none; }
+                        .ficha-equip-table .table .btn { display:block; margin:8px 0; }
+                    }
+                </style>
 
                 @if($hasEquip || $hasVincs)
-                    <table class="table table-bordered">
+                    <div class="ficha-equip-table">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>Nome</th>
