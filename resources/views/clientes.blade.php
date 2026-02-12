@@ -347,30 +347,7 @@
             document.querySelectorAll('.actions-toggle').forEach(t => t.setAttribute('aria-expanded','false'));
         });
 
-        // delegate delete from actions menu
-        document.querySelectorAll('.actions-delete').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) return;
-                const id = this.getAttribute('data-id');
-                fetch(`/clientes/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = "{{ url('/clientes') }}";
-                    } else {
-                        alert('Erro ao excluir cliente.');
-                    }
-                })
-                .catch(() => alert('Erro ao excluir cliente.'));
-            });
-        });
+        // Note: deletion from actions menu now uses modal-based flow below (openDeleteModal)
         // Edição completa do cliente
         @if(isset($cliente))
         const btnMostrarEditar = document.getElementById('btnMostrarEditar');

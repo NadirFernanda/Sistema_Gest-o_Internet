@@ -82,6 +82,22 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 .actions-link:hover{ background:var(--gray-100); }
 .actions-delete{ background:transparent; border:none; color:#b91c1c; padding:6px 8px; width:100%; text-align:left; }
 
+/* Make the delete action in dropdown look like a full-width danger pill */
+.actions-menu .actions-delete, .actions-menu .actions-link.actions-delete {
+  display:block;
+  width:100%;
+  background:#b91c1c;
+  color:#fff !important;
+  padding:10px 12px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:700;
+  border:none;
+}
+.actions-menu .actions-delete:hover, .actions-menu .actions-link.actions-delete:hover {
+  background:#991b1b;
+}
+
 /* hide default focus ring for dropdown toggle but keep accessible outline via :focus-visible */
 .actions-toggle:focus{ outline: none; }
 .actions-toggle:focus-visible{ outline:3px solid rgba(154,86,0,0.18); outline-offset:2px; }
