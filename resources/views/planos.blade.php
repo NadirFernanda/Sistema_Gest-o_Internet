@@ -36,15 +36,18 @@
                 </ul>
             </div>
         @endif
-        <h2 style="margin-top:32px;">Lista de Planos</h2>
-        <div class="busca-planos-form">
-            <input
-                type="text"
-                id="buscaPlanos"
-                class="busca-planos-input"
-                placeholder="Pesquisar por plano ou cliente..."
-            >
-            <button type="button" id="btnBuscarPlanos" class="busca-planos-btn">Pesquisar</button>
+        <div class="search-row" style="margin-top:32px;">
+            <h2 style="margin:0 0 8px 0;">Lista de Planos</h2>
+            <div class="search-bar" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search-input-wrap" style="position:relative;flex:1;min-width:220px;max-width:760px;">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.7;">
+                        <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm8.707 2.293-4.387-4.387" stroke="#6b6b6b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" id="buscaPlanos" class="search-input" placeholder="Pesquisar por plano ou cliente..." aria-label="Pesquisar planos" style="width:100%;padding:12px 44px 12px 42px;border-radius:10px;border:1px solid #e9e9e9;box-shadow:0 6px 18px rgba(0,0,0,0.04);" />
+                    <button id="clearSearch" class="search-clear" title="Limpar pesquisa" aria-label="Limpar pesquisa" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;font-size:18px;color:#9b9b9b;cursor:pointer;">×</button>
+                </div>
+                <button type="button" id="btnBuscarPlanos" class="btn-cta search-btn" style="padding:10px 16px;">Pesquisar</button>
+            </div>
         </div>
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
@@ -84,6 +87,12 @@
         .hero-ctas .btn-cta:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(224,162,2,0.10); filter:brightness(.99); }
         .hero-ctas .btn-cta:active{ transform:translateY(0); }
         @media (max-width:720px){ .hero-ctas .btn-cta{ padding:9px 14px; font-size:0.95rem; } }
+        /* Modern search bar styles */
+        .search-bar .search-input { width:100%; padding:12px 44px 12px 42px; border-radius:10px; border:1px solid #e9e9e9; box-shadow:0 6px 18px rgba(0,0,0,0.04); }
+        .search-bar .search-btn{ background:#e0a200; color:#fff; border-radius:10px; font-weight:700; box-shadow:0 6px 18px rgba(224,162,2,0.08); border:none; cursor:pointer; }
+        .search-bar .search-btn:hover{ filter:brightness(.98); }
+        .search-input-wrap .search-icon{ left:12px; }
+        .search-input-wrap .search-clear{ right:8px; }
         /* Standardize table status badges and action buttons in main list */
         #planosLista table { width:100%; }
         #planosLista td, #planosLista th { vertical-align:middle; }
@@ -354,6 +363,16 @@
                                 });
                                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal && modal.style.display === 'flex') closeModal(); });
                         })();
+        })();
+    </script>
+    <script>
+        // Search button and clear handler
+        (function(){
+            const btn = document.getElementById('btnBuscarPlanos');
+            const input = document.getElementById('buscaPlanos');
+            const clear = document.getElementById('clearSearch');
+            if(clear){ clear.addEventListener('click', function(){ if(input){ input.value = ''; input.focus(); } }); }
+            if(btn && input){ btn.addEventListener('click', function(e){ const q = input.value.trim(); const url = new URL(window.location.href); if(q) url.searchParams.set('q', q); else url.searchParams.delete('q'); window.location.href = url.toString(); }); }
         })();
     </script>
         <script>
