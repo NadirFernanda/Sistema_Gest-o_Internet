@@ -62,7 +62,7 @@
         /* make the table area scrollable so modal controls remain visible */
         #templatesModal .templates-table-wrapper{ max-height:50vh; overflow:auto; }
         #templatesModal .templates-table-wrapper table{ width:100%; border-collapse:collapse; }
-        #templatesModal th, #templatesModal td { padding:12px 10px; border-bottom:1px solid #f1f1f1; text-align:left; vertical-align:middle; }
+            #templatesModal th, #templatesModal td { padding:10px 10px; border-bottom:1px solid #f1f1f1; text-align:left; vertical-align:middle; }
         #templatesModal thead th { background:transparent; font-weight:700; }
         #templatesModal .controls { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
         /* Ensure modal primary buttons use the project yellow even if Bootstrap is present */
@@ -71,8 +71,12 @@
         /* Actions column - modern stacked buttons with gap */
         #templatesModal .template-actions{ display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
         #templatesModal .editBtn, #templatesModal .delBtn{ min-width:140px; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
-        #templatesModal .editBtn{ background:#f7b500; color:#fff; box-shadow:0 8px 24px rgba(247,181,0,0.12); }
-        #templatesModal .delBtn{ background:#f0f0f0; color:#222; box-shadow:none; }
+            /* Toned-down primary color and smaller, modern buttons */
+            #templatesModal .btn-primary--fixed { background: #e0a200 !important; color: #fff !important; box-shadow: 0 4px 12px rgba(224,162,2,0.08) !important; }
+            #templatesModal .small-btn { padding:8px 10px; border-radius:10px; border:none; cursor:pointer; font-weight:600; font-size:0.95rem; }
+            /* Actions column - compact stacked buttons with subtle shadow */
+            #templatesModal .editBtn{ background:#e0a200; color:#fff; box-shadow:0 6px 18px rgba(224,162,2,0.08); }
+            #templatesModal .delBtn{ background:#f3f3f3; color:#222; box-shadow:none; }
         @media (max-width:900px){ #templatesModal .template-actions{ flex-direction:row; gap:8px; align-items:center; } #templatesModal .editBtn, #templatesModal .delBtn{ min-width:96px; } }
     </style>
     <script>
