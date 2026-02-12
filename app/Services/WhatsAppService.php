@@ -8,12 +8,20 @@ class WhatsAppService
 {
     protected $apiUrl;
     protected $token;
+    protected $driver;
+    protected $twilioSid;
+    protected $twilioToken;
+    protected $twilioFrom;
 
     public function __construct()
     {
-        // Configure aqui sua URL e token da API (UltraMsg ou Z-API)
+        // Driver pode ser 'http' (UltraMsg/Z-API) ou 'twilio'
+        $this->driver = config('services.whatsapp.driver', 'http');
         $this->apiUrl = config('services.whatsapp.api_url');
         $this->token = config('services.whatsapp.token');
+        $this->twilioSid = config('services.twilio.sid');
+        $this->twilioToken = config('services.twilio.token');
+        $this->twilioFrom = config('services.twilio.from');
     }
 
     /**
@@ -24,7 +32,26 @@ class WhatsAppService
      */
     public function enviarMensagem($numero, $mensagem)
     {
-        // Exemplo UltraMsg
+        // Suporta driver Twilio (recomendado para POC) ou integrações HTTP (UltraMsg/Z-API)
+        if ($this->driver === 'twilio') {
+            if (!$this->twilioSid || !$this->twilioToken || !$this->twilioFrom) {
+                return false;
+            }
+            $url = "https://api.twilio.com/2010-04-01/Accounts/{$this->twilioSid}/Messages.json";
+            $response = Http::withBasicAuth($this->twilioSid, $this->twilioToken)
+                ->asForm()
+                ->post($url, [
+                    'From' => 'whatsapp:' . $this->twilioFrom,
+                    'To' => 'whatsapp:' . $numero,
+                    'Body' => $mensagem,
+                ]);
+            if ($response->successful()) {
+                return $response->json();
+            }
+            return false;
+        }
+
+        // Exemplo UltraMsg / HTTP padrão
         $response = Http::withHeaders([
             'X-API-KEY' => $this->token,
             'Content-Type' => 'application/json',

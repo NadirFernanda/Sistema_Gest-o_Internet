@@ -29,10 +29,15 @@
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
                             <div class="cliente-botoes-moderna">
-                                <a href="{{ route('clientes.show', $c->id) }}" class="btn btn-sm btn-info">Ver Ficha</a>
-                                <a href="{{ route('clientes.ficha', $c->id) }}" class="btn btn-sm btn-secondary">Ficha (PDF)</a>
-                                <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn btn-sm btn-warning">Editar</a>
-                                <button class="btn btn-sm btn-danger btn-excluir-cliente" data-id="{{ $c->id }}">Excluir</button>
+                                <a href="{{ route('clientes.show', $c->id) }}" class="btn btn-sm btn-primary">Ver Ficha</a>
+                                <div class="actions-dropdown">
+                                    <button type="button" class="btn btn-sm btn-secondary actions-toggle" aria-expanded="false" aria-controls="actions-{{ $c->id }}">⋯</button>
+                                    <ul id="actions-{{ $c->id }}" class="actions-menu" hidden>
+                                        <li><a href="{{ route('clientes.ficha', $c->id) }}" class="actions-link">Ficha (PDF)</a></li>
+                                        <li><a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="actions-link">Editar</a></li>
+                                        <li><button type="button" class="actions-link btn-danger actions-delete" data-id="{{ $c->id }}">Excluir</button></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         @endforeach
@@ -293,28 +298,61 @@
             });
         }
 
-        // Exclusão de cliente
+        // Exclusão de cliente (botões antigos) — abrir modal para confirmação com motivo
         document.querySelectorAll('.btn-excluir-cliente').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                if (confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) {
-                    const id = this.getAttribute('data-id');
-                    fetch(`/clientes/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = "{{ url('/clientes') }}";
-                        } else {
-                            alert('Erro ao excluir cliente.');
-                        }
-                    })
-                    .catch(() => alert('Erro ao excluir cliente.'));
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.getAttribute('data-id');
+                if (!id) return;
+                openDeleteModal(id);
+            });
+        });
+
+        // Actions dropdown: toggle and delete handlers
+        document.querySelectorAll('.actions-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                const id = this.getAttribute('aria-controls');
+                const menu = document.getElementById(id);
+                const expanded = this.getAttribute('aria-expanded') === 'true';
+                // close any other open menus
+                document.querySelectorAll('.actions-menu').forEach(m => { if (m !== menu) m.hidden = true; });
+                document.querySelectorAll('.actions-toggle').forEach(t => { if (t !== this) t.setAttribute('aria-expanded','false'); });
+                if (menu) {
+                    menu.hidden = expanded; // toggle
+                    this.setAttribute('aria-expanded', String(!expanded));
                 }
+                e.stopPropagation();
+            });
+        });
+
+        // close menus on outside click
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.actions-menu').forEach(m => m.hidden = true);
+            document.querySelectorAll('.actions-toggle').forEach(t => t.setAttribute('aria-expanded','false'));
+        });
+
+        // delegate delete from actions menu
+        document.querySelectorAll('.actions-delete').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) return;
+                const id = this.getAttribute('data-id');
+                fetch(`/clientes/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "{{ url('/clientes') }}";
+                    } else {
+                        alert('Erro ao excluir cliente.');
+                    }
+                })
+                .catch(() => alert('Erro ao excluir cliente.'));
             });
         });
         // Edição completa do cliente
@@ -470,6 +508,75 @@
         }
         @endif
     });
+
+        /* --- Modal for delete confirmation (with reason) --- */
+        // create modal HTML and append to body
+        (function(){
+            const modalHtml = `
+            <div id="confirmDeleteModal" class="modal-overlay" aria-hidden="true">
+              <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmDeleteTitle">
+                <h3 id="confirmDeleteTitle">Confirmar exclusão</h3>
+                <p>Por favor, informe o motivo da exclusão (opcional) e confirme. Esta ação não pode ser desfeita.</p>
+                <textarea id="deleteReason" placeholder="Motivo da exclusão (opcional)"></textarea>
+                <div class="modal-actions">
+                  <button id="btnCancelDelete" class="btn btn-cancel">Cancelar</button>
+                  <button id="btnConfirmDelete" class="btn btn-confirm">Excluir</button>
+                </div>
+              </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        })();
+
+        const confirmModal = document.getElementById('confirmDeleteModal');
+        const btnCancelDelete = document.getElementById('btnCancelDelete');
+        const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+        const deleteReasonEl = document.getElementById('deleteReason');
+        let deleteTargetId = null;
+
+        function openDeleteModal(id){
+            deleteTargetId = id;
+            deleteReasonEl.value = '';
+            confirmModal.classList.add('active');
+            confirmModal.setAttribute('aria-hidden','false');
+            deleteReasonEl.focus();
+        }
+        function closeDeleteModal(){
+            confirmModal.classList.remove('active');
+            confirmModal.setAttribute('aria-hidden','true');
+            deleteTargetId = null;
+        }
+
+        if (btnCancelDelete) btnCancelDelete.addEventListener('click', function(e){ e.preventDefault(); closeDeleteModal(); });
+
+        if (btnConfirmDelete) btnConfirmDelete.addEventListener('click', function(e){
+            e.preventDefault();
+            if (!deleteTargetId) { closeDeleteModal(); return; }
+            const reason = deleteReasonEl.value || '';
+            // create a form to submit as POST with _method=DELETE for maximum compatibility
+            const token = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : null;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/clientes/${deleteTargetId}`;
+            form.style.display = 'none';
+
+            if (token) {
+                const t = document.createElement('input'); t.type = 'hidden'; t.name = '_token'; t.value = token; form.appendChild(t);
+            }
+            const m = document.createElement('input'); m.type = 'hidden'; m.name = '_method'; m.value = 'DELETE'; form.appendChild(m);
+            const r = document.createElement('input'); r.type = 'hidden'; r.name = 'reason'; r.value = reason; form.appendChild(r);
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+        // wire modal to old and new delete buttons
+        document.querySelectorAll('.btn-excluir-cliente, .actions-delete').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                const id = this.getAttribute('data-id');
+                if (!id) return;
+                openDeleteModal(id);
+            });
+        });
 </script>
 @endpush
 @endsection
