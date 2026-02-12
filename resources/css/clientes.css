@@ -58,6 +58,24 @@
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
+/* Hero CTA sizing (keep compact, avoid huge full-width pills) */
+.hero-ctas { display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+.hero-ctas .btn-cta {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  min-width: auto;
+  max-width: 320px;
+  width: auto !important;
+  border-radius: 12px;
+  background: #f7b500;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+  text-decoration: none;
+}
+
 @media (max-width:1000px){ .plan-grid{ grid-template-columns: repeat(2,1fr); } }
 @media (max-width:640px){ .plan-grid{ grid-template-columns: 1fr; } .plan-actions{ justify-content:flex-start; } }
 

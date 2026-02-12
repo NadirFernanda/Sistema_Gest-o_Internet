@@ -158,9 +158,11 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  padding: 10px 14px;
-  min-width: 120px;
-  border-radius: 999px;
+  padding: 8px 14px;
+  min-width: auto;
+  max-width: 320px;
+  width: auto !important;
+  border-radius: 12px;
   background: var(--yellow-500);
   color: var(--white);
   font-weight: 700;
