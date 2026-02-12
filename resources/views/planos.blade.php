@@ -59,6 +59,9 @@
         /* keep modal content scrollable when tall */
         #templatesModal .modal .modal-body { max-height:72vh; overflow:auto; padding-right:6px; }
         #templatesModal table { width:100%; border-collapse:collapse; }
+        /* make the table area scrollable so modal controls remain visible */
+        #templatesModal .templates-table-wrapper{ max-height:50vh; overflow:auto; }
+        #templatesModal .templates-table-wrapper table{ width:100%; border-collapse:collapse; }
         #templatesModal th, #templatesModal td { padding:12px 10px; border-bottom:1px solid #f1f1f1; text-align:left; vertical-align:middle; }
         #templatesModal thead th { background:transparent; font-weight:700; }
         #templatesModal .controls { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
@@ -217,7 +220,7 @@
 
                                 function renderList(list){
                                     if(!list.length){ listContainer.innerHTML = '<div class="muted" style="padding:8px 0">Nenhum modelo cadastrado.</div>'; return; }
-                                    let html = '<div style="overflow-x:auto"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="width:170px"></th></tr></thead><tbody>';
+                                    let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="width:170px"></th></tr></thead><tbody>';
                                     list.forEach(t => {
                                         html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td><div class="template-actions"><button class="editBtn" data-id="${t.id}">Editar</button><button class="delBtn" data-id="${t.id}">Apagar</button></div></td></tr>`;
                                     });
