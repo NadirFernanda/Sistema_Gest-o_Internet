@@ -4,7 +4,7 @@
     $heroCtAs = $heroCtAs ?? null;
     $heroSearch = $heroSearch ?? null;
 @endphp
-<header class="clientes-hero modern-hero">
+<header class="clientes-hero modern-hero {{ isset($stackLeft) && $stackLeft ? 'stack-left' : ''}}">
     <div class="hero-inner">
         <div class="hero-left">
             <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
