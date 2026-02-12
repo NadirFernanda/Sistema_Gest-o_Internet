@@ -6,6 +6,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {{-- CSRF token for JS (used by modal delete fallbacks and AJAX) --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])

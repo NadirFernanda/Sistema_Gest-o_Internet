@@ -546,7 +546,10 @@
             if (!deleteTargetId) { closeDeleteModal(); return; }
             const reason = deleteReasonEl.value || '';
             // create a form to submit as POST with _method=DELETE for maximum compatibility
-            const token = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : null;
+            // Try to get CSRF token from a hidden input first, then from the meta tag (layout)
+            const hiddenTokenInput = document.querySelector('input[name="_token"]');
+            const metaTokenEl = document.querySelector('meta[name="csrf-token"]');
+            const token = (hiddenTokenInput && hiddenTokenInput.value) || (metaTokenEl && metaTokenEl.getAttribute('content')) || null;
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/clientes/${deleteTargetId}`;
