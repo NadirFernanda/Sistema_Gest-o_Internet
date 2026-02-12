@@ -102,6 +102,8 @@
         /* action buttons column: stacked on desktop, row on mobile */
         #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
         #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
+        /* remove button (danger) styled as muted gray in lists */
+        #planosLista .btn-remove{ background:#f3f3f3; color:#222; box-shadow:none; border:1px solid #e6e6e6; }
         @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
         /* Sticky header inside modal so controls remain visible while scrolling content */
         #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
@@ -393,7 +395,7 @@
                     const cliente = p.cliente && (p.cliente.nome || p.cliente.name) ? (p.cliente.nome || p.cliente.name) : '-';
                     const preco = p.preco ? ('Kz ' + Number(p.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2})) : '';
                     const estadoClass = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) ? 'ativo' : 'inativo';
-                    html += `<tr data-id="${p.id}"><td>${escapeHtml(cliente)}</td><td>${escapeHtml(p.nome||p.name||'')}</td><td>${preco}</td><td>${escapeHtml(p.ciclo||'')}</td><td><span class="status-badge ${estadoClass}">${escapeHtml(p.estado||'')}</span></td><td><div class="action-buttons"><button class="btn btn-sm" data-id="${p.id}">Editar</button><button class="btn btn-sm" data-id="${p.id}">Apagar</button></div></td></tr>`;
+                        html += `<tr data-id="${p.id}"><td>${escapeHtml(cliente)}</td><td>${escapeHtml(p.nome||p.name||'')}</td><td>${preco}</td><td>${escapeHtml(p.ciclo||'')}</td><td><span class="status-badge ${estadoClass}">${escapeHtml(p.estado||'')}</span></td><td><div class="action-buttons"><button class="btn btn-sm" data-id="${p.id}">Editar</button><button class="btn btn-sm btn-remove" data-id="${p.id}">Apagar</button></div></td></tr>`;
                 });
                 html += '</tbody></table>';
                 lista.innerHTML = html;
