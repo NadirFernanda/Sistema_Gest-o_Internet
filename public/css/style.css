@@ -259,7 +259,7 @@ h1 {
     color: #fff;
     box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
-.planos-container .status-badge.ativo { background: #4caf50; }
+.planos-container .status-badge.ativo { background: #319795; }
 .planos-container .status-badge.aviso { background: #f7b500; }
 .planos-container .actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
 .planos-container .actions .btn {
