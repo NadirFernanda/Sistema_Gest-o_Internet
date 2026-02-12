@@ -386,22 +386,26 @@
                 }catch(_){ }
             }
 
+            function renderPlans(plans){
+                if(!Array.isArray(plans) || !plans.length){ lista.innerHTML = '<div style="padding:12px 0">Nenhum plano encontrado.</div>'; return; }
+                let html = '<table class="table"><thead><tr><th>Cliente</th><th>Nome</th><th>Preço</th><th>Ciclo</th><th>Estado</th><th style="width:160px"></th></tr></thead><tbody>';
+                plans.forEach(p => {
+                    const cliente = p.cliente && (p.cliente.nome || p.cliente.name) ? (p.cliente.nome || p.cliente.name) : '-';
+                    const preco = p.preco ? ('Kz ' + Number(p.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2})) : '';
+                    const estadoClass = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) ? 'ativo' : 'inativo';
+                    html += `<tr data-id="${p.id}"><td>${escapeHtml(cliente)}</td><td>${escapeHtml(p.nome||p.name||'')}</td><td>${preco}</td><td>${escapeHtml(p.ciclo||'')}</td><td><span class="status-badge ${estadoClass}">${escapeHtml(p.estado||'')}</span></td><td><div class="action-buttons"><button class="btn btn-sm" data-id="${p.id}">Editar</button><button class="btn btn-sm" data-id="${p.id}">Apagar</button></div></td></tr>`;
+                });
+                html += '</tbody></table>';
+                lista.innerHTML = html;
+            }
+
             function fetchAndUpdate(q){
-                const url = new URL(window.location.href);
-                if(q) url.searchParams.set('q', q); else url.searchParams.delete('q');
-                // mark loading
+                const apiUrl = '/api/planos' + (q ? '?busca=' + encodeURIComponent(q) : '');
                 const prev = lista.innerHTML;
                 lista.innerHTML = '<div style="padding:12px 0">Carregando resultados...</div>';
-                fetch(url.toString(), { headers: headers, credentials: 'same-origin' })
-                    .then(r => r.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newList = doc.getElementById('planosLista');
-                        if(newList){ lista.innerHTML = newList.innerHTML; }
-                        else { lista.innerHTML = prev; }
-                        updateHistory(q);
-                    })
+                fetch(apiUrl, { headers: Object.assign({}, headers), credentials: 'same-origin' })
+                    .then(r => r.ok ? r.json() : Promise.reject())
+                    .then(json => { renderPlans(json); updateHistory(q); })
                     .catch(()=>{ lista.innerHTML = prev; });
             }
 
