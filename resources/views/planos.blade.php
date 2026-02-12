@@ -103,6 +103,8 @@
         #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
         #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
         @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
+        /* Sticky header inside modal so controls remain visible while scrolling content */
+        #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
     </style>
     <script>
         (function(){
@@ -209,12 +211,12 @@
                                 const modalHtml = `
                                 <div id="templatesModal">
                                     <div class="modal">
-                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                            <h3 style="margin:0">Modelos de Plano</h3>
-                                            <div>
-                                                <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
-                                            </div>
-                                        </div>
+                                        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                                    <h3 style="margin:0">Modelos de Plano</h3>
+                                                    <div>
+                                                        <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
+                                                    </div>
+                                                </div>
                                         <div class="controls">
                                                 <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#fff;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
                                             <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
@@ -366,13 +368,59 @@
         })();
     </script>
     <script>
-        // Search button and clear handler
+        // AJAX search (debounced) — updates #planosLista without full reload
         (function(){
             const btn = document.getElementById('btnBuscarPlanos');
             const input = document.getElementById('buscaPlanos');
             const clear = document.getElementById('clearSearch');
-            if(clear){ clear.addEventListener('click', function(){ if(input){ input.value = ''; input.focus(); } }); }
-            if(btn && input){ btn.addEventListener('click', function(e){ const q = input.value.trim(); const url = new URL(window.location.href); if(q) url.searchParams.set('q', q); else url.searchParams.delete('q'); window.location.href = url.toString(); }); }
+            const lista = document.getElementById('planosLista');
+            if(!input || !lista) return;
+
+            const headers = { 'X-Requested-With':'XMLHttpRequest' };
+
+            function updateHistory(q){
+                try{
+                    const url = new URL(window.location.href);
+                    if(q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                    window.history.replaceState({}, '', url.toString());
+                }catch(_){ }
+            }
+
+            function fetchAndUpdate(q){
+                const url = new URL(window.location.href);
+                if(q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                // mark loading
+                const prev = lista.innerHTML;
+                lista.innerHTML = '<div style="padding:12px 0">Carregando resultados...</div>';
+                fetch(url.toString(), { headers: headers, credentials: 'same-origin' })
+                    .then(r => r.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newList = doc.getElementById('planosLista');
+                        if(newList){ lista.innerHTML = newList.innerHTML; }
+                        else { lista.innerHTML = prev; }
+                        updateHistory(q);
+                    })
+                    .catch(()=>{ lista.innerHTML = prev; });
+            }
+
+            // debounce helper
+            function debounce(fn, wait){ let t; return function(){ const args = arguments; clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+
+            const debouncedFetch = debounce(function(){ fetchAndUpdate(input.value.trim()); }, 300);
+
+            // live input
+            input.addEventListener('input', debouncedFetch);
+
+            // enter key triggers immediate fetch
+            input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim()); } });
+
+            // clear button resets and fetches
+            if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate(''); }); }
+
+            // optional explicit search button
+            if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim()); }); }
         })();
     </script>
         <script>
