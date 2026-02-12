@@ -2,6 +2,15 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+    <style>
+        /* Page-specific styles */
+        #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.48); align-items:center; justify-content:center; z-index:1200; }
+        #templatesModal .modal { background:#fff; width:94%; max-width:1200px; border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.16); max-height:80vh; overflow:auto; }
+        #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+        #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
+        #planosLista .action-buttons .btn-remove{ background: #f3f3f3 !important; color: #222 !important; box-shadow: none !important; border: 1px solid #e6e6e6 !important; }
+        @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
+    </style>
 @endpush
 
 @section('content')
@@ -17,9 +26,7 @@
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success" style="margin-top:16px;padding:12px;border-radius:6px;background:#e6f7d9;color:#155724;">
-                {{ session('success') }}
-            </div>
+            <div class="alert alert-success" style="margin-top:16px;padding:12px;border-radius:6px;background:#e6f7d9;color:#155724;">{{ session('success') }}</div>
         @endif
 
         <div class="search-row" style="margin-top:32px;">
