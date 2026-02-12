@@ -240,7 +240,8 @@
         border-bottom: 1px solid #f3e6b0;
     }
     .badge.bg-success {
-        background: #4caf50 !important;
+        /* use project yellow instead of green */
+        background: #f7b500 !important;
         color: #fff !important;
         font-weight: 500;
         border-radius: 6px;

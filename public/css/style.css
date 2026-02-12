@@ -537,7 +537,8 @@ h1 {
     background: #e0a800;
 }
 .badge.bg-success {
-    background: #4caf50 !important;
+    /* Use project yellow for success badges to avoid green */
+    background: #f7b500 !important;
     color: #fff !important;
     font-weight: 500;
     border-radius: 6px;
