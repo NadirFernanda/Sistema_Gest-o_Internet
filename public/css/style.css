@@ -436,7 +436,15 @@ h1 {
     padding: 0 10px !important;
     border-radius: 8px !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.04) !important;
-    font-weight: 600 !important;
+    font-weight: 400 !important;
+}
+
+/* Make Planos buttons and status badges use normal font-weight (not bold) */
+.planos-container .hero-ctas .btn-cta,
+.planos-container .actions .btn,
+.planos-container .status-badge,
+.planos-container table td .status-badge {
+    font-weight: 400 !important;
 }
 .form-cadastro {
     margin: 24px 0 16px 0;
