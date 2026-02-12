@@ -53,21 +53,24 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         /* simple modal styles */
-        #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1200; }
-        /* make modal wider so table fits without internal scroll */
-        #templatesModal .modal { background:#fff; width:96%; max-width:1400px; border-radius:8px; padding:24px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
-        /* expand modal instead of forcing an internal scroll */
-        #templatesModal .modal { max-height: none; overflow: visible; }
+        #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.48); align-items:center; justify-content:center; z-index:1200; }
+        /* make modal wider but limit height so content scrolls internally */
+        #templatesModal .modal { background:#fff; width:94%; max-width:1200px; border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.16); }
+        /* keep modal content scrollable when tall */
+        #templatesModal .modal .modal-body { max-height:72vh; overflow:auto; padding-right:6px; }
         #templatesModal table { width:100%; border-collapse:collapse; }
-        #templatesModal th, #templatesModal td { padding:8px 6px; border-bottom:1px solid #eee; text-align:left; }
-        #templatesModal .controls { display:flex; gap:8px; margin-bottom:8px; }
+        #templatesModal th, #templatesModal td { padding:12px 10px; border-bottom:1px solid #f1f1f1; text-align:left; vertical-align:middle; }
+        #templatesModal thead th { background:transparent; font-weight:700; }
+        #templatesModal .controls { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
         /* Ensure modal primary buttons use the project yellow even if Bootstrap is present */
-        #templatesModal .btn-primary--fixed {
-            background: #f7b500 !important;
-            color: #fff !important;
-            box-shadow: 0 6px 18px rgba(247,181,0,0.18) !important;
-        }
-        #templatesModal .small-btn { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
+        #templatesModal .btn-primary--fixed { background: #f7b500 !important; color: #fff !important; box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important; }
+        #templatesModal .small-btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+        /* Actions column - modern stacked buttons with gap */
+        #templatesModal .template-actions{ display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
+        #templatesModal .editBtn, #templatesModal .delBtn{ min-width:140px; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+        #templatesModal .editBtn{ background:#f7b500; color:#fff; box-shadow:0 8px 24px rgba(247,181,0,0.12); }
+        #templatesModal .delBtn{ background:#f0f0f0; color:#222; box-shadow:none; }
+        @media (max-width:900px){ #templatesModal .template-actions{ flex-direction:row; gap:8px; align-items:center; } #templatesModal .editBtn, #templatesModal .delBtn{ min-width:96px; } }
     </style>
     <script>
         (function(){
@@ -213,16 +216,16 @@
                                 }
 
                                 function renderList(list){
-                                        if(!list.length){ listContainer.innerHTML = '<div>Nenhum modelo cadastrado.</div>'; return; }
-                                        let html = '<table><thead><tr><th>Nome</th><th>Preço</th><th>Ciclo</th><th>Estado</th><th></th></tr></thead><tbody>';
-                                        list.forEach(t => {
-                                                html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td style="text-align:right;"><button class="editBtn small-btn btn btn-primary" data-id="${t.id}">Editar</button> <button class="delBtn small-btn btn btn-secondary" data-id="${t.id}">Apagar</button></td></tr>`;
-                                        });
-                                        html += '</tbody></table>';
-                                        listContainer.innerHTML = html;
-                                        // attach handlers
-                                        listContainer.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', e => showEditForm(e.target.getAttribute('data-id'))));
-                                        listContainer.querySelectorAll('.delBtn').forEach(b => b.addEventListener('click', e => deleteTemplate(e.target.getAttribute('data-id'))));
+                                    if(!list.length){ listContainer.innerHTML = '<div class="muted" style="padding:8px 0">Nenhum modelo cadastrado.</div>'; return; }
+                                    let html = '<div style="overflow-x:auto"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="width:170px"></th></tr></thead><tbody>';
+                                    list.forEach(t => {
+                                        html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td><div class="template-actions"><button class="editBtn" data-id="${t.id}">Editar</button><button class="delBtn" data-id="${t.id}">Apagar</button></div></td></tr>`;
+                                    });
+                                    html += '</tbody></table></div>';
+                                    listContainer.innerHTML = html;
+                                    // attach handlers
+                                    listContainer.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', e => showEditForm(e.target.getAttribute('data-id'))));
+                                    listContainer.querySelectorAll('.delBtn').forEach(b => b.addEventListener('click', e => deleteTemplate(e.target.getAttribute('data-id'))));
                                 }
 
                                 function showCreateForm(){
