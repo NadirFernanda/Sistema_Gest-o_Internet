@@ -97,7 +97,8 @@
         #planosLista table { width:100%; }
         #planosLista td, #planosLista th { vertical-align:middle; }
         #planosLista .status-badge{ display:inline-block; min-width:84px; padding:6px 10px; border-radius:8px; text-align:center; font-weight:700; font-size:0.95rem; color:#fff; }
-        #planosLista .status-badge.ativo{ background:#38a169; }
+        /* softer teal for 'ativo' status (less saturated than previous green) */
+        #planosLista .status-badge.ativo{ background:#319795; }
         #planosLista .status-badge.inativo{ background:#e53e3e; }
         /* action buttons column: stacked on desktop, row on mobile */
         #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
