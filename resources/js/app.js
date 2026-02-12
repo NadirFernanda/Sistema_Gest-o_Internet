@@ -15,3 +15,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	} catch (e) { console.error('Choices init error', e); }
 });
+
+// Page-specific scripts
+import './planos';

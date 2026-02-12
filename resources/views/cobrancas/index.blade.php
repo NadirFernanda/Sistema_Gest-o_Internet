@@ -1,21 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">
+@endpush
+
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
-    <div class="relatorio-cabecalho-moderna">
-        <h1>Relatório de Cobranças</h1>
-        <div class="relatorio-cabecalho-botoes">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-                    <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Voltar ao Dashboard
-            </a>
-            <a href="{{ route('cobrancas.create') }}" class="btn btn-primary">Nova Cobrança</a>
-        </div>
-    </div>
+    @include('layouts.partials.clientes-hero', [
+        'title' => 'Relatório de Cobranças',
+        'subtitle' => '',
+        'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-secondary">Voltar ao Dashboard</a><a href="' . route('cobrancas.create') . '" class="btn btn-primary">Nova Cobrança</a>'
+    ])
     <style>
     .filtro-modern-cobranca {
         background: #f8f8f8;
