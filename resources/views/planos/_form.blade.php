@@ -2,8 +2,8 @@
     @csrf
 
     <style>
-        .form-cadastro{ background:#fff; padding:16px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.06); display:block; }
-        .form-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; align-items:start; }
+        .form-cadastro{ background:#fff; padding:14px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.06); display:block; max-width:640px; margin:0 auto; }
+        .form-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; align-items:start; }
         .form-row-full{ grid-column:1/-1; }
         .field-label{ font-size:12px; color:#444; margin-bottom:6px; display:block; }
         .input, .select, .textarea{ width:100%; padding:10px 12px; border:1px solid #e6e6e6; border-radius:8px; font-size:14px; color:#222; background:#fff; box-sizing:border-box; }
