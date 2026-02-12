@@ -14,9 +14,9 @@ Route::put('/planos/{id}', [PlanoController::class, 'update']);
 Route::delete('/planos/{id}', [PlanoController::class, 'destroy']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/clientes', [ClienteController::class, 'store']);
-// Clients listing: (TEMP) remove token middleware for debugging; keep rate limit
-// To re-enable token protection, restore 'verify_api_token' in the middleware array.
-Route::middleware(['throttle:60,1'])->get('/clientes', [ClienteController::class, 'index']);
+// Clients listing: protect with VerifyApiToken middleware + rate limiting.
+// Use fully-qualified class name to avoid relying on route middleware alias resolution.
+Route::middleware([\App\Http\Middleware\VerifyApiToken::class, 'throttle:60,1'])->get('/clientes', [ClienteController::class, 'index']);
 Route::put('/clientes/{id}', [ClienteController::class, 'update']);
 Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
 Route::post('/alertas/disparar', [ClienteController::class, 'dispararAlertas']);
