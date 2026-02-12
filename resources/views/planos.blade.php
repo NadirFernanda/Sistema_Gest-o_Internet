@@ -109,6 +109,16 @@
             box-shadow: none !important;
             border: 1px solid #e6e6e6 !important;
         }
+        /* Also override other remove-button selectors used elsewhere so the table remove appears gray */
+        #planosLista .btn-remover-plano,
+        #planosLista .btn-remover,
+        #planosLista button.btn-remover-plano,
+        #planosLista button.btn-remover {
+            background: #f3f3f3 !important;
+            color: #222 !important;
+            box-shadow: none !important;
+            border: 1px solid #e6e6e6 !important;
+        }
         @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
         /* Sticky header inside modal so controls remain visible while scrolling content */
         #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
