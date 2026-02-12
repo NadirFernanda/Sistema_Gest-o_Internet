@@ -1,31 +1,80 @@
 <form id="formPlano" class="form-cadastro" method="POST" action="{{ route('planos.store') }}">
     @csrf
-    <select id="templateSelector" class="select" name="template_id">
-        <option value="">Usar modelo (opcional)</option>
-    </select>
 
-    <select id="clientePlano" name="cliente_id" class="select" required>
-        <option value="">Selecione o cliente</option>
-        @if(isset($clientes) && count($clientes))
-            @foreach($clientes as $c)
-                <option value="{{ $c->id }}">{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
-            @endforeach
-        @endif
-    </select>
-    <input type="text" id="nomePlano" name="nome" placeholder="Nome do plano" required>
-    <input type="text" id="descricaoPlano" name="descricao" placeholder="Descrição" required>
-    <input type="hidden" name="preco" id="precoPlano">
-    <input type="text" id="precoPlanoDisplay" placeholder="Preço (Kz)" required>
-    <input type="number" id="cicloPlano" name="ciclo" placeholder="Ciclo de serviço (dias)" min="1" required>
-    <input type="date" id="dataAtivacaoPlano" name="data_ativacao" placeholder="Data de ativação" required>
-    <select id="estadoPlano" name="estado" required>
-        <option value="">Estado do plano</option>
-        <option value="Ativo">Ativo</option>
-        <option value="Em aviso">Em aviso</option>
-        <option value="Suspenso">Suspenso</option>
-        <option value="Cancelado">Cancelado</option>
-    </select>
-    <button type="submit" class="btn btn-cta">Cadastrar Plano</button>
+    <style>
+        .form-cadastro{ background:#fff; padding:16px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.06); display:block; }
+        .form-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; align-items:start; }
+        .form-row-full{ grid-column:1/-1; }
+        .field-label{ font-size:12px; color:#444; margin-bottom:6px; display:block; }
+        .input, .select, .textarea{ width:100%; padding:10px 12px; border:1px solid #e6e6e6; border-radius:8px; font-size:14px; color:#222; background:#fff; box-sizing:border-box; }
+        .input:focus, .select:focus, .textarea:focus{ outline:none; border-color:#f7b500; box-shadow:0 6px 18px rgba(247,181,0,0.08); }
+        .muted{ color:#666; font-size:13px; }
+        .form-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+        .btn-cta{ background:#f7b500; color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; box-shadow:0 8px 24px rgba(247,181,0,0.14); }
+        @media (max-width:800px){ .form-grid{ grid-template-columns:1fr; } .form-actions{ justify-content:stretch; } .btn-cta{ width:100%; } }
+    </style>
+
+    <div class="form-grid">
+        <div class="form-row-full">
+            <label class="field-label">Usar modelo (opcional)</label>
+            <select id="templateSelector" class="select" name="template_id">
+                <option value="">-- Usar modelo --</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="field-label">Cliente</label>
+            <select id="clientePlano" name="cliente_id" class="select" required>
+                <option value="">Selecione o cliente</option>
+                @if(isset($clientes) && count($clientes))
+                    @foreach($clientes as $c)
+                        <option value="{{ $c->id }}">{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+
+        <div>
+            <label class="field-label">Nome do plano</label>
+            <input type="text" id="nomePlano" name="nome" class="input" placeholder="Ex: Plano Residencial 10Mbps" required>
+        </div>
+
+        <div>
+            <label class="field-label">Preço (Kz)</label>
+            <input type="hidden" name="preco" id="precoPlano">
+            <input type="text" id="precoPlanoDisplay" class="input" placeholder="0,00" required>
+        </div>
+
+        <div class="form-row-full">
+            <label class="field-label">Descrição</label>
+            <input type="text" id="descricaoPlano" name="descricao" class="input" placeholder="Breve descrição do plano" required>
+        </div>
+
+        <div>
+            <label class="field-label">Ciclo (dias)</label>
+            <input type="number" id="cicloPlano" name="ciclo" class="input" placeholder="30" min="1" required>
+        </div>
+
+        <div>
+            <label class="field-label">Data de ativação</label>
+            <input type="date" id="dataAtivacaoPlano" name="data_ativacao" class="input" required>
+        </div>
+
+        <div>
+            <label class="field-label">Estado</label>
+            <select id="estadoPlano" name="estado" class="select" required>
+                <option value="">Escolha o estado</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Em aviso">Em aviso</option>
+                <option value="Suspenso">Suspenso</option>
+                <option value="Cancelado">Cancelado</option>
+            </select>
+        </div>
+
+        <div class="form-row-full form-actions">
+            <button type="submit" class="btn-cta">Cadastrar Plano</button>
+        </div>
+    </div>
 </form>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
