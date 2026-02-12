@@ -97,9 +97,9 @@
         #planosLista table { width:100%; }
         #planosLista td, #planosLista th { vertical-align:middle; }
         #planosLista .status-badge{ display:inline-block; min-width:84px; padding:6px 10px; border-radius:8px; text-align:center; font-weight:700; font-size:0.95rem; color:#fff; }
-        /* softer teal for 'ativo' status (less saturated than previous green) */
-        #planosLista .status-badge.ativo{ background:#319795; }
-        #planosLista .status-badge.inativo{ background:#e53e3e; }
+        /* project palette: use yellow for active, gray for inactive (no green) */
+        #planosLista .status-badge.ativo{ background:#f7b500; color:#fff; }
+        #planosLista .status-badge.inativo{ background:#e6e6e6; color:#222; box-shadow:none; }
         /* action buttons column: stacked on desktop, row on mobile */
         #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
         #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
