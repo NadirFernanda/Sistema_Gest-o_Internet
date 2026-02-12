@@ -1,10 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+@endpush
+
     <div class="alertas-container">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-        <h1>Alertas Ativos</h1>
-        <a href="{{ route('dashboard') }}" class="btn">Voltar ao Dashboard</a>
+        @include('layouts.partials.clientes-hero', [
+            'title' => 'Alertas Ativos',
+            'subtitle' => '',
+            'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Voltar ao Dashboard</a><button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>'
+        ])
         <div style="margin: 18px 0 0 0;">
             <label for="diasAlerta">Exibir alertas para serviços que terminam em até </label>
             <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias

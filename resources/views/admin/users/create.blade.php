@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+@endpush
+
 @section('content')
 <div class="container">
+    @include('layouts.partials.clientes-hero', [
+        'title' => 'Criar Usuário',
+        'subtitle' => 'Adicionar novo usuário e atribuir papel',
+        'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Voltar</a>'
+    ])
     <div class="card mx-auto create-card" style="max-width:720px">
             <div class="card-accent"></div>
             <div class="card-header">Criar Usuário</div>

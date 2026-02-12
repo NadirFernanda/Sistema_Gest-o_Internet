@@ -1,11 +1,17 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+@endpush
+
 @section('content')
     <div class="planos-container">
-        <div class="planos-header">
-            <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-            <h1>Gestão de Planos — Cadastrar</h1>
-        </div>
+        @include('layouts.partials.clientes-hero', [
+            'title' => 'Gestão de Planos — Cadastrar',
+            'subtitle' => '',
+            'heroCtAs' => '<a href="' . route('planos') . '" class="btn btn-ghost">Voltar</a>'
+        ])
+
         <div style="margin-bottom:16px;">
             <a href="{{ route('planos') }}" class="btn btn-cta">Voltar à Lista de Planos</a>
         </div>

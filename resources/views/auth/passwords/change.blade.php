@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
+@push('styles')
+  <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+@endpush
+
 @section('content')
+  @include('layouts.partials.clientes-hero', [
+    'title' => 'Alterar senha',
+    'subtitle' => '',
+    'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Ir ao painel</a>'
+  ])
+
 <style>
 .change-password-wrapper{
   min-height:100vh;

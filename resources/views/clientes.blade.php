@@ -68,19 +68,31 @@
         {{-- Se estiver na ficha de um cliente específico --}}
         @if(isset($cliente))
 
-            {{-- Toolbar com ações (fica acima do cartão da ficha, fora do cartão impresso) --}}
-            <div class="ficha-toolbar no-print">
-                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn btn-sm btn-secondary">Download PDF</a>
+            {{-- Modernized ficha (card + actions) --}}
+            <div class="ficha-toolbar no-print" style="text-align:center;margin-bottom:12px;">
+                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn ficha-download">Download PDF</a>
             </div>
 
-            {{-- ficha-toolbar styles moved to resources/css/app.css (Vite) --}}
-
             <div class="ficha-cliente" style="margin-top:12px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin-left:auto;margin-right:auto;">
-                    <h2 style="margin:0;">Ficha do Cliente: {{ $cliente->nome }}</h2>
-                </div>
+                <div class="ficha-card" style="max-width:980px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#fff9eb, #fffbe7);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
+                        <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
+                            <a href="{{ route('clientes') }}" class="btn ficha-btn ficha-btn-ghost">Voltar à Lista</a>
+                            <a href="#" id="btnMostrarEditar" class="btn ficha-btn ficha-btn-edit">Editar Cliente</a>
+                            <button class="btn ficha-btn ficha-btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}">Excluir Cliente</button>
+                        </div>
+                    </div>
 
-                <div class="cliente-dados-moderna" style="background:#fffbe7;border-radius:10px;padding:18px 24px;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto;">
+                    <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;align-items:center">
+                            <div style="text-align:center"><strong>BI/NIF:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->bi ?? '-' }}</div></div>
+                            <div style="text-align:center"><strong>Nome:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->nome }}</div></div>
+                            <div style="text-align:center"><strong>Email:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->email ?? '-' }}</div></div>
+                            <div style="text-align:center"><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->contato ?? '-' }}</div></div>
+                        </div>
+                    </div>
+                    {{-- estilos movidos para resources/css/clientes.css (importados via resources/css/app.css) --}}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
                         <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
                         <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
@@ -262,6 +274,11 @@
             </div>
         @endif
     </div>
+
+    {{-- Hidden CSRF holder for JS-driven forms/modal submissions -- ensure a fresh token is always present in the DOM --}}
+    <form id="pageCsrfHolder" style="display:none;">
+        @csrf
+    </form>
 
 @push('scripts')
 <script>
@@ -547,9 +564,9 @@
             const reason = deleteReasonEl.value || '';
             // create a form to submit as POST with _method=DELETE for maximum compatibility
             // Try to get CSRF token from a hidden input first, then from the meta tag (layout)
-            const hiddenTokenInput = document.querySelector('input[name="_token"]');
             const metaTokenEl = document.querySelector('meta[name="csrf-token"]');
-            const token = (hiddenTokenInput && hiddenTokenInput.value) || (metaTokenEl && metaTokenEl.getAttribute('content')) || null;
+            const hiddenTokenInput = document.querySelector('input[name="_token"]');
+            const token = (metaTokenEl && metaTokenEl.getAttribute('content')) || (hiddenTokenInput && hiddenTokenInput.value) || null;
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/clientes/${deleteTargetId}`;
