@@ -55,7 +55,7 @@
         /* simple modal styles */
         #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.48); align-items:center; justify-content:center; z-index:1200; }
         /* make modal wider but limit height so content scrolls internally */
-        #templatesModal .modal { background:#fff; width:94%; max-width:1200px; border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.16); }
+        #templatesModal .modal { background:#fff; width:94%; max-width:1200px; border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.16); max-height:80vh; overflow:auto; }
         /* keep modal content scrollable when tall */
         #templatesModal .modal .modal-body { max-height:72vh; overflow:auto; padding-right:6px; }
         #templatesModal table { width:100%; border-collapse:collapse; }
@@ -235,11 +235,14 @@
                                     formContainer.style.display = 'block';
                                     formContainer.innerHTML = formHtml();
                                     bindForm();
-                                    // focus and bring the first input into view
+                                    // focus and bring the first input into view and ensure modal scrolls to it
                                     setTimeout(() => {
                                         const first = formContainer.querySelector('input[name="name"]');
-                                        if(first){ try{ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
-                                    }, 60);
+                                        try{
+                                            if(first){ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                            if(modal){ modal.querySelector('.modal').scrollTop = Math.max(0, formContainer.offsetTop - 40); }
+                                        }catch(_){}
+                                    }, 120);
                                 }
 
                                 function showEditForm(id){
@@ -248,11 +251,14 @@
                                     fetch(`/plan-templates/${id}/json`).then(r => r.json()).then(t => {
                                         formContainer.innerHTML = formHtml(t);
                                         bindForm(id);
-                                        // focus name input when editing and ensure visible
+                                        // focus name input when editing and ensure visible and scroll modal
                                         setTimeout(() => {
                                             const first = formContainer.querySelector('input[name="name"]');
-                                            if(first){ try{ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
-                                        }, 60);
+                                            try{
+                                                if(first){ first.focus({preventScroll:false}); first.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                                if(modal){ modal.querySelector('.modal').scrollTop = Math.max(0, formContainer.offsetTop - 40); }
+                                            }catch(_){}
+                                        }, 120);
                                     }).catch(()=>{ formContainer.innerHTML = '<div>Erro ao carregar modelo.</div>'; });
                                 }
 
