@@ -84,6 +84,16 @@
         .hero-ctas .btn-cta:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(224,162,2,0.10); filter:brightness(.99); }
         .hero-ctas .btn-cta:active{ transform:translateY(0); }
         @media (max-width:720px){ .hero-ctas .btn-cta{ padding:9px 14px; font-size:0.95rem; } }
+        /* Standardize table status badges and action buttons in main list */
+        #planosLista table { width:100%; }
+        #planosLista td, #planosLista th { vertical-align:middle; }
+        #planosLista .status-badge{ display:inline-block; min-width:84px; padding:6px 10px; border-radius:8px; text-align:center; font-weight:700; font-size:0.95rem; color:#fff; }
+        #planosLista .status-badge.ativo{ background:#38a169; }
+        #planosLista .status-badge.inativo{ background:#e53e3e; }
+        /* action buttons column: stacked on desktop, row on mobile */
+        #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+        #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
+        @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
     </style>
     <script>
         (function(){
