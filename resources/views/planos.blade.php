@@ -102,8 +102,13 @@
         /* action buttons column: stacked on desktop, row on mobile */
         #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
         #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
-        /* remove button (danger) styled as muted gray in lists */
-        #planosLista .btn-remove{ background:#f3f3f3; color:#222; box-shadow:none; border:1px solid #e6e6e6; }
+        /* remove button (danger) styled as muted gray in lists - higher specificity to override global .btn styles */
+        #planosLista .action-buttons .btn-remove{
+            background: #f3f3f3 !important;
+            color: #222 !important;
+            box-shadow: none !important;
+            border: 1px solid #e6e6e6 !important;
+        }
         @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
         /* Sticky header inside modal so controls remain visible while scrolling content */
         #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
