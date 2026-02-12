@@ -78,6 +78,12 @@
             #templatesModal .editBtn{ background:#e0a200; color:#fff; box-shadow:0 6px 18px rgba(224,162,2,0.08); }
             #templatesModal .delBtn{ background:#f3f3f3; color:#222; box-shadow:none; }
         @media (max-width:900px){ #templatesModal .template-actions{ flex-direction:row; gap:8px; align-items:center; } #templatesModal .editBtn, #templatesModal .delBtn{ min-width:96px; } }
+        /* Top hero CTAs: softened color, smaller size, modern spacing */
+        .hero-ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin:18px 0; }
+        .hero-ctas .btn-cta{ background:#e0a200; color:#fff; padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:700; box-shadow:0 6px 18px rgba(224,162,2,0.08); display:inline-flex; align-items:center; justify-content:center; font-size:1rem; transition:transform .12s ease, box-shadow .12s ease, filter .12s ease; }
+        .hero-ctas .btn-cta:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(224,162,2,0.10); filter:brightness(.99); }
+        .hero-ctas .btn-cta:active{ transform:translateY(0); }
+        @media (max-width:720px){ .hero-ctas .btn-cta{ padding:9px 14px; font-size:0.95rem; } }
     </style>
     <script>
         (function(){
