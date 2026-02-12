@@ -2,14 +2,30 @@
 
 @section('content')
     <div class="clientes-container">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-        <h1>Gestão de Clientes</h1>
-
-        <div class="hero-ctas">
-            <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
-            <a href="{{ url('/clientes/create') }}" class="btn btn-primary btn-cta">Cadastrar Cliente</a>
-        </div>
         <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+        <header class="clientes-hero modern-hero">
+            <div class="hero-inner">
+                <div class="hero-left">
+                    <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
+                    <div class="hero-titles">
+                        <h1>Gestão de Clientes</h1>
+                        <p class="hero-sub">Lista, gestão e ações rápidas</p>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <div class="hero-ctas">
+                        <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                        <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar Cliente</a>
+                    </div>
+                    <div class="search-inline">
+                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline">
+                            <input type="text" name="busca" placeholder="Pesquisar por nome, BI, email ou contato" value="{{ request('busca') }}">
+                            <button type="submit" class="btn btn-search">Buscar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
 
         {{-- Se estiver na listagem de clientes --}}
         @if(isset($clientes))
