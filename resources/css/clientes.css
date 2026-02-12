@@ -89,6 +89,21 @@
   white-space: nowrap;
 }
 
+/* Stack-left variant: logo above title on the left, CTAs stacked on the right */
+.clientes-hero.stack-left .hero-inner{ align-items:flex-start; }
+.clientes-hero.stack-left .hero-left{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+.clientes-hero.stack-left .logo{ width:88px; height:88px; }
+.clientes-hero.stack-left .hero-titles{ align-items:flex-start; text-align:left; }
+.clientes-hero.stack-left .hero-right{ display:flex; flex-direction:column; align-items:flex-end; gap:12px; }
+.clientes-hero.stack-left .hero-ctas{ flex-direction:column; align-items:flex-end; gap:14px; }
+.clientes-hero.stack-left .hero-ctas .btn, .clientes-hero.stack-left .hero-ctas a{ border-radius:12px; padding:8px 18px; }
+
+@media (max-width: 900px){
+  .clientes-hero.stack-left .hero-inner{ flex-direction:column; align-items:center; }
+  .clientes-hero.stack-left .hero-right{ align-items:center; }
+  .clientes-hero.stack-left .hero-ctas{ align-items:center; }
+}
+
 @media (max-width:1000px){ .plan-grid{ grid-template-columns: repeat(2,1fr); } }
 @media (max-width:640px){ .plan-grid{ grid-template-columns: 1fr; } .plan-actions{ justify-content:flex-start; } }
 

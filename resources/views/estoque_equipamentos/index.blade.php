@@ -9,6 +9,7 @@
     @include('layouts.partials.clientes-hero', [
         'title' => 'Estoque de Equipamentos',
         'subtitle' => '',
+        'stackLeft' => true,
         'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-secondary">Voltar ao Dashboard</a><a href="' . route('estoque_equipamentos.create') . '" class="btn btn-primary">Cadastrar Novo Equipamento</a><a href="' . route('estoque_equipamentos.export') . '" class="btn btn-success" style="color:#fff; min-width:180px;" target="_blank">Exportar Estoque Excel</a>'
     ])
     @if(session('success'))
