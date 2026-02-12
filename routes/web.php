@@ -40,10 +40,12 @@ Route::middleware('auth')->group(function () {
         ->name('relatorios.download');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
-    Route::get('/planos', function () {
-        $clientes = \App\Models\Cliente::orderBy('nome')->get();
-        return view('planos', compact('clientes'));
-    })->name('planos');
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
+    Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
+        ->name('planos.store')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.create');
+    // Show the create form for planos on a separate page
+    Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças

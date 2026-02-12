@@ -58,6 +58,24 @@ class PlanoController extends Controller
         return response()->json($planos);
     }
 
+    /**
+     * Web view for planos list. Returns the Blade view with clients for the inline form.
+     */
+    public function webIndex(Request $request)
+    {
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('planos', compact('clientes'));
+    }
+
+    /**
+     * Show the standalone create page for planos.
+     */
+    public function createWeb()
+    {
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('planos.create', compact('clientes'));
+    }
+
     public function show($id)
     {
         $plano = Plano::with('cliente')->find($id);
@@ -90,5 +108,32 @@ class PlanoController extends Controller
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
         return response()->json(['success' => true, 'plano' => $plano]);
+    }
+
+    /**
+     * Web form store: accepts a normal web POST (CSRF) and redirects back to planos list.
+     */
+    public function storeWeb(Request $request)
+    {
+        \Log::info('PlanoController@storeWeb - Request recebido', ['request' => $request->all()]);
+        try {
+            $validated = $request->validate([
+                'nome' => 'required|string|max:255',
+                'descricao' => 'required|string',
+                'preco' => 'required|numeric|min:0',
+                'ciclo' => 'required|integer|min:1',
+                'cliente_id' => 'required|exists:clientes,id',
+                'estado' => 'required|string',
+                'data_ativacao' => 'required|date',
+            ]);
+            $plano = Plano::create($validated);
+            \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano]);
+            return redirect()->route('planos')->with('success', 'Plano cadastrado com sucesso.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            \Log::error('PlanoController@storeWeb - Erro ao cadastrar plano', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
+        }
     }
 }
