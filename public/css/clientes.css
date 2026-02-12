@@ -1,3 +1,130 @@
+:root{
+  /* Darker yellows chosen for WCAG AA contrast with white text */
+  --yellow-500: #9A5600; /* accessible primary amber/yellow */
+  --yellow-600: #7F4300; /* hover/darker */
+  --gray-900: #111827; /* text */
+  --gray-700: #374151; /* heading */
+  --gray-500: #6b7280; /* muted */
+  --gray-200: #e5e7eb; /* borders */
+  --gray-100: #f3f4f6; /* page bg */
+  --white: #ffffff;
+  --radius: 12px;
+}
+
+/* Page container */
+.clientes-container{
+  max-width:1100px;
+  margin:28px auto;
+  padding:20px;
+  background:var(--white);
+  border-radius:14px;
+  box-shadow: 0 8px 30px rgba(17,24,39,0.06);
+  color:var(--gray-900);
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.logo{ width:96px; height:auto; display:block; margin:8px 0 18px 0; }
+
+h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
+
+.hero-ctas{ display:flex; gap:12px; align-items:center; margin:12px 0 18px 0; }
+
+/* general button baseline used in blade */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:10px; font-weight:700; text-decoration:none; cursor:pointer; }
+.btn-cta{ background:var(--yellow-500); color:var(--white); border:none; box-shadow: 0 6px 18px rgba(224,161,1,0.12); }
+.btn-cta:hover{ background:var(--yellow-600); }
+
+/* Search */
+.busca-planos-form{ display:flex; gap:10px; margin:12px 0 18px 0; }
+.busca-planos-input{
+  flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--gray-200);
+  background:var(--gray-100); color:var(--gray-900);
+}
+.busca-planos-btn{ padding:10px 16px; background:var(--yellow-500); color:var(--white); border:none; border-radius:10px; font-weight:600; }
+.busca-planos-btn:hover{ background:var(--yellow-600); }
+
+/* Clients list */
+.clientes-lista-moderna{ display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+.cliente-item-moderna{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:16px; border-radius:12px; background:linear-gradient(180deg, var(--white), #fff8e6);
+  border:1px solid var(--gray-200);
+  box-shadow: 0 4px 18px rgba(17,24,39,0.03);
+}
+.cliente-info-moderna{ display:flex; flex-direction:column; gap:6px; }
+.cliente-nome{ font-size:1.05rem; font-weight:700; color:var(--gray-900); }
+.cliente-bi{ font-size:0.95rem; color:var(--gray-700); }
+.cliente-contato{ font-size:0.95rem; color:var(--gray-500); }
+
+/* Action buttons group */
+.cliente-botoes-moderna{ display:flex; gap:8px; align-items:center; }
+.btn-sm{ padding:8px 12px; border-radius:10px; font-weight:600; font-size:0.9rem; border:1px solid transparent; cursor:pointer; }
+.btn-primary{ background:var(--yellow-500); color:var(--white); border:none; }
+.btn-primary:hover{ background:var(--yellow-600); }
+.btn-secondary{ background:transparent; border:1px solid var(--gray-200); color:var(--gray-700); }
+.btn-warning{ background:transparent; border:1px solid var(--yellow-500); color:var(--yellow-600); }
+.btn-danger{ background:transparent; border:1px solid #fca5a5; color:#b91c1c; }
+
+.btn-ghost{ background:transparent; border:none; color:var(--gray-700); }
+
+/* Actions dropdown */
+.actions-dropdown{ position:relative; display:inline-block; }
+.actions-toggle{ width:44px; height:40px; display:inline-flex; align-items:center; justify-content:center; }
+.actions-menu{ position:absolute; right:0; top:100%; margin-top:8px; background:var(--white); border:1px solid var(--gray-200); border-radius:10px; box-shadow:0 8px 24px rgba(17,24,39,0.08); list-style:none; padding:8px 6px; min-width:160px; z-index:60; }
+.actions-menu li{ padding:6px 8px; }
+.actions-menu li + li{ border-top:1px solid rgba(0,0,0,0.04); }
+.actions-link{ display:block; color:var(--gray-700); text-decoration:none; padding:6px 8px; border-radius:8px; font-weight:600; }
+.actions-link:hover{ background:var(--gray-100); }
+.actions-delete{ background:transparent; border:none; color:#b91c1c; padding:6px 8px; width:100%; text-align:left; }
+
+/* hide default focus ring for dropdown toggle but keep accessible outline via :focus-visible */
+.actions-toggle:focus{ outline: none; }
+.actions-toggle:focus-visible{ outline:3px solid rgba(154,86,0,0.18); outline-offset:2px; }
+
+/* Modal confirmation for deletions */
+.modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,0.5); display:none; align-items:center; justify-content:center; z-index:200; }
+.modal-overlay.active{ display:flex; }
+.modal{ background:var(--white); border-radius:12px; padding:18px; max-width:520px; width:100%; box-shadow:0 20px 50px rgba(15,23,42,0.25); border:1px solid var(--gray-200); }
+.modal h3{ margin:0 0 8px 0; color:var(--gray-900); }
+.modal p{ margin:0 0 12px 0; color:var(--gray-700); }
+.modal textarea{ width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid var(--gray-200); }
+.modal .modal-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.modal .btn-cancel{ background:transparent; border:1px solid var(--gray-200); color:var(--gray-700); }
+.modal .btn-confirm{ background:var(--yellow-500); color:var(--white); border:none; }
+
+/* Smaller screens */
+@media (max-width: 800px){
+  .cliente-item-moderna{ flex-direction:column; align-items:flex-start; }
+  .cliente-botoes-moderna{ width:100%; justify-content:flex-start; flex-wrap:wrap; }
+}
+
+/* Ficha styles (client detail) */
+.ficha-cliente{ background:transparent; }
+.cliente-dados-moderna{ background:linear-gradient(180deg, #fffdf6, var(--white)); border-radius:12px; padding:20px; border:1px solid var(--gray-200); }
+
+.form-editar-cliente-moderna{ background: linear-gradient(180deg, #fffdf6, var(--white)); border-radius:12px; padding:20px; border:1px solid var(--gray-200); }
+.form-editar-campo input{ border:1px solid var(--gray-200); padding:8px 10px; border-radius:8px; }
+
+/* Table (equipamentos) */
+.ficha-equip-table .table thead th{ background:transparent; color:var(--gray-700); border-bottom:2px solid var(--gray-200); }
+.ficha-equip-table .table td, .ficha-equip-table .table th{ padding:12px 10px; border-bottom:1px solid var(--gray-100); }
+
+/* subtle chips */
+.chip{ display:inline-block; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.85rem; background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-200); }
+.chip--accent{ background:linear-gradient(90deg, rgba(154,86,0,0.10), rgba(255,255,255,0)); color:var(--yellow-600); border:1px solid rgba(154,86,0,0.12); }
+
+/* small utilities */
+.muted{ color:var(--gray-500); }
+.no-print{ display:block; }
+
+/* accessibility focus */
+a:focus, button:focus, input:focus{ outline:3px solid rgba(154,86,0,0.18); outline-offset:2px; }
+
+/* make action buttons look modern */
+.cliente-botoes-moderna .btn-sm svg{ vertical-align:middle; margin-right:6px; }
+
+/* reduce yellow saturation on large surfaces */
+body .bg-yellow-heavy{ background:var(--yellow-500); }
 /* Extracted styles for clientes list (mobile-friendly, grid-based) */
 @media print { .no-print { display: none !important; } }
 

@@ -485,12 +485,33 @@ class ClienteController extends Controller
         return response()->json(['success' => true, 'cliente' => $cliente]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $cliente = Cliente::findOrFail($id);
+
+        // record audit before deletion
+        try {
+            $userId = auth()->id();
+            $reason = $request->input('reason') ?? null;
+            $payload = $cliente->toArray();
+            \App\Models\DeletionAudit::create([
+                'entity_type' => Cliente::class,
+                'entity_id' => $cliente->id,
+                'user_id' => $userId,
+                'reason' => $reason,
+                'payload' => $payload,
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('Falha ao gravar audit deletion: ' . $e->getMessage());
+        }
+
         $cliente->delete();
 
-        return response()->json(['success' => true]);
+        // respond appropriately for JSON/AJAX or form submit
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json(['success' => true]);
+        }
+        return redirect()->route('clientes')->with('success', 'Cliente excluído com sucesso.');
     }
 
     /**
