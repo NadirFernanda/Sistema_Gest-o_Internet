@@ -10,35 +10,32 @@
             <a href="{{ route('dashboard') }}" class="btn btn-cta">Voltar ao Dashboard</a>
             <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a>
             <button type="button" id="refreshTemplatesBtn" class="btn btn-cta">Atualizar Modelos</button>
+            <a href="{{ route('planos.create') }}" class="btn btn-cta" id="openCreatePlano">Cadastrar Plano</a>
         </div>
-        <form id="formPlano" class="form-cadastro">
-            <select id="templateSelector" class="select">
-                <option value="">Usar modelo (opcional)</option>
-            </select>
-            
-            <select id="clientePlano" class="select" required>
-                <option value="">Selecione o cliente</option>
-                @if(isset($clientes) && count($clientes))
-                    @foreach($clientes as $c)
-                        <option value="{{ $c->id }}">{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
+        <!-- Hidden inline form container (loaded from partial). Shown only when user clicks 'Cadastrar Plano' -->
+        <div id="planCreateContainer" style="display:none; margin-top:16px;">
+            @includeWhen(true, 'planos._form')
+        </div>
+        <!-- Flash messages -->
+        @if(session('success'))
+            <div class="alert alert-success" style="margin-top:16px;padding:12px;border-radius:6px;background:#e6f7d9;color:#155724;">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger" style="margin-top:16px;padding:12px;border-radius:6px;background:#f8d7da;color:#721c24;">
+                {{ session('error') }}
+            </div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-danger" style="margin-top:16px;padding:12px;border-radius:6px;background:#f8d7da;color:#721c24;">
+                <ul style="margin:0 0 0 18px;padding:0;">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
                     @endforeach
-                @endif
-            </select>
-            <input type="text" id="nomePlano" placeholder="Nome do plano" required>
-            <input type="text" id="descricaoPlano" placeholder="Descrição" required>
-            <input type="hidden" name="preco" id="precoPlano">
-            <input type="text" id="precoPlanoDisplay" placeholder="Preço (Kz)" required>
-            <input type="number" id="cicloPlano" placeholder="Ciclo de serviço (dias)" min="1" required>
-            <input type="date" id="dataAtivacaoPlano" placeholder="Data de ativação" required>
-            <select id="estadoPlano" required>
-                <option value="">Estado do plano</option>
-                <option value="Ativo">Ativo</option>
-                <option value="Em aviso">Em aviso</option>
-                <option value="Suspenso">Suspenso</option>
-                <option value="Cancelado">Cancelado</option>
-            </select>
-            <button type="submit">Cadastrar Plano</button>
-        </form>
+                </ul>
+            </div>
+        @endif
         <h2 style="margin-top:32px;">Lista de Planos</h2>
         <div class="busca-planos-form">
             <input
@@ -76,45 +73,47 @@
         (function(){
             const display = document.getElementById('precoPlanoDisplay');
             const hidden = document.getElementById('precoPlano');
-            function unformat(value){
-                if(!value) return '';
-                // remove non numeric except comma and dot
-                let v = value.replace(/[^0-9,\.]/g, '');
-                v = v.replace(/,/g, '.');
-                return v;
-            }
-            function formatNumber(num){
-                return 'Kz ' + Number(num).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-            display.addEventListener('input', function(e){
-                const raw = unformat(this.value);
-                const n = parseFloat(raw);
-                if(!isNaN(n)) {
-                    hidden.value = n.toFixed(2);
-                } else {
-                    hidden.value = '';
+            if (display) {
+                function unformat(value){
+                    if(!value) return '';
+                    // remove non numeric except comma and dot
+                    let v = value.replace(/[^0-9,\.]/g, '');
+                    v = v.replace(/,/g, '.');
+                    return v;
                 }
-            });
-            display.addEventListener('blur', function(){
-                const raw = unformat(this.value);
-                const n = parseFloat(raw);
-                if(!isNaN(n)) this.value = formatNumber(n);
-            });
-            display.addEventListener('focus', function(){
-                // show editable raw number when focusing
-                const raw = hidden.value;
-                if(raw) this.value = raw.replace('.', ',');
-                else this.value = '';
-            });
-            // ensure hidden has value before any submit triggered by other scripts
-            const form = document.getElementById('formPlano');
-            if(form){
-                form.addEventListener('submit', function(){
-                    // make sure hidden has plain dot-decimal string
-                    const raw = unformat(display.value);
+                function formatNumber(num){
+                    return 'Kz ' + Number(num).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+                display.addEventListener('input', function(e){
+                    const raw = unformat(this.value);
                     const n = parseFloat(raw);
-                    if(!isNaN(n)) hidden.value = n.toFixed(2);
+                    if(!isNaN(n)) {
+                        hidden.value = n.toFixed(2);
+                    } else {
+                        hidden.value = '';
+                    }
                 });
+                display.addEventListener('blur', function(){
+                    const raw = unformat(this.value);
+                    const n = parseFloat(raw);
+                    if(!isNaN(n)) this.value = formatNumber(n);
+                });
+                display.addEventListener('focus', function(){
+                    // show editable raw number when focusing
+                    const raw = hidden.value;
+                    if(raw) this.value = raw.replace('.', ',');
+                    else this.value = '';
+                });
+                // ensure hidden has value before any submit triggered by other scripts
+                const form = document.getElementById('formPlano');
+                if(form){
+                    form.addEventListener('submit', function(){
+                        // make sure hidden has plain dot-decimal string
+                        const raw = unformat(display.value);
+                        const n = parseFloat(raw);
+                        if(!isNaN(n)) hidden.value = n.toFixed(2);
+                    });
+                }
             }
                 // load templates and hook selector
             (function(){
@@ -323,6 +322,49 @@
                                 });
                                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal && modal.style.display === 'flex') closeModal(); });
                         })();
+        })();
+    </script>
+        <script>
+            // If we returned with a success flash, automatically open the inline create form
+            (function(){
+                try{
+                    const container = document.getElementById('planCreateContainer');
+                    const btn = document.getElementById('openCreatePlano');
+                    const successAlert = document.querySelector('.alert.alert-success');
+                    if(container && btn && successAlert){
+                        container.style.display = 'block';
+                        btn.textContent = 'Fechar formulário';
+                        try{ if(typeof window.loadTemplates === 'function') window.loadTemplates(); }catch(_){}
+                        setTimeout(() => {
+                            const first = container.querySelector('input, select, textarea');
+                            if(first) try{ first.focus(); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){}
+                        }, 60);
+                    }
+                }catch(_){/* ignore */}
+            })();
+        </script>
+    <script>
+        // Toggle inline create form visibility when clicking 'Cadastrar Plano'
+        (function(){
+            const btn = document.getElementById('openCreatePlano');
+            const container = document.getElementById('planCreateContainer');
+            if(!btn || !container) return;
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                const isHidden = window.getComputedStyle(container).display === 'none';
+                if(isHidden){
+                    container.style.display = 'block';
+                    try{ if(typeof window.loadTemplates === 'function') window.loadTemplates(); }catch(_){}
+                    setTimeout(() => {
+                        const first = container.querySelector('input, select, textarea');
+                        if(first) try{ first.focus(); first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){}
+                    }, 60);
+                    btn.textContent = 'Fechar formulário';
+                } else {
+                    container.style.display = 'none';
+                    btn.textContent = 'Cadastrar Plano';
+                }
+            });
         })();
     </script>
     <script>
