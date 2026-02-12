@@ -18,8 +18,8 @@
                         <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar Cliente</a>
                     </div>
                     <div class="search-inline">
-                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline">
-                            <input type="text" name="busca" placeholder="Pesquisar por nome, BI, email ou contato" value="{{ request('busca') }}">
+                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline" role="search" aria-label="Pesquisar clientes">
+                            <input type="text" name="busca" class="search-input" placeholder="Pesquisar por nome, BI, email ou contato" value="{{ request('busca') }}" aria-label="Pesquisar">
                             <button type="submit" class="btn btn-search">Buscar</button>
                         </form>
                     </div>
