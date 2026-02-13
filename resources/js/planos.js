@@ -265,9 +265,11 @@
                             <div style="margin-left:auto"><small class="status-badge ${estadoClass}">${esc(p.estado||'')}</small></div>
                         </div>
                         <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
-                        <div class="plan-actions">
-                            <a href="/planos/${p.id}" class="btn btn-sm">Ver</a>
-                               <a href="/planos/${p.id}/edit" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                <div class="plan-actions">
+                                     <a href="/planos/${p.id}" class="btn-icon btn-ghost" title="Ver" aria-label="Ver Plano">
+                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                     </a>
+                                         <a href="/planos/${p.id}/edit" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                                </a>
                                <form action="/planos/${p.id}" method="POST" style="display:inline-block; margin-left:6px;">

@@ -49,4 +49,10 @@
 #planosLista .btn-remover-plano, #planosLista .btn-remover, #planosLista button.btn-remover-plano, #planosLista button.btn-remover { background: #f3f3f3 !important; color: #222 !important; box-shadow: none !important; border: 1px solid #e6e6e6 !important; }
 @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
 
+/* Ensure icon-only buttons inside plan cards use the same compact icon styling */
+.plan-actions { display:flex; gap:8px; align-items:center; }
+.plan-actions .btn-icon { width:40px; height:40px; border-radius:8px; padding:6px; display:inline-flex; align-items:center; justify-content:center; }
+.plan-actions .btn-icon svg{ width:18px; height:18px; }
+.plan-actions .btn-ghost{ border:1px solid var(--gray-200); background:var(--white); color:var(--gray-700); }
+
 #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
