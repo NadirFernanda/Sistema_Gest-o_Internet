@@ -54,8 +54,8 @@
                 <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
-                <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar Plano</a>
-                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a>
+                <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
+                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Modelos</a>
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
         </div>

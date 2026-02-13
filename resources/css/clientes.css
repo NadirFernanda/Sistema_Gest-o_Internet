@@ -131,7 +131,7 @@
 .planos-toolbar .btn {
   padding: 8px 12px;
   font-size: 0.95rem;
-  border-radius: 8px;
+  border-radius: 12px; /* semi-arredondado */
   min-width: 110px;
   height: auto;
   box-shadow: 0 6px 18px rgba(17,24,39,0.04);
@@ -142,13 +142,14 @@
   color: #222;
   border: 1px solid #e6e6e6;
   padding: 7px 10px;
+  border-radius: 12px;
 }
 .clientes-toolbar .btn-cta,
 .planos-toolbar .btn-cta {
   padding: 8px 14px;
   font-weight: 700;
-  border-radius: 8px;
-  min-width: 130px;
+  border-radius: 12px; /* semi-arredondado */
+  min-width: 120px;
   box-shadow: 0 6px 18px rgba(247,181,0,0.12);
 }
 @media (max-width:900px){
