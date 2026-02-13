@@ -40,10 +40,19 @@ class PlanoController extends Controller
 
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano]);
-            \Log::info('PlanoController@store - Resposta enviada', ['response' => ['success' => true, 'plano' => $plano]]);
+
+            // If this is a regular web form submit (not expecting JSON), redirect
+            if (! $request->wantsJson()) {
+                return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
+            }
+
+            \Log::info('PlanoController@store - Resposta enviada (JSON)', ['response' => ['success' => true, 'plano' => $plano]]);
             return response()->json(['success' => true, 'plano' => $plano], 201)
                 ->header('Content-Type', 'application/json');
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if (! $request->wantsJson()) {
+                return back()->withErrors($e->errors())->withInput();
+            }
             return response()->json(['error' => 'Erro de validação', 'details' => $e->errors()], 422);
         } catch (\Exception $e) {
             \Log::error('PlanoController@store - Erro ao cadastrar plano', [
@@ -51,7 +60,10 @@ class PlanoController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
-            \Log::info('PlanoController@store - Resposta enviada', ['response' => ['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()]]);
+            \Log::info('PlanoController@store - Resposta enviada (erro)', ['response' => ['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()]]);
+            if (! $request->wantsJson()) {
+                return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
+            }
             return response()->json(['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()], 500);
         }
     }
