@@ -151,6 +151,19 @@
 
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Inline override loaded after Select2 CSS to ensure project yellow is used */
+    .select2-container--default .select2-results__option--highlighted,
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+        background-color: var(--yellow-500) !important;
+        color: #ffffff !important;
+    }
+    .select2-container--default .select2-results__option--highlighted:hover {
+        background-color: var(--yellow-600) !important;
+        color: #ffffff !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--gray-900); }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
