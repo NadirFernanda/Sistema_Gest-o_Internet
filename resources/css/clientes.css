@@ -150,6 +150,23 @@
 /* Keep icon sizing consistent inside the normalized button */
 .btn-icon.btn-ghost svg { width: 16px; height: 16px; }
 
+/* Compact back button used on forms (keeps small, ghosted appearance) */
+.btn-back{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:8px;
+  background:transparent;
+  color:#222;
+  border:1px solid #e6e6e6;
+  box-shadow:0 4px 12px rgba(17,24,39,0.03);
+  text-decoration:none;
+  font-weight:700;
+  min-width:0;
+}
+.btn-back svg{ vertical-align:middle; margin-right:8px; }
+
 /* Table-specific: force icon buttons to use ghost appearance by default
    This prevents an unexpected filled yellow background for the "Ver Detalhes" icon
    while still allowing explicitly colored variants (btn-warning/btn-success) if needed. */
