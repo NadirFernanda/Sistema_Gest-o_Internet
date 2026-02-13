@@ -73,7 +73,10 @@
                 <div class="text-danger small">{{ $errors->first('ponto_referencia', 'Informe o ponto de referência.') }}</div>
             @endif
         </div>
-        {{-- submit button removed as requested --}}
+        <div class="form-actions" style="margin-top:16px; display:flex; gap:8px; align-items:center;">
+            <button type="submit" class="btn btn-primary">Vou vincular</button>
+            <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Cancelar</a>
+        </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
