@@ -98,9 +98,18 @@
         (function(){
             function updateEstoqueInfo(){
                 var sel = $('#estoque_equipamento_id');
-                var opt = sel.find(':selected');
-                var avail = opt.data('quantidade');
-                if(!avail && avail !== 0){
+                var val = sel.val();
+                if(!val){
+                    $('#estoque-quant').text('-');
+                    $('#quantidade').removeAttr('max');
+                    return;
+                }
+                // find the matching option and read data-quantidade robustly
+                var opt = sel.find('option[value="' + val + '"]');
+                var availAttr = opt.attr('data-quantidade');
+                var availData = opt.data('quantidade');
+                var avail = parseInt(availAttr || availData || '0', 10);
+                if(isNaN(avail)){
                     $('#estoque-quant').text('-');
                     $('#quantidade').removeAttr('max');
                     return;
@@ -115,8 +124,12 @@
                     if(el){ el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.'); }
                 } else {
                     $('#quantidade-error').hide();
+                    var el = $('#quantidade').get(0);
+                    if(el){ el.setCustomValidity(''); }
                 }
             }
+            // expose for external callers (Select2 init)
+            window.updateEstoqueInfo = updateEstoqueInfo;
 
             // on change: update estoque info
             $(document).on('change', '#estoque_equipamento_id', updateEstoqueInfo);
@@ -216,6 +229,14 @@ document.addEventListener('DOMContentLoaded', function () {
         placeholder: 'Pesquise ou selecione um equipamento',
         allowClear: true,
         width: '100%'
+    });
+    // ensure estoque info updates when Select2 changes selection
+    var sel = $('#estoque_equipamento_id');
+    // call initial update (in case select had value)
+    if(window.updateEstoqueInfo){ window.updateEstoqueInfo(); }
+    // listen to Select2-specific events and normal change
+    sel.on('select2:select select2:unselect change', function(){
+        if(window.updateEstoqueInfo){ window.updateEstoqueInfo(); }
     });
 });
 </script>
