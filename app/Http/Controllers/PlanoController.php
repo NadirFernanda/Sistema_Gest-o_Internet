@@ -136,6 +136,11 @@ class PlanoController extends Controller
         ]);
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
+        // If this request is a normal web form submit, redirect to the show page
+        if (! $request->wantsJson()) {
+            return redirect()->route('planos.show', $plano->id)->with('success', 'Plano atualizado com sucesso.');
+        }
+
         return response()->json(['success' => true, 'plano' => $plano]);
     }
 
