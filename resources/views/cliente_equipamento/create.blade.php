@@ -4,10 +4,8 @@
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     
     <div class="back-wrap">
-    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back" aria-label="Voltar à Ficha do Cliente" title="Voltar à Ficha do Cliente" style="position:relative;left:auto;transform:none;margin-top:0;width:44px;height:44px;padding:0;border-radius:50%;background:#f7b500;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:none;box-shadow:0 10px 28px rgba(224,161,1,0.18);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;stroke:currentColor;">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back-circle btn-ghost" aria-label="Voltar à Ficha do Cliente" title="Voltar à Ficha do Cliente">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     </div>
     <h2>Vincular Equipamento ao Cliente</h2>

@@ -3,11 +3,8 @@
 @section('content')
 
 <div class="container">
-    <a href="{{ route('clientes') }}" class="btn btn-secondary mb-3">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Voltar
+    <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost mb-3" title="Voltar" aria-label="Voltar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     <div class="client-card">
         <header class="client-card-header">

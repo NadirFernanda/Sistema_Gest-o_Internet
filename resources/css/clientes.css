@@ -167,6 +167,30 @@
 }
 .btn-back svg{ vertical-align:middle; margin-right:8px; }
 
+/* Circular small back button with icon-only (used across views) */
+.btn-back-circle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  padding:0;
+  border-radius:50%;
+  background:transparent;
+  color:#222;
+  border:1px solid #e6e6e6;
+  box-shadow:0 4px 12px rgba(17,24,39,0.03);
+  text-decoration:none;
+}
+.btn-back-circle svg{ width:16px; height:16px; }
+.btn-back-circle:hover{
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+
 /* Table-specific: force icon buttons to use ghost appearance by default
    This prevents an unexpected filled yellow background for the "Ver Detalhes" icon
    while still allowing explicitly colored variants (btn-warning/btn-success) if needed. */

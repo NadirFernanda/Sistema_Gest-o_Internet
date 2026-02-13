@@ -78,8 +78,8 @@
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
                             <div class="ficha-action-icons" aria-hidden="false">
-                                <a href="{{ route('clientes') }}" class="btn-icon btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                                <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
                                 </a>
                                 <a href="#" id="btnMostrarEditar" class="btn-icon btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>

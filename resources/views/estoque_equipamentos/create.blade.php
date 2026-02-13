@@ -47,11 +47,8 @@
 </style>
 <div class="container" style="max-width: 500px; margin: 40px auto;">
     <div class="mb-3" style="text-align:left;">
-        <a href="{{ route('estoque_equipamentos.index') }}" class="btn btn-secondary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Voltar
+        <a href="{{ route('estoque_equipamentos.index') }}" class="btn-back-circle btn-ghost" title="Voltar" aria-label="Voltar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </a>
     </div>
     <h2 style="text-align:center;">Cadastrar Equipamento no Estoque</h2>

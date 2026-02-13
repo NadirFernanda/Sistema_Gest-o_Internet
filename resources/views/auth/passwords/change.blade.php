@@ -27,7 +27,9 @@
 <div class="change-password-wrapper">
   <div class="change-card">
     <div class="change-card-header">
-      <a href="{{ url()->previous() }}" onclick="event.preventDefault(); history.back();" class="btn btn-back">← Voltar</a>
+      <a href="{{ url()->previous() }}" onclick="event.preventDefault(); history.back();" class="btn-back-circle btn-ghost" title="Voltar" aria-label="Voltar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
       <h2>Alterar senha</h2>
     </div>
 
