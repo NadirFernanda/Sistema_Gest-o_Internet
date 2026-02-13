@@ -16,7 +16,7 @@
     <div class="clientes-toolbar">
         <div class="clientes-toolbar-actions" style="margin-left:auto;">
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-            <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Nova Cobrança</a>
+            <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
         </div>
     </div>
 
