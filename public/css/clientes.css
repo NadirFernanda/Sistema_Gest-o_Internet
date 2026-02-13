@@ -325,3 +325,26 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 .ficha-equip-table thead th { background: #fff9e6; color: #222; font-weight: 600; text-align: left; }
 .ficha-equip-table .table .btn { min-width: 100px; margin-right:8px; }
 @media (max-width:768px) { .ficha-equip-table th:nth-child(2), .ficha-equip-table td:nth-child(2), .ficha-equip-table th:nth-child(3), .ficha-equip-table td:nth-child(3) { display:none; } .ficha-equip-table .table .btn { display:block; margin:8px 0; } }
+
+/* Select2 color overrides: replace default blue highlight with project yellow */
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted {
+  background-color: var(--yellow-500) !important;
+  color: var(--white) !important;
+}
+.select2-container--default .select2-results__option--highlighted:hover {
+  background-color: var(--yellow-600) !important;
+  color: var(--white) !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--gray-900);
+}
+.select2-container--default .select2-dropdown {
+  border-radius: 10px; border:1px solid var(--gray-200); box-shadow:0 10px 30px rgba(17,24,39,0.06);
+}
+
+/* Ensure keyboard-focused option uses the same highlight */
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: var(--yellow-500) !important;
+  color: var(--white) !important;
+}
