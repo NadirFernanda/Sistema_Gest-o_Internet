@@ -193,6 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // Cadastro
         document.getElementById('formPlano').addEventListener('submit', function(e) {
+            // If the form requests non-AJAX submission, allow normal POST
+            try { if (this.dataset && this.dataset.noAjax) return; } catch(_) {}
             e.preventDefault();
             const btnSubmit = this.querySelector('button[type="submit"]');
             if (btnSubmit) btnSubmit.disabled = true;
