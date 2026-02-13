@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
     <style>
         /* Page-specific styles */
         #templatesModal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.48); align-items:center; justify-content:center; z-index:1200; }
