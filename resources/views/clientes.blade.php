@@ -81,7 +81,6 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
-                            <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn ficha-download">Download PDF</a>
                             <div class="ficha-action-icons" aria-hidden="false">
                                 <a href="{{ route('clientes') }}" class="btn-icon btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>

@@ -125,8 +125,7 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 
 /* Compact action buttons for ficha (header toolbar) */
 .ficha-actions{ display:flex; gap:10px; align-items:center; }
-.ficha-download{ padding:8px 14px; border-radius:999px; background:var(--yellow-500); color:var(--white); font-weight:800; text-decoration:none; box-shadow:0 6px 18px rgba(17,24,39,0.06); }
-.ficha-download:hover{ background:var(--yellow-600); }
+.ficha-download{ display:none; }
 .ficha-action-icons{ display:flex; gap:8px; align-items:center; }
 
 /* Generic icon-only button for compact actions */
