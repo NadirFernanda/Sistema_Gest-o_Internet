@@ -398,6 +398,90 @@
   text-overflow: ellipsis;
 }
 
+/* Dashboard-like ultra-thin button normalization
+   Further reduce vertical padding, height and visual weight for textual
+   buttons so they visually match the slim dashboard buttons the user prefers.
+   Icon-only controls (.btn-icon, .btn-back-circle) are intentionally left
+   untouched to preserve their compact size. */
+.btn,
+button,
+a.btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn,
+.filtro-top .btn,
+.filtro-modern-cobranca .btn {
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 0.92rem !important;
+  min-width: 0 !important;
+  height: 32px !important;
+  line-height: 1 !important;
+  box-shadow: 0 2px 8px rgba(17,24,39,0.03) !important;
+}
+
+/* CTAs remain visible but thin */
+.btn-cta,
+.clientes-toolbar .btn-cta,
+.planos-toolbar .btn-cta,
+.alertas-toolbar .btn-cta,
+.filtro-top .btn-cta {
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  min-width: 80px !important;
+  height: 34px !important;
+}
+
+/* Ghost / outline textual buttons should also be thin */
+.btn-ghost,
+.clientes-toolbar .btn-ghost,
+.planos-toolbar .btn-ghost,
+.alertas-toolbar .btn-ghost {
+  padding: 4px 6px !important;
+  border-radius: 6px !important;
+  height: 32px !important;
+}
+
+/* Reduce ficha download and special CTA thickness as well */
+.ficha-download,
+.ficha-actions .ficha-btn {
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  height: 34px !important;
+}
+
+/* Keep compact icon-only controls untouched (no change to .btn-icon/.btn-back-circle) */
+
+/* Strong global override: force dashboard-like thin textual buttons across the app
+   This targets all textual buttons (links/buttons with .btn) while excluding
+   icon-only controls to preserve their small footprint. Uses !important to
+   override local inline or component styles when necessary. */
+body .btn:not(.btn-icon):not(.btn-back-circle),
+body button:not(.btn-icon):not(.btn-back-circle),
+body a.btn:not(.btn-icon):not(.btn-back-circle) {
+  padding: 4px 10px !important;
+  height: 30px !important;
+  line-height: 1 !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+}
+
+/* Ensure CTAs keep a bit more horizontal space but remain thin vertically */
+body .btn-cta, body .btn-primary, .hero-ctas .btn-cta {
+  padding: 4px 12px !important;
+  min-width: 84px !important;
+  height: 34px !important;
+  box-shadow: 0 2px 6px rgba(17,24,39,0.04) !important;
+}
+
+/* Small exception: preserve icon-only control sizing */
+.btn-icon, .btn-back-circle { box-shadow: 0 4px 12px rgba(17,24,39,0.03); }
+
 /* === Global button normalization to match 'planos' compact style === */
 /* Apply to common semantic button classes and override inline differences */
 .btn {
