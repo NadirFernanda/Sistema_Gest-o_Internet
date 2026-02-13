@@ -31,8 +31,8 @@
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        min-width: 140px;
-        flex: 1 1 160px;
+        min-width: 120px;
+        flex: 1 1 140px;
     }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
@@ -63,7 +63,7 @@
         border-radius: 10px;
         font-size: 1rem;
         padding: 8px 12px;
-        min-width: 110px;
+        min-width: 88px;
         margin-top: 0;
         box-shadow: 0 2px 8px rgba(247,181,0,0.08);
         transition: background 0.2s;
