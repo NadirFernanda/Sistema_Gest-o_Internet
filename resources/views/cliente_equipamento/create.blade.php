@@ -93,79 +93,7 @@
             <button type="submit" class="btn btn-primary">Vou vincular</button>
             <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Cancelar</a>
         </div>
-    <script>
-        // Update estoque info and HTML5 messages — single JS block (no duplicate Select2 init here)
-        (function(){
-            function updateEstoqueInfo() {
-                var opt = $('#estoque_equipamento_id option:selected');
-
-                // DEBUG: log selection and computed values (temporary)
-                try { console.log('[updateEstoqueInfo] selected val:', opt.val(), 'optionCount:', opt.length); } catch(e){}
-
-                if (!opt.length || !opt.val()) {
-                    $('#estoque-quant').text('-');
-                    $('#quantidade').removeAttr('max');
-                    return;
-                }
-
-                var avail = parseInt(opt.data('quantidade'), 10) || 0;
-                try { console.log('[updateEstoqueInfo] avail:', avail); } catch(e){}
-
-                $('#estoque-quant').text(avail);
-                $('#quantidade').attr('max', avail);
-
-                var cur = parseInt($('#quantidade').val(), 10) || 0;
-                try { console.log('[updateEstoqueInfo] cur:', cur); } catch(e){}
-
-                if (cur > avail) {
-                    $('#quantidade').val(avail);
-                    $('#quantidade-error')
-                        .text('A quantidade foi ajustada para a disponibilidade em estoque.')
-                        .show();
-
-                    var el = $('#quantidade')[0];
-                    if (el) {
-                        el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.');
-                    }
-
-                } else {
-                    $('#quantidade-error').hide();
-                    var el = $('#quantidade')[0];
-                    if (el) { el.setCustomValidity(''); }
-                }
-            }
-            // expose for external callers (Select2 init)
-            window.updateEstoqueInfo = updateEstoqueInfo;
-
-            // on change: update estoque info
-            $(document).on('change', '#estoque_equipamento_id', updateEstoqueInfo);
-
-            // HTML5 validation messages in Portuguese for #quantidade
-            var quantidadeEl = document.getElementById('quantidade');
-            if(quantidadeEl){
-                quantidadeEl.addEventListener('input', function(){
-                    this.setCustomValidity('');
-                    var max = parseInt(this.getAttribute('max') || '0', 10);
-                    var val = parseInt(this.value || '0', 10);
-                    if(max > 0 && val > max){
-                        this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
-                    } else if(val < 1){
-                        this.setCustomValidity('A quantidade mínima é 1.');
-                    } else {
-                        this.setCustomValidity('');
-                    }
-                });
-                quantidadeEl.addEventListener('invalid', function(e){
-                    var max = parseInt(this.getAttribute('max') || '0', 10);
-                    if(this.validity.rangeOverflow && max > 0){
-                        this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
-                    } else if(this.validity.rangeUnderflow){
-                        this.setCustomValidity('A quantidade mínima é 1.');
-                    }
-                });
-            }
-        })();
-    </script>
+    <!-- moved JS to scripts stack so it runs after jQuery/Select2 load -->
 
 @if(isset($equipamentoDuplicadoMsg))
     @push('scripts')
@@ -225,23 +153,93 @@
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+<!-- jQuery must load before Select2 and before scripts that use $ -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>if(typeof jQuery === 'undefined'){console.error('jQuery failed to load — check CDN or network/integrity policy.');}</script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    $('#estoque_equipamento_id').select2({
+jQuery(function($){
+    function updateEstoqueInfo() {
+        var opt = $('#estoque_equipamento_id option:selected');
+        try { console.log('[updateEstoqueInfo] selected val:', opt.val(), 'optionCount:', opt.length); } catch(e){}
+
+        if (!opt.length || !opt.val()) {
+            $('#estoque-quant').text('-');
+            $('#quantidade').removeAttr('max');
+            return;
+        }
+
+        var avail = parseInt(opt.data('quantidade'), 10) || 0;
+        try { console.log('[updateEstoqueInfo] avail:', avail); } catch(e){}
+
+        $('#estoque-quant').text(avail);
+        $('#quantidade').attr('max', avail);
+
+        var cur = parseInt($('#quantidade').val(), 10) || 0;
+        try { console.log('[updateEstoqueInfo] cur:', cur); } catch(e){}
+
+        if (cur > avail) {
+            $('#quantidade').val(avail);
+            $('#quantidade-error')
+                .text('A quantidade foi ajustada para a disponibilidade em estoque.')
+                .show();
+
+            var el = $('#quantidade')[0];
+            if (el) {
+                el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.');
+            }
+
+        } else {
+            $('#quantidade-error').hide();
+            var el = $('#quantidade')[0];
+            if (el) { el.setCustomValidity(''); }
+        }
+    }
+
+    // expose for external callers
+    window.updateEstoqueInfo = updateEstoqueInfo;
+
+    var sel = $('#estoque_equipamento_id');
+    sel.select2({
         placeholder: 'Pesquise ou selecione um equipamento',
         allowClear: true,
         width: '100%'
     });
-    // ensure estoque info updates when Select2 changes selection
-    var sel = $('#estoque_equipamento_id');
+
     // call initial update (in case select had value)
     if(window.updateEstoqueInfo){ window.updateEstoqueInfo(); }
+
     // listen to Select2-specific events and normal change
     sel.on('select2:select select2:unselect change', function(){
         if(window.updateEstoqueInfo){ window.updateEstoqueInfo(); }
     });
+    $(document).on('change', '#estoque_equipamento_id', updateEstoqueInfo);
+
+    // HTML5 validation messages in Portuguese for #quantidade
+    var quantidadeEl = document.getElementById('quantidade');
+    if(quantidadeEl){
+        quantidadeEl.addEventListener('input', function(){
+            this.setCustomValidity('');
+            var max = parseInt(this.getAttribute('max') || '0', 10);
+            var val = parseInt(this.value || '0', 10);
+            if(max > 0 && val > max){
+                this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
+            } else if(val < 1){
+                this.setCustomValidity('A quantidade mínima é 1.');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        quantidadeEl.addEventListener('invalid', function(e){
+            var max = parseInt(this.getAttribute('max') || '0', 10);
+            if(this.validity.rangeOverflow && max > 0){
+                this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
+            } else if(this.validity.rangeUnderflow){
+                this.setCustomValidity('A quantidade mínima é 1.');
+            }
+        });
+    }
 });
 </script>
 @endpush
