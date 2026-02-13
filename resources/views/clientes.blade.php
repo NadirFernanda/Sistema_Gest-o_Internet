@@ -13,15 +13,15 @@
                     </div>
                 </div>
                 <div class="hero-right">
-                    <div class="hero-ctas">
-                        <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                        <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar Cliente</a>
-                    </div>
-                    <div class="search-inline">
-                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline" role="search" aria-label="Pesquisar clientes">
-                            <input type="text" name="busca" class="search-input" placeholder="Pesquisar por nome, BI, email ou contato" value="{{ request('busca') }}" aria-label="Pesquisar">
-                            <button type="submit" class="btn btn-search">Buscar</button>
+                    <div class="header-controls" style="display:flex;align-items:center;gap:12px;">
+                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline" role="search" aria-label="Pesquisar clientes" style="flex:1;display:flex;gap:8px;align-items:center;">
+                            <input type="text" name="busca" class="search-input" placeholder="Pesquise por nome etc..." value="{{ request('busca') }}" aria-label="Pesquisar" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;">
+                            <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
                         </form>
+                        <div class="hero-ctas" style="display:flex;gap:8px;">
+                            <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                        </div>
                     </div>
                 </div>
             </div>
