@@ -132,6 +132,24 @@
 .btn-icon:focus{ outline:2px solid rgba(0,0,0,0.12); }
 .btn-icon:hover{ background:#f7b500; color:#fff; border-color:#f7b500; }
 
+/* Make icon buttons with ghost variant visually match other ghost buttons (table actions) */
+.btn-icon.btn-ghost {
+  background: transparent;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  padding: 4px 6px;
+  border-radius: 8px;
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+}
+
+/* Keep icon sizing consistent inside the normalized button */
+.btn-icon.btn-ghost svg { width: 16px; height: 16px; }
+
 /* Make search buttons match toolbar CTAs (primary appearance by default) */
 .clientes-toolbar .busca-planos-btn,
 .planos-toolbar .btn-search,
