@@ -10,8 +10,13 @@
         'title' => 'Estoque de Equipamentos',
         'subtitle' => '',
         'stackLeft' => true,
-        'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-secondary">Voltar ao Dashboard</a><a href="' . route('estoque_equipamentos.create') . '" class="btn btn-primary">Cadastrar Novo Equipamento</a><a href="' . route('estoque_equipamentos.export') . '" class="btn btn-success" style="color:#fff; min-width:180px;" target="_blank">Exportar Estoque Excel</a>'
     ])
+        {{-- Toolbar: Dashboard / Cadastrar / Exportar (visual parity with other toolbars) --}}
+        <div class="estoque-cabecalho-botoes" style="max-width:1100px;margin:18px auto 0;display:flex;gap:10px;align-items:center;justify-content:flex-end;">
+            <a href="{{ route('dashboard') }}" class="btn btn-cta">Dashboard</a>
+            <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
+            <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" style="min-width:140px;" target="_blank">Exportar</a>
+        </div>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
