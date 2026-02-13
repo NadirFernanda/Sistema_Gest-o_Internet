@@ -104,12 +104,7 @@
                         </div>
                     </div>
                     {{-- estilos movidos para resources/css/clientes.css (importados via resources/css/app.css) --}}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
-                        <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
-                        <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
-                        <div><strong>Email:</strong><div style="margin-top:6px">{{ $cliente->email ?? '-' }}</div></div>
-                        <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">{{ $cliente->contato ?? '-' }}</div></div>
-                    </div>
+                    <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
                 <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
