@@ -186,7 +186,7 @@
   padding: 8px 14px;
   font-weight: 700;
   border-radius: 12px; /* semi-arredondado */
-  min-width: 160px;
+  min-width: 180px;
   white-space: nowrap;
   box-shadow: 0 6px 18px rgba(247,181,0,0.12);
   background: #f7b500 !important;
