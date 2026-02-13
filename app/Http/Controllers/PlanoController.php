@@ -128,7 +128,7 @@ class PlanoController extends Controller
             ]);
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano]);
-            return redirect()->route('planos')->with('success', 'Plano cadastrado com sucesso.');
+            return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
