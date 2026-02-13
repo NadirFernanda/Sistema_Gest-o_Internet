@@ -223,6 +223,28 @@
         color: #ffffff !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--gray-900); }
+    /* Reinforced visibility fixes: ensure options render and have padding */
+    .select2-container--open .select2-dropdown .select2-results {
+        max-height: 320px !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
+    }
+    .select2-container .select2-results__option {
+        display: block !important;
+        color: #111827 !important;
+        padding: 8px 12px !important;
+        min-height: 0 !important;
+        line-height: 1.25 !important;
+        box-sizing: border-box !important;
+    }
+    .select2-container .select2-results__option--highlighted,
+    .select2-container .select2-results__option[aria-selected="true"] {
+        background-color: var(--yellow-500) !important;
+        color: #ffffff !important;
+    }
+    /* Defensive: ensure dropdown arrow / padding doesn't hide first item */
+    .select2-container .select2-results__options { padding: 0 !important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
