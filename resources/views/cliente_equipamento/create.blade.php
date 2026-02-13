@@ -134,8 +134,6 @@
 
             // on change: update estoque info
             $(document).on('change', '#estoque_equipamento_id', updateEstoqueInfo);
-            // initial (when DOM ready)
-            $(function(){ updateEstoqueInfo(); });
 
             // HTML5 validation messages in Portuguese for #quantidade
             var quantidadeEl = document.getElementById('quantidade');
