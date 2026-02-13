@@ -96,30 +96,37 @@
     <script>
         // Update estoque info and HTML5 messages — single JS block (no duplicate Select2 init here)
         (function(){
-            function updateEstoqueInfo(){
-                var sel = $('#estoque_equipamento_id');
-                // prefer the currently selected option (works with native select and Select2)
-                var opt = sel.find(':selected');
-                var availAttr = opt.attr('data-quantidade');
-                var availData = opt.data('quantidade');
-                var avail = parseInt((availAttr !== undefined ? availAttr : availData) || '0', 10);
-                if(!opt || !opt.length || (!availAttr && availData === undefined && isNaN(avail))){
+            function updateEstoqueInfo() {
+                var opt = $('#estoque_equipamento_id option:selected');
+
+                if (!opt.length || !opt.val()) {
                     $('#estoque-quant').text('-');
                     $('#quantidade').removeAttr('max');
                     return;
                 }
+
+                var avail = parseInt(opt.data('quantidade'), 10) || 0;
+
                 $('#estoque-quant').text(avail);
                 $('#quantidade').attr('max', avail);
-                var cur = parseInt($('#quantidade').val() || '0', 10);
-                if(cur > avail){
+
+                var cur = parseInt($('#quantidade').val(), 10) || 0;
+
+                if (cur > avail) {
                     $('#quantidade').val(avail);
-                    $('#quantidade-error').text('A quantidade foi ajustada para a disponibilidade em estoque.').show();
-                    var el = $('#quantidade').get(0);
-                    if(el){ el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.'); }
+                    $('#quantidade-error')
+                        .text('A quantidade foi ajustada para a disponibilidade em estoque.')
+                        .show();
+
+                    var el = $('#quantidade')[0];
+                    if (el) {
+                        el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.');
+                    }
+
                 } else {
                     $('#quantidade-error').hide();
-                    var el = $('#quantidade').get(0);
-                    if(el){ el.setCustomValidity(''); }
+                    var el = $('#quantidade')[0];
+                    if (el) { el.setCustomValidity(''); }
                 }
             }
             // expose for external callers (Select2 init)
