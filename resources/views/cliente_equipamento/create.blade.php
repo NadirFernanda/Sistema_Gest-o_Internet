@@ -112,6 +112,9 @@
                 if(cur > avail){
                     $('#quantidade').val(avail);
                     $('#quantidade-error').text('A quantidade foi ajustada para a disponibilidade em estoque.').show();
+                    // set custom validity message in Portuguese for HTML5 validation
+                    var el = $('#quantidade').get(0);
+                    if(el){ el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.'); }
                 } else {
                     $('#quantidade-error').hide();
                 }
@@ -121,6 +124,33 @@
             $('#estoque_equipamento_id').on('select2:select select2:clear change', function(){ updateEstoqueInfo(); });
             // initial
             updateEstoqueInfo();
+
+            // HTML5 validation messages in Portuguese for #quantidade
+            var quantidadeEl = document.getElementById('quantidade');
+            if(quantidadeEl){
+                quantidadeEl.addEventListener('input', function(){
+                    // clear any previous custom message while typing
+                    this.setCustomValidity('');
+                    var max = parseInt(this.getAttribute('max') || '0', 10);
+                    var val = parseInt(this.value || '0', 10);
+                    if(max > 0 && val > max){
+                        this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
+                    } else if(val < 1){
+                        this.setCustomValidity('A quantidade mínima é 1.');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+                // Ensure custom message is shown on invalid
+                quantidadeEl.addEventListener('invalid', function(e){
+                    var max = parseInt(this.getAttribute('max') || '0', 10);
+                    if(this.validity.rangeOverflow && max > 0){
+                        this.setCustomValidity('A quantidade não pode ser maior que ' + max + '.');
+                    } else if(this.validity.rangeUnderflow){
+                        this.setCustomValidity('A quantidade mínima é 1.');
+                    }
+                });
+            }
         });
     </script>
 
