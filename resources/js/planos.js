@@ -1,5 +1,8 @@
 // JS extracted from planos.blade.php — runs in browser when bundled by Vite
 (function(){
+    // CSRF token from meta tag (used by rendered delete forms)
+    const _meta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = _meta ? _meta.getAttribute('content') : '';
     // Price display handling
     (function(){
         const display = document.getElementById('precoPlanoDisplay');
@@ -328,6 +331,14 @@
         input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim()); } });
         if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate(''); }); }
         if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim()); }); }
+
+        // Expose a debug helper to manually refresh planos from console and
+        // perform an initial load so the list shows on page load.
+        try{
+            window.__refreshPlanos = function(){ try{ fetchAndUpdate(''); }catch(_){ } };
+            // Initial fetch to populate the list when page loads
+            fetchAndUpdate('');
+        }catch(_){ }
     })();
 
     // Auto-open create form when returning with success flash
