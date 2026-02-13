@@ -19,7 +19,7 @@
             <button type="submit" class="btn btn-cta">Pesquisar</button>
         </form>
         <div class="clientes-toolbar-actions">
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar ao Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Nova Cobrança</a>
         </div>
     </div>

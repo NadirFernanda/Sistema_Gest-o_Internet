@@ -63,6 +63,7 @@
                 <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Voltar ao Dashboard
+            Dashboard
         </a>
     </div>
     <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:32px;">Relatório de Equipamentos em Estoque</h1>
