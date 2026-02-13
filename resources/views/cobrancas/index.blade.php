@@ -11,8 +11,19 @@
     @include('layouts.partials.clientes-hero', [
         'title' => 'Relatório de Cobranças',
         'subtitle' => '',
-        'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-secondary">Voltar ao Dashboard</a><a href="' . route('cobrancas.create') . '" class="btn btn-primary">Nova Cobrança</a>'
     ])
+
+    <div class="clientes-toolbar">
+        <form method="GET" action="{{ route('cobrancas.index') }}" class="clientes-search-form">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar cliente, descrição..." class="busca-planos-input" />
+            <button type="submit" class="btn btn-cta">Pesquisar</button>
+        </form>
+        <div class="clientes-toolbar-actions">
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Voltar ao Dashboard</a>
+            <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Nova Cobrança</a>
+        </div>
+    </div>
+
     <style>
     .filtro-modern-cobranca {
         background: #f8f8f8;
