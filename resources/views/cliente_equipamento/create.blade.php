@@ -174,4 +174,38 @@
         });
     });
 </script>
+<script>
+    // Fallback: ensure highlighted option is visibly styled for keyboard navigation
+    (function(){
+        function applyHighlightStyles(container) {
+            var opts = container.querySelectorAll('.select2-results__option');
+            opts.forEach(function(li){
+                if (li.classList.contains('select2-results__option--highlighted') || li.getAttribute('aria-selected') === 'true') {
+                    li.style.backgroundColor = '#f7b500';
+                    li.style.color = '#ffffff';
+                    li.style.boxShadow = 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)';
+                } else {
+                    li.style.backgroundColor = '';
+                    li.style.color = '';
+                    li.style.boxShadow = '';
+                }
+            });
+        }
+
+        document.addEventListener('select2:open', function(e){
+            // dropdown is appended to body; find nearest dropdown container
+            var container = document.querySelector('.select2-container--open .select2-results');
+            if (!container) return;
+            applyHighlightStyles(container);
+
+            // observe changes inside results (keyboard navigation/hover)
+            var mo = new MutationObserver(function(){ applyHighlightStyles(container); });
+            mo.observe(container, { attributes: true, childList: true, subtree: true });
+
+            // when select2 closes, disconnect observer
+            function closeHandler() { mo.disconnect(); document.removeEventListener('select2:closing', closeHandler); }
+            document.addEventListener('select2:closing', closeHandler);
+        });
+    })();
+</script>
 @endpush
