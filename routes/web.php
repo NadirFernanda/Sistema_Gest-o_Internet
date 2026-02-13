@@ -98,6 +98,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos/create', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'create'])->name('estoque_equipamentos.create');
     Route::post('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'store'])->name('estoque_equipamentos.store');
 
+    Route::get('/estoque-equipamentos/{equipamento}/edit', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'edit'])->name('estoque_equipamentos.edit');
+    Route::put('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'update'])->name('estoque_equipamentos.update');
+    Route::delete('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'destroy'])->name('estoque_equipamentos.destroy');
     // Exportação específica do estoque de equipamentos
     Route::get('/estoque-equipamentos/export', function() {
         $equipamentos = \App\Models\EstoqueEquipamento::orderBy('nome')->get();

@@ -107,3 +107,22 @@
 @media (max-width:1000px){ .plan-grid{ grid-template-columns: repeat(2,1fr); } }
 @media (max-width:640px){ .plan-grid{ grid-template-columns: 1fr; } .plan-actions{ justify-content:flex-start; } }
 
+/* Global compact icon buttons for action lists */
+.btn-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    padding:6px;
+    border-radius:6px;
+    font-size:14px;
+}
+.btn-icon svg{
+    width:16px;
+    height:16px;
+}
+.btn-icon.btn-warning{ background:#f59e0b; color:#fff; }
+.btn-icon.btn-danger{ background:#ef4444; color:#fff; }
+.btn-icon:focus{ outline:2px solid rgba(0,0,0,0.12); }
+

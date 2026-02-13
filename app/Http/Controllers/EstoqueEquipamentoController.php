@@ -45,4 +45,32 @@ class EstoqueEquipamentoController extends Controller
         EstoqueEquipamento::create($request->all());
         return redirect()->route('estoque_equipamentos.index')->with('success', 'Equipamento cadastrado no estoque!');
     }
+
+    public function edit(EstoqueEquipamento $equipamento)
+    {
+        return view('estoque_equipamentos.edit', [
+            'equipamento' => $equipamento,
+        ]);
+    }
+
+    public function update(Request $request, EstoqueEquipamento $equipamento)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'descricao' => 'required|string|max:255',
+            'modelo' => 'required|string|max:255',
+            'numero_serie' => 'required|string|max:255',
+            'quantidade' => 'required|integer|min:1',
+        ]);
+
+        $equipamento->update($request->only(['nome','descricao','modelo','numero_serie','quantidade']));
+
+        return redirect()->route('estoque_equipamentos.index')->with('success', 'Equipamento atualizado com sucesso!');
+    }
+
+    public function destroy(EstoqueEquipamento $equipamento)
+    {
+        $equipamento->delete();
+        return redirect()->route('estoque_equipamentos.index')->with('success', 'Equipamento removido do estoque.');
+    }
 }
