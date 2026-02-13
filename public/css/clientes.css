@@ -205,23 +205,24 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 .btn-back{
   display:inline-flex;
   align-items:center;
-  gap:10px;
-  padding:10px 18px;
-  border-radius:12px;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:8px;
   background:var(--yellow-500);
   color:var(--white);
-  font-weight:800;
+  font-weight:700;
   text-decoration:none;
-  box-shadow:0 8px 20px rgba(17,24,39,0.06);
+  box-shadow:0 6px 14px rgba(17,24,39,0.05);
   border: none;
   transition: transform .08s ease, box-shadow .12s ease;
+  width: auto;
 }
-.btn-back svg{ width:18px; height:18px; }
+.btn-back svg{ width:16px; height:16px; }
 .btn-back:hover{ background:var(--yellow-600); transform: translateY(-1px); }
 .btn-back:active{ transform: translateY(0); }
 
-/* Container helper to avoid full-width stretching */
-.back-wrap{ max-width:760px; margin:12px 0; }
+/* Container helper to position back button on the left */
+.back-wrap{ display:flex; justify-content:flex-start; max-width:760px; margin:8px 0 18px 0; }
 
 /* Inline search in hero: make input + Buscar match pill CTA style with small gap */
 .search-form-inline{ display:flex; gap:8px; align-items:center; }
