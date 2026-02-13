@@ -695,4 +695,29 @@ button.btn:not(.btn-icon) {
   .planos-toolbar .search-input,
   .alertas-toolbar .search-input { height: 40px !important; }
 }
+/* === QUICK OVERRIDE: force plan card action icons ghost by default === */
+/* This file is already loaded on planos page; apply high-specificity rules here. */
+.plan-actions .btn-icon.btn-warning,
+#planosLista .plan-actions .btn-icon.btn-warning {
+  background: transparent !important;
+  color: #f7b500 !important;
+  border: 1px solid rgba(240,195,106,0.6) !important;
+  box-shadow: none !important;
+}
+.plan-actions .btn-icon.btn-danger,
+#planosLista .plan-actions .btn-icon.btn-danger {
+  background: transparent !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239,68,68,0.12) !important;
+  box-shadow: none !important;
+}
+.plan-actions .btn-icon.btn-warning:hover,
+.plan-actions .btn-icon.btn-warning:focus {
+  background: #f7b500 !important; color:#fff !important; border-color:#f7b500 !important; box-shadow:0 6px 18px rgba(247,181,0,0.12) !important;
+}
+.plan-actions .btn-icon.btn-danger:hover,
+.plan-actions .btn-icon.btn-danger:focus {
+  background: #ef4444 !important; color:#fff !important; border-color:#ef4444 !important; box-shadow:0 6px 18px rgba(239,68,68,0.12) !important;
+}
+
 
