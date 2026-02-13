@@ -76,18 +76,23 @@
         @if(isset($cliente))
 
             {{-- Modernized ficha (card + actions) --}}
-            <div class="ficha-toolbar no-print" style="text-align:center;margin-bottom:12px;">
-                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn ficha-download">Download PDF</a>
-            </div>
-
             <div class="ficha-cliente" style="margin-top:12px;">
                 <div class="ficha-card" style="max-width:980px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#fff9eb, #fffbe7);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
-                            <a href="{{ route('clientes') }}" class="btn ficha-btn ficha-btn-ghost">Voltar à Lista</a>
-                            <a href="#" id="btnMostrarEditar" class="btn ficha-btn ficha-btn-edit">Editar Cliente</a>
-                            <button class="btn ficha-btn ficha-btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}">Excluir Cliente</button>
+                            <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn ficha-download">Download PDF</a>
+                            <div class="ficha-action-icons" aria-hidden="false">
+                                <a href="{{ route('clientes') }}" class="btn-icon btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                                </a>
+                                <a href="#" id="btnMostrarEditar" class="btn-icon btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                </a>
+                                <button class="btn-icon btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" title="Excluir Cliente" aria-label="Excluir Cliente" style="margin-left:6px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -190,9 +195,6 @@
                     transform: translateY(6px);
                 }
                 </style>
-                <a href="{{ route('clientes') }}" class="btn btn-secondary">Voltar à Lista</a>
-                <a href="#" id="btnMostrarEditar" class="btn btn-warning" style="margin-left:8px;">Editar Cliente</a>
-                <button class="btn btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" style="margin-left:8px;">Excluir Cliente</button>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
                 @php
