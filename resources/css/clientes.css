@@ -126,6 +126,24 @@
 .btn-icon.btn-danger{ background:#ef4444; color:#fff; }
 .btn-icon:focus{ outline:2px solid rgba(0,0,0,0.12); }
 
+/* Make search buttons match toolbar buttons (uniform borders and radii) */
+.clientes-toolbar .busca-planos-btn,
+.planos-toolbar .btn-search,
+.clientes-toolbar button[type="submit"],
+.planos-toolbar button[type="submit"] {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: transparent;
+  color: #222;
+  font-weight: 700;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+  cursor: pointer;
+}
+
+/* If the search button should look primary, you can swap background/color here. */
+
 /* Toolbar-specific button sizing (compact and harmonious) */
 .clientes-toolbar .btn,
 .planos-toolbar .btn {
