@@ -7,8 +7,7 @@
 @section('content')
   @include('layouts.partials.clientes-hero', [
     'title' => 'Alterar senha',
-    'subtitle' => '',
-    'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Ir ao painel</a>'
+    'subtitle' => ''
   ])
 
 <style>
