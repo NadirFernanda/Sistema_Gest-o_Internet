@@ -11,13 +11,13 @@
             'subtitle' => ''
         ])
         {{-- Toolbar abaixo do header: busca, dias e CTAs --}}
-        <div class="alertas-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;justify-content:space-between;">
-            <div style="display:flex;gap:8px;align-items:center;">
-                <label for="diasAlerta" style="margin:0 6px 0 0;">Exibir alertas até</label>
-                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="30" style="width:72px;padding:8px;border-radius:12px;border:2px solid #e6a248;">
+        <div class="alertas-toolbar">
+            <div class="alertas-toolbar-left">
+                <label for="diasAlerta">Exibir alertas até</label>
+                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="30" class="dias-input">
             </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <button id="btnDispararAlertas" class="btn btn-cta" style="font-weight:600;">Disparar</button>
+            <div class="alertas-toolbar-actions">
+                <button id="btnDispararAlertas" class="btn btn-cta">Disparar</button>
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
         </div>
