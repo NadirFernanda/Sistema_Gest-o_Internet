@@ -150,6 +150,32 @@
 /* Keep icon sizing consistent inside the normalized button */
 .btn-icon.btn-ghost svg { width: 16px; height: 16px; }
 
+/* Table-specific: force icon buttons to use ghost appearance by default
+   This prevents an unexpected filled yellow background for the "Ver Detalhes" icon
+   while still allowing explicitly colored variants (btn-warning/btn-success) if needed. */
+.tabela-cobrancas-moderna .btn-icon {
+  background: transparent !important;
+  color: #222 !important;
+  border: 1px solid #e6e6e6 !important;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03) !important;
+  padding: 4px 6px !important;
+  border-radius: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Keep explicitly-colored icon buttons (if intentional) readable but avoid accidental defaults */
+.tabela-cobrancas-moderna .btn-icon.btn-warning,
+.tabela-cobrancas-moderna .btn-icon.btn-success,
+.tabela-cobrancas-moderna .btn-icon.btn-danger {
+  background: transparent !important;
+  color: inherit !important;
+  border-color: #e6e6e6 !important;
+}
+
 /* Make search buttons match toolbar CTAs (primary appearance by default) */
 .clientes-toolbar .busca-planos-btn,
 .planos-toolbar .btn-search,
