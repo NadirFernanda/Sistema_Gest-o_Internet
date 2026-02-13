@@ -118,8 +118,8 @@
         </div>
         <div class="filtro-actions" style="display:flex;gap:8px;align-items:center;">
             <button type="submit" class="btn btn-primary filtro-btn">Filtrar</button>
-            <button type="button" class="btn btn-secondary filtro-btn" onclick="window.location='{{ route('cobrancas.index') }}'">Limpar Filtros</button>
-            <a href="{{ route('cobrancas.export', request()->all()) }}" class="btn btn-success filtro-btn" target="_blank">Exportar Excel</a>
+            <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar Filtros</a>
+            <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar Excel</a>
         </div>
     </form>
     <div class="tabela-cobrancas-moderna">
@@ -283,5 +283,23 @@
     }
     </style>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const exportBtn = document.getElementById('export-excel');
+    if(!exportBtn) return;
+    const form = document.querySelector('form.filtro-modern-cobranca');
+    const exportBase = exportBtn.getAttribute('href');
+    exportBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        if(!form){
+            window.open(exportBase, '_blank');
+            return;
+        }
+        const params = new URLSearchParams(new FormData(form)).toString();
+        const url = params ? (exportBase + '?' + params) : exportBase;
+        window.open(url, '_blank');
+    });
+});
+</script>
 </div>
 @endsection
