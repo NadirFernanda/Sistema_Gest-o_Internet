@@ -21,6 +21,23 @@ class PlanoController extends Controller
                 'data_ativacao' => 'required|date',
             ]);
             \Log::info('PlanoController@store - Dados validados', ['validated' => $validated]);
+            // prevent duplicate active plan name for the same client
+            try {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->where('ativo', true)
+                    ->exists();
+            } catch (\Exception $e) {
+                // if the 'ativo' column doesn't exist or another DB issue, fallback to safer check
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->exists();
+            }
+            if ($exists) {
+                \Log::warning('PlanoController@store - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
+                return response()->json(['error' => 'Já existe um plano ativo com esse nome para este cliente.'], 409);
+            }
+
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano]);
             \Log::info('PlanoController@store - Resposta enviada', ['response' => ['success' => true, 'plano' => $plano]]);
@@ -126,6 +143,22 @@ class PlanoController extends Controller
                 'estado' => 'required|string',
                 'data_ativacao' => 'required|date',
             ]);
+            // prevent duplicate when submitting from web form
+            try {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->where('ativo', true)
+                    ->exists();
+            } catch (\Exception $e) {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->exists();
+            }
+            if ($exists) {
+                \Log::warning('PlanoController@storeWeb - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
+                return back()->with('error', 'Já existe um plano ativo com esse nome para este cliente.')->withInput();
+            }
+
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano]);
             return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
