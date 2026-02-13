@@ -23,8 +23,7 @@
     <div class="planos-container">
         @include('layouts.partials.clientes-hero', [
             'title' => 'Gestão de Planos',
-            'subtitle' => 'Lista, gestão e modelos de planos',
-            'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Dashboard</a> <a href="' . route('plan-templates.index') . '" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a> <a href="' . route('planos.create') . '" class="btn btn-cta" id="openCreatePlano">Cadastrar Plano</a>'
+            'subtitle' => 'Lista, gestão e modelos de planos'
         ])
 
         <div id="planCreateContainer" style="display:none; margin-top:16px;">
@@ -49,13 +48,15 @@
             </div>
         @endif
 
-        <div class="search-row" style="margin-top:32px;">
-            <h2 style="margin:0 0 8px 0;">Lista de Planos</h2>
-            <div class="search-inline">
-                <form class="search-form-inline" method="GET" action="{{ route('planos.index') }}">
-                    <input type="search" name="q" id="buscaPlanos" class="search-input" placeholder="Pesquisar por plano ou cliente..." aria-label="Pesquisar planos" />
-                    <button type="submit" class="btn btn-search">Pesquisar</button>
-                </form>
+        <div class="planos-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form class="search-form-inline" method="GET" action="{{ route('planos.index') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="search" name="q" id="buscaPlanos" class="search-input" placeholder="Pesquise por plano ou cliente..." aria-label="Pesquisar planos" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+            </form>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar Plano</a>
+                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Gerir Modelos</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
         </div>
 
