@@ -48,6 +48,9 @@
                                 <a href="{{ route('clientes.show', $c->id) }}" class="btn-icon btn-primary" title="Ver Ficha" aria-label="Ver Ficha">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
+                                <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn-icon btn-success" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                </a>
                                 <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn-icon btn-warning" title="Editar" aria-label="Editar" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                                 </a>
