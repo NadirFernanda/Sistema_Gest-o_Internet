@@ -200,7 +200,7 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 /* Ensure search input expands and button keeps a compact width */
 .search-form-inline { display:flex; gap:8px; align-items:center; }
 .search-form-inline .search-input { flex: 1 1 auto; min-width: 160px; }
-.search-form-inline .btn-search { flex: 0 0 auto; min-width: 72px; padding: 0 10px; width: auto; font-size:0.95rem; }
+.search-form-inline .btn-search { flex: 0 0 auto !important; min-width: 56px !important; padding: 0 8px !important; width: auto !important; font-size:0.95rem !important; }
 
 /* Force input to take remaining space and avoid button stretching from other rules */
 .search-form-inline .search-input { width:100%; }
@@ -224,9 +224,9 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 }
 .busca-planos-input::placeholder { color:#9b9b9b; }
 .busca-planos-btn {
-  height:40px; padding:0 10px; border-radius:8px; border:none; background:#f7b500; color:#fff; font-weight:700;
+  height:40px; padding:0 8px !important; border-radius:8px; border:none; background:#f7b500; color:#fff; font-weight:700;
   box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
-  flex: 0 0 auto; min-width:72px; width:auto;
+  flex: 0 0 auto !important; min-width:56px !important; width:auto !important;
 }
 .busca-planos-btn:hover { background:#e0a800; }
 @media (max-width:768px) { .busca-planos-form { flex-direction:column; align-items:stretch; } .busca-planos-btn { width:100%; } }
