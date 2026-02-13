@@ -11,11 +11,13 @@
         'subtitle' => '',
         'stackLeft' => true,
     ])
-        {{-- Toolbar: Dashboard / Cadastrar / Exportar (visual parity with other toolbars) --}}
-        <div class="estoque-cabecalho-botoes" style="max-width:1100px;margin:18px auto 0;display:flex;gap:10px;align-items:center;justify-content:flex-end;">
-            <a href="{{ route('dashboard') }}" class="btn btn-cta">Dashboard</a>
-            <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
-            <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" style="min-width:140px;" target="_blank">Exportar</a>
+        {{-- Toolbar: Dashboard / Cadastrar / Exportar (stacked full-width buttons like design) --}}
+        <div class="estoque-cabecalho-botoes">
+            <div class="estoque-cabecalho-botoes-inner">
+                <a href="{{ route('dashboard') }}" class="btn btn-cta btn-block">Dashboard</a>
+                <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta btn-block">Cadastrar</a>
+                <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta btn-block" target="_blank">Exportar</a>
+            </div>
         </div>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -96,12 +98,29 @@
     margin-bottom: 0;
 }
 .estoque-cabecalho-botoes {
-    display: flex;
-    gap: 24px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
+    max-width: 1100px;
+    margin: 18px auto 0;
+    padding: 0 12px;
 }
+.estoque-cabecalho-botoes-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+.estoque-cabecalho-botoes-inner .btn-block {
+    display: block;
+    width: 100%;
+    padding: 14px 22px;
+    border-radius: 12px;
+    background: #f7b500;
+    color: #fff;
+    text-align: center;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(247,181,0,0.18);
+    text-decoration: none;
+}
+.estoque-cabecalho-botoes-inner .btn-block:hover { opacity: 0.95; }
 .estoque-busca-form {
     margin: 0 0 8px 0;
     display: flex;
