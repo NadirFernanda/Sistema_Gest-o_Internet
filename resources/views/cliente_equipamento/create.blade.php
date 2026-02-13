@@ -181,13 +181,13 @@
             var opts = container.querySelectorAll('.select2-results__option');
             opts.forEach(function(li){
                 if (li.classList.contains('select2-results__option--highlighted') || li.getAttribute('aria-selected') === 'true') {
-                    li.style.backgroundColor = '#f7b500';
-                    li.style.color = '#ffffff';
-                    li.style.boxShadow = 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)';
+                    li.style.setProperty('background-color', '#f7b500', 'important');
+                    li.style.setProperty('color', '#ffffff', 'important');
+                    li.style.setProperty('box-shadow', 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)', 'important');
                 } else {
-                    li.style.backgroundColor = '';
-                    li.style.color = '';
-                    li.style.boxShadow = '';
+                    li.style.removeProperty('background-color');
+                    li.style.removeProperty('color');
+                    li.style.removeProperty('box-shadow');
                 }
             });
         }
