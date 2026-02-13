@@ -10,16 +10,8 @@
         </svg>
         Voltar à Ficha do Cliente
     </a>
-                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn-icon btn-warning" title="Editar vínculo" aria-label="Editar vínculo">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                            </a>
-                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-icon btn-danger" title="Apagar vínculo" aria-label="Apagar vínculo" onclick="return confirm('Remover vínculo?')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </form>
+<form action="{{ route('cliente_equipamento.store', $cliente->id) }}" method="POST" style="margin-top: 20px;">
+        <style>
             .form-label {
                 font-weight: 500;
                 margin-bottom: 6px;
@@ -107,23 +99,6 @@
     </script>
     @endpush
 @endif
-    @push('scripts')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            $('#estoque_equipamento_id').select2({
-                placeholder: 'Pesquise ou selecione um equipamento',
-                allowClear: true,
-                width: 'resolve'
-            });
-            @if(isset($equipamentoDuplicadoMsg))
-                var msg = @json($equipamentoDuplicadoMsg);
-                alert(msg);
-            @endif
-        });
-    </script>
-    @endpush
     </form>
     <hr>
     <h3>Equipamentos já vinculados a {{ $cliente->nome }}</h3>
