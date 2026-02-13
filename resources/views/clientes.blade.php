@@ -37,7 +37,7 @@
                         <div class="cliente-item-moderna">
                             <div class="cliente-info-moderna">
                                 <span class="cliente-nome">{{ $c->nome }}</span>
-                                <span class="cliente-bi"><strong>BI/NIF:</strong> {{ $c->bi ?? '-' }}</span>
+                                <span class="cliente-bi">{{ $c->bi ?? '-' }}</span>
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
                             <div class="cliente-botoes-moderna" style="white-space:nowrap;">
@@ -93,7 +93,7 @@
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;align-items:center">
-                            <div style="text-align:center"><strong>BI/NIF:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->bi ?? '-' }}</div></div>
+                            <div style="text-align:center"><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->bi ?? '-' }}</div></div>
                             <div style="text-align:center"><strong>Nome:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->nome }}</div></div>
                             <div style="text-align:center"><strong>Email:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->email ?? '-' }}</div></div>
                             <div style="text-align:center"><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->contato ?? '-' }}</div></div>
@@ -478,7 +478,7 @@
                         if (clienteDadosBlock) {
                             clienteDadosBlock.innerHTML = `
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
-                                    <div><strong>BI/NIF:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.bi || '-')}</div></div>
+                                    <div><div style="margin-top:6px">${escapeHtml(data.cliente.bi || '-')}</div></div>
                                     <div><strong>Nome:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.nome || '-')}</div></div>
                                     <div><strong>Email:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.email || '-')}</div></div>
                                     <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">${escapeHtml(data.cliente.contato || '-')}</div></div>
