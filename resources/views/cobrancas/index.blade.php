@@ -24,20 +24,20 @@
     .filtro-modern-cobranca {
         background: #f8f8f8;
         border-radius: 12px;
-        padding: 18px 18px 10px 18px;
-        margin-bottom: 32px;
+        padding: 14px 14px 10px 14px;
+        margin-bottom: 24px;
         box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         display: flex;
         flex-wrap: wrap;
-        gap: 18px 24px;
+        gap: 12px 14px;
         align-items: flex-end;
         justify-content: flex-start;
     }
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        min-width: 180px;
-        flex: 1 1 220px;
+        min-width: 140px;
+        flex: 1 1 160px;
     }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
@@ -66,9 +66,9 @@
         color: #fff;
         border: none;
         border-radius: 10px;
-        font-size: 1.1rem;
-        padding: 10px 0;
-        min-width: 140px;
+        font-size: 1rem;
+        padding: 8px 12px;
+        min-width: 110px;
         margin-top: 0;
         box-shadow: 0 2px 8px rgba(247,181,0,0.08);
         transition: background 0.2s;

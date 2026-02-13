@@ -240,14 +240,15 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 8px;
+  gap: 12px 16px;
 }
 .filtro-modern-cobranca .btn,
 .filtro-modern-cobranca .filtro-btn {
-  min-width: 110px;
-  padding: 10px 14px;
+  min-width: 88px;
+  padding: 8px 10px;
   white-space: nowrap;
   flex: 0 0 auto;
+  font-size: 0.95rem;
 }
 @media (max-width: 700px) {
   .filtro-modern-cobranca {
