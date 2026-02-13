@@ -52,10 +52,10 @@
 }
 .plan-card { color: #111; }
 .plan-card .plan-title { font-weight:700; font-size:1.05rem; color:#111; }
-.plan-card .plan-meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.plan-badge { display:inline-block; padding:8px 12px; border-radius:999px; font-weight:800; font-size:0.95rem; color:#111; }
-.plan-price { background: transparent; color:#111; box-shadow: none; }
-.plan-cycle { background: transparent; color:#111; border: none; }
+.plan-card .plan-meta { display:flex; gap:10px; align-items:center; flex-wrap:nowrap; }
+.plan-badge { display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 14px; border-radius:999px; font-weight:800; font-size:0.95rem; color:#111; }
+.plan-price { background: transparent; color:#111; box-shadow: none; min-width:110px; }
+.plan-cycle { background: transparent; color:#111; border: none; min-width:44px; height:40px; padding:0 10px; border-radius:999px; }
 .plan-actions { margin-top:12px; display:flex; gap:10px; justify-content:flex-start; }
 .plan-actions .btn { min-width:0; }
 

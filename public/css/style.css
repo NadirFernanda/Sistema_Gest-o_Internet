@@ -239,8 +239,8 @@ h1 {
     align-items: center;
     justify-content: center;
     min-width: 120px;
-    height: 44px;
-    padding: 0 14px;
+    height: 40px;
+    padding: 0 12px;
     border-radius: 10px;
     font-weight: 800;
     color: #111;
@@ -328,11 +328,11 @@ h1 {
     align-items: center;
     justify-content: center;
     min-width: 140px;
-    height: 48px;
-    padding: 0 14px;
+    height: 40px;
+    padding: 0 12px;
     border-radius: 10px;
     font-weight: 800;
-    color: #fff;
+    color: #111;
 }
 
 /* fallback: if status is plain text inside TD, style the TD's first-child element */
