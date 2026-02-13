@@ -38,9 +38,10 @@
             <select class="form-control" id="estoque_equipamento_id" name="estoque_equipamento_id" style="width:100%">
                 <option value="">-- Escolha um equipamento --</option>
                 @foreach($equipamentos as $equipamento)
-                    <option value="{{ $equipamento->id }}">{{ $equipamento->nome }} ({{ $equipamento->modelo }})</option>
+                    <option value="{{ $equipamento->id }}" data-quantidade="{{ $equipamento->quantidade }}">{{ $equipamento->nome }} ({{ $equipamento->modelo }}) - em estoque: {{ $equipamento->quantidade }}</option>
                 @endforeach
             </select>
+            <div id="estoque-info" class="muted small" style="margin-top:6px;">Quantidade disponível: <span id="estoque-quant">-</span></div>
             @if ($errors->has('estoque_equipamento_id'))
                 @php
                     $msg = $errors->first('estoque_equipamento_id');
@@ -55,6 +56,7 @@
         <div class="form-group-custom">
             <label for="quantidade" class="form-label">Quantidade <span class="required-asterisk">*</span></label>
             <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1">
+            <div id="quantidade-error" class="text-danger small" style="display:none; margin-top:6px;"></div>
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade', 'Informe uma quantidade válida.') }}</div>
             @endif
@@ -91,6 +93,32 @@
                     }
                 }
             });
+
+            function updateEstoqueInfo(){
+                var sel = $('#estoque_equipamento_id');
+                var opt = sel.find(':selected');
+                var avail = opt.data('quantidade');
+                if(!avail && avail !== 0){
+                    $('#estoque-quant').text('-');
+                    $('#quantidade').removeAttr('max');
+                    return;
+                }
+                $('#estoque-quant').text(avail);
+                $('#quantidade').attr('max', avail);
+                // if current value > available, reduce it
+                var cur = parseInt($('#quantidade').val() || '0', 10);
+                if(cur > avail){
+                    $('#quantidade').val(avail);
+                    $('#quantidade-error').text('A quantidade foi ajustada para a disponibilidade em estoque.').show();
+                } else {
+                    $('#quantidade-error').hide();
+                }
+            }
+
+            // on open/select change
+            $('#estoque_equipamento_id').on('select2:select select2:clear change', function(){ updateEstoqueInfo(); });
+            // initial
+            updateEstoqueInfo();
         });
     </script>
 
@@ -205,6 +233,58 @@
             // when select2 closes, disconnect observer
             function closeHandler() { mo.disconnect(); document.removeEventListener('select2:closing', closeHandler); }
             document.addEventListener('select2:closing', closeHandler);
+        });
+    })();
+</script>
+<script>
+    // Reinforced fallback: keep highlighted option visible and styled during keyboard navigation
+    (function(){
+        function ensureVisibleAndStyled(container){
+            if(!container) return;
+            var highlighted = container.querySelector('.select2-results__option--highlighted') || container.querySelector('[aria-selected="true"]');
+            if(highlighted){
+                try{
+                    highlighted.style.setProperty('background-color', '#f7b500', 'important');
+                    highlighted.style.setProperty('color', '#ffffff', 'important');
+                    highlighted.style.setProperty('box-shadow', 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)', 'important');
+                    // scroll into view if it's partially hidden
+                    highlighted.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }catch(e){}
+            }
+        }
+
+        document.addEventListener('select2:open', function(){
+            var results = document.querySelector('.select2-container--open .select2-results');
+            if(!results) return;
+
+            // initial styling
+            ensureVisibleAndStyled(results);
+
+            // key navigation: listen on document for arrow keys while open
+            function keyHandler(ev){
+                if(ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){
+                    // slight delay to allow Select2 to update classes
+                    setTimeout(function(){ ensureVisibleAndStyled(results); }, 10);
+                }
+            }
+
+            // mouseover on options: style hovered option so it appears instead of disappearing
+            function mouseHandler(e){
+                var li = e.target.closest('.select2-results__option');
+                if(!li) return;
+                li.style.setProperty('background-color', '#f7b500', 'important');
+                li.style.setProperty('color', '#ffffff', 'important');
+            }
+
+            document.addEventListener('keydown', keyHandler);
+            results.addEventListener('mousemove', mouseHandler);
+
+            function cleanup(){
+                document.removeEventListener('keydown', keyHandler);
+                results.removeEventListener('mousemove', mouseHandler);
+                document.removeEventListener('select2:closing', cleanup);
+            }
+            document.addEventListener('select2:closing', cleanup);
         });
     })();
 </script>
