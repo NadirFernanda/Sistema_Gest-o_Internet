@@ -45,7 +45,7 @@
 
         <div class="search-row" style="margin-top:32px;">
             <h2 style="margin:0 0 8px 0;">Lista de Planos</h2>
-            <form class="search-form-inline" method="GET" action="{{ route('planos') }}" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <form class="search-form-inline" method="GET" action="{{ route('planos.index') }}" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                 <input type="search" name="q" id="buscaPlanos" class="search-input" placeholder="Pesquisar por plano ou cliente..." aria-label="Pesquisar planos" />
                 <button type="submit" class="btn btn-search">Pesquisar</button>
             </form>
