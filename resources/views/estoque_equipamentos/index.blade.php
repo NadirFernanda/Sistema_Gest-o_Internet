@@ -11,41 +11,25 @@
         'subtitle' => '',
         'stackLeft' => true,
     ])
-        {{-- Toolbar: align with Clientes layout (search left, CTAs right) --}}
-        <div class="clientes-toolbar">
-            <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="clientes-search-form">
-                <input
-                    type="text"
-                    name="busca"
-                    value="{{ request('busca') }}"
-                    placeholder="Pesquisar por nome, modelo ou nº de série..."
-                >
-                <button type="submit" class="busca-planos-btn btn btn-cta">Pesquisar</button>
+        {{-- Toolbar padronizada com Planos: pesquisa à esquerda, CTAs à direita --}}
+        <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por nome, modelo ou nº de série..." class="search-input" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
                 @if(request('busca'))
-                    <a href="{{ route('estoque_equipamentos.index') }}" class="btn-limpar-busca">Limpar</a>
+                    <a href="{{ route('estoque_equipamentos.index') }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
                 @endif
             </form>
-            <div class="clientes-toolbar-actions">
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            <div style="display:flex;gap:8px;">
                 <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
                 <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" target="_blank">Exportar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
         </div>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-    <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="estoque-busca-form">
-        <input
-            type="text"
-            name="busca"
-            value="{{ request('busca') }}"
-            placeholder="Pesquisar por nome, modelo ou nº de série..."
-        >
-        <button type="submit" class="btn btn-cta">Pesquisar</button>
-        @if(request('busca'))
-            <a href="{{ route('estoque_equipamentos.index') }}" class="btn-limpar-busca">Limpar</a>
-        @endif
-    </form>
+    {{-- Pesquisa já incluída na toolbar acima (padronizada com Planos) --}}
     <div class="estoque-tabela-moderna">
         <table class="tabela-estoque-moderna">
             <thead>

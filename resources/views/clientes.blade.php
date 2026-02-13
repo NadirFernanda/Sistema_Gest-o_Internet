@@ -18,13 +18,13 @@
             </div>
         </header>
 
-        {{-- Barra de ações e busca (abaixo do header) --}}
-        <div class="clientes-toolbar">
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="clientes-search-form">
-                <input type="text" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="busca-planos-input" value="{{ request('busca') }}">
-                <button type="submit" class="busca-planos-btn">Pesquisar</button>
+        {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
+        <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
             </form>
-            <div class="clientes-toolbar-actions">
+            <div style="display:flex;gap:8px;">
                 <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
