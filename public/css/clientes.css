@@ -136,6 +136,11 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 .btn-icon.btn-danger{ border:1px solid rgba(185,28,28,0.08); background:transparent; color:#b91c1c; }
 .btn-icon:focus{ outline:3px solid rgba(154,86,0,0.12); outline-offset:2px; }
 
+/* Primary variant for icon-only buttons (solid yellow like .btn-primary) */
+.btn-icon.btn-primary{ border:1px solid rgba(224,161,1,0.12); background:var(--yellow-500); color:var(--white); }
+.btn-icon.btn-primary:hover{ background:var(--yellow-600); }
+.btn-icon.btn-primary:focus{ outline:3px solid rgba(154,86,0,0.18); outline-offset:2px; }
+
 /* Reduce large visually duplicated buttons elsewhere */
 .ficha-card .btn { margin:0; }
 
