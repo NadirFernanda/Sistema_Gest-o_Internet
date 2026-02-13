@@ -160,13 +160,21 @@
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('cobrancas.show', $cobranca->id) }}" class="btn btn-sm btn-info" title="Ver Detalhes"><i class="fas fa-eye"></i> Detalhes</a>
-                        <a href="{{ route('cobrancas.edit', $cobranca->id) }}" class="btn btn-sm btn-warning" title="Editar"><i class="fas fa-edit"></i> Editar</a>
-                        <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-sm btn-success" title="Comprovante PDF" target="_blank"><i class="fas fa-file-pdf"></i> Comprovante</a>
+                        <a href="{{ route('cobrancas.show', $cobranca->id) }}" class="btn-icon btn-ghost" title="Ver Detalhes" aria-label="Ver Detalhes">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                        <a href="{{ route('cobrancas.edit', $cobranca->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                        </a>
+                        <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn-icon btn-success" title="Comprovante PDF" target="_blank" aria-label="Comprovante PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13h4"/><path d="M10 17h4"/></svg>
+                        </a>
                         <form action="{{ route('cobrancas.destroy', $cobranca->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Tem certeza que deseja remover esta cobrança?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" title="Remover"><i class="fas fa-trash"></i> Remover</button>
+                            <button type="submit" class="btn-icon btn-danger" title="Remover" aria-label="Remover" onclick="return confirm('Tem certeza que deseja remover esta cobrança?');">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
                         </form>
                     </td>
                 </tr>
