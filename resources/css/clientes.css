@@ -131,19 +131,19 @@
 .planos-toolbar .btn-search,
 .clientes-toolbar button[type="submit"],
 .planos-toolbar button[type="submit"] {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: none;
-  background: #f7b500;
-  color: #fff;
-  font-weight: 700;
-  min-width: 120px;
-  height: auto;
-  box-shadow: 0 6px 18px rgba(247,181,0,0.12);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  padding: 8px 14px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: #f7b500 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  min-width: 120px !important;
+  height: auto !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Provide a ghost variant when a transparent search button is explicitly needed */
@@ -182,9 +182,21 @@
   border-radius: 12px; /* semi-arredondado */
   min-width: 120px;
   box-shadow: 0 6px 18px rgba(247,181,0,0.12);
+  background: #f7b500 !important;
+  color: #fff !important;
 }
 @media (max-width:900px){
   .clientes-toolbar, .planos-toolbar{ flex-direction:column; align-items:stretch; }
   .clientes-toolbar .btn, .planos-toolbar .btn{ width:100%; min-width:0; }
+}
+
+/* Make the search inputs visually match the toolbar (rounded) */
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input,
+.clientes-toolbar input[type="text"],
+.planos-toolbar input[type="search"] {
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  border: 2px solid #e6a248 !important;
 }
 
