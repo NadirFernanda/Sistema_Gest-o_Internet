@@ -169,4 +169,33 @@ class PlanoController extends Controller
             return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
         }
     }
+
+    /**
+     * Web view: show single plano in a simple page
+     */
+    public function webShow($id)
+    {
+        $plano = Plano::with('cliente')->findOrFail($id);
+        return view('planos.show', compact('plano'));
+    }
+
+    /**
+     * Web view: edit form for plano
+     */
+    public function editWeb($id)
+    {
+        $plano = Plano::findOrFail($id);
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('planos.edit', compact('plano','clientes'));
+    }
+
+    /**
+     * Web destroy (handle form DELETE)
+     */
+    public function destroyWeb($id)
+    {
+        $plano = Plano::findOrFail($id);
+        $plano->delete();
+        return redirect()->route('planos.index')->with('success', 'Plano removido.');
+    }
 }

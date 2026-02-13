@@ -48,6 +48,11 @@ Route::middleware('auth')->group(function () {
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.create');
     // Show the create form for planos on a separate page
     Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create');
+    // Web routes for individual planos (prevent 404s from card actions)
+    Route::get('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'webShow'])->name('planos.show')->whereNumber('plano');
+    Route::get('/planos/{plano}/edit', [\App\Http\Controllers\PlanoController::class, 'editWeb'])->name('planos.edit')->whereNumber('plano');
+    Route::put('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'update'])->name('planos.update')->whereNumber('plano')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.edit');
+    Route::delete('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'destroyWeb'])->name('planos.destroy')->whereNumber('plano')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.delete');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças

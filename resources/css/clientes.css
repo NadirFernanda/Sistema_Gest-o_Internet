@@ -42,21 +42,23 @@
   align-items: start;
 }
 .plan-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  background: linear-gradient(180deg,#ffffff,#fffdf9);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(8,15,26,0.06);
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 .plan-card .plan-title { font-weight:700; font-size:1.05rem; color:#111; }
 .plan-card .plan-meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.plan-badge { display:inline-block; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.95rem; }
-.plan-price { background:#f7b500; color:#111; }
-.plan-cycle { background:#e6e6e6; color:#222; }
-.plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
-.plan-actions .btn { min-width:110px; }
+.plan-badge { display:inline-block; padding:8px 12px; border-radius:999px; font-weight:800; font-size:0.95rem; }
+.plan-price { background:#f7b500; color:#111; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.02); }
+.plan-cycle { background:#f0f0f0; color:#222; border:1px solid #eee; }
+.plan-actions { margin-top:12px; display:flex; gap:10px; justify-content:flex-start; }
+.plan-actions .btn { min-width:0; }
+
+.plan-card:hover{ transform: translateY(-6px); transition: transform 180ms ease, box-shadow 180ms ease; box-shadow: 0 18px 40px rgba(8,15,26,0.08); }
 
 /* Hero CTA sizing (keep compact, avoid huge full-width pills) */
 .hero-ctas { display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
@@ -630,5 +632,65 @@ button.btn:not(.btn-icon) {
     width: 100%;
     min-width: 0;
   }
+}
+
+/* Make search inputs visually proportional to toolbar buttons */
+.clientes-search-form,
+.planos-toolbar,
+.alertas-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.clientes-search-form .busca-planos-input,
+.planos-toolbar .search-input,
+.alertas-toolbar .search-input,
+.clientes-search-form input[type="text"] {
+  flex: 1 1 auto !important;
+  min-width: 220px !important;
+  height: 36px !important; /* match button height exactly */
+  padding: 0 12px !important; /* center vertically by using inline-flex alignment */
+  border-radius: 8px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #e6e6e6 !important; /* visually match ghost buttons */
+  background: #fff !important;
+  color: #222 !important;
+  font-size: 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
+/* Ensure toolbar buttons align vertically with the inputs */
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn {
+  height: 36px !important;
+  padding: 6px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Force exact visual parity: ensure inputs align with buttons and don't appear thicker */
+.clientes-search-form .busca-planos-input:focus,
+.planos-toolbar .search-input:focus,
+.alertas-toolbar .search-input:focus,
+.clientes-search-form input[type="text"]:focus {
+  outline: none !important;
+  border-color: #e6a248 !important; /* keep focus color but one-px to avoid oversized border */
+  box-shadow: 0 6px 18px rgba(230,162,72,0.08) !important;
+}
+
+/* In case some views apply thicker borders, force 1px globally for toolbar inputs */
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input,
+.alertas-toolbar .search-input { border-width: 1px !important; }
+
+@media (max-width:900px){
+  .clientes-search-form .busca-planos-input,
+  .planos-toolbar .search-input,
+  .alertas-toolbar .search-input { height: 40px !important; }
 }
 
