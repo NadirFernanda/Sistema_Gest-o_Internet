@@ -98,18 +98,12 @@
         (function(){
             function updateEstoqueInfo(){
                 var sel = $('#estoque_equipamento_id');
-                var val = sel.val();
-                if(!val){
-                    $('#estoque-quant').text('-');
-                    $('#quantidade').removeAttr('max');
-                    return;
-                }
-                // find the matching option and read data-quantidade robustly
-                var opt = sel.find('option[value="' + val + '"]');
+                // prefer the currently selected option (works with native select and Select2)
+                var opt = sel.find(':selected');
                 var availAttr = opt.attr('data-quantidade');
                 var availData = opt.data('quantidade');
-                var avail = parseInt(availAttr || availData || '0', 10);
-                if(isNaN(avail)){
+                var avail = parseInt((availAttr !== undefined ? availAttr : availData) || '0', 10);
+                if(!opt || !opt.length || (!availAttr && availData === undefined && isNaN(avail))){
                     $('#estoque-quant').text('-');
                     $('#quantidade').removeAttr('max');
                     return;
