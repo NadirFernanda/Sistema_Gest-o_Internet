@@ -198,6 +198,27 @@
   background: #f7b500 !important;
   color: #fff !important;
 }
+
+/* Normalize border/shape for toolbar and filter buttons so all look consistent */
+.clientes-toolbar .btn:not(.btn-cta),
+.planos-toolbar .btn:not(.btn-cta),
+.alertas-toolbar .btn:not(.btn-cta),
+.filtro-top .btn:not(.btn-cta),
+.filtro-modern-cobranca .btn:not(.btn-cta),
+.filtro-modern-cobranca .filtro-btn:not(.btn-cta) {
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: transparent;
+  color: #222;
+  padding: 4px 6px;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure CTA (filled) buttons keep their filled style */
+.filtro-top .btn-cta, .filtro-modern-cobranca .btn-cta { box-shadow: 0 6px 18px rgba(247,181,0,0.12); }
 .alertas-toolbar, .clientes-toolbar, .planos-toolbar { }
 @media (max-width:900px){
   .clientes-toolbar, .planos-toolbar, .alertas-toolbar{ flex-direction:column; align-items:stretch; gap:12px; }
