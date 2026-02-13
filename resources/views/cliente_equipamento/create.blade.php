@@ -3,11 +3,10 @@
 @section('content')
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     <div class="back-wrap">
-    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:6px;">
+    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back" aria-label="Voltar à Ficha do Cliente" title="Voltar à Ficha do Cliente">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
             <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Voltar à Ficha do Cliente
     </a>
     </div>
     <h2>Vincular Equipamento ao Cliente</h2>

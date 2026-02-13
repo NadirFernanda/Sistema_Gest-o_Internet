@@ -205,19 +205,19 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 .btn-back{
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  padding:8px 12px;
+  justify-content:center;
+  padding:8px;
+  width:40px;
+  height:40px;
   border-radius:8px;
   background:var(--yellow-500);
   color:var(--white);
-  font-weight:700;
   text-decoration:none;
   box-shadow:0 6px 14px rgba(17,24,39,0.05);
   border: none;
   transition: transform .08s ease, box-shadow .12s ease;
-  width: auto;
 }
-.btn-back svg{ width:16px; height:16px; }
+.btn-back svg{ width:18px; height:18px; display:block; }
 .btn-back:hover{ background:var(--yellow-600); transform: translateY(-1px); }
 .btn-back:active{ transform: translateY(0); }
 
