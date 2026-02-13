@@ -13,12 +13,7 @@
         'subtitle' => '',
     ])
 
-    <div class="clientes-toolbar">
-        <div class="clientes-toolbar-actions" style="margin-left:auto;">
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-            <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
-        </div>
-    </div>
+    <!-- toolbar removed here: buttons will be placed above the filter fields inside the filter box -->
 
     <style>
     .filtro-modern-cobranca {
@@ -87,6 +82,17 @@
     }
     </style>
     <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
+        <div class="filtro-top" style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:12px;">
+            <div class="filtro-top-left" style="display:flex;gap:8px;align-items:center;">
+                <button type="button" id="filtrar-btn" class="btn btn-primary filtro-btn">Filtrar</button>
+                <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
+                <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
+            </div>
+            <div class="filtro-top-right" style="display:flex;gap:8px;align-items:center;">
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
+            </div>
+        </div>
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
             <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
@@ -116,11 +122,7 @@
             <label for="data_pagamento">Data de Pagamento</label>
             <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
         </div>
-        <div class="filtro-actions" style="display:flex;gap:8px;align-items:center;">
-            <button type="submit" class="btn btn-primary filtro-btn">Filtrar</button>
-            <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
-            <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
-        </div>
+        <!-- ações de filtro agora ficam na toolbar acima (botão Filtrar submete o formulário via JS) -->
     </form>
     <div class="tabela-cobrancas-moderna">
     <table class="table table-bordered table-striped mt-4">
@@ -299,6 +301,14 @@ document.addEventListener('DOMContentLoaded', function(){
         const url = params ? (exportBase + '?' + params) : exportBase;
         window.open(url, '_blank');
     });
+
+    // Filtrar (botão dentro do formulário): submete o formulário
+    const filtrarBtn = document.getElementById('filtrar-btn');
+    if(filtrarBtn && form){
+        filtrarBtn.addEventListener('click', function(){
+            form.submit();
+        });
+    }
 });
 </script>
 </div>
