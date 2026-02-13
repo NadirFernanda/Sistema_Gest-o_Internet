@@ -8,8 +8,7 @@
     <div class="alertas-container">
         @include('layouts.partials.clientes-hero', [
             'title' => 'Alertas Ativos',
-            'subtitle' => '',
-            'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Voltar ao Dashboard</a><button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>'
+            'subtitle' => ''
         ])
         {{-- Toolbar abaixo do header: busca, dias e CTAs --}}
         <div class="alertas-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;justify-content:space-between;">
