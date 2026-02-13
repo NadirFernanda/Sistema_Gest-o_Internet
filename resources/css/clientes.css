@@ -398,6 +398,70 @@
   text-overflow: ellipsis;
 }
 
+/* === Global button normalization to match 'planos' compact style === */
+/* Apply to common semantic button classes and override inline differences */
+.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 14px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  min-width: auto !important;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.04) !important;
+}
+
+.btn-primary,
+.btn-cta {
+  background: #f7b500 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.btn-secondary,
+.btn-ghost {
+  background: transparent !important;
+  color: #222 !important;
+  border: 1px solid #e6e6e6 !important;
+}
+
+/* Ensure small textual toolbar buttons remain compact */
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn,
+.filtro-top .btn,
+.filtro-modern-cobranca .btn {
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+}
+
+/* Override specific inline-heavy IDs used in some views to match compact style */
+#ficha-download-send-btn,
+#back-dashboard-btn,
+.tabela-estoque-moderna td .btn,
+.tabela-estoque-moderna td form .btn,
+.ficha-equip-table .table .btn {
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  min-width: auto !important;
+}
+
+/* Make sure table action buttons remain icon-compact unless intentionally filled */
+.tabela-estoque-moderna td .btn-icon,
+.ficha-equip-table .table .btn-icon {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+}
+
+/* Small screens: keep toolbar buttons readable but compact */
+@media (max-width:900px){
+  .clientes-toolbar .btn, .planos-toolbar .btn, .alertas-toolbar .btn { padding: 8px 12px !important; }
+}
+
 /* Ensure filtro-top actions stay in one line and buttons have uniform spacing */
 .filtro-top { display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
 .filtro-top .filtro-top-actions { display:flex; gap:12px; align-items:center; }
