@@ -41,7 +41,6 @@
                     <option value="{{ $equipamento->id }}" data-quantidade="{{ $equipamento->quantidade }}">{{ $equipamento->nome }} ({{ $equipamento->modelo }}) - em estoque: {{ $equipamento->quantidade }}</option>
                 @endforeach
             </select>
-            <div id="estoque-info" class="muted small" style="margin-top:6px;">Quantidade disponível: <span id="estoque-quant">-</span></div>
             @if ($errors->has('estoque_equipamento_id'))
                 @php
                     $msg = $errors->first('estoque_equipamento_id');
@@ -57,6 +56,9 @@
             <label for="quantidade" class="form-label">Quantidade <span class="required-asterisk">*</span></label>
             <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1">
             <div id="quantidade-error" class="text-danger small" style="display:none; margin-top:6px;"></div>
+            <div id="estoque-info" role="status" aria-live="polite" style="margin-top:10px;">
+                <div style="background:#fff8e1;border-left:4px solid #f7b500;padding:10px 12px;border-radius:8px;color:#374151;font-weight:600;">Quantidade disponível em estoque: <span id="estoque-quant">-</span></div>
+            </div>
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade', 'Informe uma quantidade válida.') }}</div>
             @endif
