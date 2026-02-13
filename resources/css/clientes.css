@@ -126,23 +126,36 @@
 .btn-icon.btn-danger{ background:#ef4444; color:#fff; }
 .btn-icon:focus{ outline:2px solid rgba(0,0,0,0.12); }
 
-/* Make search buttons match toolbar buttons (uniform borders and radii) */
+/* Make search buttons match toolbar CTAs (primary appearance by default) */
 .clientes-toolbar .busca-planos-btn,
 .planos-toolbar .btn-search,
 .clientes-toolbar button[type="submit"],
 .planos-toolbar button[type="submit"] {
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 12px;
-  border: 1px solid #e6e6e6;
-  background: transparent;
-  color: #222;
+  border: none;
+  background: #f7b500;
+  color: #fff;
   font-weight: 700;
+  min-width: 120px;
   height: auto;
-  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* If the search button should look primary, you can swap background/color here. */
+/* Provide a ghost variant when a transparent search button is explicitly needed */
+.clientes-toolbar .busca-planos-btn.ghost,
+.planos-toolbar .btn-search.ghost,
+.clientes-toolbar button[type="submit"].ghost,
+.planos-toolbar button[type="submit"].ghost {
+  background: transparent;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+}
 
 /* Toolbar-specific button sizing (compact and harmonious) */
 .clientes-toolbar .btn,
