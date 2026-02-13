@@ -81,21 +81,9 @@
             <button type="submit" class="btn btn-primary">Vou vincular</button>
             <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Cancelar</a>
         </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#estoque_equipamento_id').select2({
-                placeholder: '-- Escolha um equipamento --',
-                allowClear: true,
-                width: 'resolve',
-                language: {
-                    noResults: function() {
-                        return 'Nenhum resultado encontrado';
-                    }
-                }
-            });
-
+        // Update estoque info and HTML5 messages — single JS block (no duplicate Select2 init here)
+        (function(){
             function updateEstoqueInfo(){
                 var sel = $('#estoque_equipamento_id');
                 var opt = sel.find(':selected');
@@ -107,12 +95,10 @@
                 }
                 $('#estoque-quant').text(avail);
                 $('#quantidade').attr('max', avail);
-                // if current value > available, reduce it
                 var cur = parseInt($('#quantidade').val() || '0', 10);
                 if(cur > avail){
                     $('#quantidade').val(avail);
                     $('#quantidade-error').text('A quantidade foi ajustada para a disponibilidade em estoque.').show();
-                    // set custom validity message in Portuguese for HTML5 validation
                     var el = $('#quantidade').get(0);
                     if(el){ el.setCustomValidity('A quantidade não pode ser maior que ' + avail + '.'); }
                 } else {
@@ -120,16 +106,15 @@
                 }
             }
 
-            // on open/select change
-            $('#estoque_equipamento_id').on('select2:select select2:clear change', function(){ updateEstoqueInfo(); });
-            // initial
-            updateEstoqueInfo();
+            // on change: update estoque info
+            $(document).on('change', '#estoque_equipamento_id', updateEstoqueInfo);
+            // initial (when DOM ready)
+            $(function(){ updateEstoqueInfo(); });
 
             // HTML5 validation messages in Portuguese for #quantidade
             var quantidadeEl = document.getElementById('quantidade');
             if(quantidadeEl){
                 quantidadeEl.addEventListener('input', function(){
-                    // clear any previous custom message while typing
                     this.setCustomValidity('');
                     var max = parseInt(this.getAttribute('max') || '0', 10);
                     var val = parseInt(this.value || '0', 10);
@@ -141,7 +126,6 @@
                         this.setCustomValidity('');
                     }
                 });
-                // Ensure custom message is shown on invalid
                 quantidadeEl.addEventListener('invalid', function(e){
                     var max = parseInt(this.getAttribute('max') || '0', 10);
                     if(this.validity.rangeOverflow && max > 0){
@@ -151,7 +135,7 @@
                     }
                 });
             }
-        });
+        })();
     </script>
 
 @if(isset($equipamentoDuplicadoMsg))
@@ -211,140 +195,16 @@
 
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    /* Inline override loaded after Select2 CSS to ensure project yellow is used */
-    .select2-container--default .select2-results__option--highlighted,
-    .select2-container--default .select2-results__option[aria-selected="true"] {
-        background-color: var(--yellow-500) !important;
-        color: #ffffff !important;
-    }
-    .select2-container--default .select2-results__option--highlighted:hover {
-        background-color: var(--yellow-600) !important;
-        color: #ffffff !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--gray-900); }
-    /* Reinforced visibility fixes: ensure options render and have padding */
-    .select2-container--open .select2-dropdown .select2-results {
-        max-height: 320px !important;
-        overflow-y: auto !important;
-        box-sizing: border-box !important;
-        padding: 0 !important;
-    }
-    .select2-container .select2-results__option {
-        display: block !important;
-        color: #111827 !important;
-        padding: 8px 12px !important;
-        min-height: 0 !important;
-        line-height: 1.25 !important;
-        box-sizing: border-box !important;
-    }
-    .select2-container .select2-results__option--highlighted,
-    .select2-container .select2-results__option[aria-selected="true"] {
-        background-color: var(--yellow-500) !important;
-        color: #ffffff !important;
-    }
-    /* Ensure the first visible option shows as highlighted by default when dropdown opens */
-    .select2-container--open .select2-results__option:first-of-type {
-        background-color: var(--yellow-500) !important;
-        color: #ffffff !important;
-    }
-    /* Defensive: ensure dropdown arrow / padding doesn't hide first item */
-    .select2-container .select2-results__options { padding: 0 !important; }
-</style>
+
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('#estoque_equipamento_id').select2({
-            placeholder: 'Pesquise ou selecione um equipamento',
-            allowClear: true,
-            width: 'resolve'
-        });
+document.addEventListener('DOMContentLoaded', function () {
+    $('#estoque_equipamento_id').select2({
+        placeholder: 'Pesquise ou selecione um equipamento',
+        allowClear: true,
+        width: '100%'
     });
-</script>
-<script>
-    // Fallback: ensure highlighted option is visibly styled for keyboard navigation
-    (function(){
-        function applyHighlightStyles(container) {
-            var opts = container.querySelectorAll('.select2-results__option');
-            opts.forEach(function(li){
-                if (li.classList.contains('select2-results__option--highlighted') || li.getAttribute('aria-selected') === 'true') {
-                    li.style.setProperty('background-color', '#f7b500', 'important');
-                    li.style.setProperty('color', '#ffffff', 'important');
-                    li.style.setProperty('box-shadow', 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)', 'important');
-                } else {
-                    li.style.removeProperty('background-color');
-                    li.style.removeProperty('color');
-                    li.style.removeProperty('box-shadow');
-                }
-            });
-        }
-
-        document.addEventListener('select2:open', function(e){
-            // dropdown is appended to body; find nearest dropdown container
-            var container = document.querySelector('.select2-container--open .select2-results');
-            if (!container) return;
-            applyHighlightStyles(container);
-
-            // observe changes inside results (keyboard navigation/hover)
-            var mo = new MutationObserver(function(){ applyHighlightStyles(container); });
-            mo.observe(container, { attributes: true, childList: true, subtree: true });
-
-            // when select2 closes, disconnect observer
-            function closeHandler() { mo.disconnect(); document.removeEventListener('select2:closing', closeHandler); }
-            document.addEventListener('select2:closing', closeHandler);
-        });
-    })();
-</script>
-<script>
-    // Reinforced fallback: keep highlighted option visible and styled during keyboard navigation
-    (function(){
-        function ensureVisibleAndStyled(container){
-            if(!container) return;
-            var highlighted = container.querySelector('.select2-results__option--highlighted') || container.querySelector('[aria-selected="true"]');
-            if(highlighted){
-                try{
-                    highlighted.style.setProperty('background-color', '#f7b500', 'important');
-                    highlighted.style.setProperty('color', '#ffffff', 'important');
-                    highlighted.style.setProperty('box-shadow', 'inset 0 -2px 0 rgba(0,0,0,0.03), 0 6px 18px rgba(17,24,39,0.04)', 'important');
-                    // scroll into view if it's partially hidden
-                    highlighted.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-                }catch(e){}
-            }
-        }
-
-        document.addEventListener('select2:open', function(){
-            var results = document.querySelector('.select2-container--open .select2-results');
-            if(!results) return;
-
-            // initial styling
-            ensureVisibleAndStyled(results);
-
-            // key navigation: listen on document for arrow keys while open
-            function keyHandler(ev){
-                if(ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){
-                    // slight delay to allow Select2 to update classes
-                    setTimeout(function(){ ensureVisibleAndStyled(results); }, 10);
-                }
-            }
-
-            // mouseover on options: style hovered option so it appears instead of disappearing
-            function mouseHandler(e){
-                var li = e.target.closest('.select2-results__option');
-                if(!li) return;
-                li.style.setProperty('background-color', '#f7b500', 'important');
-                li.style.setProperty('color', '#ffffff', 'important');
-            }
-
-            document.addEventListener('keydown', keyHandler);
-            results.addEventListener('mousemove', mouseHandler);
-
-            function cleanup(){
-                document.removeEventListener('keydown', keyHandler);
-                results.removeEventListener('mousemove', mouseHandler);
-                document.removeEventListener('select2:closing', cleanup);
-            }
-            document.addEventListener('select2:closing', cleanup);
-        });
-    })();
+});
 </script>
 @endpush
