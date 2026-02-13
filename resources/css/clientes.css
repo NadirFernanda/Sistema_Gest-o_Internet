@@ -361,6 +361,41 @@
 .filtro-top { display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
 .filtro-top .filtro-top-actions { display:flex; gap:12px; align-items:center; }
 .filtro-top .btn { padding: 4px 6px; border-radius:8px; }
+
+/* Apply same hover/animation used for table action buttons to toolbar/filter buttons */
+.filtro-top .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn {
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.filtro-top .btn:hover,
+.clientes-toolbar .btn:hover,
+.planos-toolbar .btn:hover,
+.alertas-toolbar .btn:hover {
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+/* Preserve semantic hover for danger/warning buttons */
+.filtro-top .btn.btn-danger:hover,
+.clientes-toolbar .btn.btn-danger:hover,
+.planos-toolbar .btn.btn-danger:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
+}
+.filtro-top .btn.btn-warning:hover,
+.clientes-toolbar .btn.btn-warning:hover,
+.planos-toolbar .btn.btn-warning:hover {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(245,158,11,0.12) !important;
+}
 @media (max-width: 700px) {
   .filtro-modern-cobranca {
     flex-wrap: wrap;
