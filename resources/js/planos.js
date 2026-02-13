@@ -374,7 +374,7 @@
             const clienteSelect = document.getElementById('clientePlano');
             if(!clienteSelect) return;
             const url = (window.planosConfig && window.planosConfig.clientesJson) ? window.planosConfig.clientesJson : '/clientes';
-            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
                 .then(response => response.ok ? response.json() : Promise.reject())
                 .then(list => {
                     const items = Array.isArray(list) ? list : (list.data || []);
