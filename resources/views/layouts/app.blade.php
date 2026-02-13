@@ -10,7 +10,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-
     {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -34,6 +33,7 @@
         </main>
     @endauth
 
+    <script src="{{ asset('js/main.js') }}"></script>
 
     @stack('scripts')
 </body>

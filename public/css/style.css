@@ -177,11 +177,7 @@ h1 {
     gap: 14px;
 }
 
-/* NOTE: Global `.btn` and `.btn-ghost` rules were removed/scoped to avoid
-   conflicting with Vite-compiled styles. If you need legacy yellow buttons,
-   apply the `legacy-btn` or `legacy-ghost` classes explicitly in templates. */
-
-.legacy-btn {
+.btn {
     display: block;
     width: 100%;
     box-sizing: border-box;
@@ -198,12 +194,19 @@ h1 {
     transition: background 0.2s;
 }
 
-.legacy-btn:hover { background: #e0a800; }
+.btn:hover {
+    background: #e0a800;
+}
 
-.legacy-btn-logout { background: #aaa; }
-.legacy-btn-logout:hover { background: #888; }
+.btn-logout {
+    background: #aaa;
+}
+.btn-logout:hover {
+    background: #888;
+}
 
-.legacy-ghost {
+/* Ghost button used for "Voltar" and other secondary links */
+.btn-ghost {
     display: inline-block;
     box-sizing: border-box;
     padding: 12px 20px;
@@ -216,10 +219,20 @@ h1 {
     cursor: pointer;
     transition: background 0.2s;
 }
-.legacy-ghost:hover { background: #e0a800; color: #fff; }
+.btn-ghost:hover {
+    background: #e0a800;
+    color: #fff;
+}
 
-.legacy-create-user { background: #f7b500; color: #ffffff; }
-.legacy-create-user:hover { background: #e0a800; }
+/* Specific style for the create-user button (keeps other buttons unchanged) */
+.btn-create-user {
+    /* match default .btn appearance to keep all buttons yellow */
+    background: #f7b500;
+    color: #ffffff;
+}
+.btn-create-user:hover {
+    background: #e0a800;
+}
 
 /* Header user role display */
 .user-menu{float:none;display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px}
@@ -239,17 +252,16 @@ h1 {
     align-items: center;
     justify-content: center;
     min-width: 120px;
-    height: 40px;
-    padding: 0 12px;
+    height: 44px;
+    padding: 0 14px;
     border-radius: 10px;
     font-weight: 800;
-    color: #111;
-    background: transparent;
-    box-shadow: none;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
-.planos-container .status-badge.ativo { background: transparent; color: #111; }
-.planos-container .status-badge.aviso { background: transparent; }
-.planos-container .status-badge.inativo { background: transparent; color: #111; box-shadow:none; }
+.planos-container .status-badge.ativo { background: #f7b500; color: #fff; }
+.planos-container .status-badge.aviso { background: #f7b500; }
+.planos-container .status-badge.inativo { background: #e6e6e6; color: #222; box-shadow:none; }
 .planos-container .actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
 .planos-container .actions .btn {
     display: inline-flex;
@@ -328,11 +340,11 @@ h1 {
     align-items: center;
     justify-content: center;
     min-width: 140px;
-    height: 40px;
-    padding: 0 12px;
+    height: 48px;
+    padding: 0 14px;
     border-radius: 10px;
     font-weight: 800;
-    color: #111;
+    color: #fff;
 }
 
 /* fallback: if status is plain text inside TD, style the TD's first-child element */
@@ -718,7 +730,18 @@ h1 {
     .form-footer { justify-content: center; }
     .btn-submit-top, .form-footer .btn-ghost { width: 100%; min-width: unset; }
 }
-/* .btn-back removed from legacy global stylesheet — use `public/css/clientes.css` overrides instead */
+.btn-back {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: -46px;
+    background: transparent;
+    color: #555;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
 .change-form {
     display: flex;
     flex-direction: column;

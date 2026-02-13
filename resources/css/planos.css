@@ -40,46 +40,13 @@
 /* Table standards */
 #planosLista table { width:100%; }
 #planosLista td, #planosLista th { vertical-align:middle; }
-#planosLista .status-badge{ display:inline-flex; align-items:center; justify-content:center; min-width:84px; height:40px; padding:0 12px; border-radius:8px; text-align:center; font-weight:700; font-size:0.95rem; color:#111; background: transparent; box-shadow: none; }
-#planosLista .status-badge.ativo{ background: transparent; color:#111; }
-#planosLista .status-badge.inativo{ background: transparent; color:#111; box-shadow:none; }
+#planosLista .status-badge{ display:inline-block; min-width:84px; padding:6px 10px; border-radius:8px; text-align:center; font-weight:700; font-size:0.95rem; color:#fff; }
+#planosLista .status-badge.ativo{ background:#f7b500; color:#fff; }
+#planosLista .status-badge.inativo{ background:#e6e6e6; color:#222; box-shadow:none; }
 #planosLista .action-buttons{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
 #planosLista .action-buttons .btn{ min-width:120px; padding:8px 12px; border-radius:10px; font-weight:700; font-size:0.95rem; }
 #planosLista .action-buttons .btn-remove{ background: #f3f3f3 !important; color: #222 !important; box-shadow: none !important; border: 1px solid #e6e6e6 !important; }
 #planosLista .btn-remover-plano, #planosLista .btn-remover, #planosLista button.btn-remover-plano, #planosLista button.btn-remover { background: #f3f3f3 !important; color: #222 !important; box-shadow: none !important; border: 1px solid #e6e6e6 !important; }
 @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
-
-/* Ensure icon-only buttons inside plan cards use the same compact icon styling */
-.plan-actions { display:flex; gap:8px; align-items:center; }
-.plan-actions .btn-icon { width:40px; height:40px; border-radius:8px; padding:6px; display:inline-flex; align-items:center; justify-content:center; }
-.plan-actions .btn-icon svg{ width:18px; height:18px; }
-.plan-actions .btn-ghost{ border:1px solid var(--gray-200); background:var(--white); color:var(--gray-700); }
-
-/* Ensure action icons on plan cards visually match (filled for primary actions, danger for delete) */
-.plan-actions .btn-icon.btn-warning {
-	/* make warning icon ghost by default to match other action icons */
-	background: transparent !important;
-	color: #f7b500 !important;
-	border: 1px solid #f0c36a !important;
-	box-shadow: none !important;
-}
-.plan-actions .btn-icon.btn-danger {
-	background: transparent !important;
-	color: #ef4444 !important;
-	border: 1px solid rgba(239,68,68,0.12) !important;
-	box-shadow: none !important;
-}
-.plan-actions .btn-icon.btn-warning:hover {
-	background: #f7b500 !important;
-	color: #fff !important;
-	border-color: #f7b500 !important;
-	box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
-}
-.plan-actions .btn-icon.btn-danger:hover {
-	background: #ef4444 !important;
-	color: #fff !important;
-	border-color: #ef4444 !important;
-	box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
-}
 
 #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
