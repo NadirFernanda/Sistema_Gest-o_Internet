@@ -230,10 +230,27 @@
 .dias-input{ width:72px; padding:8px; border-radius:12px; border:2px solid #e6a248; }
 
 /* Ensure filtro buttons fit in a single row on wide screens */
-.filtro-modern-cobranca { flex-wrap: nowrap; align-items: center; }
-.filtro-modern-cobranca .btn, .filtro-modern-cobranca .filtro-btn { min-width: 110px; padding: 10px 14px; white-space: nowrap; }
+.filtro-modern-cobranca {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+}
+.filtro-modern-cobranca .btn,
+.filtro-modern-cobranca .filtro-btn {
+  min-width: 110px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
 @media (max-width: 700px) {
-  .filtro-modern-cobranca { flex-wrap: wrap; }
-  .filtro-modern-cobranca .btn, .filtro-modern-cobranca .filtro-btn { width: 100%; min-width: 0; }
+  .filtro-modern-cobranca {
+    flex-wrap: wrap;
+  }
+  .filtro-modern-cobranca .btn,
+  .filtro-modern-cobranca .filtro-btn {
+    width: 100%;
+    min-width: 0;
+  }
 }
 

@@ -116,9 +116,11 @@
             <label for="data_pagamento">Data de Pagamento</label>
             <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
         </div>
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <button type="button" class="btn btn-secondary" style="margin-left:8px;min-width:120px" onclick="window.location='{{ route('cobrancas.index') }}'">Limpar Filtros</button>
-        <a href="{{ route('cobrancas.export', request()->all()) }}" class="btn btn-success" style="margin-left:8px;min-width:140px;color:#fff;" target="_blank">Exportar Excel</a>
+        <div class="filtro-actions" style="display:flex;gap:8px;align-items:center;">
+            <button type="submit" class="btn btn-primary filtro-btn">Filtrar</button>
+            <button type="button" class="btn btn-secondary filtro-btn" onclick="window.location='{{ route('cobrancas.index') }}'">Limpar Filtros</button>
+            <a href="{{ route('cobrancas.export', request()->all()) }}" class="btn btn-success filtro-btn" target="_blank">Exportar Excel</a>
+        </div>
     </form>
     <div class="tabela-cobrancas-moderna">
     <table class="table table-bordered table-striped mt-4">
