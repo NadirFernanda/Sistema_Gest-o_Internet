@@ -14,11 +14,7 @@
     ])
 
     <div class="clientes-toolbar">
-        <form method="GET" action="{{ route('cobrancas.index') }}" class="clientes-search-form">
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar cliente, descrição..." class="busca-planos-input" />
-            <button type="submit" class="btn">Pesquisar</button>
-        </form>
-        <div class="clientes-toolbar-actions">
+        <div class="clientes-toolbar-actions" style="margin-left:auto;">
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Nova Cobrança</a>
         </div>
