@@ -1,4 +1,4 @@
-<form id="formPlano" class="form-cadastro" method="POST" action="{{ route('planos.store') }}">
+<form id="formPlano" class="form-cadastro" method="POST" action="{{ route('planos.store') }}" onsubmit="return true;">
     @csrf
 
     <style>
