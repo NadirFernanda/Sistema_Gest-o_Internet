@@ -45,7 +45,7 @@
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
                             <div class="cliente-botoes-moderna" style="white-space:nowrap;">
-                                <a href="{{ route('clientes.show', $c->id) }}" class="btn-icon btn-primary" title="Ver Ficha" aria-label="Ver Ficha">
+                                <a href="{{ route('clientes.show', $c->id) }}" class="btn-icon btn-warning" title="Ver Ficha" aria-label="Ver Ficha">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                                 <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn-icon btn-warning" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
