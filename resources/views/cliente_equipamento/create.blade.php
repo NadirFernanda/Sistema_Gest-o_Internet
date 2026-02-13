@@ -99,6 +99,9 @@
             function updateEstoqueInfo() {
                 var opt = $('#estoque_equipamento_id option:selected');
 
+                // DEBUG: log selection and computed values (temporary)
+                try { console.log('[updateEstoqueInfo] selected val:', opt.val(), 'optionCount:', opt.length); } catch(e){}
+
                 if (!opt.length || !opt.val()) {
                     $('#estoque-quant').text('-');
                     $('#quantidade').removeAttr('max');
@@ -106,11 +109,13 @@
                 }
 
                 var avail = parseInt(opt.data('quantidade'), 10) || 0;
+                try { console.log('[updateEstoqueInfo] avail:', avail); } catch(e){}
 
                 $('#estoque-quant').text(avail);
                 $('#quantidade').attr('max', avail);
 
                 var cur = parseInt($('#quantidade').val(), 10) || 0;
+                try { console.log('[updateEstoqueInfo] cur:', cur); } catch(e){}
 
                 if (cur > avail) {
                     $('#quantidade').val(avail);
