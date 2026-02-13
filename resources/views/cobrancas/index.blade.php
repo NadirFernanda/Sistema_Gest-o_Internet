@@ -89,8 +89,7 @@
                 <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
             </div>
             <div class="filtro-top-right" style="display:flex;gap:8px;align-items:center;">
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
+                <!-- CTA buttons moved to align above specific date fields below -->
             </div>
         </div>
         <div class="filtro-group">
@@ -115,10 +114,18 @@
             <input type="number" step="0.01" name="valor" id="valor" value="{{ request('valor') }}" placeholder="Valor exato">
         </div>
         <div class="filtro-group">
+            <div class="group-cta" style="margin-bottom:6px; display:flex; gap:8px;">
+                <!-- Dashboard button aligned above Data de Vencimento -->
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            </div>
             <label for="data_vencimento">Data de Vencimento</label>
             <input type="date" name="data_vencimento" id="data_vencimento" value="{{ request('data_vencimento') }}" placeholder="yyyy-mm-dd">
         </div>
         <div class="filtro-group">
+            <div class="group-cta" style="margin-bottom:6px; display:flex; gap:8px; justify-content:flex-end;">
+                <!-- Cobrança button aligned above Data de Pagamento -->
+                <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
+            </div>
             <label for="data_pagamento">Data de Pagamento</label>
             <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
         </div>
