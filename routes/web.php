@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
+    // Backwards-compatible alias: some views/compiled templates reference "planos.index"
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
         ->name('planos.store')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.create');
