@@ -176,6 +176,31 @@
   border-color: #e6e6e6 !important;
 }
 
+/* Add hover animation like 'Ver Detalhes' to all table action buttons */
+.tabela-cobrancas-moderna .btn-icon {
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.tabela-cobrancas-moderna .btn-icon:hover {
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+/* Preserve semantic colors on hover for danger (delete) and warning if desired */
+.tabela-cobrancas-moderna .btn-icon.btn-danger:hover {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
+}
+.tabela-cobrancas-moderna .btn-icon.btn-warning:hover {
+  background: #f59e0b !important;
+  color: #fff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 6px 18px rgba(245,158,11,0.12) !important;
+}
+
 /* Make search buttons match toolbar CTAs (primary appearance by default) */
 .clientes-toolbar .busca-planos-btn,
 .planos-toolbar .btn-search,
