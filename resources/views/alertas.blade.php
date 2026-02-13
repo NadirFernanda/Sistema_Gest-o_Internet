@@ -11,14 +11,18 @@
             'subtitle' => '',
             'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Voltar ao Dashboard</a><button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>'
         ])
-        <div style="margin: 18px 0 0 0;">
-            <label for="diasAlerta">Exibir alertas para serviços que terminam em até </label>
-            <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias
+        {{-- Toolbar abaixo do header: busca, dias e CTAs --}}
+        <div class="alertas-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form method="GET" action="{{ route('alertas') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="search" name="busca" id="buscaAlertas" class="search-input" placeholder="Pesquise por cliente, plano ou contacto..." style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;">
+                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+            </form>
+            <div style="display:flex;gap:8px;align-items:center">
+                <label for="diasAlerta" style="margin:0 6px 0 0;">Exibir alertas até</label>
+                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="30" style="width:72px;padding:8px;border-radius:12px;border:2px solid #e6a248;">
+                <button id="btnDispararAlertas" class="btn btn-cta" style="font-weight:600;">Disparar</button>
+            </div>
         </div>
-        <div style="margin: 24px 0 0 0; text-align: right;">
-            <button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>
-        </div>
-        <h2 style="margin-top:32px;">Lista de Alertas</h2>
         <div class="alertas-lista" id="alertasLista">
             <p>Nenhum alerta ativo no momento.</p>
         </div>
