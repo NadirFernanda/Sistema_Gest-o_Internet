@@ -462,6 +462,34 @@
   .clientes-toolbar .btn, .planos-toolbar .btn, .alertas-toolbar .btn { padding: 8px 12px !important; }
 }
 
+/* === Force Dashboard textual button style globally === */
+/* Targets buttons that are NOT icon-only so textual labels match Dashboard */
+.btn:not(.btn-icon),
+a.btn:not(.btn-icon),
+button.btn:not(.btn-icon) {
+  background: #f7b500 !important;
+  color: #ffffff !important;
+  font-size: 1.08rem !important;
+  padding: 12px 32px !important;
+  border-radius: 8px !important;
+  min-width: 220px !important;
+  text-align: center !important;
+  border: none !important;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.04) !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+}
+
+/* Preserve ghost/secondary intent when explicitly used via .btn-ghost or .btn-secondary */
+.btn-ghost:not(.btn-icon), .btn-secondary:not(.btn-icon) {
+  background: transparent !important;
+  color: #222 !important;
+  border: 1px solid #e6e6e6 !important;
+}
+
+/* Exclude compact icon-only controls */
+.btn-icon { min-width: 0 !important; }
+
 /* Ensure filtro-top actions stay in one line and buttons have uniform spacing */
 .filtro-top { display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
 .filtro-top .filtro-top-actions { display:flex; gap:12px; align-items:center; }
