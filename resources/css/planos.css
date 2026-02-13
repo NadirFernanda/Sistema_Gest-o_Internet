@@ -55,4 +55,24 @@
 .plan-actions .btn-icon svg{ width:18px; height:18px; }
 .plan-actions .btn-ghost{ border:1px solid var(--gray-200); background:var(--white); color:var(--gray-700); }
 
+/* Ensure action icons on plan cards visually match (filled for primary actions, danger for delete) */
+.plan-actions .btn-icon.btn-warning {
+	background: #f7b500 !important;
+	color: #fff !important;
+	border-color: #f7b500 !important;
+	box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+.plan-actions .btn-icon.btn-danger {
+	background: #ef4444 !important;
+	color: #fff !important;
+	border-color: #ef4444 !important;
+	box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
+}
+.plan-actions .btn-icon.btn-ghost {
+	/* keep ghost neutral but sized like others */
+	background: transparent !important;
+	color: var(--gray-700) !important;
+	border: 1px solid #e6e6e6 !important;
+}
+
 #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
