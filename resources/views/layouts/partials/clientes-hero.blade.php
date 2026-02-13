@@ -19,8 +19,6 @@
             <div class="hero-ctas">
                 @if($heroCtAs)
                     {!! $heroCtAs !!}
-                @else
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
                 @endif
             </div>
             @if($heroSearch)
