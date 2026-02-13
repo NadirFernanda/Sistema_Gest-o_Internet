@@ -461,14 +461,18 @@ a.btn,
 body .btn:not(.btn-icon):not(.btn-back-circle),
 body button:not(.btn-icon):not(.btn-back-circle),
 body a.btn:not(.btn-icon):not(.btn-back-circle) {
-  padding: 4px 10px !important;
-  height: 30px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 12px !important;
+  height: 36px !important;
   line-height: 1 !important;
-  font-size: 0.95rem !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
-  border-radius: 6px !important;
-  box-shadow: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(17,24,39,0.04) !important;
   border-width: 1px !important;
+  text-align: center !important;
 }
 
 /* Ensure CTAs keep a bit more horizontal space but remain thin vertically */
@@ -546,21 +550,25 @@ body .btn-cta, body .btn-primary, .hero-ctas .btn-cta {
   .clientes-toolbar .btn, .planos-toolbar .btn, .alertas-toolbar .btn { padding: 8px 12px !important; }
 }
 
-/* === Force Dashboard textual button style globally === */
-/* Targets buttons that are NOT icon-only so textual labels match Dashboard */
+
+/* Dashboard textual button style — moderate size and centered text
+   Applies to textual buttons while keeping them slim vertically and
+   centered horizontally. Avoid forcing very large fixed widths. */
 .btn:not(.btn-icon),
 a.btn:not(.btn-icon),
 button.btn:not(.btn-icon) {
   background: #f7b500 !important;
   color: #ffffff !important;
-  font-size: 1.08rem !important;
-  padding: 12px 32px !important;
+  font-size: 1rem !important;
+  padding: 8px 16px !important;
   border-radius: 8px !important;
-  min-width: 220px !important;
+  min-width: 110px !important;
   text-align: center !important;
   border: none !important;
-  box-shadow: 0 6px 18px rgba(17,24,39,0.04) !important;
-  display: inline-block !important;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.04) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   white-space: nowrap !important;
 }
 
