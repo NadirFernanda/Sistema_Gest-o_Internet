@@ -30,7 +30,6 @@
             </div>
         </div>
         @if(isset($clientes))
-            <h2>Lista de Clientes</h2>
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
                     <div class="clientes-lista-moderna">
