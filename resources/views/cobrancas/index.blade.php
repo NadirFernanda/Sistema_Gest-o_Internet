@@ -118,8 +118,8 @@
         </div>
         <div class="filtro-actions" style="display:flex;gap:8px;align-items:center;">
             <button type="submit" class="btn btn-primary filtro-btn">Filtrar</button>
-            <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar Filtros</a>
-            <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar Excel</a>
+            <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
+            <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
         </div>
     </form>
     <div class="tabela-cobrancas-moderna">
