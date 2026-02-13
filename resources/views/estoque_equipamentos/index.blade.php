@@ -11,12 +11,24 @@
         'subtitle' => '',
         'stackLeft' => true,
     ])
-        {{-- Toolbar: Dashboard / Cadastrar / Exportar (stacked full-width buttons like design) --}}
-        <div class="estoque-cabecalho-botoes">
-            <div class="estoque-cabecalho-botoes-inner">
-                <a href="{{ route('dashboard') }}" class="btn btn-cta btn-block">Dashboard</a>
-                <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta btn-block">Cadastrar</a>
-                <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta btn-block" target="_blank">Exportar</a>
+        {{-- Toolbar: align with Clientes layout (search left, CTAs right) --}}
+        <div class="clientes-toolbar">
+            <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="clientes-search-form">
+                <input
+                    type="text"
+                    name="busca"
+                    value="{{ request('busca') }}"
+                    placeholder="Pesquisar por nome, modelo ou nº de série..."
+                >
+                <button type="submit" class="busca-planos-btn btn btn-cta">Pesquisar</button>
+                @if(request('busca'))
+                    <a href="{{ route('estoque_equipamentos.index') }}" class="btn-limpar-busca">Limpar</a>
+                @endif
+            </form>
+            <div class="clientes-toolbar-actions">
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
+                <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" target="_blank">Exportar</a>
             </div>
         </div>
     @if(session('success'))
