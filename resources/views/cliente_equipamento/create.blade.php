@@ -31,6 +31,18 @@
                 padding: 6px 12px;
                 font-size: 1rem;
             }
+            /* Custom Select2 highlight: project yellow */
+            .select2-container .select2-results__option--highlighted,
+            .select2-container--open .select2-results__option--highlighted,
+            .select2-container .select2-results__option[aria-selected="true"] {
+                background-color: #f7b500 !important;
+                color: #111827 !important;
+            }
+            /* Ensure hovered option also shows the same style */
+            .select2-container .select2-results__option:hover {
+                background-color: #f7b500 !important;
+                color: #111827 !important;
+            }
         </style>
         @csrf
         <div class="form-group-custom">
