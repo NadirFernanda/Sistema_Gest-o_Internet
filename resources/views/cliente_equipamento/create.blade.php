@@ -243,6 +243,11 @@
         background-color: var(--yellow-500) !important;
         color: #ffffff !important;
     }
+    /* Ensure the first visible option shows as highlighted by default when dropdown opens */
+    .select2-container--open .select2-results__option:first-of-type {
+        background-color: var(--yellow-500) !important;
+        color: #ffffff !important;
+    }
     /* Defensive: ensure dropdown arrow / padding doesn't hide first item */
     .select2-container .select2-results__options { padding: 0 !important; }
 </style>
