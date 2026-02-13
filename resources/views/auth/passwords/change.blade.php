@@ -52,7 +52,6 @@
 
       <div class="form-actions">
         <button class="btn" type="submit">Alterar senha</button>
-        <a href="{{ route('dashboard') }}" class="btn btn-ghost">Ir ao painel</a>
       </div>
     </form>
   </div>
