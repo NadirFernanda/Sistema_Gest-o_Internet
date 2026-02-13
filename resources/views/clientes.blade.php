@@ -13,26 +13,23 @@
                     </div>
                 </div>
                 <div class="hero-right">
-                    <div class="header-controls" style="display:flex;align-items:center;gap:12px;">
-                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline" role="search" aria-label="Pesquisar clientes" style="flex:1;display:flex;gap:8px;align-items:center;">
-                            <input type="text" name="busca" class="search-input" placeholder="Pesquise por nome etc..." value="{{ request('busca') }}" aria-label="Pesquisar" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;">
-                            <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
-                        </form>
-                        <div class="hero-ctas" style="display:flex;gap:8px;">
-                            <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
-                            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                        </div>
-                    </div>
+                    <!-- space reserved for header right (visual only) -->
                 </div>
             </div>
         </header>
 
-        {{-- Se estiver na listagem de clientes --}}
-        @if(isset($clientes))
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-planos-form">
-                <input type="text" name="busca" id="buscaClientes" placeholder="Pesquisar cliente por nome, BI, email ou contato" class="busca-planos-input" value="{{ request('busca') }}">
-                <button type="submit" class="busca-planos-btn">Pesquisar</button>
+        {{-- Barra de ações e busca (abaixo do header) --}}
+        <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="text" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="busca-planos-input" value="{{ request('busca') }}" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;">
+                <button type="submit" class="busca-planos-btn" style="padding:8px 12px;">Pesquisar</button>
             </form>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            </div>
+        </div>
+        @if(isset($clientes))
             <h2>Lista de Clientes</h2>
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
