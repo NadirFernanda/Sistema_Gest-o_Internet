@@ -29,7 +29,7 @@
             value="{{ request('busca') }}"
             placeholder="Pesquisar por nome, modelo ou nº de série..."
         >
-        <button type="submit">Pesquisar</button>
+        <button type="submit" class="btn btn-cta">Pesquisar</button>
         @if(request('busca'))
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn-limpar-busca">Limpar</a>
         @endif
@@ -100,6 +100,7 @@
 .estoque-cabecalho-botoes {
     max-width: 1100px;
     margin: 18px auto 0;
+    margin-bottom: 12px;
     padding: 0 12px;
 }
 .estoque-cabecalho-botoes-inner {
@@ -111,7 +112,7 @@
 .estoque-cabecalho-botoes-inner .btn-block {
     display: block;
     width: 100%;
-    padding: 14px 22px;
+    padding: 12px 18px;
     border-radius: 12px;
     background: #f7b500;
     color: #fff;
