@@ -3,7 +3,7 @@
 @section('content')
     <div style="max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;">
         <h2 style="margin-top:0">Editar Plano: {{ $plano->nome }}</h2>
-        <form action="{{ route('planos.update', $plano->id) }}" method="POST">
+        <form id="formPlano" data-no-ajax="1" action="{{ route('planos.update', $plano->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
