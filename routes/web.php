@@ -18,6 +18,13 @@ Route::get('/', function () {
 
 // Rotas protegidas por auth
 
+// Temporary hotfix: ensure a named route 'planos' exists so cached views
+// calling route('planos') do not throw a RouteNotFoundException.
+// This will be a no-op when the named route is already registered.
+if (! app()->router->has('planos')) {
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
+}
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
