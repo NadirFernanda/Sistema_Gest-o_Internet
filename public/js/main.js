@@ -85,8 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // --- PLANOS ---
-    if (document.getElementById('formPlano')) {
+    // --- PLANOS (legacy) ---
+    // If the Vite bundle is present it registers `window.__refreshPlanos`.
+    // Skip legacy Planos logic when the modern bundle is running to avoid
+    // duplicate rendering (cards vs table).
+    if (typeof window.__refreshPlanos === 'undefined' && document.getElementById('formPlano')) {
         // Preencher select de clientes
         function preencherSelectClientesPlano() {
             const select = document.getElementById('clientePlano');
