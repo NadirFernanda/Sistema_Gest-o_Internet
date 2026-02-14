@@ -29,6 +29,7 @@
             <div class="field">
                 <label for="bi_tipo">Tipo de documento *</label>
                 <select id="bi_tipo" name="bi_tipo" class="select" required>
+                    <option value="">Selecione...</option>
                     <option value="BI" @if(old('bi_tipo')=='BI') selected @endif>BI</option>
                     <option value="NIF" @if(old('bi_tipo')=='NIF') selected @endif>NIF</option>
                     <option value="Outro" @if(old('bi_tipo')=='Outro') selected @endif>Outro</option>
