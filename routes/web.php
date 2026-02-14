@@ -26,7 +26,7 @@ if (! app()->router->has('planos')) {
 }
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
     Route::get('/clientes/create', [\App\Http\Controllers\ClienteController::class, 'create'])
         ->name('clientes.create')
@@ -42,9 +42,12 @@ Route::middleware('auth')->group(function () {
     // Gera uma URL assinada temporária para download sem sessão
     Route::get('/clientes/{cliente}/ficha/signed-url', [\App\Http\Controllers\ClienteController::class, 'createSignedUrl'])->name('clientes.ficha.signed.url');
     
-    // Download latest automatic reports (diario|semanal|mensal) from storage/app/relatorios
-    Route::get('/relatorios/download/{period}', [\App\Http\Controllers\RelatorioController::class, 'download'])
-        ->name('relatorios.download');
+    // Página geral de relatórios multi-aba
+    Route::get('/relatorios-gerais', [\App\Http\Controllers\RelatorioController::class, 'geral'])
+        ->name('relatorios.gerais');
+    // Download dos relatórios automáticos
+    Route::get('/relatorios-gerais/download/{period}', [\App\Http\Controllers\RelatorioController::class, 'download'])
+        ->name('relatorios.gerais.download');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
