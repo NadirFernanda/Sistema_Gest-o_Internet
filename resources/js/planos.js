@@ -105,7 +105,7 @@
             <div id="templatesModal">
                 <div class="modal">
                     <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <h3 style="margin:0">Modelos de Plano</h3>
+                                <h3 style="margin:0">Planos</h3>
                         <div>
                             <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
                         </div>

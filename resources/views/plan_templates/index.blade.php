@@ -2,7 +2,7 @@
 
 @section('content')
   <div class="container">
-    <h1>Modelos de Plano</h1>
+    <h1>Planos</h1>
     <a href="{{ route('plan-templates.create') }}" class="btn btn-primary">Novo Modelo</a>
     <table class="table" style="width:100%; margin-top:16px; border-collapse:collapse;">
       <thead>
