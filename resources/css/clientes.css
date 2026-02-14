@@ -50,6 +50,18 @@
   flex-direction: column;
   gap: 12px;
 }
+  /* Plan meta items are rendered inline (price, cycle, status) */
+  .plan-card .plan-price,
+  .plan-card .plan-cycle,
+  .plan-card .status-badge {
+    display: inline-block;
+    background: transparent !important;
+    color: #111 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
 .plan-card .plan-title { font-weight:700; font-size:1.05rem; color:#111; }
 .plan-card .plan-meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .plan-badge,
