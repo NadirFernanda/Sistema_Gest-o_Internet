@@ -87,18 +87,39 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
-                            <div class="ficha-action-icons" aria-hidden="false">
-                                <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-                                </a>
-                                <a href="#" id="btnMostrarEditar" class="btn-icon btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                                </a>
-                                <button class="btn-icon btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" title="Excluir Cliente" aria-label="Excluir Cliente" style="margin-left:6px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
+                            <!-- Botão único: Compensar Dias -->
+                            <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
+                                Compensar Dias
+                            </button>
                         </div>
+                            <!-- Modal para compensar dias -->
+                            <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
+                                <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
+                                    <h5 style="margin-bottom:18px;">Compensar Dias ao Plano</h5>
+                                    <form id="form-compensar-dias" method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
+                                        @csrf
+                                        <label for="dias_compensados" style="font-weight:600;">Dias a compensar:</label>
+                                        <input type="number" min="1" max="90" name="dias_compensados" id="dias_compensados" class="form-control" style="margin:10px 0 18px 0;width:120px;text-align:center;" required>
+                                        <button type="submit" class="btn btn-primary" style="min-width:120px;">Salvar</button>
+                                        <button type="button" id="fechar-modal-compensar" class="btn btn-ghost" style="margin-left:10px;">Cancelar</button>
+                                    </form>
+                                </div>
+                            </div>
+                    @push('scripts')
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        // Modal logic for Compensar Dias
+                        const btnCompensar = document.getElementById('compensar-dias-btn');
+                        const modal = document.getElementById('modal-compensar-dias');
+                        const fechar = document.getElementById('fechar-modal-compensar');
+                        if(btnCompensar && modal && fechar){
+                            btnCompensar.onclick = () => { modal.style.display = 'flex'; document.getElementById('dias_compensados').focus(); };
+                            fechar.onclick = () => { modal.style.display = 'none'; };
+                            modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+                        }
+                    });
+                    </script>
+                    @endpush
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
