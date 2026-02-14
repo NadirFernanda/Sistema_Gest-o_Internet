@@ -4,7 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Cobranca;
-use App\Exports\CobrancasExport;
+use App\Exports\RelatorioMultiAbaExport;
+use App\Models\Cliente;
+use App\Models\Plano;
+use App\Models\Equipamento;
+use App\Models\EstoqueEquipamento;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -19,15 +23,24 @@ class GerarRelatorioCobrancasDiario extends Command
     {
         $hoje = Carbon::today();
         $cobrancas = Cobranca::whereDate('created_at', $hoje)->get();
-        if ($cobrancas->isEmpty()) {
-            $this->info('Nenhuma cobrança registrada hoje.');
-            return 0;
-        }
-        $fileName = 'relatorio_cobrancas_diario_' . $hoje->format('Y_m_d') . '.xlsx';
+        $clientes = Cliente::all();
+        $planos = Plano::all();
+        $equipamentos = Equipamento::all();
+        $estoque = EstoqueEquipamento::all();
+        // Alertas: planos a vencer nos próximos 7 dias
+        $alertas = Plano::with('cliente')
+            ->where('estado', 'Ativo')
+            ->get()
+            ->filter(function($plano) {
+                if (!$plano->data_ativacao || !$plano->ciclo) return false;
+                $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
+                $diasRestantes = \Carbon\Carbon::today()->diffInDays($dataTermino, false);
+                return $diasRestantes >= 0 && $diasRestantes <= 7;
+            });
+        $fileName = 'relatorio_geral_diario_' . $hoje->format('Y_m_d') . '.xlsx';
         $filePath = 'relatorios/' . $fileName;
-        // Salva o arquivo no storage/app/relatorios
-        Excel::store(new CobrancasExport($cobrancas), $filePath);
-        $this->info('Relatório diário gerado: ' . $filePath);
+        Excel::store(new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas), $filePath);
+        $this->info('Relatório diário multi-aba gerado: ' . $filePath);
         // Opcional: enviar por e-mail
         $email = config('mail.from.address');
         if ($email) {
