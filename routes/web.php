@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/plan-templates/{plan_template}', [\App\Http\Controllers\PlanTemplateController::class, 'destroy'])->name('plan-templates.destroy');
     // JSON endpoint
     Route::get('/plan-templates/{plan_template}/json', [\App\Http\Controllers\PlanTemplateController::class, 'json'])->name('plan-templates.json');
+    // Backwards-compatible endpoints: some older assets request these paths
+    Route::get('/plan-templates/list.json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson']);
     Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 
     // Auditoria de exclusões (admin)

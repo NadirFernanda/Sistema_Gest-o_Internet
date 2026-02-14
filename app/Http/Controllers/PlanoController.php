@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Plano;
+use App\Models\PlanTemplate;
 
 class PlanoController extends Controller
 {
@@ -11,16 +12,41 @@ class PlanoController extends Controller
     {
         \Log::info('PlanoController@store - Request recebido', ['request' => $request->all()]);
         try {
-            $validated = $request->validate([
-                'nome' => 'required|string|max:255',
-                'descricao' => 'required|string',
-                'preco' => 'required|numeric|min:0',
-                'ciclo' => 'required|integer|min:1',
-                'cliente_id' => 'required|exists:clientes,id',
-                'estado' => 'required|string',
-                'data_ativacao' => 'required|date',
-            ]);
-            \Log::info('PlanoController@store - Dados validados', ['validated' => $validated]);
+            // If a template_id is provided, load it and enforce its values server-side.
+            $template = null;
+            if ($request->filled('template_id')) {
+                $template = PlanTemplate::find($request->input('template_id'));
+            }
+
+            if ($template) {
+                // Minimal validation when a template is used (security: template values will be applied server-side)
+                $validated = $request->validate([
+                    'template_id' => 'required|exists:plan_templates,id',
+                    'cliente_id' => 'required|exists:clientes,id',
+                    'estado' => 'required|string',
+                    'data_ativacao' => 'required|date',
+                ]);
+
+                // Overwrite/ensure values come from the template
+                $validated['nome'] = $template->name;
+                $validated['descricao'] = $template->description ?? '';
+                $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
+                $validated['ciclo'] = $template->ciclo;
+                $validated['template_id'] = $template->id;
+            } else {
+                // Full validation when no template is selected
+                $validated = $request->validate([
+                    'nome' => 'required|string|max:255',
+                    'descricao' => 'required|string',
+                    'preco' => 'required|numeric|min:0',
+                    'ciclo' => 'required|integer|min:1',
+                    'cliente_id' => 'required|exists:clientes,id',
+                    'estado' => 'required|string',
+                    'data_ativacao' => 'required|date',
+                ]);
+            }
+
+            \Log::info('PlanoController@store - Dados validados', ['validated' => $validated, 'template_used' => $template ? $template->id : null]);
             // prevent duplicate active plan name for the same client
             try {
                 $exists = Plano::where('cliente_id', $validated['cliente_id'])
@@ -39,7 +65,7 @@ class PlanoController extends Controller
             }
 
             $plano = Plano::create($validated);
-            \Log::info('PlanoController@store - Plano criado', ['plano' => $plano]);
+            \Log::info('PlanoController@store - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
 
             // If this is a regular web form submit (not expecting JSON), redirect
             if (! $request->wantsJson()) {
@@ -151,15 +177,35 @@ class PlanoController extends Controller
     {
         \Log::info('PlanoController@storeWeb - Request recebido', ['request' => $request->all()]);
         try {
-            $validated = $request->validate([
-                'nome' => 'required|string|max:255',
-                'descricao' => 'required|string',
-                'preco' => 'required|numeric|min:0',
-                'ciclo' => 'required|integer|min:1',
-                'cliente_id' => 'required|exists:clientes,id',
-                'estado' => 'required|string',
-                'data_ativacao' => 'required|date',
-            ]);
+            $template = null;
+            if ($request->filled('template_id')) {
+                $template = PlanTemplate::find($request->input('template_id'));
+            }
+
+            if ($template) {
+                $validated = $request->validate([
+                    'template_id' => 'required|exists:plan_templates,id',
+                    'cliente_id' => 'required|exists:clientes,id',
+                    'estado' => 'required|string',
+                    'data_ativacao' => 'required|date',
+                ]);
+
+                $validated['nome'] = $template->name;
+                $validated['descricao'] = $template->description ?? '';
+                $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
+                $validated['ciclo'] = $template->ciclo;
+                $validated['template_id'] = $template->id;
+            } else {
+                $validated = $request->validate([
+                    'nome' => 'required|string|max:255',
+                    'descricao' => 'required|string',
+                    'preco' => 'required|numeric|min:0',
+                    'ciclo' => 'required|integer|min:1',
+                    'cliente_id' => 'required|exists:clientes,id',
+                    'estado' => 'required|string',
+                    'data_ativacao' => 'required|date',
+                ]);
+            }
             // prevent duplicate when submitting from web form
             try {
                 $exists = Plano::where('cliente_id', $validated['cliente_id'])
@@ -177,7 +223,7 @@ class PlanoController extends Controller
             }
 
             $plano = Plano::create($validated);
-            \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano]);
+            \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
             return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();

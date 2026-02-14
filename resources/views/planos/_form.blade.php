@@ -20,6 +20,7 @@
             <select id="templateSelector" class="select" name="template_id">
                 <option value="">-- Usar modelo --</option>
             </select>
+            <div id="templateNote" class="muted" style="margin-top:8px;display:none">Campos travados — valores do modelo serão aplicados. Apenas Data de ativação e Estado podem ser editados.</div>
         </div>
 
         <div>
@@ -150,15 +151,45 @@
                         return r.json();
                     })
                     .then(t => {
-                        if(t.name) document.getElementById('nomePlano').value = t.name;
-                        if(t.description) document.getElementById('descricaoPlano').value = t.description;
+                        const nome = document.getElementById('nomePlano');
+                        const desc = document.getElementById('descricaoPlano');
+                        const precoHidden = document.getElementById('precoPlano');
+                        const precoDisplay = document.getElementById('precoPlanoDisplay');
+                        const ciclo = document.getElementById('cicloPlano');
+                        const estado = document.getElementById('estadoPlano');
+                        const note = document.getElementById('templateNote');
+
+                        if(t.name) nome.value = t.name;
+                        if(t.description) desc.value = t.description;
                         if(t.preco){
-                            document.getElementById('precoPlano').value = Number(t.preco).toFixed(2);
-                            document.getElementById('precoPlanoDisplay').value = 'Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2});
+                            precoHidden.value = Number(t.preco).toFixed(2);
+                            precoDisplay.value = 'Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2});
                         }
-                        if(t.ciclo) document.getElementById('cicloPlano').value = t.ciclo;
-                        if(t.estado) document.getElementById('estadoPlano').value = t.estado;
+                        if(t.ciclo) ciclo.value = t.ciclo;
+                        if(t.estado) estado.value = t.estado;
+
+                        // Lock fields to prevent edits (activation date and estado remain editable)
+                        nome.readOnly = true;
+                        desc.readOnly = true;
+                        precoDisplay.readOnly = true;
+                        ciclo.disabled = true;
+                        if(note) note.style.display = 'block';
                     }).catch(err => { console.error('loadTemplate by id failed', err); });
+            // when user clears the template, re-enable fields
+            tplSelect.addEventListener('change', function(){
+                if(!this.value){
+                    const nome = document.getElementById('nomePlano');
+                    const desc = document.getElementById('descricaoPlano');
+                    const precoDisplay = document.getElementById('precoPlanoDisplay');
+                    const ciclo = document.getElementById('cicloPlano');
+                    const note = document.getElementById('templateNote');
+                    if(nome) nome.readOnly = false;
+                    if(desc) desc.readOnly = false;
+                    if(precoDisplay) precoDisplay.readOnly = false;
+                    if(ciclo) ciclo.disabled = false;
+                    if(note) note.style.display = 'none';
+                }
+            });
             });
             window.loadTemplates();
         })();
