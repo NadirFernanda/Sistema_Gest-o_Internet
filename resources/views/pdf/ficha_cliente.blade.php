@@ -67,7 +67,7 @@
             @if(isset($cliente->planos) && $cliente->planos->count())
                 <table>
                     <thead>
-                        <tr><th>Nº</th><th>Plano</th><th>Ativação</th><th>Ciclo (dias)</th><th>Estado</th></tr>
+                        <tr><th>Nº</th><th>Plano</th><th>Ativação</th><th>Ciclo (dias)</th><th>Dias Compensados</th><th>Estado</th></tr>
                     </thead>
                     <tbody>
                         @foreach($cliente->planos as $pl)
@@ -76,6 +76,18 @@
                             <td>{{ $pl->nome }}</td>
                             <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
                             <td>{{ $pl->ciclo ?? '-' }}</td>
+                            <td>
+                                @php
+                                    // Dias compensados = ciclo atual - ciclo original (se disponível)
+                                    $diasComp = null;
+                                    if(isset($pl->ciclo_original)) {
+                                        $diasComp = $pl->ciclo - $pl->ciclo_original;
+                                    } else {
+                                        $diasComp = $pl->dias_compensados ?? null;
+                                    }
+                                @endphp
+                                {{ ($diasComp && $diasComp > 0) ? $diasComp : '-' }}
+                            </td>
                             <td><span class="badge plan">{{ $pl->estado ?? '-' }}</span></td>
                         </tr>
                         @endforeach
