@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('contato')->nullable();
             $table->string('plano');
-            $table->date('data_ativacao');
+            // $table->date('data_ativacao'); // Removido, só plano precisa
             $table->string('estado')->default('Ativo');
             $table->timestamps();
         });
