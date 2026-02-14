@@ -34,7 +34,6 @@ class RelatorioController extends Controller
         usort($historico, fn($a, $b) => strcmp($b['date'], $a['date']));
         return view('relatorios-gerais', compact('historico'));
     }
-{
     /**
      * Download the latest report file for the given period (diario|semanal|mensal).
      */
