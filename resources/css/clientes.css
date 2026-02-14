@@ -849,3 +849,42 @@ body a.btn:not(.btn-icon):not(.btn-back-circle) {
   font-weight: 400 !important;
 }
 
+/* ================== Wide search input + matching button height ================== */
+/* Makes the search input expand while keeping the 'Pesquisar' button the same height */
+.toolbar-flex .search-wrap,
+.clientes-toolbar .search-wrap,
+.planos-toolbar .search-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.toolbar-flex .search-input,
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input {
+  flex: 1 1 0;
+  min-width: 300px;    /* largura inicial em telas grandes; ajuste conforme necessário */
+  height: 36px;        /* mesma altura que os botões */
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* Garantir que o botão Pesquisar mantenha a mesma altura */
+.toolbar-flex .btn-search,
+.clientes-toolbar .busca-planos-btn,
+.planos-toolbar .btn-search,
+.toolbar-flex .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn {
+  height: 36px;
+  line-height: 1;
+}
+
+@media (max-width:900px){
+  .toolbar-flex .search-input { min-width:140px; width:100%; }
+  .toolbar-flex .btn-search, .clientes-toolbar .busca-planos-btn, .planos-toolbar .btn-search { width:100%; max-width:none; flex: 0 0 auto; }
+}
+
+
