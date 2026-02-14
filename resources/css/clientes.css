@@ -15,7 +15,7 @@
   padding:10px 22px;
   border-radius:10px;
   text-decoration:none;
-  font-weight:700;
+  /* font-weight removido para não ficar negrito */
   box-shadow:0 6px 18px rgba(247,181,0,0.18);
 }
 
