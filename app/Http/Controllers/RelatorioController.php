@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
 class RelatorioController extends Controller
+{
     /**
      * Exibe a página de relatórios gerais multi-aba.
      */
