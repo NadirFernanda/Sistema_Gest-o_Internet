@@ -401,3 +401,48 @@ clientes-lista-moderna .btn-icon:hover {
   transform: translateY(-2px) !important;
 }
  
+/* ===== Proposed toolbar sizing: fixed-width 'Pesquisar' button + flexible input ===== */
+/* Input expands; search button keeps a consistent width to match the model */
+.toolbar-flex .search-wrap,
+.clientes-toolbar .search-wrap,
+.planos-toolbar .search-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.toolbar-flex .search-input,
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input {
+  flex: 1 1 auto;
+  min-width: 140px;
+  max-width: none;
+}
+
+/* Botão Pesquisar com largura fixa e consistente */
+.toolbar-flex .btn-search,
+.clientes-toolbar .busca-planos-btn,
+.planos-toolbar .btn-search {
+  flex: 0 0 180px; /* ajuste este valor conforme preferir (ex.: 140px, 160px) */
+  max-width: 180px;
+  white-space: nowrap;
+}
+
+/* Ensure general toolbar buttons keep visual consistency */
+.toolbar-flex .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width:900px){
+  .toolbar-flex{ flex-direction:column; align-items:stretch; }
+  .toolbar-flex .btn-search, .clientes-toolbar .busca-planos-btn, .planos-toolbar .btn-search { width:100%; max-width:none; flex: 0 0 auto; }
+}
+
+ 

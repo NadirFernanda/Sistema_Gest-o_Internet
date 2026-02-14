@@ -16,6 +16,14 @@
         @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:0; } }
         /* Add breathing room between the search bar and the plan cards */
         #planosLista .plan-grid { margin-top: 18px; display:flex; gap:18px; flex-wrap:wrap; align-items:stretch; }
+          /* Immediate override to force inline alignment of plan meta items
+              Uses high-specificity selectors and !important so it takes effect
+              even if other CSS files are loaded later. */
+          #planosLista .plan-card .plan-meta { display:flex !important; gap:12px !important; align-items:center !important; flex-wrap:nowrap !important; }
+          #planosLista .plan-card .plan-meta > .plan-price,
+          #planosLista .plan-card .plan-meta > .plan-cycle { display:inline-flex !important; align-items:center !important; line-height:1 !important; margin:0 8px 0 0 !important; padding:0 !important; }
+          /* hide any remaining status badges inside cards (status shown in details only) */
+          #planosLista .plan-card .status-badge { display:none !important; visibility:hidden !important; }
     </style>
 @endpush
 
