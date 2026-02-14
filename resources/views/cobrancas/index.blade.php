@@ -2,7 +2,7 @@
 
 @section('content')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
     <link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">
 @endpush
 
@@ -11,26 +11,28 @@
     @include('layouts.partials.clientes-hero', [
         'title' => 'Relatório de Cobranças',
         'subtitle' => '',
-        'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-secondary">Voltar ao Dashboard</a><a href="' . route('cobrancas.create') . '" class="btn btn-primary">Nova Cobrança</a>'
     ])
+
+    <!-- toolbar removed here: buttons will be placed above the filter fields inside the filter box -->
+
     <style>
     .filtro-modern-cobranca {
         background: #f8f8f8;
         border-radius: 12px;
-        padding: 18px 18px 10px 18px;
-        margin-bottom: 32px;
+        padding: 14px 14px 10px 14px;
+        margin-bottom: 24px;
         box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         display: flex;
         flex-wrap: wrap;
-        gap: 18px 24px;
+        gap: 12px 14px;
         align-items: flex-end;
         justify-content: flex-start;
     }
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        min-width: 180px;
-        flex: 1 1 220px;
+        min-width: 120px;
+        flex: 1 1 140px;
     }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
@@ -59,9 +61,9 @@
         color: #fff;
         border: none;
         border-radius: 10px;
-        font-size: 1.1rem;
-        padding: 10px 0;
-        min-width: 140px;
+        font-size: 1rem;
+        padding: 8px 12px;
+        min-width: 88px;
         margin-top: 0;
         box-shadow: 0 2px 8px rgba(247,181,0,0.08);
         transition: background 0.2s;
@@ -80,6 +82,15 @@
     }
     </style>
     <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
+        <div class="filtro-top" style="display:flex;align-items:center;width:100%;margin-bottom:12px;gap:12px;flex-wrap:nowrap;">
+            <div class="filtro-top-actions" style="display:flex;gap:12px;align-items:center;">
+                <button type="button" id="filtrar-btn" class="btn btn-primary filtro-btn">Filtrar</button>
+                <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
+                <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
+            </div>
+        </div>
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
             <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
@@ -109,9 +120,7 @@
             <label for="data_pagamento">Data de Pagamento</label>
             <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
         </div>
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <button type="button" class="btn btn-secondary" style="margin-left:8px;min-width:120px" onclick="window.location='{{ route('cobrancas.index') }}'">Limpar Filtros</button>
-        <a href="{{ route('cobrancas.export', request()->all()) }}" class="btn btn-success" style="margin-left:8px;min-width:140px;color:#fff;" target="_blank">Exportar Excel</a>
+        <!-- ações de filtro agora ficam na toolbar acima (botão Filtrar submete o formulário via JS) -->
     </form>
     <div class="tabela-cobrancas-moderna">
     <table class="table table-bordered table-striped mt-4">
@@ -160,13 +169,21 @@
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('cobrancas.show', $cobranca->id) }}" class="btn btn-sm btn-info" title="Ver Detalhes"><i class="fas fa-eye"></i> Detalhes</a>
-                        <a href="{{ route('cobrancas.edit', $cobranca->id) }}" class="btn btn-sm btn-warning" title="Editar"><i class="fas fa-edit"></i> Editar</a>
-                        <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-sm btn-success" title="Comprovante PDF" target="_blank"><i class="fas fa-file-pdf"></i> Comprovante</a>
+                        <a href="{{ route('cobrancas.show', $cobranca->id) }}" class="btn-icon btn-ghost" title="Ver Detalhes" aria-label="Ver Detalhes">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                        <a href="{{ route('cobrancas.edit', $cobranca->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                        </a>
+                        <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn-icon btn-success" title="Comprovante PDF" target="_blank" aria-label="Comprovante PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13h4"/><path d="M10 17h4"/></svg>
+                        </a>
                         <form action="{{ route('cobrancas.destroy', $cobranca->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Tem certeza que deseja remover esta cobrança?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" title="Remover"><i class="fas fa-trash"></i> Remover</button>
+                            <button type="submit" class="btn-icon btn-danger" title="Remover" aria-label="Remover" onclick="return confirm('Tem certeza que deseja remover esta cobrança?');">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -266,5 +283,31 @@
     }
     </style>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const exportBtn = document.getElementById('export-excel');
+    if(!exportBtn) return;
+    const form = document.querySelector('form.filtro-modern-cobranca');
+    const exportBase = exportBtn.getAttribute('href');
+    exportBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        if(!form){
+            window.open(exportBase, '_blank');
+            return;
+        }
+        const params = new URLSearchParams(new FormData(form)).toString();
+        const url = params ? (exportBase + '?' + params) : exportBase;
+        window.open(url, '_blank');
+    });
+
+    // Filtrar (botão dentro do formulário): submete o formulário
+    const filtrarBtn = document.getElementById('filtrar-btn');
+    if(filtrarBtn && form){
+        filtrarBtn.addEventListener('click', function(){
+            form.submit();
+        });
+    }
+});
+</script>
 </div>
 @endsection

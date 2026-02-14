@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="clientes-container">
-        <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
         <header class="clientes-hero modern-hero">
             <div class="hero-inner">
                 <div class="hero-left">
@@ -13,27 +13,23 @@
                     </div>
                 </div>
                 <div class="hero-right">
-                    <div class="hero-ctas">
-                        <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                        <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar Cliente</a>
-                    </div>
-                    <div class="search-inline">
-                        <form method="GET" action="{{ url('/clientes') }}" class="search-form-inline" role="search" aria-label="Pesquisar clientes">
-                            <input type="text" name="busca" class="search-input" placeholder="Pesquisar por nome, BI, email ou contato" value="{{ request('busca') }}" aria-label="Pesquisar">
-                            <button type="submit" class="btn btn-search">Buscar</button>
-                        </form>
-                    </div>
+                    <!-- space reserved for header right (visual only) -->
                 </div>
             </div>
         </header>
 
-        {{-- Se estiver na listagem de clientes --}}
-        @if(isset($clientes))
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="busca-planos-form">
-                <input type="text" name="busca" id="buscaClientes" placeholder="Pesquisar cliente por nome, BI, email ou contato" class="busca-planos-input" value="{{ request('busca') }}">
-                <button type="submit" class="busca-planos-btn">Pesquisar</button>
+        {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
+        <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;">
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
             </form>
-            <h2>Lista de Clientes</h2>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            </div>
+        </div>
+        @if(isset($clientes))
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
                     <div class="clientes-lista-moderna">
@@ -41,19 +37,26 @@
                         <div class="cliente-item-moderna">
                             <div class="cliente-info-moderna">
                                 <span class="cliente-nome">{{ $c->nome }}</span>
-                                <span class="cliente-bi"><strong>BI/NIF:</strong> {{ $c->bi ?? '-' }}</span>
+                                <span class="cliente-bi">{{ $c->bi ?? '-' }}</span>
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
-                            <div class="cliente-botoes-moderna">
-                                <a href="{{ route('clientes.show', $c->id) }}" class="btn btn-sm btn-primary">Ver Ficha</a>
-                                <div class="actions-dropdown">
-                                    <button type="button" class="btn btn-sm btn-secondary actions-toggle" aria-expanded="false" aria-controls="actions-{{ $c->id }}">⋯</button>
-                                    <ul id="actions-{{ $c->id }}" class="actions-menu" hidden>
-                                        <li><a href="{{ route('clientes.ficha', $c->id) }}" class="actions-link">Ficha (PDF)</a></li>
-                                        <li><a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="actions-link">Editar</a></li>
-                                        <li><button type="button" class="actions-link btn-danger actions-delete" data-id="{{ $c->id }}">Excluir</button></li>
-                                    </ul>
-                                </div>
+                            <div class="cliente-botoes-moderna" style="white-space:nowrap;">
+                                <a href="{{ route('clientes.show', $c->id) }}" class="btn-icon btn-warning" title="Ver Ficha" aria-label="Ver Ficha">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
+                                <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn-icon btn-warning" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                </a>
+                                <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn-icon btn-warning" title="Editar" aria-label="Editar" style="margin-left:6px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                </a>
+                                <form action="{{ route('clientes.destroy', $c->id) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon btn-danger" title="Excluir" aria-label="Excluir" onclick="return confirm('Excluir cliente?')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                         @endforeach
@@ -69,36 +72,35 @@
         @if(isset($cliente))
 
             {{-- Modernized ficha (card + actions) --}}
-            <div class="ficha-toolbar no-print" style="text-align:center;margin-bottom:12px;">
-                <a href="{{ route('clientes.ficha.pdf', $cliente->id) }}" class="btn ficha-download">Download PDF</a>
-            </div>
-
             <div class="ficha-cliente" style="margin-top:12px;">
                 <div class="ficha-card" style="max-width:980px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#fff9eb, #fffbe7);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
-                            <a href="{{ route('clientes') }}" class="btn ficha-btn ficha-btn-ghost">Voltar à Lista</a>
-                            <a href="#" id="btnMostrarEditar" class="btn ficha-btn ficha-btn-edit">Editar Cliente</a>
-                            <button class="btn ficha-btn ficha-btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}">Excluir Cliente</button>
+                            <div class="ficha-action-icons" aria-hidden="false">
+                                <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                                </a>
+                                <a href="#" id="btnMostrarEditar" class="btn-icon btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                </a>
+                                <button class="btn-icon btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" title="Excluir Cliente" aria-label="Excluir Cliente" style="margin-left:6px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;align-items:center">
-                            <div style="text-align:center"><strong>BI/NIF:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->bi ?? '-' }}</div></div>
+                            <div style="text-align:center"><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->bi ?? '-' }}</div></div>
                             <div style="text-align:center"><strong>Nome:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->nome }}</div></div>
                             <div style="text-align:center"><strong>Email:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->email ?? '-' }}</div></div>
                             <div style="text-align:center"><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->contato ?? '-' }}</div></div>
                         </div>
                     </div>
                     {{-- estilos movidos para resources/css/clientes.css (importados via resources/css/app.css) --}}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
-                        <div><strong>BI/NIF:</strong><div style="margin-top:6px">{{ $cliente->bi ?? '-' }}</div></div>
-                        <div><strong>Nome:</strong><div style="margin-top:6px">{{ $cliente->nome }}</div></div>
-                        <div><strong>Email:</strong><div style="margin-top:6px">{{ $cliente->email ?? '-' }}</div></div>
-                        <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">{{ $cliente->contato ?? '-' }}</div></div>
-                    </div>
+                    <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
                 <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
@@ -183,9 +185,6 @@
                     transform: translateY(6px);
                 }
                 </style>
-                <a href="{{ route('clientes') }}" class="btn btn-secondary">Voltar à Lista</a>
-                <a href="#" id="btnMostrarEditar" class="btn btn-warning" style="margin-left:8px;">Editar Cliente</a>
-                <button class="btn btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" style="margin-left:8px;">Excluir Cliente</button>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
                 @php
@@ -256,11 +255,15 @@
                                         <td>{{ $v->ponto_referencia ?? '-' }}</td>
                                         <td>{{ $v->quantidade ?? 1 }}</td>
                                         <td>
-                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn btn-sm btn-warning">Editar</a>
-                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block;">
+                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                            </a>
+                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja remover este equipamento?')">Eliminar</button>
+                                                <button type="submit" class="btn-icon btn-danger" title="Eliminar" aria-label="Eliminar" onclick="return confirm('Tem certeza que deseja remover este equipamento?')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
                                             </form>
                                         </td>
                                     </tr>
@@ -475,7 +478,7 @@
                         if (clienteDadosBlock) {
                             clienteDadosBlock.innerHTML = `
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:center">
-                                    <div><strong>BI/NIF:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.bi || '-')}</div></div>
+                                    <div><div style="margin-top:6px">${escapeHtml(data.cliente.bi || '-')}</div></div>
                                     <div><strong>Nome:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.nome || '-')}</div></div>
                                     <div><strong>Email:</strong><div style="margin-top:6px">${escapeHtml(data.cliente.email || '-')}</div></div>
                                     <div><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px">${escapeHtml(data.cliente.contato || '-')}</div></div>

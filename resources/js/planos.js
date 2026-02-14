@@ -1,5 +1,8 @@
 // JS extracted from planos.blade.php — runs in browser when bundled by Vite
 (function(){
+    // CSRF token from meta tag (used by rendered delete forms)
+    const _meta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = _meta ? _meta.getAttribute('content') : '';
     // Price display handling
     (function(){
         const display = document.getElementById('precoPlanoDisplay');
@@ -47,7 +50,8 @@
     // Templates loader and modal (depends on window.planosConfig)
     (function(){
         if(typeof window.planosConfig === 'undefined') window.planosConfig = {};
-        const planTemplatesListUrl = window.planosConfig.planTemplatesList || '/plan-templates/list.json';
+        // correct default URL: route is '/plan-templates-list-json' (see routes/web.php)
+        const planTemplatesListUrl = window.planosConfig.planTemplatesList || '/plan-templates-list-json';
         const planTemplatesBase = window.planosConfig.planTemplatesBase || '/plan-templates';
 
         const tplSelect = document.getElementById('templateSelector');
@@ -101,14 +105,20 @@
             <div id="templatesModal">
                 <div class="modal">
                     <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <h3 style="margin:0">Modelos de Plano</h3>
-                        <div>
-                            <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
-                        </div>
+                        <h3 style="margin:0">Planos</h3>
                     </div>
+                    <style>
+                      /* Modal-specific toolbar: three equal buttons inline */
+                      #templatesModal .controls { display:flex !important; gap:12px !important; margin-bottom:12px !important; }
+                      #templatesModal .controls .ctrl-btn { flex:1 !important; padding:10px 12px !important; height:44px !important; border-radius:8px !important; font-weight:700 !important; text-align:center !important; }
+                      #templatesModal .controls .ctrl-btn.positive { background:#f7b500 !important; color:#fff !important; box-shadow:0 6px 18px rgba(247,181,0,0.18) !important; border:0 !important; }
+                      #templatesModal .controls .ctrl-btn.ghost { background:transparent !important; border:1px solid #e6e6e6 !important; color:#222 !important; }
+                      @media (max-width:640px){ #templatesModal .controls { flex-direction:column; } }
+                    </style>
                     <div class="controls">
-                        <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#fff;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
-                        <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
+                        <button id="newTemplateBtn" class="ctrl-btn positive">Novo Plano</button>
+                        <button id="reloadTemplatesBtn" class="ctrl-btn">Recarregar</button>
+                        <button id="closeTemplatesModalBottom" class="ctrl-btn ghost">Fechar</button>
                     </div>
                     <div id="templatesListContainer"><em>Carregando...</em></div>
                     <div id="templateFormContainer" style="margin-top:12px; display:none;"></div>
@@ -139,9 +149,24 @@
             function renderList(list){
                 if(!list.length){ listContainer.innerHTML = '<div class="muted" style="padding:8px 0">Nenhum modelo cadastrado.</div>'; return; }
                 let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="width:170px"></th></tr></thead><tbody>';
-                list.forEach(t => {
-                    html += `<tr data-id="${t.id}"><td>${escapeHtml(t.name)}</td><td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td><td>${t.ciclo||''}</td><td>${t.estado||''}</td><td><div class="template-actions"><button class="editBtn" data-id="${t.id}">Editar</button><button class="delBtn" data-id="${t.id}">Apagar</button></div></td></tr>`;
-                });
+                                list.forEach(t => {
+                                        html += `<tr data-id="${t.id}">` +
+                                                        `<td>${escapeHtml(t.name)}</td>` +
+                                                        `<td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td>` +
+                                                        `<td>${t.ciclo||''}</td>` +
+                                                        `<td>${t.estado||''}</td>` +
+                                                        `<td style="text-align:right">` +
+                                                            `<div class="template-actions">` +
+                                                                `<button class="editBtn btn-icon btn-warning" data-id="${t.id}" title="Editar" aria-label="Editar Plano">` +
+                                                                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>` +
+                                                                `</button>` +
+                                                                `<button class="delBtn btn-icon btn-danger" data-id="${t.id}" title="Apagar" aria-label="Apagar Plano">` +
+                                                                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>` +
+                                                                `</button>` +
+                                                            `</div>` +
+                                                        `</td>` +
+                                                    `</tr>`;
+                                });
                 html += '</tbody></table></div>';
                 listContainer.innerHTML = html;
                 listContainer.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', e => showEditForm(e.target.getAttribute('data-id'))));
@@ -216,16 +241,17 @@
             if(manageBtn){ manageBtn.addEventListener('click', function(e){ e.preventDefault(); if(modal) modal.style.display = 'flex'; loadList(); }); }
             const refreshBtnEl = document.getElementById('refreshTemplatesBtn');
             if(refreshBtnEl) refreshBtnEl.addEventListener('click', loadTemplates);
-            if(modal){
+                if(modal){
                 const reloadBtn = modal.querySelector('#reloadTemplatesBtn'); if(reloadBtn) reloadBtn.addEventListener('click', loadList);
                 const newBtn = modal.querySelector('#newTemplateBtn'); if(newBtn) newBtn.addEventListener('click', showCreateForm);
+                const closeBottom = modal.querySelector('#closeTemplatesModalBottom'); if(closeBottom) closeBottom.addEventListener('click', function(){ modal.style.display = 'none'; });
             }
 
             // backdrop / close handlers
             if(modal){
                 modal.addEventListener('click', function(e){
-                    if(e.target && e.target.id === 'templatesModal') return (modal.style.display = 'none');
-                    if(e.target && e.target.id === 'closeTemplatesModal') return (modal.style.display = 'none');
+                        if(e.target && e.target.id === 'templatesModal') return (modal.style.display = 'none');
+                        if(e.target && (e.target.id === 'closeTemplatesModal' || e.target.id === 'closeTemplatesModalBottom')) return (modal.style.display = 'none');
                     const newBtn = e.target.closest && e.target.closest('#newTemplateBtn'); if(newBtn) return showCreateForm();
                     const reloadBtn = e.target.closest && e.target.closest('#reloadTemplatesBtn'); if(reloadBtn) return loadList();
                 });
@@ -257,18 +283,27 @@
                 const preco = p.preco ? ('Kz ' + Number(p.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2})) : '';
                 const estadoClass = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) ? 'ativo' : 'inativo';
                 html += `
-                    <article class="plan-card" data-id="${p.id}">
-                        <div class="plan-title">${esc(p.nome||p.name||'')}</div>
-                        <div class="plan-meta">
-                            <div class="plan-badge plan-price">${esc(preco)}</div>
-                            <div class="plan-badge plan-cycle">${esc(p.ciclo||'')}</div>
-                            <div style="margin-left:auto"><small class="status-badge ${estadoClass}">${esc(p.estado||'')}</small></div>
-                        </div>
-                        <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
-                        <div class="plan-actions">
-                            <a href="/planos/${p.id}" class="btn btn-sm">Ver</a>
-                            <a href="/planos/${p.id}/edit" class="btn btn-sm">Editar</a>
-                            <button class="btn btn-sm btn-remove" data-id="${p.id}">Apagar</button>
+                        <article class="plan-card" data-id="${p.id}">
+                            <div class="plan-title">${esc(p.nome||p.name||'')}</div>
+                            <div class="plan-meta">
+                                <span class="plan-price">${esc(preco)}</span>
+                                <span class="plan-cycle">${esc(p.ciclo||'')}</span>
+                            </div>
+                            <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
+                            <div class="plan-actions">
+                                     <a href="/planos/${p.id}" class="btn-icon btn-ghost" title="Ver" aria-label="Ver Plano">
+                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                     </a>
+                                           <a href="/planos/${p.id}/edit" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                               </a>
+                               <form action="/planos/${p.id}" method="POST" style="display:inline-block; margin-left:6px;">
+                                   <input type="hidden" name="_token" value="${csrfToken}">
+                                   <input type="hidden" name="_method" value="DELETE">
+                                   <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Apagar plano?')">
+                                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                   </button>
+                               </form>
                         </div>
                     </article>`;
             });
@@ -318,6 +353,14 @@
         input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim()); } });
         if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate(''); }); }
         if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim()); }); }
+
+        // Expose a debug helper to manually refresh planos from console and
+        // perform an initial load so the list shows on page load.
+        try{
+            window.__refreshPlanos = function(){ try{ fetchAndUpdate(''); }catch(_){ } };
+            // Initial fetch to populate the list when page loads
+            fetchAndUpdate('');
+        }catch(_){ }
     })();
 
     // Auto-open create form when returning with success flash
@@ -364,7 +407,7 @@
             const clienteSelect = document.getElementById('clientePlano');
             if(!clienteSelect) return;
             const url = (window.planosConfig && window.planosConfig.clientesJson) ? window.planosConfig.clientesJson : '/clientes';
-            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
                 .then(response => response.ok ? response.json() : Promise.reject())
                 .then(list => {
                     const items = Array.isArray(list) ? list : (list.data || []);

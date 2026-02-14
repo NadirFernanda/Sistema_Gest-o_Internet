@@ -21,12 +21,38 @@ class PlanoController extends Controller
                 'data_ativacao' => 'required|date',
             ]);
             \Log::info('PlanoController@store - Dados validados', ['validated' => $validated]);
+            // prevent duplicate active plan name for the same client
+            try {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->where('ativo', true)
+                    ->exists();
+            } catch (\Exception $e) {
+                // if the 'ativo' column doesn't exist or another DB issue, fallback to safer check
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->exists();
+            }
+            if ($exists) {
+                \Log::warning('PlanoController@store - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
+                return response()->json(['error' => 'Já existe um plano ativo com esse nome para este cliente.'], 409);
+            }
+
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano]);
-            \Log::info('PlanoController@store - Resposta enviada', ['response' => ['success' => true, 'plano' => $plano]]);
+
+            // If this is a regular web form submit (not expecting JSON), redirect
+            if (! $request->wantsJson()) {
+                return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
+            }
+
+            \Log::info('PlanoController@store - Resposta enviada (JSON)', ['response' => ['success' => true, 'plano' => $plano]]);
             return response()->json(['success' => true, 'plano' => $plano], 201)
                 ->header('Content-Type', 'application/json');
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if (! $request->wantsJson()) {
+                return back()->withErrors($e->errors())->withInput();
+            }
             return response()->json(['error' => 'Erro de validação', 'details' => $e->errors()], 422);
         } catch (\Exception $e) {
             \Log::error('PlanoController@store - Erro ao cadastrar plano', [
@@ -34,7 +60,10 @@ class PlanoController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
-            \Log::info('PlanoController@store - Resposta enviada', ['response' => ['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()]]);
+            \Log::info('PlanoController@store - Resposta enviada (erro)', ['response' => ['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()]]);
+            if (! $request->wantsJson()) {
+                return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
+            }
             return response()->json(['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()], 500);
         }
     }
@@ -107,6 +136,11 @@ class PlanoController extends Controller
         ]);
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
+        // If this request is a normal web form submit, redirect to the show page
+        if (! $request->wantsJson()) {
+            return redirect()->route('planos.show', $plano->id)->with('success', 'Plano atualizado com sucesso.');
+        }
+
         return response()->json(['success' => true, 'plano' => $plano]);
     }
 
@@ -126,14 +160,59 @@ class PlanoController extends Controller
                 'estado' => 'required|string',
                 'data_ativacao' => 'required|date',
             ]);
+            // prevent duplicate when submitting from web form
+            try {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->where('ativo', true)
+                    ->exists();
+            } catch (\Exception $e) {
+                $exists = Plano::where('cliente_id', $validated['cliente_id'])
+                    ->where('nome', $validated['nome'])
+                    ->exists();
+            }
+            if ($exists) {
+                \Log::warning('PlanoController@storeWeb - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
+                return back()->with('error', 'Já existe um plano ativo com esse nome para este cliente.')->withInput();
+            }
+
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano]);
-            return redirect()->route('planos')->with('success', 'Plano cadastrado com sucesso.');
+            return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('PlanoController@storeWeb - Erro ao cadastrar plano', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
         }
+    }
+
+    /**
+     * Web view: show single plano in a simple page
+     */
+    public function webShow($id)
+    {
+        $plano = Plano::with('cliente')->findOrFail($id);
+        return view('planos.show', compact('plano'));
+    }
+
+    /**
+     * Web view: edit form for plano
+     */
+    public function editWeb($id)
+    {
+        $plano = Plano::findOrFail($id);
+        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        return view('planos.edit', compact('plano','clientes'));
+    }
+
+    /**
+     * Web destroy (handle form DELETE)
+     */
+    public function destroyWeb($id)
+    {
+        $plano = Plano::findOrFail($id);
+        $plano->delete();
+        return redirect()->route('planos.index')->with('success', 'Plano removido.');
     }
 }

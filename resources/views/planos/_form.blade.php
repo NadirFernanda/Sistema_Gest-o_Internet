@@ -1,4 +1,4 @@
-<form id="formPlano" class="form-cadastro" method="POST" action="{{ route('planos.store') }}">
+<form id="formPlano" class="form-cadastro" method="POST" action="{{ route('planos.store') }}" onsubmit="return true;" data-no-ajax="1">
     @csrf
 
     <style>
@@ -127,7 +127,10 @@
             if(!tplSelect) return;
             window.loadTemplates = function(){
                 fetch('{{ route('plan-templates.list.json') }}')
-                    .then(r => r.json())
+                    .then(r => {
+                        if(!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
                     .then(list => {
                         tplSelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
                         list.forEach(t => {
@@ -136,21 +139,26 @@
                             opt.textContent = t.name + (t.preco ? ' — Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2}) : '');
                             tplSelect.appendChild(opt);
                         });
-                    }).catch(()=>{});
+                    }).catch(err => { console.error('loadTemplates failed', err); });
             };
             tplSelect.addEventListener('change', function(){
                 const id = this.value;
                 if(!id) return;
-                fetch(`/plan-templates/${id}/json`).then(r => r.json()).then(t => {
-                    if(t.name) document.getElementById('nomePlano').value = t.name;
-                    if(t.description) document.getElementById('descricaoPlano').value = t.description;
-                    if(t.preco){
-                        document.getElementById('precoPlano').value = Number(t.preco).toFixed(2);
-                        document.getElementById('precoPlanoDisplay').value = 'Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    }
-                    if(t.ciclo) document.getElementById('cicloPlano').value = t.ciclo;
-                    if(t.estado) document.getElementById('estadoPlano').value = t.estado;
-                }).catch(()=>{});
+                fetch(`/plan-templates/${id}/json`)
+                    .then(r => {
+                        if(!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(t => {
+                        if(t.name) document.getElementById('nomePlano').value = t.name;
+                        if(t.description) document.getElementById('descricaoPlano').value = t.description;
+                        if(t.preco){
+                            document.getElementById('precoPlano').value = Number(t.preco).toFixed(2);
+                            document.getElementById('precoPlanoDisplay').value = 'Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2});
+                        }
+                        if(t.ciclo) document.getElementById('cicloPlano').value = t.ciclo;
+                        if(t.estado) document.getElementById('estadoPlano').value = t.estado;
+                    }).catch(err => { console.error('loadTemplate by id failed', err); });
             });
             window.loadTemplates();
         })();

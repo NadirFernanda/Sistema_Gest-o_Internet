@@ -2,23 +2,25 @@
 
 @section('content')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
 @endpush
 
     <div class="alertas-container">
         @include('layouts.partials.clientes-hero', [
             'title' => 'Alertas Ativos',
-            'subtitle' => '',
-            'heroCtAs' => '<a href="' . route('dashboard') . '" class="btn btn-ghost">Voltar ao Dashboard</a><button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>'
+            'subtitle' => ''
         ])
-        <div style="margin: 18px 0 0 0;">
-            <label for="diasAlerta">Exibir alertas para serviços que terminam em até </label>
-            <input type="number" id="diasAlerta" value="5" min="1" max="30" style="width:60px;"> dias
+        {{-- Toolbar abaixo do header: busca, dias e CTAs --}}
+        <div class="alertas-toolbar">
+            <div class="alertas-toolbar-left">
+                <label for="diasAlerta">Exibir alertas até</label>
+                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="30" class="dias-input">
+            </div>
+            <div class="alertas-toolbar-actions">
+                <button id="btnDispararAlertas" class="btn btn-cta">Disparar</button>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            </div>
         </div>
-        <div style="margin: 24px 0 0 0; text-align: right;">
-            <button id="btnDispararAlertas" class="btn btn-primary" style="font-weight:600;">Disparar Alertas</button>
-        </div>
-        <h2 style="margin-top:32px;">Lista de Alertas</h2>
         <div class="alertas-lista" id="alertasLista">
             <p>Nenhum alerta ativo no momento.</p>
         </div>

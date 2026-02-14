@@ -33,6 +33,15 @@ class ClienteEquipamentoController extends Controller
             'morada' => 'required|string|max:255',
             'ponto_referencia' => 'required|string|max:255',
         ]);
+        // check estoque availability
+        $estoque = EstoqueEquipamento::find($request->estoque_equipamento_id);
+        if (!$estoque) {
+            return back()->withErrors(['estoque_equipamento_id' => 'Equipamento inválido.'])->withInput();
+        }
+        if ($request->quantidade > $estoque->quantidade) {
+            return back()->withErrors(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
+        }
+
         ClienteEquipamento::create([
             'cliente_id' => $clienteId,
             'estoque_equipamento_id' => $request->estoque_equipamento_id,
@@ -70,6 +79,15 @@ class ClienteEquipamentoController extends Controller
             'morada' => 'required|string|max:255',
             'ponto_referencia' => 'required|string|max:255',
         ]);
+        // check estoque availability
+        $estoque = EstoqueEquipamento::find($request->estoque_equipamento_id);
+        if (!$estoque) {
+            return back()->withErrors(['estoque_equipamento_id' => 'Equipamento inválido.'])->withInput();
+        }
+        if ($request->quantidade > $estoque->quantidade) {
+            return back()->withErrors(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
+        }
+
         $vinculo = ClienteEquipamento::findOrFail($vinculoId);
         $vinculo->update([
             'estoque_equipamento_id' => $request->estoque_equipamento_id,

@@ -33,10 +33,10 @@
         .section-title { font-weight:700; margin:8px 0 10px; text-align:left; }
         .muted { color:var(--muted); font-size:0.9rem; }
         /* Badges */
-        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#222; background:#ffc107; }
-        .badge-cobrancas { background:#ffc107; }
-        .badge-cobrancas.pago { background:#28a745; color:#fff; }
-        .badge-cobrancas.pendente { background:#ffc107; color:#222; }
+        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#111; background: transparent; }
+        .badge-cobrancas { background: transparent; }
+        .badge-cobrancas.pago { background: transparent; color:#111; }
+        .badge-cobrancas.pendente { background: transparent; color:#111; }
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
@@ -47,7 +47,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
                     <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Voltar ao Dashboard
+                Dashboard
             </a>
 
             <!-- Compact secondary actions removed as per UI change -->

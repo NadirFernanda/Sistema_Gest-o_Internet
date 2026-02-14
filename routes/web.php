@@ -18,6 +18,13 @@ Route::get('/', function () {
 
 // Rotas protegidas por auth
 
+// Temporary hotfix: ensure a named route 'planos' exists so cached views
+// calling route('planos') do not throw a RouteNotFoundException.
+// This will be a no-op when the named route is already registered.
+if (! app()->router->has('planos')) {
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
+}
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
@@ -41,11 +48,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
+    // Backwards-compatible alias: some views/compiled templates reference "planos.index"
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
         ->name('planos.store')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.create');
     // Show the create form for planos on a separate page
     Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create');
+    // Web routes for individual planos (prevent 404s from card actions)
+    Route::get('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'webShow'])->name('planos.show')->whereNumber('plano');
+    Route::get('/planos/{plano}/edit', [\App\Http\Controllers\PlanoController::class, 'editWeb'])->name('planos.edit')->whereNumber('plano');
+    Route::put('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'update'])->name('planos.update')->whereNumber('plano')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.edit');
+    Route::delete('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'destroyWeb'])->name('planos.destroy')->whereNumber('plano')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.delete');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
     // Relatório e cadastro de cobranças
@@ -98,6 +112,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos/create', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'create'])->name('estoque_equipamentos.create');
     Route::post('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'store'])->name('estoque_equipamentos.store');
 
+    Route::get('/estoque-equipamentos/{equipamento}/edit', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'edit'])->name('estoque_equipamentos.edit');
+    Route::put('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'update'])->name('estoque_equipamentos.update');
+    Route::delete('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'destroy'])->name('estoque_equipamentos.destroy');
     // Exportação específica do estoque de equipamentos
     Route::get('/estoque-equipamentos/export', function() {
         $equipamentos = \App\Models\EstoqueEquipamento::orderBy('nome')->get();
