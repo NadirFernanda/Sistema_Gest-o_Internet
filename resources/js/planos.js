@@ -265,7 +265,7 @@
                             <div class="plan-meta">
                                 <span class="plan-price">${esc(preco)}</span>
                                 <span class="plan-cycle">${esc(p.ciclo||'')}</span>
-                                <span class="status-badge ${estadoClass}" style="margin-left:auto">${esc(p.estado||'')}</span>
+                                <span class="status-badge ${estadoClass}">${esc(p.estado||'')}</span>
                             </div>
                             <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
                             <div class="plan-actions">

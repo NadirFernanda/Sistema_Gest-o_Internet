@@ -81,8 +81,8 @@
 }
 
 /* Make sure the meta section lays out plain text values without pill styling */
-.plan-card .plan-meta { display:flex; gap:12px; align-items:center; }
-.plan-card .plan-meta > * { display:inline-block; }
+.plan-card .plan-meta { display:flex; gap:16px; align-items:center; flex-wrap:nowrap; justify-content:flex-start; }
+.plan-card .plan-meta > * { display:inline-flex; align-items:center; }
 
 /* Status badge used in plan cards (e.g., 'Ativo') — render as plain text, aligned */
 .plan-card .status-badge,
@@ -125,9 +125,23 @@
 }
 
 .plan-card .plan-meta > .status-badge {
-  margin-left: auto !important; /* keep it pushed to right */
+  /* ensure status sits inline with price and cycle, do not push to far right */
+  margin-left: 0 !important;
   align-self: center !important;
 }
+
+/* Ensure consistent spacing and visual alignment for the three meta items */
+.plan-card .plan-price,
+.plan-card .plan-cycle,
+.plan-card .plan-meta > .status-badge {
+  font-weight:600;
+  font-size:0.98rem;
+  line-height:1;
+}
+
+/* Small horizontal spacing tweaks for readability */
+.plan-card .plan-price { margin-right: 6px; }
+.plan-card .plan-cycle { margin-right: 6px; }
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
