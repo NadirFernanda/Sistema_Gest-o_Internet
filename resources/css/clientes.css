@@ -112,6 +112,22 @@
   display: inline-block !important;
   vertical-align: middle !important;
 }
+
+/* Ensure all meta items share same baseline and are centered inside the flex row */
+.plan-card .plan-meta > .plan-price,
+.plan-card .plan-meta > .plan-cycle,
+.plan-card .plan-meta > .status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.plan-card .plan-meta > .status-badge {
+  margin-left: auto !important; /* keep it pushed to right */
+  align-self: center !important;
+}
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
