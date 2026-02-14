@@ -106,16 +106,13 @@
                 <div class="modal">
                     <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <h3 style="margin:0">Planos</h3>
-                        <div>
-                            <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
-                        </div>
                     </div>
                     <style>
                       /* Modal-specific toolbar: three equal buttons inline */
-                      #templatesModal .controls { display:flex; gap:12px; margin-bottom:12px; }
-                      #templatesModal .controls .ctrl-btn { flex:1; padding:10px 12px; height:44px; border-radius:8px; font-weight:700; text-align:center; }
-                      #templatesModal .controls .ctrl-btn.positive { background:#f7b500; color:#fff; box-shadow:0 6px 18px rgba(247,181,0,0.18); border:0; }
-                      #templatesModal .controls .ctrl-btn.ghost { background:transparent; border:1px solid #e6e6e6; color:#222; }
+                      #templatesModal .controls { display:flex !important; gap:12px !important; margin-bottom:12px !important; }
+                      #templatesModal .controls .ctrl-btn { flex:1 !important; padding:10px 12px !important; height:44px !important; border-radius:8px !important; font-weight:700 !important; text-align:center !important; }
+                      #templatesModal .controls .ctrl-btn.positive { background:#f7b500 !important; color:#fff !important; box-shadow:0 6px 18px rgba(247,181,0,0.18) !important; border:0 !important; }
+                      #templatesModal .controls .ctrl-btn.ghost { background:transparent !important; border:1px solid #e6e6e6 !important; color:#222 !important; }
                       @media (max-width:640px){ #templatesModal .controls { flex-direction:column; } }
                     </style>
                     <div class="controls">
@@ -229,16 +226,17 @@
             if(manageBtn){ manageBtn.addEventListener('click', function(e){ e.preventDefault(); if(modal) modal.style.display = 'flex'; loadList(); }); }
             const refreshBtnEl = document.getElementById('refreshTemplatesBtn');
             if(refreshBtnEl) refreshBtnEl.addEventListener('click', loadTemplates);
-            if(modal){
+                if(modal){
                 const reloadBtn = modal.querySelector('#reloadTemplatesBtn'); if(reloadBtn) reloadBtn.addEventListener('click', loadList);
                 const newBtn = modal.querySelector('#newTemplateBtn'); if(newBtn) newBtn.addEventListener('click', showCreateForm);
+                const closeBottom = modal.querySelector('#closeTemplatesModalBottom'); if(closeBottom) closeBottom.addEventListener('click', function(){ modal.style.display = 'none'; });
             }
 
             // backdrop / close handlers
             if(modal){
                 modal.addEventListener('click', function(e){
-                    if(e.target && e.target.id === 'templatesModal') return (modal.style.display = 'none');
-                    if(e.target && e.target.id === 'closeTemplatesModal') return (modal.style.display = 'none');
+                        if(e.target && e.target.id === 'templatesModal') return (modal.style.display = 'none');
+                        if(e.target && (e.target.id === 'closeTemplatesModal' || e.target.id === 'closeTemplatesModalBottom')) return (modal.style.display = 'none');
                     const newBtn = e.target.closest && e.target.closest('#newTemplateBtn'); if(newBtn) return showCreateForm();
                     const reloadBtn = e.target.closest && e.target.closest('#reloadTemplatesBtn'); if(reloadBtn) return loadList();
                 });
