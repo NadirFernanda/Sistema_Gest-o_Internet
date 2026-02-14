@@ -18,9 +18,15 @@
             <div class="field full">
                 <label for="nome">Nome completo *</label>
                 <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" value="{{ old('nome') }}">
-                @if($errors->has('nome'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('nome') }}</span>
-                @endif
+                    @if($errors->has('nome'))
+                        <div class="text-danger">
+                            @if($errors->first('nome') == 'O campo nome é obrigatório.')
+                                Por favor preencha o nome do cliente.
+                            @else
+                                {{ $errors->first('nome') }}
+                            @endif
+                        </div>
+                    @endif
             </div>
 
             <div class="field">
@@ -38,9 +44,15 @@
             <div class="field">
                 <label for="bi_numero" id="labelBiNumero">BI / NIF *</label>
                 <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" value="{{ old('bi_numero') }}">
-                @if($errors->has('bi_numero'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('bi_numero') }}</span>
-                @endif
+                    @if($errors->has('bi_numero'))
+                        <div class="text-danger">
+                            @if($errors->first('bi_numero') == 'O campo bi numero é obrigatório.')
+                                Por favor preencha o número do BI.
+                            @else
+                                {{ $errors->first('bi_numero') }}
+                            @endif
+                        </div>
+                    @endif
             </div>
 
             <div class="field full" id="bi_tipo_outro_wrap" style="display:none;">
@@ -54,17 +66,29 @@
             <div class="field">
                 <label for="email">E-mail *</label>
                 <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="{{ old('email') }}">
-                @if($errors->has('email'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('email') }}</span>
-                @endif
+                    @if($errors->has('email'))
+                        <div class="text-danger">
+                            @if($errors->first('email') == 'O campo email é obrigatório.')
+                                Por favor preencha o e-mail do cliente.
+                            @else
+                                {{ $errors->first('email') }}
+                            @endif
+                        </div>
+                    @endif
             </div>
 
             <div class="field">
                 <label for="contato">Contacto (WhatsApp) *</label>
                 <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="{{ old('contato') }}">
-                @if($errors->has('contato'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('contato') }}</span>
-                @endif
+                    @if($errors->has('contato'))
+                        <div class="text-danger">
+                            @if($errors->first('contato') == 'O campo contato é obrigatório.')
+                                Por favor preencha o contato do cliente.
+                            @else
+                                {{ $errors->first('contato') }}
+                            @endif
+                        </div>
+                    @endif
             </div>
 
             <div class="actions full">
