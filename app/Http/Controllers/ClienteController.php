@@ -431,10 +431,22 @@ class ClienteController extends Controller
             return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
-            // Retorna a view de cadastro com os erros e os dados preenchidos
+            // Se for erro de duplicidade, mostra mensagem amigável
+            $mensagem = null;
+            if ($errors->has('email')) {
+                $mensagem = 'Este e-mail já está cadastrado.';
+            } elseif ($errors->has('contato')) {
+                $mensagem = 'Este contato já está cadastrado.';
+            }
+            // Retorna para a tela de cadastro com os erros
             return redirect()->back()
                 ->withErrors($errors->messages())
-                ->withInput();
+                ->withInput()
+                ->with('error', $mensagem ?? 'Erro ao cadastrar cliente. Verifique os campos.');
+        } catch (\Exception $e) {
+            // Erro inesperado
+            \Log::error('Erro ao cadastrar cliente', ['exception' => $e]);
+            return redirect()->route('clientes.index')->with('error', 'Erro inesperado ao cadastrar cliente.');
         }
     }
 
