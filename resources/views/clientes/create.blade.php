@@ -3,7 +3,7 @@
 @section('content')
 @if(session('success'))
     <div class="alert alert-success" style="margin-bottom:18px; border-radius:8px; background:#eafaf1; color:#218c5b; padding:12px 18px; font-size:1.08rem;">
-        <strong>Sucesso:</strong> {{ session('success') }}
+        <strong>Sucesso:</strong> Cliente cadastrado com sucesso!
     </div>
 @endif
 @if(session('error'))
