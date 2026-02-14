@@ -91,13 +91,15 @@
                 <label for="contato">Contacto (WhatsApp) *</label>
                 <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="">
                     @if($errors->has('contato'))
-                        <div class="text-danger">
-                            @if($errors->first('contato') == 'O campo contato é obrigatório.')
-                                Por favor preencha o contato do cliente.
-                            @else
-                                {{ $errors->first('contato') }}
-                            @endif
-                        </div>
+                            <div class="text-danger">
+                                @if($errors->first('contato') == 'O campo contato é obrigatório.')
+                                    Por favor preencha o contato do cliente.
+                                @elseif(str_contains($errors->first('contato'), 'taken'))
+                                    Este contato já está cadastrado.
+                                @else
+                                    {{ $errors->first('contato') }}
+                                @endif
+                            </div>
                     @endif
             </div>
 
