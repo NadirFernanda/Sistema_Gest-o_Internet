@@ -17,7 +17,7 @@
 
             <div class="field full">
                 <label for="nome">Nome completo *</label>
-                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" required>
+                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo">
                 @if($errors->has('nome'))
                     <div class="invalid-feedback">{{ $errors->first('nome') }}</div>
                 @endif
@@ -25,7 +25,7 @@
 
             <div class="field">
                 <label for="bi_tipo">Tipo de documento *</label>
-                <select id="bi_tipo" name="bi_tipo" class="select" required>
+                <select id="bi_tipo" name="bi_tipo" class="select">
                     <option value="BI">BI</option>
                     <option value="NIF">NIF</option>
                     <option value="Outro">Outro</option>
@@ -37,7 +37,7 @@
 
             <div class="field">
                 <label for="bi_numero" id="labelBiNumero">BI / NIF *</label>
-                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" required>
+                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF">
                 @if($errors->has('bi_numero'))
                     <div class="invalid-feedback">{{ $errors->first('bi_numero') }}</div>
                 @endif
@@ -53,7 +53,7 @@
 
             <div class="field">
                 <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" required>
+                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com">
                 @if($errors->has('email'))
                     <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                 @endif
@@ -61,7 +61,7 @@
 
             <div class="field">
                 <label for="contato">Contacto (WhatsApp) *</label>
-                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" required>
+                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX">
                 @if($errors->has('contato'))
                     <div class="invalid-feedback">{{ $errors->first('contato') }}</div>
                 @endif
@@ -132,10 +132,34 @@
             });
         }
 
+        function validateFields() {
+            var errors = {};
+            var nome = document.getElementById('nome').value.trim();
+            var bi_tipo = document.getElementById('bi_tipo').value.trim();
+            var bi_numero = document.getElementById('bi_numero').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var contato = document.getElementById('contato').value.trim();
+            if (!nome) errors.nome = ['Nome é obrigatório.'];
+            if (!bi_tipo) errors.bi_tipo = ['Tipo de documento é obrigatório.'];
+            if (!bi_numero) errors.bi_numero = ['Número do documento é obrigatório.'];
+            if (!email) {
+                errors.email = ['E-mail é obrigatório.'];
+            } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+                errors.email = ['Digite um e-mail válido.'];
+            }
+            if (!contato) errors.contato = ['Contato é obrigatório.'];
+            return errors;
+        }
+
         if (form) {
             form.addEventListener('submit', function(ev){
                 ev.preventDefault();
                 clearErrors();
+                var errors = validateFields();
+                if (Object.keys(errors).length > 0) {
+                    showErrors(errors);
+                    return;
+                }
                 var url = form.getAttribute('action');
                 var data = new FormData(form);
                 fetch(url, {
@@ -147,7 +171,6 @@
                     if (res.status === 422) return res.json().then(function(j){ throw { validation: j.errors || j }; });
                     return res.json().then(function(j){ throw j; });
                 }).then(function(j){
-                    // success: redirect to clients list
                     window.location = '{{ url('/clientes') }}';
                 }).catch(function(err){
                     if (err && err.validation) {
