@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container mt-5">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+        <a href="{{ route('dashboard') }}" class="btn btn-primary" style="min-width:120px;">Dashboard</a>
+    </div>
     <h1 class="mb-4" style="color:#f7b500;font-weight:bold;">Relatórios Gerais</h1>
     <p class="mb-3">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
     <div class="ficha-toolbar mb-4" style="justify-content:center;gap:12px;">
