@@ -111,14 +111,60 @@
 @push('scripts')
 <script>
     (function(){
-        var tipo = document.getElementById('bi_tipo');
-        var label = document.getElementById('labelBiNumero');
-        var numero = document.getElementById('bi_numero');
-        var outroWrap = document.getElementById('bi_tipo_outro_wrap');
-        var outro = document.getElementById('bi_tipo_outro');
         var form = document.getElementById('formClienteCreate');
+        var fields = [
+            {id: 'nome', label: 'Nome completo'},
+            {id: 'bi_tipo', label: 'Tipo de documento'},
+            {id: 'bi_numero', label: 'BI / NIF'},
+            {id: 'email', label: 'E-mail'},
+            {id: 'contato', label: 'Contacto (WhatsApp)'}
+        ];
 
-        function clearErrors() {
+        function showError(id, msg) {
+            var input = document.getElementById(id);
+            var parent = input.parentNode;
+            var old = parent.querySelector('.js-error');
+            if (old) old.remove();
+            var span = document.createElement('span');
+            span.className = 'js-error';
+            span.style.color = '#c0392b';
+            span.style.marginTop = '6px';
+            span.style.fontSize = '0.95rem';
+            span.style.display = 'block';
+            span.textContent = msg;
+            parent.appendChild(span);
+        }
+        function clearError(id) {
+            var input = document.getElementById(id);
+            var parent = input.parentNode;
+            var old = parent.querySelector('.js-error');
+            if (old) old.remove();
+        }
+
+        fields.forEach(function(f) {
+            var input = document.getElementById(f.id);
+            input.addEventListener('blur', function() {
+                if (!input.value.trim()) {
+                    showError(f.id, f.label + ' é obrigatório');
+                } else {
+                    clearError(f.id);
+                }
+            });
+        });
+
+        form.addEventListener('submit', function(e) {
+            var hasError = false;
+            fields.forEach(function(f) {
+                var input = document.getElementById(f.id);
+                if (!input.value.trim()) {
+                    showError(f.id, f.label + ' é obrigatório');
+                    hasError = true;
+                } else {
+                    clearError(f.id);
+                }
+            });
+            if (hasError) e.preventDefault();
+        });
             ['nome','bi_tipo','bi_numero','bi_tipo_outro','email','contato'].forEach(function(k){
                 var el = document.getElementById('error_'+k);
                 if (el) { el.textContent=''; el.classList.add('d-none'); }
