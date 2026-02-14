@@ -40,20 +40,25 @@
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
-        <div style="display:flex;gap:10px;flex-direction:column;">
-            <!-- Primary actions: big Ficha button (download+email) and back button -->
-            <a id="ficha-download-send-btn" href="{{ route('clientes.ficha.download_send', $cliente->id) }}" class="btn btn-primary" style="padding:14px 18px; font-size:1.05rem; border-radius:8px; display:inline-block; min-width:220px;">Ficha</a>
-            <a id="back-dashboard-btn" href="{{ url('/dashboard') }}" class="btn btn-secondary" style="padding:10px 14px; font-size:0.95rem; border-radius:8px; display:inline-block; min-width:220px; margin-top:8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-                    <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Dashboard
-            </a>
+        <div style="display:flex;gap:10px;flex-direction:row;justify-content:flex-end;align-items:center;">
+            <!-- Botão único: Compensar Dias -->
+            <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
+                Compensar Dias
+            </button>
+        </div>
 
-            <!-- Compact secondary actions removed as per UI change -->
-
-            <!-- Hidden original authenticated download button (kept for JS handler) -->
-            <button id="download-ficha-btn" data-url="{{ route('clientes.ficha.pdf', $cliente->id) }}" style="display:none;">AuthDownload</button>
+        <!-- Modal para compensar dias -->
+        <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
+                <h5 style="margin-bottom:18px;">Compensar Dias ao Plano</h5>
+                <form id="form-compensar-dias" method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
+                    @csrf
+                    <label for="dias_compensados" style="font-weight:600;">Dias a compensar:</label>
+                    <input type="number" min="1" max="90" name="dias_compensados" id="dias_compensados" class="form-control" style="margin:10px 0 18px 0;width:120px;text-align:center;" required>
+                    <button type="submit" class="btn btn-primary" style="min-width:120px;">Salvar</button>
+                    <button type="button" id="fechar-modal-compensar" class="btn btn-ghost" style="margin-left:10px;">Cancelar</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -210,43 +215,15 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    const btn = document.getElementById('download-ficha-btn');
-    const btnSigned = document.getElementById('download-ficha-signed-btn');
-    const moreToggle = document.getElementById('more-actions-toggle');
-    const inlineDownloadLink = document.getElementById('download-ficha-inline');
-    if (!btn) return;
-    btn.addEventListener('click', function(e){
-        e.preventDefault();
-        const url = btn.dataset.url;
-        btn.disabled = true;
-        fetch(url, { credentials: 'same-origin' })
-            .then(resp => {
-                if (!resp.ok) {
-                    // if server returned HTML (login) redirect user to login
-                    const ct = resp.headers.get('content-type') || '';
-                    if (ct.indexOf('text/html') !== -1) {
-                        window.location = '/login';
-                        throw new Error('not-authenticated');
-                    }
-                    throw new Error('HTTP ' + resp.status);
-                }
-                return resp.blob();
-            })
-            .then(blob => {
-                // Open generated PDF blob in a new tab so browser shows it inline
-                const blobUrl = URL.createObjectURL(blob);
-                window.open(blobUrl, '_blank');
-                // schedule revoke after a short delay to allow tab to load
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-            })
-            .catch(err => {
-                if (err && err.message !== 'not-authenticated') alert('Erro ao baixar PDF: ' + err.message);
-            })
-            .finally(() => { btn.disabled = false; });
-    });
-    // Signed-URL button removed — no signed-download handler
-
-    // More actions toggle removed as the related UI buttons were deleted
+    // Modal logic for Compensar Dias
+    const btnCompensar = document.getElementById('compensar-dias-btn');
+    const modal = document.getElementById('modal-compensar-dias');
+    const fechar = document.getElementById('fechar-modal-compensar');
+    if(btnCompensar && modal && fechar){
+        btnCompensar.onclick = () => { modal.style.display = 'flex'; document.getElementById('dias_compensados').focus(); };
+        fechar.onclick = () => { modal.style.display = 'none'; };
+        modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+    }
 });
 </script>
 @endpush
