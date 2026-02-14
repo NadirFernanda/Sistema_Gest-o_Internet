@@ -106,6 +106,354 @@
   .clientes-hero.stack-left .hero-ctas{ align-items:center; }
 }
 
+
 @media (max-width:1000px){ .plan-grid{ grid-template-columns: repeat(2,1fr); } }
 @media (max-width:640px){ .plan-grid{ grid-template-columns: 1fr; } .plan-actions{ justify-content:flex-start; } }
+
+/* Global compact icon buttons for action lists */
+.btn-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  padding:6px;
+  border-radius:6px;
+  font-size:14px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.btn-icon svg{
+  width:16px;
+  height:16px;
+}
+.btn-icon.btn-warning{ background:#f59e0b; color:#fff; border-color:#f59e0b; }
+.btn-icon.btn-danger{ background:#ef4444; color:#fff; border-color:#ef4444; }
+.btn-icon:focus{ outline:2px solid rgba(0,0,0,0.12); }
+.btn-icon:hover{ background:#f7b500; color:#fff; border-color:#f7b500; }
+
+/* Make icon buttons with ghost variant visually match other ghost buttons (table actions) */
+.btn-icon.btn-ghost {
+  background: transparent;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  padding: 4px 6px;
+  border-radius: 8px;
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+}
+
+/* Keep icon sizing consistent inside the normalized button */
+.btn-icon.btn-ghost svg { width: 16px; height: 16px; }
+
+/* Compact back button used on forms (keeps small, ghosted appearance) */
+.btn-back{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:8px;
+  background:transparent;
+  color:#222;
+  border:1px solid #e6e6e6;
+  box-shadow:0 4px 12px rgba(17,24,39,0.03);
+  text-decoration:none;
+  font-weight:700;
+  min-width:0;
+}
+.btn-back svg{ vertical-align:middle; margin-right:8px; }
+
+/* Circular small back button with icon-only (used across views) */
+.btn-back-circle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  padding:0;
+  border-radius:50%;
+  background:transparent;
+  color:#222;
+  border:1px solid #e6e6e6;
+  box-shadow:0 4px 12px rgba(17,24,39,0.03);
+  text-decoration:none;
+}
+.btn-back-circle svg{ width:16px; height:16px; }
+.btn-back-circle:hover{
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+
+/* Table-specific: force icon buttons to use ghost appearance by default
+   This prevents an unexpected filled yellow background for the "Ver Detalhes" icon
+   while still allowing explicitly colored variants (btn-warning/btn-success) if needed. */
+.tabela-cobrancas-moderna .btn-icon {
+  background: transparent !important;
+  color: #222 !important;
+  border: 1px solid #e6e6e6 !important;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03) !important;
+  padding: 4px 6px !important;
+  border-radius: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Keep explicitly-colored icon buttons (if intentional) readable but avoid accidental defaults */
+.tabela-cobrancas-moderna .btn-icon.btn-warning,
+.tabela-cobrancas-moderna .btn-icon.btn-success,
+.tabela-cobrancas-moderna .btn-icon.btn-danger {
+  background: transparent !important;
+  color: inherit !important;
+  border-color: #e6e6e6 !important;
+}
+
+/* Add hover animation like 'Ver Detalhes' to all table action buttons */
+.tabela-cobrancas-moderna .btn-icon {
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.tabela-cobrancas-moderna .btn-icon:hover {
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+/* Preserve semantic colors on hover for danger (delete) and warning if desired */
+.tabela-cobrancas-moderna .btn-icon.btn-danger:hover {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
+}
+.tabela-cobrancas-moderna .btn-icon.btn-warning:hover {
+  background: #f59e0b !important;
+  color: #fff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 6px 18px rgba(245,158,11,0.12) !important;
+}
+
+/* Make search buttons match toolbar CTAs (primary appearance by default) */
+.clientes-toolbar .busca-planos-btn,
+.planos-toolbar .btn-search,
+.clientes-toolbar button[type="submit"],
+.planos-toolbar button[type="submit"],
+.alertas-toolbar .btn-search,
+.alertas-toolbar .busca-planos-btn,
+.alertas-toolbar button[type="submit"] {
+  padding: 8px 14px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: #f7b500 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  min-width: 120px !important;
+  height: auto !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Provide a ghost variant when a transparent search button is explicitly needed */
+.clientes-toolbar .busca-planos-btn.ghost,
+.planos-toolbar .btn-search.ghost,
+.clientes-toolbar button[type="submit"].ghost,
+.planos-toolbar button[type="submit"].ghost {
+  background: transparent;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+}
+
+/* Toolbar-specific button sizing (compact and harmonious) */
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn {
+  padding: 4px 8px;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 0; /* allow content to determine width */
+  height: auto;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.04);
+}
+.clientes-toolbar .btn-ghost,
+.planos-toolbar .btn-ghost,
+.alertas-toolbar .btn-ghost {
+  background: transparent;
+  color: #222;
+  border: 1px solid #e6e6e6;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.clientes-toolbar .btn-cta,
+.planos-toolbar .btn-cta,
+.alertas-toolbar .btn-cta {
+  padding: 8px 14px;
+  font-weight: 700;
+  border-radius: 12px; /* semi-arredondado */
+  min-width: 100px; /* reduced for short labels */
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12);
+  background: #f7b500 !important;
+  color: #fff !important;
+}
+
+/* Normalize border/shape for toolbar and filter buttons so all look consistent */
+.clientes-toolbar .btn:not(.btn-cta),
+.planos-toolbar .btn:not(.btn-cta),
+.alertas-toolbar .btn:not(.btn-cta),
+.filtro-top .btn:not(.btn-cta),
+.filtro-modern-cobranca .btn:not(.btn-cta),
+.filtro-modern-cobranca .filtro-btn:not(.btn-cta) {
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: transparent;
+  color: #222;
+  padding: 4px 6px;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.03);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure CTA (filled) buttons keep their filled style */
+.filtro-top .btn-cta, .filtro-modern-cobranca .btn-cta { box-shadow: 0 6px 18px rgba(247,181,0,0.12); }
+.alertas-toolbar, .clientes-toolbar, .planos-toolbar { }
+@media (max-width:900px){
+  .clientes-toolbar, .planos-toolbar, .alertas-toolbar{ flex-direction:column; align-items:stretch; gap:12px; }
+  .clientes-toolbar-left, .clientes-toolbar-actions{ width:100%; display:flex; justify-content:space-between; }
+  .clientes-toolbar .btn, .planos-toolbar .btn, .alertas-toolbar .btn{ width:auto; min-width:0; }
+  .clientes-search-form .busca-planos-input { flex: 1 1 auto; max-width: none; width: 100%; }
+}
+
+/* Make the search inputs visually match the toolbar (rounded) */
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input,
+.alertas-toolbar .search-input,
+.alertas-toolbar .busca-planos-input,
+.clientes-toolbar input[type="text"],
+.planos-toolbar input[type="search"],
+.alertas-toolbar input[type="number"] {
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  border: 2px solid #e6a248 !important;
+}
+
+/* Layout helpers for toolbars (use instead of inline styles) */
+.clientes-toolbar,
+.alertas-toolbar,
+.planos-toolbar{
+  max-width:1100px;
+  margin:18px auto;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+}
+/* Left group inside toolbar to host filtro buttons */
+.clientes-toolbar-left{ display:flex; gap:10px; align-items:center; flex:1 1 auto; }
+.clientes-toolbar-left .filtro-actions{ display:flex; gap:6px; align-items:center; }
+.clientes-toolbar-left .filtro-btn{ min-width:0; padding:4px 6px; font-size:0.92rem; }
+.clientes-toolbar .clientes-toolbar-actions{ flex:0 0 auto; }
+
+/* ensure ghost buttons in the filter top look consistent */
+.filtro-top-right .btn-ghost{ border:1px solid #e6e6e6; background:transparent; color:#222; padding:7px 10px; border-radius:12px; }
+.clientes-search-form{ flex:1; display:flex; gap:8px; align-items:center; }
+.clientes-search-form .busca-planos-input { flex: 0 0 200px; max-width: 200px; width: 100%; }
+.clientes-toolbar-actions, .alertas-toolbar-actions{ display:flex; gap:8px; align-items:center; }
+.alertas-toolbar-left{ display:flex; gap:8px; align-items:center; }
+.dias-input{ width:72px; padding:8px; border-radius:12px; border:2px solid #e6a248; }
+
+/* Ensure filtro buttons fit in a single row on wide screens */
+.filtro-modern-cobranca {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 8px;
+}
+.filtro-modern-cobranca .btn,
+.filtro-modern-cobranca .filtro-btn {
+  min-width: 0;
+  padding: 4px 6px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 160px; /* prevent runaway growth */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure filtro-top actions stay in one line and buttons have uniform spacing */
+.filtro-top { display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
+.filtro-top .filtro-top-actions { display:flex; gap:12px; align-items:center; }
+.filtro-top .btn { padding: 4px 6px; border-radius:8px; }
+
+/* transcrito — parte 1/2: aplicar mesma animação de hover usada em botões de tabela */
+.filtro-top .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn {
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* transcrito — parte 2/2: hover visual para botões de toolbar/filters */
+.filtro-top .btn:hover,
+.clientes-toolbar .btn:hover,
+.planos-toolbar .btn:hover,
+.alertas-toolbar .btn:hover {
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
+}
+
+/* transcrito: preserve semantic hover for danger buttons */
+.filtro-top .btn.btn-danger:hover,
+.clientes-toolbar .btn.btn-danger:hover,
+.planos-toolbar .btn.btn-danger:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.12) !important;
+}
+
+@media (max-width: 700px) {
+  .filtro-modern-cobranca {
+    flex-wrap: wrap;
+  }
+  .filtro-modern-cobranca .btn,
+  .filtro-modern-cobranca .filtro-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* transcrito: preserve semantic hover for warning buttons */
+.filtro-top .btn.btn-warning:hover,
+.clientes-toolbar .btn.btn-warning:hover,
+.planos-toolbar .btn.btn-warning:hover {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(245,158,11,0.12) !important;
+}
 
