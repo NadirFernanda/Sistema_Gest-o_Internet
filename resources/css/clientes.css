@@ -98,6 +98,20 @@
   font-size: 0.98rem;
 }
 .plan-card .plan-meta > .status-badge { margin-left: 0; }
+
+/* Strong override for any legacy styles targeting #planosLista .status-badge */
+#planosLista .plan-card .status-badge,
+.plan-card .plan-meta > .status-badge {
+  background: transparent !important;
+  color: #111 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  min-width: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
