@@ -97,9 +97,9 @@
         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
             <thead>
                 <tr>
-                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
-                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
                     <th style="text-align:center;vertical-align:middle;">Marca</th>
+                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
+                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
                     <th style="text-align:center;vertical-align:middle;">Nº Série</th>
                     <th style="text-align:center;vertical-align:middle;">Quantidade</th>
                     <th style="text-align:center;vertical-align:middle;">Ações</th>
@@ -108,9 +108,9 @@
             <tbody>
                 @forelse($equipamentos as $equipamento)
                     <tr>
-                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->nome }}</td>
-                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->marca }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->quantidade }}</td>
                         <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
