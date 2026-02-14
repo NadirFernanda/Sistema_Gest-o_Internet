@@ -1,0 +1,41 @@
+/* Shared button token and base styles
+   Purpose: ensure all buttons across the app use the same
+   font family, font weight and border/border-radius as the
+   dashboard buttons without copying the dashboard stylesheet verbatim.
+*/
+:root{
+  --btn-font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --btn-font-weight: 700;
+  --btn-border-radius: 12px; /* default pill/rounded shape used on dashboard */
+  --btn-border: 1px solid #e6e6e6; /* soft neutral border used site-wide */
+}
+
+/* Generic button normalization */
+.btn,
+button,
+a.btn,
+.btn-ghost,
+.btn-cta,
+.btn-icon,
+.ficha-btn,
+.small-btn {
+  font-family: var(--btn-font-family) !important;
+  font-weight: var(--btn-font-weight) !important;
+  border: var(--btn-border) !important;
+  border-radius: var(--btn-border-radius) !important;
+  text-decoration: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Icon buttons keep their compact sizing but share the border radius and border style */
+.btn-icon{
+  border-radius: calc(var(--btn-border-radius) - 4px) !important;
+  border: var(--btn-border) !important;
+}
+
+/* CTA buttons may continue to use filled background, only unify border/shape/font */
+.btn-cta{ border-radius: calc(var(--btn-border-radius) + 4px) !important; }
+
+/* Allow explicit overrides where a component intentionally uses a different border */
+.no-normalize-btn { border: none !important; }
