@@ -31,7 +31,7 @@
         {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
             <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;">
-                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" />
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; flex:1; min-width:320px; padding:8px 18px; border-radius:8px;" />
                 <button type="submit" class="btn btn-search">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
