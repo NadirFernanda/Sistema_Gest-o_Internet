@@ -431,39 +431,9 @@ class ClienteController extends Controller
             return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
-            $customMessages = [];
-            // Só mostra mensagem de único se não houver erro de obrigatório
-            if ($errors->has('email')) {
-                $emailErrors = $errors->get('email');
-                $requiredEmail = false;
-                foreach ($emailErrors as $msg) {
-                    if (strpos($msg, 'obrigatório') !== false) {
-                        $requiredEmail = true;
-                        break;
-                    }
-                }
-                if (!$requiredEmail) {
-                    $customMessages['email'] = 'Já existe um cliente cadastrado com este e-mail.';
-                }
-            }
-            if ($errors->has('contato')) {
-                $contatoErrors = $errors->get('contato');
-                $requiredContato = false;
-                foreach ($contatoErrors as $msg) {
-                    if (strpos($msg, 'obrigatório') !== false) {
-                        $requiredContato = true;
-                        break;
-                    }
-                }
-                if (!$requiredContato) {
-                    $customMessages['contato'] = 'Já existe um cliente cadastrado com este contato.';
-                }
-            }
-            $defaultMessages = $errors->messages();
-            $allMessages = array_merge($defaultMessages, $customMessages);
             // Retorna a view de cadastro com os erros e os dados preenchidos
             return redirect()->back()
-                ->withErrors($allMessages)
+                ->withErrors($errors->messages())
                 ->withInput();
         }
     }
