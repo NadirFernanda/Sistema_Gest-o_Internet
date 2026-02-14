@@ -66,7 +66,7 @@
     <form method="GET" action="{{ route('equipamentos.relatorio') }}" class="filtro-modern-cobranca" style="margin-bottom:32px;">
         <div class="filtro-group">
             <label for="nome">Nome do Equipamento</label>
-            <input type="text" name="nome" id="nome" value="{{ request('nome') }}" placeholder="Pesquisar equipamento...">
+            <input type="text" name="nome" id="nome" value="{{ request('nome') }}" placeholder="Pesquisar equipamento..." style="height:40px; flex:1; min-width:320px; padding:8px 18px; border-radius:8px;" />
             <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#f7b500" stroke-width="2"/><path stroke="#f7b500" stroke-width="2" stroke-linecap="round" d="M20 20l-3.5-3.5"/></svg></span>
         </div>
         <div style="display:flex;gap:16px;align-items:center;">
