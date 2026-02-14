@@ -404,6 +404,9 @@ class ClienteController extends Controller
                 'nome' => 'required|string|max:255',
                 'email' => 'required|email|unique:clientes,email',
                 'contato' => 'required|string|max:20|unique:clientes,contato',
+            ], [
+                'email.required' => 'Por favor preencha o email do cliente.',
+                'contato.required' => 'Por favor preencha o contato do cliente.',
             ]);
 
             $biValue = $validated['bi_numero'];
