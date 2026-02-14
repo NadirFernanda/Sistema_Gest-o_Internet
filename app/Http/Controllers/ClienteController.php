@@ -424,8 +424,17 @@ class ClienteController extends Controller
                 'contato' => $validated['contato'],
             ];
 
-            $cliente = Cliente::create($data);
-            \Log::info('Cliente cadastrado', ['cliente' => $cliente]);
+            // Use transaction to ensure atomicity
+            $cliente = null;
+            \DB::beginTransaction();
+            try {
+                $cliente = Cliente::create($data);
+                \Log::info('Cliente cadastrado', ['cliente' => $cliente]);
+                \DB::commit();
+            } catch (\Exception $e) {
+                \DB::rollBack();
+                throw $e;
+            }
 
             // Redireciona para a página de clientes com mensagem de sucesso
             return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
