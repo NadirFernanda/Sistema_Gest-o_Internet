@@ -81,7 +81,7 @@
     </div>
 
     <style>
-    /* Modern card + form styles (scoped to this view) */
+    /* Modern form styles (sem card para erro) */
     .client-card { max-width:880px; margin:20px auto; background:#fff; border-radius:12px; padding:20px 22px; box-shadow:0 8px 30px rgba(2,6,23,0.08); }
     .client-card-header h2 { margin:0 0 6px; font-size:1.65rem; text-align:center; }
     .client-card-header .muted { color:#666; text-align:center; margin-bottom:12px; }
@@ -92,7 +92,8 @@
     .input, .select { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #e6e6e6; box-shadow:inset 0 1px 0 rgba(255,255,255,0.6); font-size:1rem; transition:box-shadow .12s, border-color .12s; }
     .input:focus, .select:focus { outline:none; border-color:#f7b500; box-shadow:0 6px 24px rgba(247,181,0,0.12); }
 
-    .invalid-feedback { color:#c0392b; margin-top:6px; font-size:0.95rem; }
+    /* Mensagem de erro personalizada: texto simples, sem card */
+    .field span[style*="color:#c0392b"] { margin-top:6px; font-size:0.95rem; display:block; font-weight:400; background:none; border:none; padding:0; }
 
     .actions { display:flex; gap:12px; justify-content:flex-end; align-items:center; }
     .btn-cta { background:#f7b500; color:#fff; border:none; padding:12px 22px; border-radius:10px; font-weight:700; display:inline-flex; align-items:center; box-shadow:0 6px 18px rgba(247,181,0,0.18); cursor:pointer; }
