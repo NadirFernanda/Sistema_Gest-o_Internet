@@ -77,13 +77,15 @@
                 <label for="email">E-mail *</label>
                 <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="">
                     @if($errors->has('email'))
-                        <div class="text-danger">
-                            @if($errors->first('email') == 'O campo email é obrigatório.')
-                                Por favor preencha o e-mail do cliente.
-                            @else
-                                {{ $errors->first('email') }}
-                            @endif
-                        </div>
+                            <div class="text-danger">
+                                @if($errors->first('email') == 'O campo email é obrigatório.')
+                                    Por favor preencha o e-mail do cliente.
+                                @elseif(str_contains($errors->first('email'), 'taken'))
+                                    Este e-mail já está cadastrado.
+                                @else
+                                    {{ $errors->first('email') }}
+                                @endif
+                            </div>
                     @endif
             </div>
 
