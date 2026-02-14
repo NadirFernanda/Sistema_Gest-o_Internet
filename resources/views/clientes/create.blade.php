@@ -17,7 +17,7 @@
 
             <div class="field full">
                 <label for="nome">Nome completo *</label>
-                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" required value="{{ old('nome') }}">
+                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" value="{{ old('nome') }}">
                 @if($errors->has('nome'))
                     <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('nome') }}</span>
                 @endif
@@ -25,7 +25,7 @@
 
             <div class="field">
                 <label for="bi_tipo">Tipo de documento *</label>
-                <select id="bi_tipo" name="bi_tipo" class="select" required>
+                <select id="bi_tipo" name="bi_tipo" class="select">
                     <option value="BI" @if(old('bi_tipo')=='BI') selected @endif>BI</option>
                     <option value="NIF" @if(old('bi_tipo')=='NIF') selected @endif>NIF</option>
                     <option value="Outro" @if(old('bi_tipo')=='Outro') selected @endif>Outro</option>
@@ -37,7 +37,7 @@
 
             <div class="field">
                 <label for="bi_numero" id="labelBiNumero">BI / NIF *</label>
-                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" required value="{{ old('bi_numero') }}">
+                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" value="{{ old('bi_numero') }}">
                 @if($errors->has('bi_numero'))
                     <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('bi_numero') }}</span>
                 @endif
@@ -53,7 +53,7 @@
 
             <div class="field">
                 <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" required value="{{ old('email') }}">
+                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="{{ old('email') }}">
                 @if($errors->has('email'))
                     <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('email') }}</span>
                 @endif
@@ -61,7 +61,7 @@
 
             <div class="field">
                 <label for="contato">Contacto (WhatsApp) *</label>
-                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" required value="{{ old('contato') }}">
+                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="{{ old('contato') }}">
                 @if($errors->has('contato'))
                     <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('contato') }}</span>
                 @endif
