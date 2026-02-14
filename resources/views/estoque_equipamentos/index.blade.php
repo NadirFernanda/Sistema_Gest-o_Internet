@@ -35,14 +35,22 @@
             border:2px solid #e6a248;
             height:40px;
         }
-        .clientes-toolbar .btn, .clientes-toolbar .btn-search, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost {
-            height:40px;
-            min-width:140px;
+        .clientes-toolbar .btn,
+        .clientes-toolbar .btn-search,
+        .clientes-toolbar .btn-cta,
+        .clientes-toolbar .btn-ghost {
+            height:40px !important;
+            min-width:140px !important;
+            max-width:140px !important;
+            width:140px !important;
             display:inline-flex;
             align-items:center;
             justify-content:center;
             font-weight:700;
             border-radius:8px;
+            text-align:center;
+            white-space:nowrap;
+            box-sizing:border-box;
         }
         </style>
         <div class="clientes-toolbar">
