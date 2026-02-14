@@ -41,20 +41,24 @@
                                 <span class="cliente-contato">({{ $c->contato }})</span>
                             </div>
                             <div class="cliente-botoes-moderna" style="white-space:nowrap;">
-                                <a href="{{ route('clientes.show', $c->id) }}" class="btn-icon btn-warning" title="Ver Ficha" aria-label="Ver Ficha">
+                                <a href="{{ route('clientes.show', $c->id) }}" class="btn btn-sm btn-warning" title="Ver Ficha" aria-label="Ver Ficha">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span style="margin-left:8px;">Ficha</span>
                                 </a>
-                                <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn-icon btn-warning" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
+                                <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn btn-sm btn-warning" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span style="margin-left:8px;">PDF</span>
                                 </a>
-                                <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn-icon btn-warning" title="Editar" aria-label="Editar" style="margin-left:6px;">
+                                <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn btn-sm btn-warning" title="Editar" aria-label="Editar" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                    <span style="margin-left:8px;">Editar</span>
                                 </a>
                                 <form action="{{ route('clientes.destroy', $c->id) }}" method="POST" style="display:inline-block; margin-left:6px;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-icon btn-danger" title="Excluir" aria-label="Excluir" onclick="return confirm('Excluir cliente?')">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Excluir" aria-label="Excluir" onclick="return confirm('Excluir cliente?')">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                        <span style="margin-left:8px;">Excluir</span>
                                     </button>
                                 </form>
                             </div>
@@ -81,11 +85,13 @@
                                 <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost" title="Voltar à Lista" aria-label="Voltar à Lista">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
                                 </a>
-                                <a href="#" id="btnMostrarEditar" class="btn-icon btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
+                                <a href="#" id="btnMostrarEditar" class="btn btn-sm btn-warning" title="Editar Cliente" aria-label="Editar Cliente" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                    <span style="margin-left:8px;">Editar</span>
                                 </a>
-                                <button class="btn-icon btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" title="Excluir Cliente" aria-label="Excluir Cliente" style="margin-left:6px;">
+                                <button class="btn btn-sm btn-danger btn-excluir-cliente" data-id="{{ $cliente->id }}" title="Excluir Cliente" aria-label="Excluir Cliente" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                    <span style="margin-left:8px;">Excluir</span>
                                 </button>
                             </div>
                         </div>
