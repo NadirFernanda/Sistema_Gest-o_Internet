@@ -12,6 +12,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Redirecionar / para login ou dashboard
+// Corrige erro 500: rota clientes.index não definida
+use App\Http\Controllers\ClienteController;
+
+Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });

@@ -15,7 +15,12 @@ class PlanoController extends Controller
             // If a template_id is provided, load it and enforce its values server-side.
             $template = null;
             if ($request->filled('template_id')) {
-                $template = PlanTemplate::find($request->input('template_id'));
+                $templateId = $request->input('template_id');
+                if ($templateId) {
+                    $template = PlanTemplate::find($templateId);
+                } else {
+                    return back()->withErrors(['template_id' => 'Template não selecionado'])->withInput();
+                }
             }
 
             if ($template) {
@@ -179,7 +184,12 @@ class PlanoController extends Controller
         try {
             $template = null;
             if ($request->filled('template_id')) {
-                $template = PlanTemplate::find($request->input('template_id'));
+                $templateId = $request->input('template_id');
+                if ($templateId) {
+                    $template = PlanTemplate::find($templateId);
+                } else {
+                    return back()->withErrors(['template_id' => 'Template não selecionado'])->withInput();
+                }
             }
 
             if ($template) {
