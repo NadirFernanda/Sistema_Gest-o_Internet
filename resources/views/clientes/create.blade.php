@@ -65,7 +65,7 @@
 
             <div class="field">
                 <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="{{ old('email') }}">
+                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="">
                     @if($errors->has('email'))
                         <div class="text-danger">
                             @if($errors->first('email') == 'O campo email é obrigatório.')
@@ -79,7 +79,7 @@
 
             <div class="field">
                 <label for="contato">Contacto (WhatsApp) *</label>
-                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="{{ old('contato') }}">
+                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="">
                     @if($errors->has('contato'))
                         <div class="text-danger">
                             @if($errors->first('contato') == 'O campo contato é obrigatório.')
