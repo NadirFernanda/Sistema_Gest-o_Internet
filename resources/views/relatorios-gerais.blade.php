@@ -4,16 +4,10 @@
 <div class="container mt-5">
     <h1 class="mb-4" style="color:#f7b500;font-weight:bold;">Relatórios Gerais</h1>
     <p class="mb-3">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
-    <div class="row mb-4 justify-content-center">
-        <div class="col-auto px-1">
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="btn btn-success w-100" style="min-width:120px;">Baixar Diário</a>
-        </div>
-        <div class="col-auto px-1">
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="btn btn-success w-100" style="min-width:120px;">Baixar Semanal</a>
-        </div>
-        <div class="col-auto px-1">
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="btn btn-success w-100" style="min-width:120px;">Baixar Mensal</a>
-        </div>
+    <div class="ficha-toolbar mb-4" style="justify-content:center;gap:12px;">
+        <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Diário</a>
+        <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Semanal</a>
+        <a href="{{ route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Mensal</a>
     </div>
     <small class="text-muted">Os arquivos são gerados automaticamente pelo sistema e incluem todas as movimentações do período.</small>
     <hr class="my-4">
