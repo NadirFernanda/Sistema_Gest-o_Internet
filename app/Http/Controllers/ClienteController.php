@@ -406,8 +406,6 @@ class ClienteController extends Controller
                 'contato' => 'required|string|max:20|unique:clientes,contato',
             ]);
 
-            // Compose the stored `bi` value. If user selected Outro and provided a label,
-            // prefix the number with the label to keep context (e.g. "Passaporte:12345").
             $biValue = $validated['bi_numero'];
             if (isset($validated['bi_tipo']) && $validated['bi_tipo'] === 'Outro' && !empty($validated['bi_tipo_outro'])) {
                 $biValue = $validated['bi_tipo_outro'] . ':' . $validated['bi_numero'];
@@ -423,10 +421,8 @@ class ClienteController extends Controller
             $cliente = Cliente::create($data);
             \Log::info('Cliente cadastrado', ['cliente' => $cliente]);
 
-            return response()->json([
-                'success' => true,
-                'cliente' => $cliente
-            ], 201);
+            // Redireciona para a página de clientes com mensagem de sucesso
+            return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $customMessages = [];
@@ -438,10 +434,10 @@ class ClienteController extends Controller
             }
             $defaultMessages = $errors->messages();
             $allMessages = array_merge($defaultMessages, $customMessages);
-            return response()->json([
-                'success' => false,
-                'errors' => $allMessages
-            ], 422);
+            // Retorna a view de cadastro com os erros e os dados preenchidos
+            return redirect()->back()
+                ->withErrors($allMessages)
+                ->withInput();
         }
     }
 
