@@ -632,3 +632,31 @@ button.btn:not(.btn-icon) {
   }
 }
 
+/* Global override: make all button text non-bold (normal weight) */
+/* Applies to .btn variants, native buttons and anchor-buttons across pages */
+button,
+.btn,
+a.btn,
+button.btn,
+.btn-cta,
+.btn-ghost,
+.btn-primary,
+.btn-secondary,
+.btn-back,
+.ficha-actions .ficha-btn,
+.plan-actions .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.alertas-toolbar .btn,
+.tabela-estoque-moderna td .btn,
+.tabela-estoque-moderna td form .btn {
+  font-weight: 400 !important;
+}
+
+/* Also ensure icon-adjacent text (non icon-only) is not bold */
+body .btn:not(.btn-icon):not(.btn-back-circle),
+body button:not(.btn-icon):not(.btn-back-circle),
+body a.btn:not(.btn-icon):not(.btn-back-circle) {
+  font-weight: 400 !important;
+}
+
