@@ -78,15 +78,12 @@
                             <td>{{ $pl->ciclo ?? '-' }}</td>
                             <td>
                                 @php
-                                    // Dias compensados = ciclo atual - ciclo original (se disponível)
-                                    $diasComp = null;
-                                    if(isset($pl->ciclo_original)) {
+                                    $diasComp = 0;
+                                    if(isset($pl->ciclo_original) && !is_null($pl->ciclo_original)) {
                                         $diasComp = $pl->ciclo - $pl->ciclo_original;
-                                    } else {
-                                        $diasComp = $pl->dias_compensados ?? null;
                                     }
                                 @endphp
-                                {{ ($diasComp && $diasComp > 0) ? $diasComp : '-' }}
+                                {{ ($diasComp > 0) ? $diasComp : '0' }}
                             </td>
                             <td><span class="badge plan">{{ $pl->estado ?? '-' }}</span></td>
                         </tr>

@@ -26,6 +26,10 @@ class ClienteController extends Controller
         if (!$plano) {
             return back()->with('error', 'Nenhum plano ativo encontrado para este cliente.');
         }
+        // Se ciclo_original ainda não foi salvo, salva o valor atual antes de compensar
+        if (is_null($plano->ciclo_original)) {
+            $plano->ciclo_original = $plano->ciclo;
+        }
         $plano->ciclo += $request->dias_compensados;
         $plano->save();
         return back()->with('success', 'Compensação de dias registrada com sucesso!');
