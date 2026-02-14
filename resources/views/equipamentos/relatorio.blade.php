@@ -1,60 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">
-<style>
-.filtro-modern-cobranca .filtro-group {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 180px;
-    max-width: 260px;
-    width: 100%;
-    flex: 1 1 260px;
-    margin-bottom: 18px;
-}
-.filtro-modern-cobranca .filtro-group input[type="text"] {
-    border-radius: 24px;
-    border: 1.5px solid #f7b500;
-    padding: 10px 40px 10px 16px;
-    font-size: 1.08rem;
-    box-shadow: 0 2px 8px rgba(247,181,0,0.07);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    background: #fff;
-    width: 100%;
-    max-width: 260px;
-}
-@media (max-width: 700px) {
-    .filtro-modern-cobranca .filtro-group {
-        max-width: 100%;
-    }
-    .filtro-modern-cobranca .filtro-group input[type="text"] {
-        max-width: 100%;
-    }
-}
-.filtro-modern-cobranca .filtro-group input[type="text"]:focus {
-    border-color: #f7b500;
-    box-shadow: 0 4px 16px rgba(247,181,0,0.13);
-}
-.filtro-modern-cobranca .filtro-group .search-icon {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #f7b500;
-    font-size: 1.2rem;
-    pointer-events: none;
-}
-.filtro-modern-cobranca .filtro-group input[type="text"]::placeholder {
-    color: #b8b8b8;
-    font-style: italic;
-    opacity: 1;
-}
-.filtro-modern-cobranca .btn {
-    margin-bottom: 0 !important;
-}
-</style>
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
     <div class="mb-3 d-flex justify-content-between align-items-center">
