@@ -29,9 +29,9 @@
         }
         .clientes-toolbar .search-input {
             height:40px !important;
-            min-width:140px !important;
-            max-width:140px !important;
-            width:140px !important;
+            flex:1 !important;
+            min-width:320px !important;
+            max-width:100%;
             padding:0 12px !important;
             border-radius:8px !important;
             border:2px solid #e6a248 !important;
@@ -39,7 +39,23 @@
             font-size:1rem;
             display:inline-flex;
             align-items:center;
+        }
+        .clientes-toolbar .btn,
+        .clientes-toolbar .btn-search,
+        .clientes-toolbar .btn-cta,
+        .clientes-toolbar .btn-ghost {
+            height:40px !important;
+            min-width:140px !important;
+            max-width:140px !important;
+            width:140px !important;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            border-radius:8px;
             text-align:center;
+            white-space:nowrap;
+            box-sizing:border-box;
         }
         .clientes-toolbar .btn,
         .clientes-toolbar .btn-search,
