@@ -12,10 +12,42 @@
         'stackLeft' => true,
     ])
         {{-- Toolbar padronizada com Planos: pesquisa à esquerda, CTAs à direita --}}
-        <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
-            <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;">
-                <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por nome, modelo ou nº de série..." class="search-input" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
-                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+        <style>
+        /* Força padronização visual da toolbar de estoque */
+        .clientes-toolbar, .clientes-toolbar form.search-form-inline {
+            max-width:1100px;
+            margin:18px auto;
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+        .clientes-toolbar form.search-form-inline {
+            flex:1;
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+        .clientes-toolbar .search-input {
+            flex:1;
+            min-width:320px;
+            padding:10px 12px;
+            border-radius:6px;
+            border:2px solid #e6a248;
+            height:40px;
+        }
+        .clientes-toolbar .btn, .clientes-toolbar .btn-search, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost {
+            height:40px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            border-radius:8px;
+        }
+        </style>
+        <div class="clientes-toolbar">
+            <form method="GET" action="{{ route('estoque_equipamentos.index') }}" class="search-form-inline">
+                <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por nome, modelo ou nº de série..." class="search-input" />
+                <button type="submit" class="btn btn-search">Pesquisar</button>
                 @if(request('busca'))
                     <a href="{{ route('estoque_equipamentos.index') }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
                 @endif
