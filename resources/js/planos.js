@@ -105,14 +105,23 @@
             <div id="templatesModal">
                 <div class="modal">
                     <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <h3 style="margin:0">Planos</h3>
+                        <h3 style="margin:0">Planos</h3>
                         <div>
                             <button id="closeTemplatesModal" class="small-btn btn btn-secondary">Fechar</button>
                         </div>
                     </div>
+                    <style>
+                      /* Modal-specific toolbar: three equal buttons inline */
+                      #templatesModal .controls { display:flex; gap:12px; margin-bottom:12px; }
+                      #templatesModal .controls .ctrl-btn { flex:1; padding:10px 12px; height:44px; border-radius:8px; font-weight:700; text-align:center; }
+                      #templatesModal .controls .ctrl-btn.positive { background:#f7b500; color:#fff; box-shadow:0 6px 18px rgba(247,181,0,0.18); border:0; }
+                      #templatesModal .controls .ctrl-btn.ghost { background:transparent; border:1px solid #e6e6e6; color:#222; }
+                      @media (max-width:640px){ #templatesModal .controls { flex-direction:column; } }
+                    </style>
                     <div class="controls">
-                        <button id="newTemplateBtn" class="small-btn btn" style="background:#f7b500;color:#fff;box-shadow:0 6px 18px rgba(247,181,0,0.18);">Novo Modelo</button>
-                        <button id="reloadTemplatesBtn" class="small-btn btn btn-secondary">Recarregar</button>
+                        <button id="newTemplateBtn" class="ctrl-btn positive">Novo Plano</button>
+                        <button id="reloadTemplatesBtn" class="ctrl-btn">Recarregar</button>
+                        <button id="closeTemplatesModalBottom" class="ctrl-btn ghost">Fechar</button>
                     </div>
                     <div id="templatesListContainer"><em>Carregando...</em></div>
                     <div id="templateFormContainer" style="margin-top:12px; display:none;"></div>
