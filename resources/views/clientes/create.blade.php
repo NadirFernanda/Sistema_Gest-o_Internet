@@ -6,6 +6,11 @@
         <strong>Sucesso:</strong> {{ session('success') }}
     </div>
 @endif
+@if(session('error'))
+    <div class="alert alert-danger" style="margin-bottom:18px; border-radius:8px; background:#faeaea; color:#c0392b; padding:12px 18px; font-size:1.08rem;">
+        <strong>Erro:</strong> {{ session('error') }}
+    </div>
+@endif
 
 <div class="container">
     <a href="{{ route('clientes') }}" class="btn-back-circle btn-ghost mb-3" title="Voltar" aria-label="Voltar">
