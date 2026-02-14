@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const lista = document.getElementById('alertasLista');
             const diasAlertaInput = document.getElementById('diasAlerta');
             const DIAS_ALERTA = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
-            fetch(`/api/alertas?dias=${DIAS_ALERTA}`)
+            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { credentials: 'include' })
                 .then(async res => {
                     let alertas = [];
                     try {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const select = document.getElementById('clientePlano');
             if (!select) return;
             const valorAtual = select.value;
-            fetch('/api/clientes')
+            fetch('/api/clientes', { credentials: 'include' })
                 .then(async res => {
                     let clientes = [];
                     try {
@@ -125,9 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function renderPlanos() {
             const lista = document.getElementById('planosLista');
+            if (!lista) return;
             const filtro = encodeURIComponent(getFiltroPlanos());
             const url = filtro ? `/api/planos?busca=${filtro}` : '/api/planos';
-            fetch(url)
+            fetch(url, { credentials: 'include' })
                 .then(async res => {
                     let planos = [];
                     try {
@@ -230,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             fetch(url, {
                 method,
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cliente_id, nome, descricao, preco, ciclo, data_ativacao, estado })
             })
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const btn = e.target;
                         btn.disabled = true;
                         btn.textContent = 'Removendo...';
-                        fetch(`/api/planos/${id}`, { method: 'DELETE' })
+                        fetch(`/api/planos/${id}`, { method: 'DELETE', credentials: 'include' })
                             .then(res => {
                                 if (res.ok) {
                                     // Remover a linha da tabela sem recarregar tudo
@@ -307,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 if (e.target.classList.contains('btn-editar-plano')) {
-                    fetch(`/api/planos/${id}`)
+                    fetch(`/api/planos/${id}`, { credentials: 'include' })
                         .then(async res => {
                             let p = null;
                             try { p = await res.json(); } catch (err) { p = null; }
