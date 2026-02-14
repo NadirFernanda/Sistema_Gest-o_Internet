@@ -17,7 +17,7 @@ class ClienteController extends Controller
     public function compensarDias(Request $request, $cliente)
     {
         $request->validate([
-            'dias_compensados' => 'required|integer|min=1|max:90',
+            'dias_compensados' => 'required|integer|min:1|max:90',
         ]);
 
         $cliente = Cliente::findOrFail($cliente);
