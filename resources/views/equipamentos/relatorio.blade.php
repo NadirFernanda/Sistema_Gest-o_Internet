@@ -65,7 +65,7 @@
     <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:32px;">Relatório de Equipamentos em Estoque</h1>
     <div class="planos-toolbar" style="max-width:1100px;margin:18px auto 32px auto;display:flex;gap:10px;align-items:center;">
         <form class="search-form-inline" method="GET" action="{{ route('equipamentos.relatorio') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
-            <input type="search" name="nome" id="nome" class="search-input" value="{{ request('nome') }}" placeholder="Pesquise por equipamento..." aria-label="Pesquisar equipamentos" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+            <input type="search" name="nome" id="buscaEquipamentos" class="search-input" placeholder="Pesquise por equipamento..." aria-label="Pesquisar equipamentos" value="{{ request('nome') }}" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
             <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
         </form>
         <div style="display:flex;gap:8px;">
