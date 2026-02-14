@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-5" style="max-width:900px;margin:40px auto 0 auto;">
     <h1 class="mb-4" style="color:#f7b500;font-weight:bold;">Relatórios Gerais</h1>
     <p class="mb-3">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
     <div class="ficha-toolbar mb-4" style="justify-content:center;gap:12px;">
