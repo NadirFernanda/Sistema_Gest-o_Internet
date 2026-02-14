@@ -37,6 +37,7 @@
         }
         .clientes-toolbar .btn, .clientes-toolbar .btn-search, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost {
             height:40px;
+            min-width:140px;
             display:inline-flex;
             align-items:center;
             justify-content:center;
