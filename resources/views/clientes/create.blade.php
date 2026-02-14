@@ -17,7 +17,7 @@
 
             <div class="field full">
                 <label for="nome">Nome completo *</label>
-                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo">
+                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" required>
                 @if($errors->has('nome'))
                     <div class="invalid-feedback">{{ $errors->first('nome') }}</div>
                 @endif
@@ -25,7 +25,7 @@
 
             <div class="field">
                 <label for="bi_tipo">Tipo de documento *</label>
-                <select id="bi_tipo" name="bi_tipo" class="select">
+                <select id="bi_tipo" name="bi_tipo" class="select" required>
                     <option value="BI">BI</option>
                     <option value="NIF">NIF</option>
                     <option value="Outro">Outro</option>
@@ -37,7 +37,7 @@
 
             <div class="field">
                 <label for="bi_numero" id="labelBiNumero">BI / NIF *</label>
-                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF">
+                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" required>
                 @if($errors->has('bi_numero'))
                     <div class="invalid-feedback">{{ $errors->first('bi_numero') }}</div>
                 @endif
@@ -53,7 +53,7 @@
 
             <div class="field">
                 <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com">
+                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" required>
                 @if($errors->has('email'))
                     <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                 @endif
@@ -61,7 +61,7 @@
 
             <div class="field">
                 <label for="contato">Contacto (WhatsApp) *</label>
-                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX">
+                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" required>
                 @if($errors->has('contato'))
                     <div class="invalid-feedback">{{ $errors->first('contato') }}</div>
                 @endif
