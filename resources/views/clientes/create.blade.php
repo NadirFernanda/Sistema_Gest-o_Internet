@@ -133,5 +133,25 @@
 <!-- No client-side JS needed: form submits normally to the controller -->
 
 @push('scripts')
-<!-- Validação client-side removida. O backend Laravel controla todas as mensagens de erro. -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const biTipo = document.getElementById('bi_tipo');
+    const biNumeroLabel = document.getElementById('labelBiNumero');
+    const biOutroWrap = document.getElementById('bi_tipo_outro_wrap');
+    function updateBiTipo() {
+        if (biTipo.value === 'BI') {
+            biNumeroLabel.textContent = 'BI *';
+            biOutroWrap.style.display = 'none';
+        } else if (biTipo.value === 'NIF') {
+            biNumeroLabel.textContent = 'NIF *';
+            biOutroWrap.style.display = 'none';
+        } else {
+            biNumeroLabel.textContent = 'Outro documento *';
+            biOutroWrap.style.display = 'block';
+        }
+    }
+    biTipo.addEventListener('change', updateBiTipo);
+    updateBiTipo();
+});
+</script>
 @endpush
