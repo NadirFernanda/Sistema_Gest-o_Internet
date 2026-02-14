@@ -17,6 +17,15 @@
   text-decoration:none;
   /* font-weight removido para não ficar negrito */
   box-shadow:0 6px 18px rgba(247,181,0,0.18);
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ficha-download:hover {
+  transform: translateY(-3px);
+  background: #f7b500 !important;
+  color: #fff !important;
+  border-color: #f7b500 !important;
+  box-shadow: 0 6px 18px rgba(247,181,0,0.12) !important;
 }
 
 .ficha-actions{ display:flex; gap:12px; align-items:center; }
