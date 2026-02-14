@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success" style="margin-bottom:18px; border-radius:8px; background:#eafaf1; color:#218c5b; padding:12px 18px; font-size:1.08rem;">
+        <strong>Sucesso:</strong> {{ session('success') }}
+    </div>
+@endif
     <div class="clientes-container">
         <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
         <header class="clientes-hero modern-hero">
