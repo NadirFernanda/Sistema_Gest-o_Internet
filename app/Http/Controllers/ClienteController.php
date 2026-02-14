@@ -8,6 +8,7 @@ use App\Models\Cliente;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ClienteController extends Controller
+{
     /**
      * Compensa dias para o cliente (stub inicial).
      * POST /clientes/{cliente}/compensar-dias
@@ -17,7 +18,6 @@ class ClienteController extends Controller
         // TODO: Implementar lógica de compensação de dias
         return back()->with('success', 'Compensação de dias registrada (stub).');
     }
-{
     /**
      * Retorna planos elegíveis para alerta de vencimento (para exibir na lista do frontend)
      * GET /api/alertas?dias=5
