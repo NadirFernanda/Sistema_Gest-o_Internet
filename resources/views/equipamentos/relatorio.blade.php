@@ -63,17 +63,16 @@
         </a>
     </div>
     <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:32px;">Relatório de Equipamentos em Estoque</h1>
-    <form method="GET" action="{{ route('equipamentos.relatorio') }}" class="filtro-modern-cobranca" style="margin-bottom:32px;">
-        <div class="filtro-group">
-            <label for="nome">Nome do Equipamento</label>
-            <input type="text" name="nome" id="nome" value="{{ request('nome') }}" placeholder="Pesquisar equipamento..." style="height:40px; flex:1; min-width:320px; padding:8px 18px; border-radius:8px;" />
-            <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#f7b500" stroke-width="2"/><path stroke="#f7b500" stroke-width="2" stroke-linecap="round" d="M20 20l-3.5-3.5"/></svg></span>
+    <div class="equip-toolbar" style="max-width:1100px;margin:18px auto 32px auto;display:flex;gap:10px;align-items:center;">
+        <form method="GET" action="{{ route('equipamentos.relatorio') }}" class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;">
+            <input type="search" name="nome" id="nome" value="{{ request('nome') }}" placeholder="Pesquise por equipamento..." style="height:40px; flex:1; min-width:320px; padding:8px 18px; border-radius:8px; border:2px solid #e6a248;" />
+            <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+        </form>
+        <div style="display:flex;gap:8px;">
+            <a href="{{ route('equipamentos.relatorio.export', request()->all()) }}" class="btn btn-cta" style="min-width:140px;">Exportar Excel</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
         </div>
-        <div style="display:flex;gap:16px;align-items:center;">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="{{ route('equipamentos.relatorio.export', request()->all()) }}" class="btn btn-success" style="min-width:140px;color:#fff;" target="_blank">Exportar Excel</a>
-        </div>
-    </form>
+    </div>
     <table class="table table-bordered table-striped mt-4" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">
         <thead style="background:#f7b500;color:#fff;">
             <tr>
