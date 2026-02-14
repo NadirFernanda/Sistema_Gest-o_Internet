@@ -448,6 +448,63 @@
   align-items:center;
   justify-content:space-between;
 }
+
+/* New: unified, flexible toolbar style that matches the provided model
+   - input expands to available space
+   - buttons keep consistent height and spacing
+   - supports variable number of buttons (only change markup to add/remove) */
+.toolbar-flex, .clientes-toolbar, .planos-toolbar, .equipamentos-toolbar, .alertas-toolbar{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  width:100%;
+  max-width:1100px;
+  margin:18px auto;
+}
+
+.toolbar-flex .search-input,
+.clientes-toolbar .busca-planos-input,
+.planos-toolbar .search-input {
+  flex:1 1 auto;
+  min-width:140px;
+  padding:10px 14px;
+  border-radius:10px;
+  border:2px solid #e67e00;
+  background:#fff;
+  color:#222;
+  box-shadow:none;
+  font-size:0.95rem;
+}
+
+.toolbar-flex .btn,
+.clientes-toolbar .btn,
+.planos-toolbar .btn,
+.equipamentos-toolbar .btn {
+  padding:8px 12px;
+  border-radius:8px;
+  border:2px solid #e67e00;
+  background:transparent;
+  color:#e67e00;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.toolbar-flex .btn-primary,
+.clientes-toolbar .btn-cta,
+.planos-toolbar .btn-cta {
+  background:#f7b500 !important;
+  border-color:#f7b500 !important;
+  color:#fff !important;
+}
+
+/* Compact right-aligned action group — keep buttons same height */
+.toolbar-actions{ display:flex; gap:8px; align-items:center; }
+
+@media (max-width:900px){
+  .toolbar-flex{ flex-direction:column; align-items:stretch; gap:10px; }
+  .toolbar-flex .search-input{ width:100%; }
+  .toolbar-actions{ justify-content:flex-start; }
+}
 /* Left group inside toolbar to host filtro buttons */
 .clientes-toolbar-left{ display:flex; gap:10px; align-items:center; flex:1 1 auto; }
 .clientes-toolbar-left .filtro-actions{ display:flex; gap:6px; align-items:center; }
