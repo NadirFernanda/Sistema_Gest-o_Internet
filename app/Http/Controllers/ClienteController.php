@@ -432,11 +432,32 @@ class ClienteController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $customMessages = [];
+            // Só mostra mensagem de único se não houver erro de obrigatório
             if ($errors->has('email')) {
-                $customMessages['email'] = 'Já existe um cliente cadastrado com este e-mail.';
+                $emailErrors = $errors->get('email');
+                $requiredEmail = false;
+                foreach ($emailErrors as $msg) {
+                    if (strpos($msg, 'obrigatório') !== false) {
+                        $requiredEmail = true;
+                        break;
+                    }
+                }
+                if (!$requiredEmail) {
+                    $customMessages['email'] = 'Já existe um cliente cadastrado com este e-mail.';
+                }
             }
             if ($errors->has('contato')) {
-                $customMessages['contato'] = 'Já existe um cliente cadastrado com este contato.';
+                $contatoErrors = $errors->get('contato');
+                $requiredContato = false;
+                foreach ($contatoErrors as $msg) {
+                    if (strpos($msg, 'obrigatório') !== false) {
+                        $requiredContato = true;
+                        break;
+                    }
+                }
+                if (!$requiredContato) {
+                    $customMessages['contato'] = 'Já existe um cliente cadastrado com este contato.';
+                }
             }
             $defaultMessages = $errors->messages();
             $allMessages = array_merge($defaultMessages, $customMessages);
