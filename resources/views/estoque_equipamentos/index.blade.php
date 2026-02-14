@@ -94,26 +94,26 @@
     @endif
     {{-- Pesquisa já incluída na toolbar acima (padronizada com Planos) --}}
     <div class="estoque-tabela-moderna">
-        <table class="tabela-estoque-moderna">
+        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Modelo</th>
-                    <th>Nº Série</th>
-                    <th>Quantidade</th>
-                    <th>Ações</th>
+                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
+                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
+                    <th style="text-align:center;vertical-align:middle;">Marca</th>
+                    <th style="text-align:center;vertical-align:middle;">Nº Série</th>
+                    <th style="text-align:center;vertical-align:middle;">Quantidade</th>
+                    <th style="text-align:center;vertical-align:middle;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($equipamentos as $equipamento)
                     <tr>
-                        <td>{{ $equipamento->nome }}</td>
-                        <td>{{ $equipamento->descricao }}</td>
-                        <td>{{ $equipamento->modelo }}</td>
-                        <td>{{ $equipamento->numero_serie }}</td>
-                        <td>{{ $equipamento->quantidade }}</td>
-                        <td style="white-space:nowrap">
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->nome }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->quantidade }}</td>
+                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
                                 <a href="{{ route('estoque_equipamentos.edit', $equipamento->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                             </a>
