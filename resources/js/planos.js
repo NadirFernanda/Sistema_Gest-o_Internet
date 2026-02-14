@@ -50,7 +50,8 @@
     // Templates loader and modal (depends on window.planosConfig)
     (function(){
         if(typeof window.planosConfig === 'undefined') window.planosConfig = {};
-        const planTemplatesListUrl = window.planosConfig.planTemplatesList || '/plan-templates/list.json';
+        // correct default URL: route is '/plan-templates-list-json' (see routes/web.php)
+        const planTemplatesListUrl = window.planosConfig.planTemplatesList || '/plan-templates-list-json';
         const planTemplatesBase = window.planosConfig.planTemplatesBase || '/plan-templates';
 
         const tplSelect = document.getElementById('templateSelector');

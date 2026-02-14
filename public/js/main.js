@@ -260,7 +260,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
         // Remover e editar
-        document.getElementById('planosLista').addEventListener('click', function(e) {
+        const planosListaEl = document.getElementById('planosLista');
+        if (planosListaEl) {
+            planosListaEl.addEventListener('click', function(e) {
             if (e.target.classList.contains('btn-remover-plano') || e.target.classList.contains('btn-editar-plano')) {
                 const i = e.target.getAttribute('data-i');
                 const linhas = document.querySelectorAll('#planosLista tbody tr');
@@ -330,7 +332,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                 }
             }
-        });
+            });
+        }
         // Busca de planos
         const btnBuscarPlanos = document.getElementById('btnBuscarPlanos');
         if (btnBuscarPlanos) {
