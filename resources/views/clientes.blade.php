@@ -25,15 +25,20 @@
         }
         </style>
 
-        // wire modal to old and new delete buttons
-        document.querySelectorAll('.btn-excluir-cliente, .actions-delete').forEach(function(btn){
-            btn.addEventListener('click', function(e){
-                e.stopPropagation();
-                const id = this.getAttribute('data-id');
-                if (!id) return;
-                openDeleteModal(id);
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // wire modal to old and new delete buttons
+            document.querySelectorAll('.btn-excluir-cliente, .actions-delete').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    if (!id) return;
+                    if (typeof openDeleteModal === 'function') {
+                        openDeleteModal(id);
+                    }
+                });
             });
         });
-</script>
-@endpush
+        </script>
+
 @endsection
