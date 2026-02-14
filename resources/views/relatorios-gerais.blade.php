@@ -13,25 +13,27 @@
     <small class="text-muted">Os arquivos são gerados automaticamente pelo sistema e incluem todas as movimentações do período.</small>
     <hr class="my-4">
     <h5 class="mb-2">Histórico de Relatórios Disponíveis</h5>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Período</th>
-                <th>Arquivo</th>
-                <th>Data</th>
-                <th>Download</th>
+    <table class="table table-bordered table-striped" style="margin:0 auto;max-width:900px;background:#fffbe7;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.06);">
+        <thead style="background:#ffe6a1;">
+            <tr style="font-size:1.08rem;">
+                <th style="padding:14px 10px;text-align:center;">Período</th>
+                <th style="padding:14px 10px;text-align:center;">Arquivo</th>
+                <th style="padding:14px 10px;text-align:center;">Data</th>
+                <th style="padding:14px 10px;text-align:center;">Download</th>
             </tr>
         </thead>
         <tbody>
             @forelse($historico ?? [] as $item)
-                <tr>
-                    <td>{{ ucfirst($item['period']) }}</td>
-                    <td>{{ $item['name'] }}</td>
-                    <td>{{ $item['date'] }}</td>
-                    <td><a href="{{ $item['url'] }}" class="btn btn-sm btn-success">Baixar</a></td>
+                <tr style="font-size:1.04rem;">
+                    <td style="padding:12px 8px;text-align:center;vertical-align:middle;">{{ ucfirst($item['period']) }}</td>
+                    <td style="padding:12px 8px;text-align:center;vertical-align:middle;word-break:break-all;">{{ $item['name'] }}</td>
+                    <td style="padding:12px 8px;text-align:center;vertical-align:middle;">{{ $item['date'] }}</td>
+                    <td style="padding:12px 8px;text-align:center;vertical-align:middle;">
+                        <a href="{{ $item['url'] }}" class="btn btn-sm btn-success" style="min-width:110px;font-weight:600;font-size:1.05rem;background:#f7b500;border:none;color:#fff;border-radius:10px;">Baixar</a>
+                    </td>
                 </tr>
             @empty
-                <tr><td colspan="4" class="text-center">Nenhum relatório disponível.</td></tr>
+                <tr><td colspan="4" class="text-center" style="padding:18px 0;">Nenhum relatório disponível.</td></tr>
             @endforelse
         </tbody>
     </table>
