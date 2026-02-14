@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
+use Carbon\Carbon;
 use App\Models\Cliente;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -15,8 +16,19 @@ class ClienteController extends Controller
      */
     public function compensarDias(Request $request, $cliente)
     {
-        // TODO: Implementar lógica de compensação de dias
-        return back()->with('success', 'Compensação de dias registrada (stub).');
+        $request->validate([
+            'dias_compensados' => 'required|integer|min=1|max:90',
+        ]);
+
+        $cliente = Cliente::findOrFail($cliente);
+        // Busca o plano ativo mais recente
+        $plano = $cliente->planos()->where('estado', 'Ativo')->orderByDesc('data_ativacao')->first();
+        if (!$plano) {
+            return back()->with('error', 'Nenhum plano ativo encontrado para este cliente.');
+        }
+        $plano->ciclo += $request->dias_compensados;
+        $plano->save();
+        return back()->with('success', 'Compensação de dias registrada com sucesso!');
     }
     /**
      * Retorna planos elegíveis para alerta de vencimento (para exibir na lista do frontend)
