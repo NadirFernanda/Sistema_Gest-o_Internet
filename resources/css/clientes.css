@@ -71,6 +71,21 @@
 /* Make sure the meta section lays out plain text values without pill styling */
 .plan-card .plan-meta { display:flex; gap:12px; align-items:center; }
 .plan-card .plan-meta > * { display:inline-block; }
+
+/* Status badge used in plan cards (e.g., 'Ativo') — render as plain text, aligned */
+.plan-card .status-badge,
+.plan-card .status-badge.ativo,
+.plan-card .status-badge.inativo {
+  display: inline-block;
+  background: transparent !important;
+  color: #111 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.plan-card .plan-meta > .status-badge { margin-left: 0; }
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
