@@ -739,8 +739,8 @@ button.btn:not(.btn-icon) {
 .toolbar-flex .btn-search,
 .clientes-toolbar .busca-planos-btn,
 .planos-toolbar .btn-search {
-  flex: 0 0 180px; /* ajuste este valor conforme preferir (ex.: 140px, 160px) */
-  max-width: 180px;
+  flex: 0 0 120px; /* alinhado aos outros botões */
+  max-width: 120px;
   white-space: nowrap;
 }
 
