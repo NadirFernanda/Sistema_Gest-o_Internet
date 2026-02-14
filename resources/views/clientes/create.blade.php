@@ -36,13 +36,6 @@
                 @if($errors->has('bi_tipo'))
                     <div class="invalid-feedback">{{ $errors->first('bi_tipo') }}</div>
                 @endif
-                    <option value="BI">BI</option>
-                    <option value="NIF">NIF</option>
-                    <option value="Outro">Outro</option>
-                </select>
-                @if($errors->has('bi_tipo'))
-                    <div class="invalid-feedback">{{ $errors->first('bi_tipo') }}</div>
-                @endif
             </div>
 
             <div class="field">
