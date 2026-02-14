@@ -405,6 +405,9 @@ class ClienteController extends Controller
                 'email' => 'required|email|unique:clientes,email',
                 'contato' => 'required|string|max:20|unique:clientes,contato',
             ], [
+                'bi_tipo.required' => 'Por favor selecione o tipo de documento.',
+                'bi_numero.required' => 'Por favor preencha o número do BI/NIF.',
+                'nome.required' => 'Por favor preencha o nome do cliente.',
                 'email.required' => 'Por favor preencha o email do cliente.',
                 'contato.required' => 'Por favor preencha o contato do cliente.',
             ]);
