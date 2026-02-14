@@ -29,11 +29,16 @@
         }
         .clientes-toolbar .search-input {
             flex:1;
-            min-width:320px;
-            padding:10px 12px;
-            border-radius:6px;
-            border:2px solid #e6a248;
-            height:40px;
+            min-width:140px;
+            max-width:320px;
+            height:40px !important;
+            padding:0 12px !important;
+            border-radius:8px !important;
+            border:2px solid #e6a248 !important;
+            box-sizing:border-box;
+            font-size:1rem;
+            display:inline-flex;
+            align-items:center;
         }
         .clientes-toolbar .btn,
         .clientes-toolbar .btn-search,
