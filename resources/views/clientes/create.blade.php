@@ -135,6 +135,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Select logic
     const biTipo = document.getElementById('bi_tipo');
     const biNumeroLabel = document.getElementById('labelBiNumero');
     const biOutroWrap = document.getElementById('bi_tipo_outro_wrap');
@@ -152,6 +153,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     biTipo.addEventListener('change', updateBiTipo);
     updateBiTipo();
+
+    // Hide error messages on input
+    const fields = ['nome','bi_numero','bi_tipo_outro','email','contato'];
+    fields.forEach(function(field) {
+        const input = document.getElementById(field);
+        if (input) {
+            input.addEventListener('input', function() {
+                const errorDiv = input.parentNode.querySelector('.text-danger');
+                if (errorDiv) errorDiv.style.display = 'none';
+                const errorSpan = input.parentNode.querySelector('span[style*="color:#c0392b"]');
+                if (errorSpan) errorSpan.style.display = 'none';
+            });
+        }
+    });
 });
 </script>
 @endpush
