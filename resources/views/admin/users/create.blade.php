@@ -12,8 +12,8 @@
     ])
     <div class="card mx-auto create-card" style="max-width:720px">
                 <div class="card-accent"></div>
-                <div class="card-top-actions" style="position:relative;">
-                    <a href="javascript:history.back()" class="btn-back-circle btn-ghost" title="Voltar" aria-label="Voltar" style="position:absolute;right:16px;top:12px;">
+                <div class="card-top-actions" style="display:flex;justify-content:center;align-items:center;margin:18px 0 8px 0;">
+                    <a href="javascript:history.back()" class="btn-back-circle btn-ghost" title="Voltar" aria-label="Voltar">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </a>
                 </div>
