@@ -27,8 +27,10 @@
                 @enderror
             </div>
             <div class="form-group form-remember" style="display: flex; flex-direction: row; align-items: center; gap: 2px; margin-bottom: 8px; margin-top: 2px;">
-                <input type="checkbox" name="remember" id="remember" style="margin: 0 2px 0 0;">
-                <label for="remember" style="margin: 0; font-size: 1rem; font-weight: 500; color: #444; cursor: pointer; white-space: nowrap;">Lembrar-me</label>
+                <label for="remember" style="display: flex; align-items: center; gap: 2px; margin: 0; font-size: 1rem; font-weight: 500; color: #444; cursor: pointer; white-space: nowrap;">
+                    <input type="checkbox" name="remember" id="remember" style="margin: 0 2px 0 0;">
+                    Lembrar-me
+                </label>
             </div>
             <button type="submit" class="login-btn">Entrar</button>
         </form>
