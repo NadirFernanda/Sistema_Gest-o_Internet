@@ -1,3 +1,29 @@
+    <div style="display: flex; justify-content: center; margin-bottom: 18px;">
+        <a href="{{ route('cobrancas.index') }}" class="btn-back-circle" title="Voltar" aria-label="Voltar">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="#f7b500"/>
+                <path d="M15 18l-6-6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </div>
+        .btn-back-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            box-shadow: 0 2px 8px rgba(247,181,0,0.10);
+            transition: box-shadow 0.2s, transform 0.2s;
+            padding: 0;
+            cursor: pointer;
+        }
+        .btn-back-circle:hover {
+            box-shadow: 0 4px 16px rgba(247,181,0,0.18);
+            transform: scale(1.08);
+        }
 @extends('layouts.app')
 
 @section('content')
