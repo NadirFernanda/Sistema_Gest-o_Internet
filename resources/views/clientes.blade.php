@@ -483,7 +483,7 @@
                 const email = document.getElementById('editEmail').value;
                 const contato = document.getElementById('editContato').value;
                 const token = document.querySelector('input[name="_token"]').value;
-                const clienteId = {{ $cliente->id }};
+                const clienteId = @json($cliente->id);
                 const msgSpan = document.getElementById('msgAtualizaCliente');
                 msgSpan.textContent = '';
                 fetch(`/clientes/${clienteId}`, {
