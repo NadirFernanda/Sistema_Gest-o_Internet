@@ -96,50 +96,52 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="estoque-container-moderna">
-                <h5 style="margin-bottom:0;font-weight:700;color:#222;">Equipamentos Associados</h5>
-                @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
-                <div class="estoque-tabela-moderna">
-                    <table class="tabela-estoque-moderna">
-                        <thead>
-                            <tr>
-                                <th style="text-align:center;vertical-align:middle;">Marca</th>
-                                <th style="text-align:center;vertical-align:middle;">Descrição</th>
-                                <th style="text-align:center;vertical-align:middle;">Modelo</th>
-                                <th style="text-align:center;vertical-align:middle;">Nº Série</th>
-                                <th style="text-align:center;vertical-align:middle;">Quantidade</th>
-                                <th style="text-align:center;vertical-align:middle;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
-                                @php $est = $vinc->equipamento; @endphp
+            <div class="card mb-3 shadow-sm" style="border-radius:12px;overflow:hidden;">
+                <div class="card-header" style="background:#fffbe7;color:#f7b500;font-weight:700;font-size:1.08rem;letter-spacing:0.5px;">Equipamentos Associados</div>
+                <div class="card-body p-0">
+                    @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
+                    <div class="table-responsive">
+                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+                            <thead>
                                 <tr>
-                                    <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
-                                    <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
-                                    <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
-                                    <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
-                                    <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
-                                    <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
-                                        <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                                        </a>
-                                        <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $vinc->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja desvincular este equipamento?')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                                            </button>
-                                        </form>
-                                    </td>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Marca</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Descrição</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Nº Série</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Quantidade</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Ações</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
+                                    @php $est = $vinc->equipamento; @endphp
+                                    <tr style="background:{{ $loop->odd ? '#fcfcfd' : '#fff' }};">
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
+                                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                            </a>
+                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $vinc->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja desvincular este equipamento?')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @else
+                        <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
+                    @endif
                 </div>
-                @else
-                    <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
-                @endif
             </div>
             <div class="card mb-3">
                 <div class="card-header">Planos Contratados</div>
