@@ -89,7 +89,6 @@
                 <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
                 <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
-                @include('relatorios.buttons')
             </div>
         </div>
         <div class="filtro-group">
