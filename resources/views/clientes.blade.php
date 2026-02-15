@@ -97,12 +97,17 @@
                 <div class="ficha-card" style="max-width:980px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#fff9eb, #fffbe7);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
+                        @php
+                            $user = auth()->user();
+                        @endphp
+                        @if(!$user || (!$user->hasRole('colaborador') && !$user->hasRole('gerente')))
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
                             <!-- Botão único: Compensar Dias -->
                             <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
                                 Compensar Dias
                             </button>
                         </div>
+                        @endif
                             <!-- Modal para compensar dias -->
                             <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
                                 <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
