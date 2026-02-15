@@ -99,9 +99,9 @@
 .login-logo {
     width: 80px;
     height: 80px;
-    object-fit: cover;
+    object-fit: contain;
     margin-bottom: 10px;
-    border-radius: 50%;
+    /* Removido border-radius para não cortar o nome */
     box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
     background: #fff;
     border: 2px solid #f7b500;
