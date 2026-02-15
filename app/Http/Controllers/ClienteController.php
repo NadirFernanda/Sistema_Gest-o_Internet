@@ -21,8 +21,14 @@ class ClienteController extends Controller
         ]);
 
         $cliente = Cliente::findOrFail($cliente);
-        // Busca o plano ativo mais recente
-        $plano = $cliente->planos()->where('estado', 'Ativo')->orderByDesc('data_ativacao')->first();
+        // Busca o plano ativo mais recente (estado = 'Ativo' e ativo = true)
+        $plano = $cliente->planos()
+            ->where('estado', 'Ativo')
+            ->where(function($q) {
+                $q->where('ativo', true)->orWhereNull('ativo');
+            })
+            ->orderByDesc('data_ativacao')
+            ->first();
         if (!$plano) {
             return back()->with('error', 'Nenhum plano ativo encontrado para este cliente.');
         }
