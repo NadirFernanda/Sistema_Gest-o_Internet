@@ -1,7 +1,7 @@
 <div class="btn-group" role="group" aria-label="Relatórios automáticos">
-    <a href="{{ route('relatorios.download', 'diario') }}" class="btn btn-sm btn-primary">Relatório Diário</a>
-    <a href="{{ route('relatorios.download', 'semanal') }}" class="btn btn-sm btn-secondary">Relatório Semanal</a>
-    <a href="{{ route('relatorios.download', 'mensal') }}" class="btn btn-sm btn-success">Relatório Mensal</a>
+    <a href="{{ route('relatorios.gerais.download', 'diario') }}" class="btn btn-sm btn-primary">Relatório Diário</a>
+    <a href="{{ route('relatorios.gerais.download', 'semanal') }}" class="btn btn-sm btn-secondary">Relatório Semanal</a>
+    <a href="{{ route('relatorios.gerais.download', 'mensal') }}" class="btn btn-sm btn-success">Relatório Mensal</a>
 </div>
 
 @push('scripts')
