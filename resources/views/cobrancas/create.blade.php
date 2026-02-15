@@ -3,13 +3,27 @@
 @section('content')
 <div class="container" style="max-width: 600px; margin: 40px auto;">
     <h2>{{ isset($cobranca) ? 'Editar Cobrança' : 'Cadastrar Cobrança' }}</h2>
-    <a href="{{ route('cobrancas.index') }}" class="btn btn-back btn-ghost mb-3">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Voltar
-    </a>
+    <!-- Botão de voltar removido a pedido do usuário -->
     <style>
+        /* .btn-back-circle removido */
+        .btn-back-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            box-shadow: 0 2px 8px rgba(247,181,0,0.10);
+            transition: box-shadow 0.2s, transform 0.2s;
+            padding: 0;
+            cursor: pointer;
+        }
+        .btn-back-circle:hover {
+            box-shadow: 0 4px 16px rgba(247,181,0,0.18);
+            transform: scale(1.08);
+        }
         .form-modern input[type="text"],
         .form-modern input[type="number"],
         .form-modern input[type="date"],
