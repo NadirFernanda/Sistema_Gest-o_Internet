@@ -36,7 +36,12 @@
             </form>
             <div style="display:flex;gap:8px;">
                 @can('clientes.create')
-                <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                    @php
+                        $user = auth()->user();
+                    @endphp
+                    @if(!$user || !$user->hasRole('colaborador'))
+                        <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                    @endif
                 @endcan
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
