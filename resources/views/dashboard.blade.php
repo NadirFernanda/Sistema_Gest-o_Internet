@@ -12,8 +12,16 @@
         <h1>Dashboard Administrativo</h1>
         <p>Bem-vindo ao painel de gestão de clientes e planos.</p>
         @auth
-        @php $activeRole = session('acting_as_role') ?: (auth()->user()->getRoleNames()->first() ?? '—'); @endphp
-        <div class="active-role-banner">Atuando como: <strong>{{ $activeRole }}</strong></div>
+        @php
+            $roleNames = auth()->user()->getRoleNames();
+            $activeRole = session('acting_as_role') ?: ($roleNames->isNotEmpty() ? $roleNames->implode(', ') : '—');
+        @endphp
+        <div class="active-role-banner">
+            Atuando como: <strong>{{ $activeRole }}</strong>
+            @if($roleNames->isEmpty())
+                <span style="color:red;">(Usuário sem role!)</span>
+            @endif
+        </div>
         @endauth
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
