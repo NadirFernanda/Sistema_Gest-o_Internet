@@ -242,7 +242,7 @@
                 @endphp
                 @if($hasEquip || $hasVincs)
                     <div class="estoque-tabela-moderna" style="margin-top:24px;">
-                        <table class="tabela-estoque-moderna">
+                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
                             <thead>
                                 <tr>
                                     <th style="text-align:center;vertical-align:middle;">Marca</th>
