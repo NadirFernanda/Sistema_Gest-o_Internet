@@ -95,42 +95,98 @@
                 <div class="card-header">Equipamentos Associados</div>
                 <div class="card-body p-0">
                     @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="col-id">Nº</th>
-                                <th class="col-nome">Nome</th>
-                                <th class="col-modelo">Modelo</th>
-                                <th class="col-serie">Série</th>
-                                <th class="col-quant">Quantidade</th>
-                                <th class="col-morada">Morada / Referência</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($cliente->equipamentos ?? [] as $eq)
+                    <div class="estoque-tabela-moderna">
+                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+                            <thead>
                                 <tr>
-                                    <td class="col-id">{{ $eq->id }}</td>
-                                    <td class="col-nome">{{ $eq->nome ?? '-' }}</td>
-                                    <td class="col-modelo">{{ $eq->modelo ?? '-' }}</td>
-                                    <td class="col-serie">{{ $eq->numero_serie ?? '-' }}</td>
-                                    <td class="col-quant">{{ $eq->quantidade ?? '1' }}</td>
-                                    <td class="col-morada">{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
+                                    <th style="text-align:center;vertical-align:middle;">Nº</th>
+                                    <th style="text-align:center;vertical-align:middle;">Nome</th>
+                                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;">Série</th>
+                                    <th style="text-align:center;vertical-align:middle;">Quantidade</th>
+                                    <th style="text-align:center;vertical-align:middle;">Morada / Referência</th>
                                 </tr>
-                            @endforeach
-
-                            @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
-                                @php $est = $vinc->equipamento; @endphp
-                                <tr>
-                                    <td class="col-id">{{ $vinc->id }}</td>
-                                    <td class="col-nome">{{ $est->nome ?? '-' }}</td>
-                                    <td class="col-modelo">{{ $est->modelo ?? '-' }}</td>
-                                    <td class="col-serie">{{ $est->numero_serie ?? '-' }}</td>
-                                    <td class="col-quant">{{ $vinc->quantidade ?? '1' }}</td>
-                                    <td class="col-morada">{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($cliente->equipamentos ?? [] as $eq)
+                                    <tr>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->id }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->nome ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->modelo ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->numero_serie ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->quantidade ?? '1' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                                @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
+                                    @php $est = $vinc->equipamento; @endphp
+                                    <tr>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->id }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <style>
+                        .estoque-tabela-moderna {
+                            background: #fff;
+                            border-radius: 16px;
+                            box-shadow: 0 2px 8px #0001;
+                            padding: 18px 18px 8px 18px;
+                            margin-top: 18px;
+                            overflow-x: auto;
+                        }
+                        .tabela-estoque-moderna {
+                            width: 100%;
+                            min-width: 640px;
+                            font-size: 1.07em;
+                            border-collapse: collapse;
+                            background: #fff;
+                            border-radius: 8px;
+                            overflow: hidden;
+                        }
+                        .tabela-estoque-moderna th,
+                        .tabela-estoque-moderna td {
+                            padding: 8px 6px;
+                        }
+                        .tabela-estoque-moderna th {
+                            background: #fffbe7;
+                            color: #f7b500;
+                            font-weight: bold;
+                            font-size: 1.09em;
+                            border-bottom: 2px solid #ffe6a0;
+                            padding: 14px 12px;
+                        }
+                        .tabela-estoque-moderna td {
+                            background: #fff;
+                            color: #222;
+                            font-size: 1em;
+                            padding: 13px 12px;
+                        }
+                        .tabela-estoque-moderna tr {
+                            border-bottom: 1px solid #f3e6b0;
+                        }
+                        @media (max-width: 900px) {
+                            .tabela-estoque-moderna {
+                                min-width: 520px;
+                                font-size: 0.98em;
+                            }
+                            /* Reduce padding on very small screens */
+                            @media (max-width: 640px) {
+                                .tabela-estoque-moderna th,
+                                .tabela-estoque-moderna td {
+                                    padding: 6px 6px;
+                                    font-size: 0.95em;
+                                }
+                                .tabela-estoque-moderna { min-width: 480px; }
+                            }
+                        }
+                    </style>
                     @else
                         <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
                     @endif
