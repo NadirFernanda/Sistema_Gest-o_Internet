@@ -11,10 +11,15 @@
 
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Cache-busting query to force browsers to fetch updated CSS after deploy (legacy styles) --}}
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
+    {{-- Carregar assets apenas se não for a tela de login --}}
+    @if (!request()->is('login'))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
+    @else
+        {{-- Apenas o mínimo necessário para o login --}}
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
+    @endif
 
     @stack('styles')
 </head>
@@ -33,7 +38,9 @@
         </main>
     @endauth
 
-    <script src="{{ asset('js/main.js') }}"></script>
+    @if (!request()->is('login'))
+        <script src="{{ asset('js/main.js') }}"></script>
+    @endif
 
     @stack('scripts')
 </body>
