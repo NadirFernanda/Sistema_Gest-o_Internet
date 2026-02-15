@@ -245,14 +245,14 @@
                         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate; background:#fff; border-radius:8px; overflow:hidden;">
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;vertical-align:middle;">Marca</th>
-                                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
-                                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
-                                    <th style="text-align:center;vertical-align:middle;">Nº Série</th>
-                                    <th style="text-align:center;vertical-align:middle;">Morada</th>
-                                    <th style="text-align:center;vertical-align:middle;">Ponto de Referência</th>
-                                    <th style="text-align:center;vertical-align:middle;">Quantidade</th>
-                                    <th style="text-align:center;vertical-align:middle;">Ações</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Marca</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Descrição</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Nº Série</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Morada</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Ponto de Referência</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Quantidade</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
