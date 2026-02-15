@@ -104,7 +104,7 @@
     /* Removido border-radius para não cortar o nome */
     box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
     background: #fff;
-    border: 2px solid #f7b500;
+    /* border removida para visual mais limpo */
     display: block;
     margin-left: auto;
     margin-right: auto;
