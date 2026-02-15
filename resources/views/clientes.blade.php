@@ -603,7 +603,7 @@
             });
         });
 </script>
+
 @endpush
 @endif
-@endsection
 @endsection
