@@ -107,15 +107,23 @@
                 <div class="card-body p-0">
                     @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
                     <div class="table-responsive">
-                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;table-layout:fixed;">
+                            <colgroup>
+                                <col style="width:16%">
+                                <col style="width:28%">
+                                <col style="width:16%">
+                                <col style="width:18%">
+                                <col style="width:10%">
+                                <col style="width:12%">
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Marca</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Descrição</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Modelo</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Nº Série</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Quantidade</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;">Ações</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Marca</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Descrição</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Nº Série</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Qtd</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
