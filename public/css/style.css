@@ -92,13 +92,94 @@
     flex-direction: column;
     align-items: center;
 }
-.login-container img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-bottom: 16px;
+.login-logo {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    margin-bottom: 18px;
     border-radius: 50%;
-    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+    background: #fff;
+    border: 3px solid #f7b500;
+}
+
+.login-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 18px;
+    color: #222;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 4px;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font-size: 1rem;
+    color: #222;
+    background: #fafbfc;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #f7b500;
+    outline: none;
+}
+
+.form-error {
+    color: #e74c3c;
+    font-size: 0.97em;
+    margin-top: 2px;
+}
+
+.form-remember {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.login-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #f7b500 60%, #ffce3a 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(247,181,0,0.08);
+    margin-top: 6px;
+}
+
+.login-btn:hover {
+    background: linear-gradient(90deg, #e0a800 60%, #ffd966 100%);
+    box-shadow: 0 4px 16px 0 rgba(247,181,0,0.13);
 }
 .tabela-alertas {
     width: 100%;
