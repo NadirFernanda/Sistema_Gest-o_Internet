@@ -275,7 +275,7 @@
                                     @foreach($cliente->clienteEquipamentos as $v)
                                         @php $est = $v->equipamento; @endphp
                                         <tr>
-                                            <td style="text-align:center;vertical-align:middle;">{{ $est->marca ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $est->marca ?? $est->nome ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
