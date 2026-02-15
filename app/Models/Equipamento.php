@@ -12,6 +12,13 @@ class Equipamento extends Model
     protected $fillable = [
         'cliente_id',
         'nome',
+        'marca',
+        'modelo',
+        'serial_number',
+        'mac_address',
+        'localizacao',
+        'referencia',
+        'quantidade',
         'morada',
         'ponto_referencia',
     ];
