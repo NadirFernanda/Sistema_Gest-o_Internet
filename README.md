@@ -13,6 +13,18 @@ git pull origin main
 npm install
 npm run build
 php artisan view:clear
+---
+
+## Deploy e Atualização em Produção (Passo a Passo)
+
+
+```bash
+ssh usuario@SEU_SERVIDOR
+cd /var/www/sgmrtexas
+git pull origin main
+npm install
+npm run build
+php artisan view:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
@@ -127,23 +139,23 @@ Pronto! O sistema estará atualizado e rodando em produção.
 - Autenticação com sessão nativa do Laravel (login/logout)
 - Proteção de rotas administrativas (`/dashboard`, `/clientes`, `/planos`, `/alertas` etc.)
 - Layout com partials (header e sidebar)
-- Gestão de clientes
+- Gestão de clientes (acessível por perfis com permissão: Administrador, Gerente e/ou Colaborador)
 - Gestão de planos (restrito a administradores)
-- Relatório de cobranças
+- Relatório de cobranças (acessível por perfis com permissão: Administrador, Gerente e/ou Colaborador)
 - Estoque de equipamentos
 - Alertas de vencimento de planos
 
 ---
-ls -l -l /var/www/sgmrte/oeie/a-A/siidsea/cesso ao relatório de cobranças.
 
 ### 3. Gestão de Clientes
 - Listagem de clientes com BI, nome, contacto e ações.
 - Cadastro, edição e exclusão de clientes.
 - Ficha individual de cada cliente.
 
+> Observação: o acesso às ações sobre clientes pode ser limitado por permissões/roles. Verifique as políticas de autorização definidas no projeto.
+
 ### API pública (endpoints úteis)
 
-- `GET /api/clientes` : retorna lista pública de clientes em JSON (campos principais: `id`, `nome`, `bi`, `contato`, `email`).
 - `GET /api/clientes` : retorna lista pública de clientes em JSON (campos principais: `id`, `nome`, `bi`, `contato`, `email`).
   - Protegível por token: defina `API_CLIENTES_TOKEN` no `.env` para exigir um token Bearer ou header `X-API-TOKEN`.
 - `GET /api/alertas` : retorna alertas de planos por proximidade de vencimento (usado por integrações).
@@ -151,9 +163,10 @@ ls -l -l /var/www/sgmrte/oeie/a-A/siidsea/cesso ao relatório de cobranças.
 
 ### 4. Gestão de Planos (restrito a administradores)
 - Listagem de planos por cliente, com descrição, preço, ciclo, datas e status.
-- Cadastro, edição e remoção de planos.
+- Cadastro, edição e remoção de planos (apenas para usuários com perfil **Administrador**).
 - Exibição de status com badge colorido.
 
+Nota: As funcionalidades de criação/edição/exclusão de planos não estarão visíveis para perfis não-admin; esses perfis podem ver listas e detalhes conforme permissões específicas.
 
 ### 5. Relatório de Cobranças
 - Listagem e filtros por cliente, descrição, status, valor e datas.
@@ -238,10 +251,11 @@ Acesse no navegador:
 >
 > ```bash
 > composer run setup
+> ```
 
 ### 1. Acesse o servidor e entre na pasta do sistema
-Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela users.
-Senha para todos: password
+Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela `users`.
+Senha para todos: `password`
 
 Instalar PHP, Nginx, Git e extensões necessárias:
 
@@ -259,7 +273,6 @@ sudo mv composer.phar composer
 ```
 
 ### 3. PostgreSQL (base de dados de produção)
-
 Instalar PostgreSQL e criar base/usuário:
 
 ```bash
@@ -277,7 +290,6 @@ GRANT ALL PRIVILEGES ON DATABASE sgmrtexas TO sgmr_user;
 ```bash
 cd /var/www
 sudo git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git sgmrtexas
-cd sgmrtexas
 sudo chown -R $USER:$USER .
 ```
 > Em produção, recomenda-se usar **SSH** em vez de HTTPS para não precisar digitar usuário/senha ou token a cada deploy. Ver secção "Acesso ao GitHub via SSH no servidor" mais abaixo.
@@ -358,7 +370,7 @@ server {
     fastcgi_pass unix:/run/php/php8.4-fpm.sock;
   }
 
-  location ~ /\.ht {
+  location ~ \.ht {
     deny all;
   }
 }
@@ -542,7 +554,7 @@ Depois disso, segue-se normalmente com a configuração do `.env`, instalação 
 
 - Arquivo `.env` e variações **não são versionados** (`.gitignore` configurado).
 - Pastas `vendor/` e `node_modules/` fora do versionamento Git.
-- Arquivos de cache, logs e builds (`public/build`, `storage/*.key`, etc.) ignorados.
+- Arquivos de cache, logs e builds (`public/build`, `public/hot`, `public/storage`, `/storage/*.key`, `/storage/pail`, caches e logs) ignorados.
 - `.gitattributes` configurado para normalizar final de linha (EOL) e facilitar diffs de PHP, Blade, CSS, HTML e Markdown.
 
 Para colaboração, recomenda‑se ainda no GitHub:
@@ -554,11 +566,9 @@ Para colaboração, recomenda‑se ainda no GitHub:
 ---
 
 ## Histórico detalhado das configurações do repositório público
-
 Esta secção resume, passo a passo, as principais configurações feitas neste repositório público desde a criação até o CI.
 
 ### 1. Criação do repositório e push do código
-
 1. Repositório criado no GitHub, configurado como **público**.
 2. Projeto Laravel existente na pasta local `PROJECTO` foi ligado ao repositório remoto com os comandos (exemplo):
 
@@ -657,23 +667,14 @@ Na imagem, o botão "Exportar Excel" está visível na interface de cobranças, 
 
 Os relatórios automáticos (diário, semanal, mensal) que implementamos NÃO aparecem como botões na interface. Eles são gerados automaticamente pelo sistema e:
 
-São salvos na pasta storage/app/relatorios do servidor.
-São enviados por e-mail para o endereço configurado no .env.
+- São salvos na pasta storage/app/relatorios do servidor.
+- São enviados por e-mail para o endereço configurado no .env.
+
 Resumo:
 
-O botão "Exportar Excel" é para exportação manual.
-Os relatórios automáticos não têm botão na interface, pois são gerados e enviados automaticamente pelo agendamento do Laravel (Scheduler).
-Se quiser que esses relatórios automáticos também apareçam como botões para download na interface, posso implementar isso para você! Deseja adicionar esses botões na tela?
-````
-This is the description of what the code block changes:
-<changeDescription>
-Atualizar README para deixar claro que apenas administradores podem acessar funcionalidades de planos, enquanto clientes e cobranças são acessíveis a outros perfis. Adicionada indicação de restrição de planos nas seções relevantes.
-</changeDescription>
-
-This is the code block that represents the suggested code change:
-```markdown
-### 1. Acesse o servidor e entre na pasta do sistema
-Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela users.
+- O botão "Exportar Excel" é para exportação manual.
+- Os relatórios automáticos não têm botão na interface, pois são gerados e enviados automaticamente pelo agendamento do Laravel (Scheduler).
+- Se quiser que esses relatórios automáticos também apareçam como botões para download na interface, posso implementar isso para você! Deseja adicionar esses botões na tela?
 Senha para todos: password
 ```
 <userPrompt>
