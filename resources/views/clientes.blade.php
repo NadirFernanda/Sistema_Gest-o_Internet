@@ -241,8 +241,8 @@
                     $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
                 @endphp
                 @if($hasEquip || $hasVincs)
-                    <div class="estoque-tabela-moderna" style="margin-top:24px;">
-                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+                    <div class="estoque-tabela-moderna" style="background:#fff; border-radius:16px; box-shadow:0 2px 8px #0001; padding:18px 18px 8px 18px; margin-top:18px; overflow-x:auto;">
+                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate; background:#fff; border-radius:8px; overflow:hidden;">
                             <thead>
                                 <tr>
                                     <th style="text-align:center;vertical-align:middle;">Marca</th>
