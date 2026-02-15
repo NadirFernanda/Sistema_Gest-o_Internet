@@ -222,91 +222,69 @@
                     $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
                     $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
                 @endphp
-                <style>
-                    /* Ficha: tabela de equipamentos */
-                    .ficha-equip-table .table {
-                        width: 100%;
-                        border-collapse: separate;
-                    }
-                    .ficha-equip-table th, .ficha-equip-table td {
-                        vertical-align: middle;
-                        padding: 12px 10px;
-                        border: 1px solid #eee;
-                    }
-                    .ficha-equip-table thead th {
-                        background: #fff9e6;
-                        color: #222;
-                        font-weight: 600;
-                        text-align: left;
-                    }
-                    .ficha-equip-table .table-responsive { overflow-x: auto; }
-                    .ficha-equip-table .table .btn { min-width: 100px; margin-right:8px; }
-                    @media (max-width: 768px) {
-                        .ficha-equip-table th:nth-child(2), .ficha-equip-table td:nth-child(2) { display:none; }
-                        .ficha-equip-table th:nth-child(3), .ficha-equip-table td:nth-child(3) { display:none; }
-                        .ficha-equip-table .table .btn { display:block; margin:8px 0; }
-                    }
-                </style>
-
                 @if($hasEquip || $hasVincs)
-                    <div class="ficha-equip-table">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Modelo</th>
-                                <th>Morada</th>
-                                <th>Ponto de Referência</th>
-                                <th>Quantidade</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if($hasEquip)
-                                @foreach($cliente->equipamentos as $equipamento)
-                                    <tr>
-                                        <td>{{ $equipamento->nome }}</td>
-                                        <td>{{ $equipamento->modelo ?? '-' }}</td>
-                                        <td>{{ $equipamento->morada ?? '-' }}</td>
-                                        <td>{{ $equipamento->ponto_referencia ?? '-' }}</td>
-                                        <td>1</td>
-                                        <td></td>
-                                    </tr>
-                                @endforeach
-                            @endif
+                    <div class="estoque-tabela-moderna" style="margin-top:24px;">
+                        <table class="tabela-estoque-moderna">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center;vertical-align:middle;">Marca</th>
+                                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
+                                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;">Nº Série</th>
+                                    <th style="text-align:center;vertical-align:middle;">Morada</th>
+                                    <th style="text-align:center;vertical-align:middle;">Ponto de Referência</th>
+                                    <th style="text-align:center;vertical-align:middle;">Quantidade</th>
+                                    <th style="text-align:center;vertical-align:middle;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if($hasEquip)
+                                    @foreach($cliente->equipamentos as $equipamento)
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->marca ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->morada ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $equipamento->ponto_referencia ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">1</td>
+                                            <td></td>
+                                        </tr>
+                                    @endforeach
+                                @endif
 
-                            @if($hasVincs)
-                                @foreach($cliente->clienteEquipamentos as $v)
-                                    @php $est = $v->equipamento; @endphp
-                                    <tr>
-                                        <td>{{ $est->nome ?? $est->modelo ?? 'Equipamento do estoque' }}</td>
-                                        <td>{{ $est->modelo ?? '-' }}</td>
-                                        <td>{{ $v->morada ?? '-' }}</td>
-                                        <td>{{ $v->ponto_referencia ?? '-' }}</td>
-                                        <td>{{ $v->quantidade ?? 1 }}</td>
-                                        <td>
-                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                                            </a>
-                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon btn-danger" title="Eliminar" aria-label="Eliminar" onclick="return confirm('Tem certeza que deseja remover este equipamento?')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table>
+                                @if($hasVincs)
+                                    @foreach($cliente->clienteEquipamentos as $v)
+                                        @php $est = $v->equipamento; @endphp
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $est->marca ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $v->morada ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $v->ponto_referencia ?? '-' }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ $v->quantidade ?? 1 }}</td>
+                                            <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                                <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $v->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                                </a>
+                                                <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon btn-danger" title="Eliminar" aria-label="Eliminar" onclick="return confirm('Tem certeza que deseja remover este equipamento?')">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 @else
                     <p>Nenhum equipamento cadastrado para este cliente.</p>
                 @endif
-            </div>
-        @endif
     </div>
 
     {{-- Hidden CSRF holder for JS-driven forms/modal submissions -- ensure a fresh token is always present in the DOM --}}

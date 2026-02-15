@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+<div style="color:red;font-size:22px;text-align:center;">TESTE FICHA - PRODUÇÃO</div>
+
 @section('content')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
