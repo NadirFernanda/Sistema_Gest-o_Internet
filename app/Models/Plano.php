@@ -19,6 +19,10 @@ class Plano extends Model
         'data_ativacao',
     ];
 
+    protected $casts = [
+        'ativo' => 'boolean',
+    ];
+
     public function template()
     {
         return $this->belongsTo(PlanTemplate::class, 'template_id');
