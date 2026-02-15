@@ -10,20 +10,22 @@
     <style>
         @media print { .no-print { display: none !important; } }
         :root { --muted:#6b6b6b; --accent:#f7b500; --soft:#f6f7fb; }
-        .ficha-header { max-width:980px; margin:18px auto 6px; text-align:center; }
-        .ficha-header .ficha-logo { display:block; margin:0 auto 6px; max-width:120px; height:auto; }
-        .ficha-cliente { max-width:980px; margin:12px auto; }
-        .cliente-dados-moderna { padding:18px 22px; }
+        body, .container, .ficha-cliente { font-family:'Segoe UI', 'Roboto', Arial, sans-serif; background:#f7f8fa; }
+        .ficha-header { max-width:980px; margin:28px auto 16px; text-align:center; }
+        .ficha-header .ficha-logo { display:block; margin:0 auto 10px; max-width:120px; height:auto; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .ficha-cliente { max-width:980px; margin:24px auto; }
+        .section-title { font-weight:800; font-size:1.25rem; margin:18px 0 16px; color:#f7b500; letter-spacing:0.5px; }
+        .muted { color:var(--muted); font-size:0.97rem; }
 
         /* Card and header */
-        .card { border:1px solid #e9ecef; border-radius:6px; overflow:hidden; background:#fff; }
-        .card-header { background:#fbfbfd; color:#222; font-weight:700; padding:10px 14px; border-bottom:1px solid #eef0f3; }
-        .card-body { padding:12px 14px; }
+        .card { border:1px solid #e9ecef; border-radius:14px; overflow:hidden; background:#fff; box-shadow:0 2px 16px rgba(0,0,0,0.06); margin-bottom:22px; }
+        .card-header { background:#fffbe7; color:#f7b500; font-weight:800; font-size:1.08rem; padding:14px 20px; border-bottom:1px solid #f7b500; letter-spacing:0.5px; }
+        .card-body { padding:18px 22px; font-size:1.05rem; }
 
         /* Tables: fixed layout, readable spacing and wrapping */
-        .table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; font-size:0.95rem; }
-        .table th, .table td { padding:8px 10px; border:1px solid #f0f0f0; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; }
-        .table thead th { background:var(--soft); font-weight:700; color:#222; }
+        .table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; font-size:0.97rem; }
+        .table th, .table td { padding:10px 12px; border:1px solid #f0f0f0; vertical-align:middle; word-wrap:break-word; overflow-wrap:break-word; }
+        .table thead th { background:#fffbe7; font-weight:800; color:#f7b500; border-bottom:2px solid #f7b500; }
         .table tbody tr td { background:#fff; }
         .table tbody tr:nth-child(odd) td { background:#fcfcfd; }
 
@@ -35,13 +37,16 @@
         .col-quant { width:8%; text-align:center; }
         .col-morada { width:27%; }
 
-        .section-title { font-weight:700; margin:8px 0 10px; text-align:left; }
-        .muted { color:var(--muted); font-size:0.9rem; }
         /* Badges */
-        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; color:#111; background: transparent; }
-        .badge-cobrancas { background: transparent; }
-        .badge-cobrancas.pago { background: transparent; color:#111; }
-        .badge-cobrancas.pendente { background: transparent; color:#111; }
+        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 12px; border-radius:999px; font-size:0.95rem; color:#fff; background: #f7b500; font-weight:700; letter-spacing:0.2px; }
+        .badge-cobrancas.pago { background: #4caf50; color:#fff; }
+        .badge-cobrancas.pendente { background: #f7b500; color:#fff; }
+        .badge-cobrancas { background: #e0e0e0; color:#222; }
+
+        /* Modern row/col spacing */
+        .row { margin-bottom:18px; }
+        .card + .card { margin-top:18px; }
+        .card-body p { margin-bottom:10px; }
     </style>
     {{-- Toolbar com ações acima do cartão (não aparece na impressão) --}}
     <div class="ficha-toolbar no-print" style="max-width:980px;margin:0 auto 12px;">
@@ -68,33 +73,34 @@
     </div>
 
     {{-- Cabeçalho da ficha com logotipo --}}
-    <div class="ficha-header" style="max-width:900px;margin:12px auto 0;text-align:center;">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo" style="max-width:120px;height:auto;display:block;margin:0 auto 8px;">
-        <h4 style="margin-top:8px;">Ficha do Cliente</h4>
-        <p class="mb-0">Emitido: {{ now()->toDateString() }}</p>
+    <div class="ficha-header">
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo">
+        <h2 style="margin-top:10px;font-weight:900;color:#222;letter-spacing:0.5px;">Ficha do Cliente</h2>
+        <p class="mb-0 muted">Emitido: {{ now()->format('d/m/Y') }}</p>
     </div>
 
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">Dados do Cliente</div>
-                <div class="card-body">
-                    {{-- ID removido da ficha conforme solicitado --}}
-                    <p><strong>Nome / Razão social:</strong> {{ $cliente->nome }}</p>
-                    <p><strong>BI / NIF:</strong> {{ $cliente->bi }}</p>
-                    <p><strong>Contacto (WhatsApp):</strong> {{ $cliente->contato }}</p>
-                    <p><strong>Email:</strong> {{ $cliente->email }}</p>
-                    <p><strong>Estado:</strong> {{ $cliente->estado ?? '—' }}</p>
+                <div class="card">
+                    <div class="card-header">Dados do Cliente</div>
+                    <div class="card-body">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;">
+                            <div><span class="muted">Nome / Razão social:</span><br><strong>{{ $cliente->nome }}</strong></div>
+                            <div><span class="muted">BI / NIF:</span><br><strong>{{ $cliente->bi }}</strong></div>
+                            <div><span class="muted">Contacto (WhatsApp):</span><br><strong>{{ $cliente->contato }}</strong></div>
+                            <div><span class="muted">Email:</span><br><strong>{{ $cliente->email }}</strong></div>
+                            <div><span class="muted">Estado:</span><br><strong>{{ $cliente->estado ?? '—' }}</strong></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-header">Observações</div>
-                <div class="card-body">
-                    <p>{!! nl2br(e($cliente->observacoes ?? '')) !!}</p>
+                <div class="card">
+                    <div class="card-header">Observações</div>
+                    <div class="card-body">
+                        <p style="font-size:1.04rem;line-height:1.5;color:#444;">{!! nl2br(e($cliente->observacoes ?? '')) !!}</p>
+                    </div>
                 </div>
-            </div>
-        </div>
         <div class="col-md-6">
             <div class="card mb-3 shadow-sm" style="border-radius:12px;overflow:hidden;">
                 <div class="card-header" style="background:#fffbe7;color:#f7b500;font-weight:700;font-size:1.08rem;letter-spacing:0.5px;">Equipamentos Associados</div>
