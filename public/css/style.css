@@ -83,18 +83,18 @@
 }
 .login-container {
     width: 100%;
-    max-width: 420px;
-    aspect-ratio: 1/1.08;
+    max-width: 440px;
     min-height: 420px;
     background: #fff;
     border-radius: 22px;
     box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
-    padding: 38px 32px 32px 32px;
+    padding: 36px 36px 28px 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     transition: box-shadow 0.2s, border-radius 0.2s;
+    position: relative;
 }
 .login-logo {
     width: 90px;
@@ -105,12 +105,17 @@
     box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
     background: #fff;
     border: 3px solid #f7b500;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    position: static;
 }
 
 .login-title {
     font-weight: 700;
     font-size: 2rem;
-    margin-bottom: 18px;
+    margin-bottom: 22px;
     color: #222;
     text-align: center;
     letter-spacing: 0.5px;
@@ -121,6 +126,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 0;
 }
 
 .form-group {
@@ -181,24 +187,28 @@
     margin-top: 6px;
 }
 
+.login-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #f7b500 60%, #ffce3a 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(247,181,0,0.08);
+    margin-top: 24px;
+    margin-bottom: 0;
+    align-self: center;
+    display: block;
+    position: static;
+}
 .login-btn:hover {
     background: linear-gradient(90deg, #e0a800 60%, #ffd966 100%);
     box-shadow: 0 4px 16px 0 rgba(247,181,0,0.13);
 }
-.tabela-alertas {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-    font-size: 0.98rem;
-}
-.tabela-alertas th, .tabela-alertas td {
-    border: 1px solid #eee;
-    padding: 8px 6px;
-    text-align: left;
-}
-.tabela-alertas th {
-    background: #f7b500;
-    color: #fff;
 }
 body {
     background: #fff;
