@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
+@endpush
 <div class="container">
     <style>
         @media print { .no-print { display: none !important; } }
@@ -91,124 +94,50 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">Equipamentos Associados</div>
-                <div class="card-body p-0">
-                    @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
-                    <div class="estoque-tabela-moderna">
-                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
-                            <thead>
+            <div class="estoque-container-moderna">
+                <h5 style="margin-bottom:0;font-weight:700;color:#222;">Equipamentos Associados</h5>
+                @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
+                <div class="estoque-tabela-moderna">
+                    <table class="tabela-estoque-moderna">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;vertical-align:middle;">Marca</th>
+                                <th style="text-align:center;vertical-align:middle;">Descrição</th>
+                                <th style="text-align:center;vertical-align:middle;">Modelo</th>
+                                <th style="text-align:center;vertical-align:middle;">Nº Série</th>
+                                <th style="text-align:center;vertical-align:middle;">Quantidade</th>
+                                <th style="text-align:center;vertical-align:middle;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
+                                @php $est = $vinc->equipamento; @endphp
                                 <tr>
-                                    <th style="text-align:center;vertical-align:middle;">Marca</th>
-                                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
-                                    <th style="text-align:center;vertical-align:middle;">Modelo</th>
-                                    <th style="text-align:center;vertical-align:middle;">Nº Série</th>
-                                    <th style="text-align:center;vertical-align:middle;">Quantidade</th>
-                                    <th style="text-align:center;vertical-align:middle;">Ações</th>
+                                    <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
+                                    <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
+                                    <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
+                                    <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
+                                    <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
+                                    <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                        <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                        </a>
+                                        <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $vinc->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja desvincular este equipamento?')">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
-                                    @php $est = $vinc->equipamento; @endphp
-                                    <tr>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
-                                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
-                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                                            </a>
-                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $vinc->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja desvincular este equipamento?')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <style>
-                        .estoque-tabela-moderna {
-                            background: #fff;
-                            border-radius: 16px;
-                            box-shadow: 0 2px 8px #0001;
-                            padding: 18px 18px 8px 18px;
-                            margin-top: 18px;
-                            overflow-x: auto;
-                        }
-                        .tabela-estoque-moderna {
-                            width: 100%;
-                            min-width: 640px;
-                            font-size: 1.07em;
-                            border-collapse: collapse;
-                            background: #fff;
-                            border-radius: 8px;
-                            overflow: hidden;
-                        }
-                        .tabela-estoque-moderna th,
-                        .tabela-estoque-moderna td {
-                            padding: 8px 6px;
-                        }
-                        .tabela-estoque-moderna th {
-                            background: #fffbe7;
-                            color: #f7b500;
-                            font-weight: bold;
-                            font-size: 1.09em;
-                            border-bottom: 2px solid #ffe6a0;
-                            padding: 14px 12px;
-                        }
-                        .tabela-estoque-moderna td {
-                            background: #fff;
-                            color: #222;
-                            font-size: 1em;
-                            padding: 13px 12px;
-                        }
-                        .tabela-estoque-moderna tr {
-                            border-bottom: 1px solid #f3e6b0;
-                        }
-                        .btn-icon {
-                            padding: 6px;
-                            width: 34px;
-                            height: 34px;
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 6px;
-                            border: 1px solid #e6e6e6;
-                            background: #fff;
-                            color: #222;
-                            cursor: pointer;
-                            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-                        }
-                        .btn-icon svg { width: 16px; height: 16px; }
-                        .btn-icon:hover { background: #f7b500; color: #fff; border-color: #f7b500; }
-                        .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
-                        @media (max-width: 900px) {
-                            .tabela-estoque-moderna {
-                                min-width: 520px;
-                                font-size: 0.98em;
-                            }
-                            /* Reduce padding on very small screens */
-                            @media (max-width: 640px) {
-                                .tabela-estoque-moderna th,
-                                .tabela-estoque-moderna td {
-                                    padding: 6px 6px;
-                                    font-size: 0.95em;
-                                }
-                                .tabela-estoque-moderna { min-width: 480px; }
-                            }
-                        }
-                    </style>
-                    @else
-                        <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
-                    @endif
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
+                @else
+                    <p class="p-3 mb-0">Nenhum equipamento cadastrado para este cliente.</p>
+                @endif
             </div>
             <div class="card mb-3">
                 <div class="card-header">Planos Contratados</div>
