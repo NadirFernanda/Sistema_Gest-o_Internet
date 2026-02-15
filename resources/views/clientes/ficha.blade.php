@@ -99,34 +99,35 @@
                         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;vertical-align:middle;">Nº</th>
-                                    <th style="text-align:center;vertical-align:middle;">Nome</th>
+                                    <th style="text-align:center;vertical-align:middle;">Marca</th>
+                                    <th style="text-align:center;vertical-align:middle;">Descrição</th>
                                     <th style="text-align:center;vertical-align:middle;">Modelo</th>
-                                    <th style="text-align:center;vertical-align:middle;">Série</th>
+                                    <th style="text-align:center;vertical-align:middle;">Nº Série</th>
                                     <th style="text-align:center;vertical-align:middle;">Quantidade</th>
-                                    <th style="text-align:center;vertical-align:middle;">Morada / Referência</th>
+                                    <th style="text-align:center;vertical-align:middle;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($cliente->equipamentos ?? [] as $eq)
-                                    <tr>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->id }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->nome ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->modelo ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->numero_serie ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->quantidade ?? '1' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $eq->ponto_referencia ?? $eq->morada ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
                                 @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
                                     @php $est = $vinc->equipamento; @endphp
                                     <tr>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->id }}</td>
                                         <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
+                                        <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
                                         <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
                                         <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
                                         <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->morada ?? '—' }}{{ $vinc->ponto_referencia ? ' (Ref: '.$vinc->ponto_referencia.')' : '' }}</td>
+                                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                            <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                            </a>
+                                            <form action="{{ route('cliente_equipamento.destroy', [$cliente->id, $vinc->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja desvincular este equipamento?')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -171,6 +172,23 @@
                         .tabela-estoque-moderna tr {
                             border-bottom: 1px solid #f3e6b0;
                         }
+                        .btn-icon {
+                            padding: 6px;
+                            width: 34px;
+                            height: 34px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 6px;
+                            border: 1px solid #e6e6e6;
+                            background: #fff;
+                            color: #222;
+                            cursor: pointer;
+                            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+                        }
+                        .btn-icon svg { width: 16px; height: 16px; }
+                        .btn-icon:hover { background: #f7b500; color: #fff; border-color: #f7b500; }
+                        .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
                         @media (max-width: 900px) {
                             .tabela-estoque-moderna {
                                 min-width: 520px;
