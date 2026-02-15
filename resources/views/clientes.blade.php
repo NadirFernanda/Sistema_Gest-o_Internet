@@ -100,42 +100,42 @@
                         @php
                             $user = auth()->user();
                         @endphp
-                        @if(!$user || (!$user->hasRole('colaborador') && !$user->hasRole('gerente')))
+                        @if(isset($cliente) && $cliente->id && (!$user || (!$user->hasRole('colaborador') && !$user->hasRole('gerente'))))
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
                             <!-- Botão único: Compensar Dias -->
                             <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
                                 Compensar Dias
                             </button>
                         </div>
-                        @endif
-                            <!-- Modal para compensar dias -->
-                            <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
-                                <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
-                                    <h5 style="margin-bottom:18px;">Compensar Dias ao Plano</h5>
-                                    <form id="form-compensar-dias" method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
-                                        @csrf
-                                        <label for="dias_compensados" style="font-weight:600;">Dias a compensar:</label>
-                                        <input type="number" min="1" max="90" name="dias_compensados" id="dias_compensados" class="form-control" style="margin:10px 0 18px 0;width:120px;text-align:center;" required>
-                                        <button type="submit" class="btn btn-primary" style="min-width:120px;">Salvar</button>
-                                        <button type="button" id="fechar-modal-compensar" class="btn btn-ghost" style="margin-left:10px;">Cancelar</button>
-                                    </form>
-                                </div>
+                        <!-- Modal para compensar dias -->
+                        <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
+                            <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
+                                <h5 style="margin-bottom:18px;">Compensar Dias ao Plano</h5>
+                                <form id="form-compensar-dias" method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
+                                    @csrf
+                                    <label for="dias_compensados" style="font-weight:600;">Dias a compensar:</label>
+                                    <input type="number" min="1" max="90" name="dias_compensados" id="dias_compensados" class="form-control" style="margin:10px 0 18px 0;width:120px;text-align:center;" required>
+                                    <button type="submit" class="btn btn-primary" style="min-width:120px;">Salvar</button>
+                                    <button type="button" id="fechar-modal-compensar" class="btn btn-ghost" style="margin-left:10px;">Cancelar</button>
+                                </form>
                             </div>
-                    @push('scripts')
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function(){
-                        // Modal logic for Compensar Dias
-                        const btnCompensar = document.getElementById('compensar-dias-btn');
-                        const modal = document.getElementById('modal-compensar-dias');
-                        const fechar = document.getElementById('fechar-modal-compensar');
-                        if(btnCompensar && modal && fechar){
-                            btnCompensar.onclick = () => { modal.style.display = 'flex'; document.getElementById('dias_compensados').focus(); };
-                            fechar.onclick = () => { modal.style.display = 'none'; };
-                            modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
-                        }
-                    });
-                    </script>
-                    @endpush
+                        </div>
+                        @push('scripts')
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            // Modal logic for Compensar Dias
+                            const btnCompensar = document.getElementById('compensar-dias-btn');
+                            const modal = document.getElementById('modal-compensar-dias');
+                            const fechar = document.getElementById('fechar-modal-compensar');
+                            if(btnCompensar && modal && fechar){
+                                btnCompensar.onclick = () => { modal.style.display = 'flex'; document.getElementById('dias_compensados').focus(); };
+                                fechar.onclick = () => { modal.style.display = 'none'; };
+                                modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+                            }
+                        });
+                        </script>
+                        @endpush
+                        @endif
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
