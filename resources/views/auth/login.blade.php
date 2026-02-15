@@ -26,8 +26,8 @@
                     <div class="form-error">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="form-group form-remember" style="display: flex; flex-direction: row; align-items: center; gap: 7px; margin-bottom: 8px; margin-top: 2px; justify-content: flex-start; width: 100%;">
-                <input type="checkbox" name="remember" id="remember" style="margin: 0;">
+            <div class="form-group form-remember" style="display: flex; flex-direction: row; align-items: center; gap: 0; margin-bottom: 8px; margin-top: 2px; width: 100%;">
+                <input type="checkbox" name="remember" id="remember" style="margin: 0 2px 0 0;">
                 <label for="remember" style="margin: 0; font-size: 1rem; font-weight: 500; color: #444; cursor: pointer; white-space: nowrap;">Lembrar-me</label>
             </div>
             <button type="submit" class="login-btn">Entrar</button>
