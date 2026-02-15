@@ -84,7 +84,9 @@
                 @endif
             </form>
             <div style="display:flex;gap:8px;">
+                @can('estoque_equipamentos.create')
                 <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
+                @endcan
                 <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" target="_blank">Exportar</a>
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
@@ -114,9 +116,12 @@
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->quantidade }}</td>
                         <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                @can('estoque_equipamentos.edit')
                                 <a href="{{ route('estoque_equipamentos.edit', $equipamento->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                             </a>
+                                @endcan
+                                @can('estoque_equipamentos.delete')
                                 <form action="{{ route('estoque_equipamentos.destroy', $equipamento->id) }}" method="POST" style="display:inline-block; margin-left:6px;">
                                 @csrf
                                 @method('DELETE')

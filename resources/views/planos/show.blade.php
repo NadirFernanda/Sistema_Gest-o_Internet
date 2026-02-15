@@ -10,12 +10,16 @@
         </div>
         <p>{{ $plano->descricao }}</p>
         <div style="margin-top:12px;display:flex;gap:8px;">
+            @can('planos.edit')
             <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
+            @endcan
+            @can('planos.delete')
             <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
                 @csrf
                 @method('DELETE')
                 <button class="btn btn-danger">Apagar</button>
             </form>
+            @endcan
             <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
         </div>
     </div>

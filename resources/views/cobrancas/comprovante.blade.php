@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Comprovativo de Pagamento</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #fffbe7; }
+        /* Use DejaVu Sans to ensure accented characters render correctly in PDF */
+        body { font-family: 'DejaVu Sans', DejaVuSans, Arial, sans-serif; margin: 40px; background: #fffbe7; }
         .comprovante-box { border: 1px solid #f7b500; padding: 32px; border-radius: 16px; max-width: 500px; margin: auto; background: #fff; box-shadow: 0 2px 8px #0001; }
         h2 { color: #f7b500; text-align: center; margin-bottom: 24px; }
         .info { margin-bottom: 12px; }

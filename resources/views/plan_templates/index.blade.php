@@ -12,7 +12,9 @@
     </style>
 
     <div class="templates-toolbar" role="toolbar" aria-label="Ações de modelos de plano">
+      @can('planos.create')
       <a href="{{ route('plan-templates.create') }}" class="btn btn-cta template-btn">Novo Plano</a>
+      @endcan
       <button id="reloadTemplatesBtn" type="button" class="btn btn-cta template-btn">Recarregar</button>
       <button id="closeTemplatesBtn" type="button" class="btn btn-ghost template-btn">Fechar</button>
     </div>
@@ -35,9 +37,12 @@
             <td>{{ $t->ciclo ?? '-' }}</td>
             <td>{{ $t->estado ?? '-' }}</td>
             <td style="text-align:right">
+              @can('planos.edit')
               <a href="{{ route('plan-templates.edit', $t) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar Plano">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
               </a>
+              @endcan
+              @can('planos.delete')
               <form action="{{ route('plan-templates.destroy', $t) }}" method="POST" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('Remover este plano?');">
                 @csrf
                 @method('DELETE')

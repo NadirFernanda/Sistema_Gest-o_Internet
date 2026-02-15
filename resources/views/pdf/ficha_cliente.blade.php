@@ -5,9 +5,12 @@
 @endphp
 <!doctype html>
 <html>
+<head>
+    <meta charset="UTF-8">
     <style>
         /* PDF-friendly layout: clearer tables, spacing and print-safe rules */
-        html, body { margin:0; padding:18px; font-family: Arial, Helvetica, sans-serif; color:#222; font-size:13px; line-height:1.35; }
+        /* Use DejaVu Sans which supports Latin accents in DomPDF/mPDF */
+        html, body { margin:0; padding:18px; font-family: 'DejaVu Sans', DejaVuSans, sans-serif; color:#222; font-size:13px; line-height:1.35; }
         .header { text-align:center; margin-bottom:10px; }
         .header img, .ficha-logo { max-width:80px; width:auto; height:auto; display:block; margin:0 auto 6px auto; }
         .title { font-size:16px; font-weight:700; margin-bottom:6px; }
@@ -43,7 +46,6 @@
         /* Avoid page-break inside table rows */
         tr { page-break-inside: avoid; }
         thead { display:table-header-group; }
-    </style>
     </style>
 </head>
 <body>

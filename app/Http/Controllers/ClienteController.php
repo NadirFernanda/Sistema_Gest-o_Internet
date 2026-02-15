@@ -185,6 +185,16 @@ class ClienteController extends Controller
         // Try DomPDF first if available; otherwise fall through to other generators (mPDF fallback).
 
         $output = null;
+        // Ensure DomPDF uses a UTF-8 capable default font and remote assets
+        try {
+            Pdf::setOptions([
+                'defaultFont' => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('Pdf::setOptions failed', ['err' => $e->getMessage()]);
+        }
         try {
             $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
             $output = $pdf->output();
@@ -196,6 +206,16 @@ class ClienteController extends Controller
         // fallback: if output appears too small or failed, try minimal DOMPDF template
         if (empty($output) || strlen($output) < 2000) {
             try {
+                // Ensure DomPDF uses a UTF-8 capable default font and remote assets
+                try {
+                    Pdf::setOptions([
+                        'defaultFont' => 'DejaVu Sans',
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => true,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::warning('Pdf::setOptions failed (minimal)', ['err' => $e->getMessage()]);
+                }
                 $pdf = Pdf::loadView('pdf.ficha_cliente_minimal', compact('cliente','logoData'));
                 $output = $pdf->output();
             } catch (\Exception $e) {
@@ -207,6 +227,16 @@ class ClienteController extends Controller
         // If still empty, try mPDF as a robust fallback
         if (empty($output) || strlen($output) < 2000) {
             try {
+                // Ensure DomPDF uses a UTF-8 capable default font and remote assets
+                try {
+                    Pdf::setOptions([
+                        'defaultFont' => 'DejaVu Sans',
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => true,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::warning('Pdf::setOptions failed (email)', ['err' => $e->getMessage()]);
+                }
                 if (class_exists('\Mpdf\Mpdf')) {
                     $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
                     $html = view('pdf.ficha_cliente_minimal', compact('cliente','logoData'))->render();
@@ -304,6 +334,15 @@ class ClienteController extends Controller
                         $mpdfC->WriteHTML($htmlC);
                         $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                     } else {
+                        try {
+                            Pdf::setOptions([
+                                'defaultFont' => 'DejaVu Sans',
+                                'isHtml5ParserEnabled' => true,
+                                'isRemoteEnabled' => true,
+                            ]);
+                        } catch (\Exception $e) {
+                            \Log::warning('Pdf::setOptions failed (cobranca attachment)', ['err' => $e->getMessage()]);
+                        }
                         $pdfC = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
                         $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                     }
@@ -348,6 +387,16 @@ class ClienteController extends Controller
         // Try to generate PDF using the same facade as CobrancaController (DomPDF)
         try {
             // check for the actual DomPDF facade class (Pdf) or the imported alias
+            // Ensure DomPDF uses a UTF-8 capable default font and remote assets
+            try {
+                Pdf::setOptions([
+                    'defaultFont' => 'DejaVu Sans',
+                    'isHtml5ParserEnabled' => true,
+                    'isRemoteEnabled' => true,
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('Pdf::setOptions failed (email direct)', ['err' => $e->getMessage()]);
+            }
             if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class) || class_exists(Pdf::class)) {
                 $pdf = Pdf::loadView('pdf.ficha_cliente', compact('cliente','logoData'));
                 $output = $pdf->output();
@@ -379,6 +428,15 @@ class ClienteController extends Controller
                     $mpdfC->WriteHTML($htmlC);
                     $attachments[] = ['content' => $mpdfC->Output('', \Mpdf\Output\Destination::STRING_RETURN), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                 } else {
+                    try {
+                        Pdf::setOptions([
+                            'defaultFont' => 'DejaVu Sans',
+                            'isHtml5ParserEnabled' => true,
+                            'isRemoteEnabled' => true,
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::warning('Pdf::setOptions failed (cobranca attachment 2)', ['err' => $e->getMessage()]);
+                    }
                     $pdfC = Pdf::loadView('cobrancas.comprovante', compact('cobranca'));
                     $attachments[] = ['content' => $pdfC->output(), 'name' => 'cobranca_'.$cobranca->id.'.pdf', 'mime' => 'application/pdf'];
                 }

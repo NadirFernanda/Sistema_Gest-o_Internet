@@ -35,7 +35,9 @@
                 <button type="submit" class="btn btn-search">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
+                @can('clientes.create')
                 <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
+                @endcan
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
         </div>
@@ -57,9 +59,12 @@
                                 <a href="{{ route('clientes.ficha.pdf', $c->id) }}" class="btn-icon btn-warning" title="Ficha PDF" aria-label="Ficha PDF" style="margin-left:6px;" target="_blank" rel="noopener">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 </a>
+                                @can('clientes.edit')
                                 <a href="{{ route('clientes.show', $c->id) }}#formEditarCliente" class="btn-icon btn-warning" title="Editar" aria-label="Editar" style="margin-left:6px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                                 </a>
+                                @endcan
+                                @can('clientes.delete')
                                 <form action="{{ route('clientes.destroy', $c->id) }}" method="POST" style="display:inline-block; margin-left:6px;">
                                     @csrf
                                     @method('DELETE')
@@ -67,6 +72,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
                                     </button>
                                 </form>
+                                @endcan
                             </div>
                         </div>
                         @endforeach
@@ -217,7 +223,9 @@
                 }
                 </style>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
+                @can('clientes.edit')
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
+                @endcan
                 @php
                     $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
                     $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
