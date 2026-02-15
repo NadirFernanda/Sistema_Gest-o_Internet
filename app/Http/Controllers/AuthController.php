@@ -29,8 +29,17 @@ class AuthController extends Controller
             return redirect()->intended('/dashboard');
         }
 
+        // Verifica se o email existe
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'O email informado não está cadastrado.'
+            ])->withInput($request->only('email'));
+        }
+
+        // Email existe, então a senha está incorreta
         return back()->withErrors([
-            'email' => 'As credenciais fornecidas não correspondem aos nossos registros.',
+            'password' => 'A senha informada está incorreta.'
         ])->withInput($request->only('email'));
     }
 
