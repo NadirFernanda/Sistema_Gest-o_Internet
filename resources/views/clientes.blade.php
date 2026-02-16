@@ -102,6 +102,9 @@
                         @endphp
                         @if(isset($cliente) && $cliente->id && (!$user || (!$user->hasRole('colaborador') && !$user->hasRole('gerente'))))
                         <div class="ficha-actions" style="display:flex;gap:12px;align-items:center;">
+                            <a href="{{ route('clientes.compensacoes', $cliente->id) }}" class="btn btn-outline-secondary" style="padding:10px 18px; border-radius:8px; font-weight:700;">
+                                Histórico de Compensações
+                            </a>
                             <!-- Botão único: Compensar Dias -->
                             <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
                                 Compensar Dias
