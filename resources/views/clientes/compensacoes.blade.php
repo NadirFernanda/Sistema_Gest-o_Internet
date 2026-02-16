@@ -27,11 +27,11 @@
                     @foreach($compensacoes as $c)
                         <tr>
                             <td>{{ $c->id }}</td>
-                            <td>{{ $planoMap[$c->plano_id]->nome ?? ('Plano #' . $c->plano_id) }}</td>
+                            <td>{{ optional($planoMap->get($c->plano_id))->nome ?? ('Plano #' . $c->plano_id) }}</td>
                             <td>{{ $c->dias_compensados }}</td>
                             <td>{{ $c->anterior }}</td>
                             <td>{{ $c->novo }}</td>
-                            <td>{{ $users[$c->user_id]->name ?? ($c->user_id ? 'Usuário #' . $c->user_id : '-') }}</td>
+                            <td>{{ optional($users->get($c->user_id))->name ?? ($c->user_id ? 'Usuário #' . $c->user_id : '-') }}</td>
                             <td>{{ \Carbon\Carbon::parse($c->created_at)->format('d/m/Y H:i') }}</td>
                         </tr>
                     @endforeach
