@@ -110,9 +110,17 @@
                 </thead>
                 <tbody>
                     @foreach($compensacoes as $c)
+                        @php
+                            // Try both string and int keys (DB may return plano_id as string)
+                            $planoObj = $planoMap->get((string)$c->plano_id) ?? $planoMap->get((int)$c->plano_id);
+                            $planoNome = trim(optional($planoObj)->nome ?? '');
+                            if (!$planoNome) {
+                                $planoNome = 'Plano #' . $c->plano_id;
+                            }
+                        @endphp
                         <tr>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->id }}</td>
-                            <td style="text-align:left;vertical-align:middle;padding-left:12px;">{{ optional($planoMap->get($c->plano_id))->nome ?? ('Plano #' . $c->plano_id) }}</td>
+                            <td style="text-align:left;vertical-align:middle;padding-left:12px;">{{ $planoNome }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->dias_compensados }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->anterior }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->novo }}</td>
