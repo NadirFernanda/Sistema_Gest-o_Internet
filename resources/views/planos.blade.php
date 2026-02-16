@@ -83,7 +83,7 @@
                 <button id="noPermClose" style="background:transparent;border:0;font-size:1.1rem;cursor:pointer;">✕</button>
             </div>
             <p id="noPermBody" style="margin:0 0 12px;">Você não tem permissão para executar esta ação. Por favor contacte o administrador do sistema para obter acesso.</p>
-            <p style="margin:0 0 18px;">Enviar e-mail: <a id="noPermMailLink" href="mailto:{{ config('mail.from.address', 'admin@example.com') }}">{{ config('mail.from.address', 'admin@example.com') }}</a></p>
+            <p style="margin:0 0 18px;">Enviar e-mail: <a id="noPermMailLink" href="mailto:{{ config('mail.from.address', 'admin@angolawifi.ao') }}">{{ config('mail.from.address', 'admin@angolawifi.ao') }}</a></p>
             <div style="text-align:right;"><button id="noPermOk" class="btn btn-ghost">Fechar</button></div>
         </div>
     </div>
@@ -96,7 +96,7 @@
                 planosApi: "/api/planos",
                 planosCreateRoute: "{{ route('planos.create') }}",
                 clientesJson: "/clientes",
-                adminContactEmail: "{{ config('mail.from.address', 'admin@example.com') }}"
+                adminContactEmail: "{{ config('mail.from.address', 'admin@angolawifi.ao') }}"
             };
         </script>
     @endpush
