@@ -1,41 +1,5 @@
 // JS extracted from planos.blade.php — runs in browser when bundled by Vite
-(function(){
-    // CSRF token from meta tag (used by rendered delete forms)
-    const _meta = document.querySelector('meta[name="csrf-token"]');
-    const csrfToken = _meta ? _meta.getAttribute('content') : '';
-    // Price display handling
-    (function(){
-        const display = document.getElementById('precoPlanoDisplay');
-        const hidden = document.getElementById('precoPlano');
-        if (display) {
-            function unformat(value){
-                if(!value) return '';
-                let v = value.replace(/[^0-9,\.]/g, '');
-                v = v.replace(/,/g, '.');
-                return v;
-            }
-            function formatNumber(num){
-                return 'Kz ' + Number(num).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-            display.addEventListener('input', function(){
-                const raw = unformat(this.value);
-                const n = parseFloat(raw);
-                if(!isNaN(n)) {
-                    hidden.value = n.toFixed(2);
-                } else {
-                    hidden.value = '';
-                }
-            });
-            display.addEventListener('blur', function(){
-                const raw = unformat(this.value);
-                const n = parseFloat(raw);
-                if(!isNaN(n)) this.value = formatNumber(n);
-            });
-            display.addEventListener('focus', function(){
-                const raw = hidden.value;
-                if(raw) this.value = raw.replace('.', ',');
-                else this.value = '';
-            });
+
             const form = document.getElementById('formPlano');
             if(form){
                 form.addEventListener('submit', function(){
@@ -215,6 +179,77 @@
                             <button type="submit" class="small-btn btn btn-primary">Salvar</button>
                         </div>
                     </form>`;
+            }
+
+            function showNoPermModal(msg){
+                try{
+                    const modal = document.getElementById('noPermModal');
+                    if(!modal) { alert(msg || 'Você não tem permissão.'); return; }
+                    const body = document.getElementById('noPermBody');
+                    if(body && msg) body.textContent = msg;
+                    const mailLink = document.getElementById('noPermMailLink');
+                    if(mailLink && window.planosConfig && window.planosConfig.adminContactEmail){ mailLink.href = 'mailto:' + window.planosConfig.adminContactEmail; mailLink.textContent = window.planosConfig.adminContactEmail; }
+                    modal.style.display = 'flex';
+                    const closeBtn = document.getElementById('noPermClose');
+                    const okBtn = document.getElementById('noPermOk');
+                    function hide(){ modal.style.display = 'none'; }
+                    if(closeBtn) closeBtn.onclick = hide;
+                    if(okBtn) okBtn.onclick = hide;
+                    modal.addEventListener('click', function(ev){ if(ev.target === modal) hide(); });
+                }catch(_){ try{ alert(msg || 'Você não tem permissão para executar esta ação. Contacte o administrador.'); }catch(_){} }
+            }
+
+            function bindForm(id){
+                const form = document.getElementById('templateAjaxForm');
+                document.getElementById('cancelTemplateForm').addEventListener('click', ()=>{ formContainer.style.display='none'; });
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    const fd = new FormData(form);
+                    const url = id?`${planTemplatesBase}/${id}`:`${planTemplatesBase}`;
+                    const method = id?'PUT':'POST';
+                    fetch(url, { method: 'POST', headers: {'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override': method }, body: fd })
+                        .then(r => r.text().then(txt => ({ ok: r.ok, status: r.status, text: txt, ct: (r.headers.get ? r.headers.get('content-type') : '') })))
+                        .then(res => {
+                            if (res.ok) {
+                                try{ alert('Modelo salvo com sucesso.'); }catch(_){ }
+                                loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none';
+                                return;
+                            }
+                            const ct = (res.ct || '').toLowerCase();
+                            if (ct.indexOf('application/json') !== -1) {
+                                try {
+                                    const obj = JSON.parse(res.text);
+                                    const msg = obj.message || obj.error || JSON.stringify(obj);
+                                    alert('Erro: ' + msg);
+                                } catch (e) {
+                                    showNoPermModal('Erro ao salvar. Contacte o administrador.');
+                                }
+                            } else {
+                                showNoPermModal('Erro ao salvar. Contacte o administrador.');
+                            }
+                        })
+                        .catch((err)=> {
+                            try{ console.error(err); }catch(_){ }
+                        });
+                });
+            }
+
+            function deleteTemplate(id){
+                if(!confirm('Confirma apagar este modelo?')) return;
+                fetch(`${planTemplatesBase}/${id}`, { method:'POST', headers:{ 'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override':'DELETE' } })
+                    .then(r => r.text().then(txt => ({ ok: r.ok, text: txt, ct: (r.headers.get ? r.headers.get('content-type') : '') })))
+                    .then(res => {
+                        if (res.ok) {
+                            try{ alert('Modelo apagado com sucesso.'); }catch(_){ }
+                            loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; 
+                            return;
+                        }
+                        const ct = (res.ct || '').toLowerCase();
+                        if (ct.indexOf('application/json') !== -1) {
+                            try { const obj = JSON.parse(res.text); alert('Erro: ' + (obj.message || obj.error || JSON.stringify(obj))); } catch(e){ showNoPermModal('Erro ao apagar. Contacte o administrador.'); }
+                        } else { showNoPermModal('Erro ao apagar. Contacte o administrador.'); }
+                    })
+                    .catch((err)=> { try{ console.error(err); }catch(_){} });
             }
 
             function bindForm(id){
