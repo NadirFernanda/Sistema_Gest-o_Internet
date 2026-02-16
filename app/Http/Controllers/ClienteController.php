@@ -21,16 +21,27 @@ class ClienteController extends Controller
         ]);
 
         $cliente = Cliente::findOrFail($cliente);
-        // Busca o plano ativo mais recente (estado = 'Ativo' e ativo = true)
+        // Busca o plano ativo mais recente (estado = 'Ativo' - tolerante a case e espaços - e ativo = true|null)
         $plano = $cliente->planos()
-            ->where('estado', 'Ativo')
+            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) = ?", ['ativo'])
             ->where(function($q) {
                 $q->where('ativo', true)->orWhereNull('ativo');
             })
             ->orderByDesc('data_ativacao')
             ->first();
+
         if (!$plano) {
-            return back()->with('error', 'Nenhum plano ativo encontrado para este cliente.');
+            // Log para diagnóstico: lista planos do cliente e seus estados/flags
+            try {
+                $todos = $cliente->planos()->get(['id','nome','estado','ativo','data_ativacao'])->map(function($p){
+                    return $p->toArray();
+                });
+                \Log::warning('compensarDias: nenhum plano ativo encontrado', ['cliente_id' => $cliente->id, 'planos' => $todos]);
+            } catch (\Exception $e) {
+                \Log::warning('compensarDias: falha ao listar planos para debug', ['cliente_id' => $cliente->id, 'err' => $e->getMessage()]);
+            }
+
+            return back()->with('error', 'Nenhum plano ativo encontrado para este cliente. Verifique estado/flag do plano.');
         }
         // Se ciclo_original ainda não foi salvo, salva o valor atual antes de compensar
         if (is_null($plano->ciclo_original)) {
