@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\PermissionSeeder::class);
         $this->call(\Database\Seeders\UserSeeder::class);
         $this->call(\Database\Seeders\SuperUserSeeder::class);
+        $this->call(\Database\Seeders\EnsureAdminSeeder::class);
         $this->call(\Database\Seeders\ClienteSeeder::class);
         $this->call(\Database\Seeders\PlanoSeeder::class);
         $this->call(\Database\Seeders\PlanTemplateSeeder::class);
