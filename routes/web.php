@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     // Corrige erro 500: rota para compensar dias
     Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteController::class, 'compensarDias'])->name('clientes.compensar_dias');
+    // Histórico de compensações de dias (por cliente)
+    Route::get('/clientes/{cliente}/compensacoes', [\App\Http\Controllers\ClienteController::class, 'compensacoes'])->name('clientes.compensacoes');
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');
     Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
     Route::post('/clientes/{cliente}/ficha/send', [\App\Http\Controllers\ClienteController::class, 'sendFichaEmail'])->name('clientes.ficha.send');

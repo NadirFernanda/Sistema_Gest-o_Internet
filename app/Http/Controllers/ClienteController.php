@@ -43,13 +43,73 @@ class ClienteController extends Controller
 
             return back()->with('error', 'Nenhum plano ativo encontrado para este cliente. Verifique estado/flag do plano.');
         }
-        // Se ciclo_original ainda não foi salvo, salva o valor atual antes de compensar
-        if (is_null($plano->ciclo_original)) {
-            $plano->ciclo_original = $plano->ciclo;
+        // Opção A: não alteramos o "ciclo" original — adicionamos dias à próxima renovação
+        $hoje = Carbon::today();
+
+        // Determina a data atual de próxima renovação: se já foi registrada, usa-a,
+        // caso contrário calcula a partir de data_ativacao + ciclo - 1
+        try {
+            if (!empty($plano->proxima_renovacao)) {
+                $currentNext = Carbon::parse($plano->proxima_renovacao);
+            } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
+                $currentNext = Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1);
+            } else {
+                // fallback para hoje
+                $currentNext = $hoje;
+            }
+        } catch (\Exception $e) {
+            \Log::warning('compensarDias: falha ao parsear datas do plano', ['plano_id' => $plano->id, 'err' => $e->getMessage()]);
+            $currentNext = $hoje;
         }
-        $plano->ciclo += $request->dias_compensados;
+
+        $anterior = $currentNext->toDateString();
+        $novo = $currentNext->copy()->addDays($request->dias_compensados)->toDateString();
+
+        $plano->proxima_renovacao = $novo;
         $plano->save();
-        return back()->with('success', 'Compensação de dias registrada com sucesso!');
+
+        // Registra compensação em tabela dedicada
+        try {
+            \DB::table('compensacoes')->insert([
+                'plano_id' => $plano->id,
+                'user_id' => auth()->id() ?? null,
+                'dias_compensados' => (int) $request->dias_compensados,
+                'anterior' => $anterior,
+                'novo' => $novo,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('compensarDias: falha ao gravar registro de compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);
+        }
+
+        return back()->with('success', "Compensados {$request->dias_compensados} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
+    }
+    /**
+     * Exibe o histórico de compensações de dias para os planos do cliente
+     * GET /clientes/{cliente}/compensacoes
+     */
+    public function compensacoes($cliente)
+    {
+        $cliente = Cliente::with('planos')->findOrFail($cliente);
+
+        $planoIds = $cliente->planos->pluck('id')->toArray();
+
+        $compensacoes = collect(\DB::table('compensacoes')
+            ->whereIn('plano_id', $planoIds ?: [0])
+            ->orderByDesc('created_at')
+            ->get()
+        );
+
+        $planoMap = $cliente->planos->keyBy('id');
+
+        $userIds = $compensacoes->pluck('user_id')->filter()->unique()->values()->all();
+        $users = collect([]);
+        if (!empty($userIds)) {
+            $users = collect(\DB::table('users')->whereIn('id', $userIds)->get())->keyBy('id');
+        }
+
+        return view('clientes.compensacoes', compact('cliente','compensacoes','planoMap','users'));
     }
     /**
      * Retorna planos elegíveis para alerta de vencimento (para exibir na lista do frontend)
