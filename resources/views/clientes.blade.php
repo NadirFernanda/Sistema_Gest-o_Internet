@@ -346,16 +346,27 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.reload();
-                    } else if (data.errors) {
+                        // redireciona para a lista de clientes onde a mensagem de sucesso será exibida
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else {
+                            window.location.href = "{{ url('/clientes') }}";
+                        }
+                        return;
+                    }
+                    if (data.errors) {
                         let msg = 'Erro ao cadastrar cliente:\n';
                         for (const [campo, mensagens] of Object.entries(data.errors)) {
                             msg += `${campo}: ${Array.isArray(mensagens) ? mensagens.join(', ') : mensagens}\n`;
                         }
                         alert(msg);
-                    } else {
-                        alert('Erro desconhecido ao cadastrar cliente.');
+                        return;
                     }
+                    if (data.message) {
+                        alert(data.message);
+                        return;
+                    }
+                    alert('Erro desconhecido ao cadastrar cliente.');
                 })
                 .catch(() => alert('Erro ao cadastrar cliente.'));
             });

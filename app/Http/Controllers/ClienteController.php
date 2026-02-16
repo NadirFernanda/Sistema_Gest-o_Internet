@@ -536,7 +536,16 @@ class ClienteController extends Controller
                 throw $e;
             }
 
-            // Redireciona para a página de clientes com mensagem de sucesso
+            // Se a requisição esperar JSON (AJAX/fetch), devolve JSON com URL de redirecionamento
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('clientes.index'),
+                    'message' => 'Cliente cadastrado com sucesso!'
+                ]);
+            }
+
+            // Redireciona para a página de clientes com mensagem de sucesso (form tradicional)
             return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
@@ -548,6 +557,9 @@ class ClienteController extends Controller
                 $mensagem = 'Este contato já está cadastrado.';
             }
             // Retorna para a tela de cadastro com os erros
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'errors' => $errors->messages(), 'message' => $mensagem ?? 'Erro ao cadastrar cliente. Verifique os campos.'], 422);
+            }
             return redirect()->back()
                 ->withErrors($errors->messages())
                 ->withInput()
@@ -555,6 +567,9 @@ class ClienteController extends Controller
         } catch (\Exception $e) {
             // Erro inesperado
             \Log::error('Erro ao cadastrar cliente', ['exception' => $e]);
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro inesperado ao cadastrar cliente.'], 500);
+            }
             return redirect()->route('clientes.index')->with('error', 'Erro inesperado ao cadastrar cliente.');
         }
     }
