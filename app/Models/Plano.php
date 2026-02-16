@@ -17,10 +17,13 @@ class Plano extends Model
         'cliente_id',
         'estado',
         'data_ativacao',
+        'proxima_renovacao',
     ];
 
     protected $casts = [
         'ativo' => 'boolean',
+        'data_ativacao' => 'date',
+        'proxima_renovacao' => 'date',
     ];
 
     public function template()

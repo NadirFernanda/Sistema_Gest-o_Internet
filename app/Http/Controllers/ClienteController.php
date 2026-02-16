@@ -52,7 +52,13 @@ class ClienteController extends Controller
             if (!empty($plano->proxima_renovacao)) {
                 $currentNext = Carbon::parse($plano->proxima_renovacao);
             } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
-                $currentNext = Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1);
+                $cicloInt = intval(filter_var($plano->ciclo, FILTER_SANITIZE_NUMBER_INT));
+                if ($cicloInt <= 0) {
+                    // fallback: try casting normally
+                    $cicloInt = (int)$plano->ciclo;
+                }
+                \Log::debug('compensarDias: cicloInt resolved', ['plano_id' => $plano->id, 'ciclo_raw' => $plano->ciclo, 'ciclo_int' => $cicloInt]);
+                $currentNext = Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1);
             } else {
                 // fallback para hoje
                 $currentNext = $hoje;
@@ -63,7 +69,12 @@ class ClienteController extends Controller
         }
 
         $anterior = $currentNext->toDateString();
-        $novo = $currentNext->copy()->addDays((int)$request->dias_compensados)->toDateString();
+        $diasComp = intval(filter_var($request->dias_compensados, FILTER_SANITIZE_NUMBER_INT));
+        if ($diasComp <= 0) {
+            $diasComp = (int) $request->dias_compensados;
+        }
+        \Log::debug('compensarDias: dias to add', ['cliente_id' => $cliente->id, 'plano_id' => $plano->id, 'dias_raw' => $request->dias_compensados, 'dias_int' => $diasComp]);
+        $novo = $currentNext->copy()->addDays($diasComp)->toDateString();
 
         $plano->proxima_renovacao = $novo;
         $plano->save();

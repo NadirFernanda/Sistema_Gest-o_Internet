@@ -1,17 +1,27 @@
 ﻿## Deploy e Atualização em Produção (Passo a Passo)
 
-```bash
-## SGA-MR.TEXAS — README
-
-Este repositório contém o sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
+SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
 
 Principais tecnologias
 - PHP ^8.2
 - Laravel ^12
-- Blade
+- Blade (views)
 - Composer
 - Node.js / npm (Vite)
 - Banco relacional (MySQL/Postgres/SQLite)
+
+Importante — permissão sobre Planos
+- **Planos (criar/editar/remover):** restritos exclusivamente a usuários com perfil **Administrador**.
+- Perfis como **Gerente** e **Colaborador** possuem acesso a clientes e cobranças, mas não podem gerir planos via interface administrativa.
+
+Observação de testes: existe um conjunto de usuários de teste já adicionados na base para facilitar verificação em ambientes não-produção:
+
+```
+admin@angolawifi.ao
+colaborador@angolawifi.ao
+gerente@angolawifi.ao
+Senha para todos: password
+```
 
 ---
 
@@ -24,12 +34,15 @@ ssh usuario@SEU_SERVIDOR
 cd /var/www/sgmrtexas
 ```
 
-2. Atualize o código e gere os assets:
+2. Atualize o código e gere os assets (opção A: gerar no servidor; opção B: build local e subir `public/build`):
 
 ```bash
 git pull origin main
-npm install --production
+# Se preferir build no servidor
+npm ci
 npm run build
+
+# Ou: gerar localmente e subir apenas public/build
 ```
 
 3. Atualize dependências PHP e execute migrações (quando necessário):
