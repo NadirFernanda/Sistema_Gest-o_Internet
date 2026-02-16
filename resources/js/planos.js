@@ -1,5 +1,15 @@
 // JS extracted from planos.blade.php — runs in browser when bundled by Vite
 
+// Ensure we have a CSRF token available for any injected forms (fallbacks)
+const __csrfMeta = (typeof document !== 'undefined') ? document.querySelector('meta[name="csrf-token"]') : null;
+const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
+    try{
+        const holder = document.getElementById('pageCsrfHolder');
+        if(holder){ const inp = holder.querySelector('input[name="_token"]'); if(inp) return inp.value; }
+    }catch(_){ }
+    return '';
+})();
+
             const form = document.getElementById('formPlano');
             if(form){
                 form.addEventListener('submit', function(){
