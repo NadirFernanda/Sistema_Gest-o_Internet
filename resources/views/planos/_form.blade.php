@@ -16,11 +16,11 @@
 
     <div class="form-grid">
         <div class="form-row-full">
-            <label class="field-label">Usar modelo (opcional)</label>
+            <label class="field-label">Usar plano (opcional)</label>
             <select id="templateSelector" class="select" name="template_id">
-                <option value="">-- Usar modelo --</option>
+                <option value="">-- Usar plano --</option>
             </select>
-            <div id="templateNote" class="muted" style="margin-top:8px;display:none">Campos travados — valores do modelo serão aplicados. Apenas Data de ativação e Estado podem ser editados.</div>
+            <div id="templateNote" class="muted" style="margin-top:8px;display:none">Campos travados — valores do plano serão aplicados. Apenas Data de ativação e Estado podem ser editados.</div>
         </div>
 
         <div>

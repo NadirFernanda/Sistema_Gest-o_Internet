@@ -2,7 +2,7 @@
 
 @section('content')
   <div class="container">
-    <h1>Novo Modelo de Plano</h1>
+    <h1>Novo Plano</h1>
     <form action="{{ route('plan-templates.store') }}" method="POST">
       @csrf
       <div>
@@ -26,7 +26,7 @@
         <input type="text" name="estado">
       </div>
       <div style="margin-top:12px">
-        <button class="btn btn-primary" type="submit">Salvar Modelo</button>
+        <button class="btn btn-primary" type="submit">Salvar Plano</button>
         <a href="{{ route('plan-templates.index') }}" class="btn">Cancelar</a>
       </div>
     </form>

@@ -11,7 +11,7 @@
       @media (max-width:640px) { .templates-toolbar { flex-direction:column; } .templates-toolbar .template-btn { width:100%; } }
     </style>
 
-    <div class="templates-toolbar" role="toolbar" aria-label="Ações de modelos de plano">
+    <div class="templates-toolbar" role="toolbar" aria-label="Ações de planos">
       @can('planos.create')
       <a href="{{ route('plan-templates.create') }}" class="btn btn-cta template-btn">Novo Plano</a>
       @endcan

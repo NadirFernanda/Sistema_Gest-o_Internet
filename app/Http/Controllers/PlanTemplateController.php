@@ -30,7 +30,7 @@ class PlanTemplateController extends Controller
         ]);
 
         PlanTemplate::create($data);
-        return redirect()->route('plan-templates.index')->with('success', 'Template criado');
+        return redirect()->route('plan-templates.index')->with('success', 'Plano criado com sucesso');
     }
 
     public function edit(PlanTemplate $plan_template)
@@ -49,31 +49,31 @@ class PlanTemplateController extends Controller
         ]);
 
         $plan_template->update($data);
-        return redirect()->route('plan-templates.index')->with('success', 'Template atualizado');
+        return redirect()->route('plan-templates.index')->with('success', 'Plano atualizado com sucesso');
     }
 
     public function destroy($plan_template)
     {
         if (!$plan_template || $plan_template === 'null' || $plan_template === null) {
-            return redirect()->route('plan-templates.index')->with('error', 'Template inválido');
+            return redirect()->route('plan-templates.index')->with('error', 'Plano inválido');
         }
         $tpl = PlanTemplate::find($plan_template);
         if (!$tpl) {
-            return redirect()->route('plan-templates.index')->with('error', 'Template não encontrado');
+            return redirect()->route('plan-templates.index')->with('error', 'Plano não encontrado');
         }
         $tpl->delete();
-        return redirect()->route('plan-templates.index')->with('success', 'Template removido');
+        return redirect()->route('plan-templates.index')->with('success', 'Plano removido com sucesso');
     }
 
     // JSON endpoint for frontend prefilling
     public function json($plan_template)
     {
         if (!$plan_template || $plan_template === 'null' || $plan_template === null) {
-            return response()->json(['error' => 'Template não encontrado'], 404);
+            return response()->json(['error' => 'Plano não encontrado'], 404);
         }
         $tpl = PlanTemplate::find($plan_template);
         if (!$tpl) {
-            return response()->json(['error' => 'Template não encontrado'], 404);
+            return response()->json(['error' => 'Plano não encontrado'], 404);
         }
         return response()->json($tpl);
     }

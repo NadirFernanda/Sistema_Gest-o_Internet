@@ -2,7 +2,7 @@
 
 @section('content')
   <div class="container">
-    <h1>Editar Modelo</h1>
+    <h1>Editar Plano</h1>
     <form action="{{ route('plan-templates.update', $template) }}" method="POST">
       @csrf
       @method('PUT')
