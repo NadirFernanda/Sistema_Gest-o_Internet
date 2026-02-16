@@ -76,6 +76,94 @@ php artisan key:generate
 
 3. Instale dependências PHP e front-end:
 
+## SGA-MR.TEXAS — Sistema de Gestão (README)
+
+Este repositório contém o sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
+
+Principais tecnologias
+- PHP ^8.2
+- Laravel ^12
+- Blade (views)
+- Composer
+- Node.js / npm (Vite)
+- Banco relacional (MySQL/Postgres/SQLite)
+
+Índice
+- Deploy e atualização em produção
+- Instalação e execução local
+- Perfis e permissões
+- Configuração de produção
+- Nginx (exemplo)
+- Comandos úteis
+
+---
+
+## Deploy e Atualização em Produção (Passo a Passo)
+
+1. Acesse o servidor e entre na pasta do sistema
+
+```bash
+ssh usuario@SEU_SERVIDOR
+cd /var/www/sgmrtexas
+```
+
+Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela `users`.
+Senha para todos: `password`
+
+2. Atualize o código e gere os assets
+
+Observação: se preferir não instalar dependências de desenvolvimento no servidor, gere os assets localmente (`npm ci && npm run build`) e suba a pasta `public/build` para o servidor.
+
+```bash
+git pull origin main
+npm install
+npm run build
+```
+
+3. Atualize dependências PHP e execute migrações (quando necessário)
+
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+```
+
+4. Limpe e regenere caches
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+5. Reinicie serviços se necessário
+
+```bash
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+```
+
+Nota: ajuste os comandos conforme a versão do PHP e o usuário do sistema web no seu servidor.
+
+---
+
+## Instalação e execução local
+
+1. Clone e entre no projeto:
+
+```bash
+git clone <URL-DO-REPOSITORIO>
+cd PROJECTO
+```
+
+2. Copie o `.env` e gere a chave da aplicação:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+3. Instale dependências PHP e front-end:
+
 ```bash
 composer install
 npm install
@@ -95,12 +183,12 @@ Acesse http://localhost:8000
 
 ## Nota importante — Perfis e permissões
 
-- As funcionalidades relacionadas a criação, edição e remoção de **planos** são restritas a administradores.
-- Usuários de perfis "colaborador" e "gerente" têm acesso a visualização e operações limitadas (ex.: clientes, cobranças), mas não podem gerir planos via interface administrativa.
+- **Planos:** criação, edição e remoção de planos são restritas a administradores.
+- **Gerente / Colaborador:** podem visualizar e operar sobre clientes e cobranças, mas não podem gerir planos via interface administrativa.
 
 Para testes rápidos em ambiente local, existem usuários já criados na base (exemplo):
 
-```text
+```
 admin@angolawifi.ao
 colaborador@angolawifi.ao
 gerente@angolawifi.ao
@@ -139,11 +227,21 @@ server {
   root /var/www/sgmrtexas/public;
   index index.php index.html;
 
-  location / { try_files $uri $uri/ /index.php?$query_string; }
+  add_header X-Frame-Options "SAMEORIGIN";
+  add_header X-Content-Type-Options "nosniff";
+  charset utf-8;
+
+  location / {
+    try_files $uri $uri/ /index.php?$query_string;
+  }
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
     fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+  }
+
+  location ~ /\.ht {
+    deny all;
   }
 }
 ```
@@ -155,7 +253,7 @@ server {
 Fluxo resumido:
 
 1. Gere uma chave SSH no servidor: `ssh-keygen -t ed25519 -C "deploy-sgmrtexas"`
-2. Cole a chave pública em Settings → SSH and GPG keys no GitHub.
+2. Cole a chave pública em **Settings → SSH and GPG keys** no GitHub.
 3. Teste: `ssh -T git@github.com`
 
 ---
@@ -179,95 +277,49 @@ Fluxo resumido:
 
 ---
 
+## Relatórios automáticos
+
+O sistema gera relatórios automáticos de cobranças e os salva em `storage/app/relatorios` além de enviá‑los por e‑mail conforme configuração no `.env`.
+
+Comandos manuais para gerar relatórios:
+
+```bash
+php artisan relatorio:cobrancas-diario
+php artisan relatorio:cobrancas-semanal
+php artisan relatorio:cobrancas-mensal
+```
+
+---
+
 ## Boas práticas e observações
 
 - Não versionar `.env` nem secrets.
 - Manter `vendor/` e `node_modules/` fora do repositório.
-- Proteger branch `main` no GitHub e usar pull requests para alterações.
+- Não enviar dados sensíveis em PRs.
+- Proteja a branch `main` e use pull requests para alterações.
 
 ---
 
-Se desejar, posso também adicionar botões na interface para baixar os relatórios automáticos (diário/semana/mês) que hoje são gerados pelo Scheduler e salvos em `storage/app/relatorios`.
+Se desejar, posso adicionar botões na interface para download dos relatórios automáticos que hoje são gerados pelo Scheduler e salvos em `storage/app/relatorios`.
 
-Para detalhes ou personalizações no deploy, informe o ambiente alvo (SSH/usuario/PHP version) e eu adapto os comandos.
-php artisan route:cache
-php artisan migrate --force
-php artisan view:
+---
 
-```
-
-### 2. Baixe as últimas alterações do repositório
-
-```bash
-git pull
-```
-
-### 3. Instale dependências PHP
-
-```bash
-composer install --no-dev --optimize-autoloader
-```
-
-### 4. Instale dependências do front-end (Vite)
-
-```bash
-npm install
-npm run build
-```
-
-### 5. Gere a chave da aplicação (se necessário)
-
-```bash
-php artisan key:generate
-```
-
-### 6. Execute as migrações do banco de dados
-
-```bash
-php artisan migrate --force
-```
-
-### 7. Gere o link de storage
-
-```bash
-php artisan storage:link
-```
-
-### 8. Limpe e gere o cache das views, configs e rotas
-
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
-### 9. Comandos para deploy rápido:
+## Passos rápidos de deploy (exemplo)
 
 ```bash
 git pull origin main
-npm install
+npm ci
 npm run build
-php artisan view:clear
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
 ```
 
-### 10. Ajuste permissões das pastas (se necessário)
-
-```bash
-sudo chown -R www-data:www-data storage bootstrap/cache
-# Ensure directories keep the web group and are group-writable
-sudo find storage -type d -exec chmod 2775 {} \;
-# Set secure file permissions for files
-sudo find storage -type f -exec chmod 664 {} \;
-# Preserve group ownership for newly created files
-sudo chmod -R g+s storage bootstrap/cache
-# Regenerate Blade compiled views as the web user to avoid permission issues
-sudo -u www-data php artisan view:clear
-sudo -u www-data php artisan view:cache
-```
-
+Pronto! O sistema estará atualizado e rodando em produção.
 ### 11. Reinicie serviços PHP-FPM e Nginx (se necessário)
 
 ```bash

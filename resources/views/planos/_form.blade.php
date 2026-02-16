@@ -14,6 +14,23 @@
         @media (max-width:800px){ .form-grid{ grid-template-columns:1fr; } .form-actions{ justify-content:stretch; } .btn-cta{ width:100%; } }
     </style>
 
+    {{-- Flash / validation messages --}}
+    @if(session('success'))
+        <div style="background:#e6ffea;border:1px solid #b7f0c6;padding:10px;border-radius:6px;margin-bottom:12px;color:#1a7f3a">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div style="background:#fff4f4;border:1px solid #f5c0c0;padding:10px;border-radius:6px;margin-bottom:12px;color:#8a1a1a">{{ session('error') }}</div>
+    @endif
+    @if($errors->any())
+        <div style="background:#fff8e6;border:1px solid #ffe4b3;padding:10px;border-radius:6px;margin-bottom:12px;color:#7a5600">
+            <ul style="margin:0;padding-left:18px">
+                @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="form-grid">
         <div class="form-row-full">
             <label class="field-label">Usar plano (opcional)</label>
@@ -29,7 +46,7 @@
                 <option value="">Selecione o cliente</option>
                 @if(isset($clientes) && count($clientes))
                     @foreach($clientes as $c)
-                        <option value="{{ $c->id }}">{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
+                        <option value="{{ $c->id }}" {{ old('cliente_id') == $c->id ? 'selected' : '' }}>{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
                     @endforeach
                 @endif
             </select>
@@ -37,38 +54,38 @@
 
         <div>
             <label class="field-label">Nome do plano</label>
-            <input type="text" id="nomePlano" name="nome" class="input" placeholder="Ex: Plano Residencial 10Mbps" required>
+            <input type="text" id="nomePlano" name="nome" class="input" placeholder="Ex: Plano Residencial 10Mbps" required value="{{ old('nome') }}">
         </div>
 
         <div>
             <label class="field-label">Preço (Kz)</label>
-            <input type="hidden" name="preco" id="precoPlano">
-            <input type="text" id="precoPlanoDisplay" class="input" placeholder="0,00" required>
+            <input type="hidden" name="preco" id="precoPlano" value="{{ old('preco') }}">
+            <input type="text" id="precoPlanoDisplay" class="input" placeholder="0,00" required value="{{ old('preco') ? old('preco') : '' }}">
         </div>
 
         <div class="form-row-full">
             <label class="field-label">Descrição</label>
-            <input type="text" id="descricaoPlano" name="descricao" class="input" placeholder="Breve descrição do plano" required>
+            <input type="text" id="descricaoPlano" name="descricao" class="input" placeholder="Breve descrição do plano" required value="{{ old('descricao') }}">
         </div>
 
         <div>
             <label class="field-label">Ciclo (dias)</label>
-            <input type="number" id="cicloPlano" name="ciclo" class="input" placeholder="30" min="1" required>
+            <input type="number" id="cicloPlano" name="ciclo" class="input" placeholder="30" min="1" required value="{{ old('ciclo', 30) }}">
         </div>
 
         <div>
             <label class="field-label">Data de ativação</label>
-            <input type="date" id="dataAtivacaoPlano" name="data_ativacao" class="input" required>
+            <input type="date" id="dataAtivacaoPlano" name="data_ativacao" class="input" required value="{{ old('data_ativacao') }}">
         </div>
 
         <div>
             <label class="field-label">Estado</label>
             <select id="estadoPlano" name="estado" class="select" required>
                 <option value="">Escolha o estado</option>
-                <option value="Ativo">Ativo</option>
-                <option value="Em aviso">Em aviso</option>
-                <option value="Suspenso">Suspenso</option>
-                <option value="Cancelado">Cancelado</option>
+                <option value="Ativo" {{ old('estado') == 'Ativo' ? 'selected' : '' }}>Ativo</option>
+                <option value="Em aviso" {{ old('estado') == 'Em aviso' ? 'selected' : '' }}>Em aviso</option>
+                <option value="Suspenso" {{ old('estado') == 'Suspenso' ? 'selected' : '' }}>Suspenso</option>
+                <option value="Cancelado" {{ old('estado') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
             </select>
         </div>
 

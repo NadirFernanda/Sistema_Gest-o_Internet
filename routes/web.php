@@ -59,11 +59,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
     // Backwards-compatible alias: some views/compiled templates reference "planos.index"
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
+    // Only users with the 'Administrador' role can access the planos create/store web routes
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
         ->name('planos.store')
-        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.create');
+        ->middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador');
     // Show the create form for planos on a separate page
-    Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create');
+    Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create')->middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador');
     // Web routes for individual planos (prevent 404s from card actions)
     Route::get('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'webShow'])->name('planos.show')->whereNumber('plano');
     Route::get('/planos/{plano}/edit', [\App\Http\Controllers\PlanoController::class, 'editWeb'])->name('planos.edit')->whereNumber('plano');
