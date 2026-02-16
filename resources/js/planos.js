@@ -169,8 +169,14 @@
                                 });
                 html += '</tbody></table></div>';
                 listContainer.innerHTML = html;
-                listContainer.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', e => showEditForm(e.target.getAttribute('data-id'))));
-                listContainer.querySelectorAll('.delBtn').forEach(b => b.addEventListener('click', e => deleteTemplate(e.target.getAttribute('data-id'))));
+                listContainer.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', function(e){
+                    const id = (e.currentTarget && e.currentTarget.getAttribute) ? e.currentTarget.getAttribute('data-id') : (e.target && e.target.getAttribute ? e.target.getAttribute('data-id') : null);
+                    if(id) showEditForm(id);
+                }));
+                listContainer.querySelectorAll('.delBtn').forEach(b => b.addEventListener('click', function(e){
+                    const id = (e.currentTarget && e.currentTarget.getAttribute) ? e.currentTarget.getAttribute('data-id') : (e.target && e.target.getAttribute ? e.target.getAttribute('data-id') : null);
+                    if(id) deleteTemplate(id);
+                }));
             }
 
             function showCreateForm(){
