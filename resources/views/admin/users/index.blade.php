@@ -39,7 +39,6 @@
         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
             <thead>
                 <tr>
-                    <th style="text-align:center;vertical-align:middle;">#</th>
                     <th style="text-align:center;vertical-align:middle;">Nome</th>
                     <th style="text-align:center;vertical-align:middle;">E-mail</th>
                     <th style="text-align:center;vertical-align:middle;">Papéis</th>
@@ -50,7 +49,6 @@
             <tbody>
                 @forelse($users as $u)
                     <tr>
-                        <td style="text-align:center;vertical-align:middle;">{{ $u->id }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $u->name }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $u->email }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $u->roles->pluck('name')->join(', ') }}</td>
@@ -73,7 +71,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6">Nenhum usuário encontrado.</td></tr>
+                    <tr><td colspan="5">Nenhum usuário encontrado.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -83,3 +81,40 @@
 </div>
 
 @endsection
+    <style>
+    /* Copied from estoque_equipamentos index to ensure identical table appearance */
+    .tabela-estoque-moderna th {
+        background: #fffbe7;
+        color: #f7b500;
+        font-weight: bold;
+        font-size: 1.09em;
+        border-bottom: 2px solid #ffe6a0;
+        padding: 14px 12px;
+    }
+    .tabela-estoque-moderna td {
+        background: #fff;
+        color: #222;
+        font-size: 1em;
+        padding: 13px 12px;
+    }
+    .tabela-estoque-moderna tr {
+        border-bottom: 1px solid #f3e6b0;
+    }
+    .btn-icon {
+        padding: 6px;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        color: #222;
+        cursor: pointer;
+        transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    }
+    .btn-icon svg { width: 16px; height: 16px; }
+    .btn-icon:hover { background: #f7b500; color: #fff; border-color: #f7b500; }
+    .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
+    </style>
