@@ -104,6 +104,27 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             const meta = document.querySelector('meta[name="csrf-token"]');
             const csrf = meta ? meta.getAttribute('content') : '';
 
+            function _parseJsonSafe(text){ try{ return JSON.parse(text); }catch(_){ return null; } }
+            function _showApiFeedback(obj, successFallback){
+                if(!obj) { if(successFallback) alert(successFallback); else showNoPermModal('Resposta inesperada.'); return; }
+                if(typeof obj === 'object'){
+                    if(obj.success === true || obj.success === 'true'){
+                        alert(obj.message || successFallback || 'Operação realizada com sucesso.');
+                        return;
+                    }
+                    if(obj.success === false || obj.error || obj.message){
+                        alert(obj.message || obj.error || JSON.stringify(obj));
+                        return;
+                    }
+                    // fallback: show message if present
+                    if(obj.message) { alert(obj.message); return; }
+                    alert(JSON.stringify(obj));
+                    return;
+                }
+                if(typeof obj === 'string') { alert(obj); return; }
+                showNoPermModal(successFallback || 'Erro desconhecido');
+            }
+
             function fetchJson(url, opts){
                 opts = opts || {};
                 opts.headers = Object.assign({ 'X-Requested-With':'XMLHttpRequest', 'X-CSRF-TOKEN': csrf }, opts.headers || {});
@@ -219,19 +240,17 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                         .then(r => r.text().then(txt => ({ ok: r.ok, status: r.status, text: txt, ct: (r.headers.get ? r.headers.get('content-type') : '') })))
                         .then(res => {
                             if (res.ok) {
-                                try{ alert('Modelo salvo com sucesso.'); }catch(_){ }
+                                const ct = (res.ct || '').toLowerCase();
+                                const obj = (ct.indexOf('application/json') !== -1) ? _parseJsonSafe(res.text) : null;
+                                _showApiFeedback(obj, 'Modelo salvo com sucesso.');
                                 loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none';
                                 return;
                             }
                             const ct = (res.ct || '').toLowerCase();
                             if (ct.indexOf('application/json') !== -1) {
-                                try {
-                                    const obj = JSON.parse(res.text);
-                                    const msg = obj.message || obj.error || JSON.stringify(obj);
-                                    alert('Erro: ' + msg);
-                                } catch (e) {
-                                    showNoPermModal('Erro ao salvar. Contacte o administrador.');
-                                }
+                                const obj = _parseJsonSafe(res.text);
+                                if(obj) _showApiFeedback(obj, 'Erro ao salvar. Contacte o administrador.');
+                                else showNoPermModal('Erro ao salvar. Contacte o administrador.');
                             } else {
                                 showNoPermModal('Erro ao salvar. Contacte o administrador.');
                             }
@@ -245,16 +264,19 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             function deleteTemplate(id){
                 if(!confirm('Confirma apagar este modelo?')) return;
                 fetch(`${planTemplatesBase}/${id}`, { method:'POST', headers:{ 'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override':'DELETE' } })
-                    .then(r => r.text().then(txt => ({ ok: r.ok, text: txt, ct: (r.headers.get ? r.headers.get('content-type') : '') })))
+                    .then(res => r.text().then(txt => ({ ok: r.ok, text: txt, ct: (r.headers.get ? r.headers.get('content-type') : '') })))
                     .then(res => {
                         if (res.ok) {
-                            try{ alert('Modelo apagado com sucesso.'); }catch(_){ }
+                            const obj = (res.ct || '').toLowerCase().indexOf('application/json') !== -1 ? _parseJsonSafe(res.text) : null;
+                            _showApiFeedback(obj, 'Modelo apagado com sucesso.');
                             loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; 
                             return;
                         }
                         const ct = (res.ct || '').toLowerCase();
                         if (ct.indexOf('application/json') !== -1) {
-                            try { const obj = JSON.parse(res.text); alert('Erro: ' + (obj.message || obj.error || JSON.stringify(obj))); } catch(e){ showNoPermModal('Erro ao apagar. Contacte o administrador.'); }
+                            const obj = _parseJsonSafe(res.text);
+                            if(obj) _showApiFeedback(obj, 'Erro ao apagar. Contacte o administrador.');
+                            else showNoPermModal('Erro ao apagar. Contacte o administrador.');
                         } else { showNoPermModal('Erro ao apagar. Contacte o administrador.'); }
                     })
                     .catch((err)=> { try{ console.error(err); }catch(_){} });
@@ -269,13 +291,13 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                     const url = id?`${planTemplatesBase}/${id}`:`${planTemplatesBase}`;
                     const method = id?'PUT':'POST';
                     fetch(url, { method: 'POST', headers: {'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override': method }, body: fd })
-                        .then(r => {
-                            if (r.ok) return r.text();
-                            return r.text().then(t => { throw new Error(t || 'Erro'); });
+                        .then(res => {
+                            if (res.ok) return res.text();
+                            return res.text().then(t => { throw new Error(t || 'Erro'); });
                         })
                         .then((txt) =>{
-                            // show simple success feedback, then refresh list and close form
-                            try{ alert('Modelo salvo com sucesso.'); }catch(_){}
+                            const obj = _parseJsonSafe(txt);
+                            _showApiFeedback(obj, 'Modelo salvo com sucesso.');
                             loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none';
                         })
                         .catch((err)=> {
@@ -285,7 +307,9 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                                 if(msg.trim().startsWith('<') || msg.trim().toLowerCase().indexOf('<!doctype') === 0){
                                     showNoPermModal('Erro ao salvar. Contacte o administrador.');
                                 } else {
-                                    alert('Erro ao salvar: ' + (msg || 'Erro desconhecido'));
+                                    const parsed = _parseJsonSafe(msg);
+                                    if(parsed) _showApiFeedback(parsed, 'Erro ao salvar.');
+                                    else alert('Erro ao salvar: ' + (msg || 'Erro desconhecido'));
                                 }
                             }catch(_){ }
                         });
@@ -299,11 +323,12 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                         if (r.ok) return r.text();
                         return r.text().then(t => { throw new Error(t || 'Erro'); });
                     })
-                    .then(()=>{
-                        try{ alert('Modelo apagado com sucesso.'); }catch(_){}
+                    .then((txt)=>{
+                        const obj = _parseJsonSafe(txt);
+                        _showApiFeedback(obj, 'Modelo apagado com sucesso.');
                         loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; 
                     })
-                    .catch((err)=> { try{ console.error(err); const msg = (err && err.message) ? String(err.message) : ''; if(msg.trim().startsWith('<') || msg.trim().toLowerCase().indexOf('<!doctype') === 0){ showNoPermModal('Erro ao apagar. Contacte o administrador.'); } else { alert('Erro ao apagar: ' + (msg || 'Erro desconhecido')); } }catch(_){} });
+                    .catch((err)=> { try{ console.error(err); const msg = (err && err.message) ? String(err.message) : ''; if(msg.trim().startsWith('<') || msg.trim().toLowerCase().indexOf('<!doctype') === 0){ showNoPermModal('Erro ao apagar. Contacte o administrador.'); } else { const parsed = _parseJsonSafe(msg); if(parsed) _showApiFeedback(parsed, 'Erro ao apagar.'); else alert('Erro ao apagar: ' + (msg || 'Erro desconhecido')); } }catch(_){} });
             }
 
             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
