@@ -1,65 +1,83 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header">Usuários</div>
-        <div class="card-body">
-            @if(session('status'))
-                <div class="alert alert-success">{{ session('status') }}</div>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
+@endpush
+
+<div class="estoque-container-moderna">
+    @include('layouts.partials.clientes-hero', [
+        'title' => 'Usuários',
+        'subtitle' => '',
+        'stackLeft' => true,
+    ])
+
+    <div class="clientes-toolbar">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="search-form-inline">
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="Pesquisar por nome ou e-mail..." class="search-input" />
+            <button type="submit" class="btn btn-search">Pesquisar</button>
+            @if(request('q'))
+                <a href="{{ route('admin.users.index') }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
             @endif
-            @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-
-            <form method="GET" class="form-inline" style="margin-bottom:12px;">
-                <input type="text" name="q" class="form-control" placeholder="Buscar por nome ou e-mail" value="{{ request('q') }}">
-                <button class="btn btn-default" type="submit">Buscar</button>
-                @can('users.create')
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-primary" style="margin-left:8px;">Criar usuário</a>
-                @endcan
-            </form>
-
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Papeis</th>
-                            <th>Criado</th>
-                            <th style="text-align:center;">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $u)
-                            <tr>
-                                <td>{{ $u->id }}</td>
-                                <td>{{ $u->name }}</td>
-                                <td>{{ $u->email }}</td>
-                                <td>{{ $u->roles->pluck('name')->join(', ') }}</td>
-                                <td>{{ $u->created_at->format('Y-m-d') }}</td>
-                                <td style="text-align:center;">
-                                    @can('users.edit')
-                                        <a href="{{ route('admin.users.edit', $u->id) }}" class="btn btn-sm btn-ghost">Editar</a>
-                                    @endcan
-                                    @can('users.delete')
-                                        <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST" style="display:inline-block;margin-left:6px;" onsubmit="return confirm('Confirma exclusão deste usuário?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger">Apagar</button>
-                                        </form>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3">{{ $users->links() }}</div>
+        </form>
+        <div style="display:flex;gap:8px;">
+            @can('users.create')
+            <a href="{{ route('admin.users.create') }}" class="btn btn-cta">Criar usuário</a>
+            @endcan
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
         </div>
     </div>
+
+    @if(session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    <div class="estoque-tabela-moderna">
+        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+            <thead>
+                <tr>
+                    <th style="text-align:center;vertical-align:middle;">#</th>
+                    <th style="text-align:center;vertical-align:middle;">Nome</th>
+                    <th style="text-align:center;vertical-align:middle;">E-mail</th>
+                    <th style="text-align:center;vertical-align:middle;">Papéis</th>
+                    <th style="text-align:center;vertical-align:middle;">Criado</th>
+                    <th style="text-align:center;vertical-align:middle;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($users as $u)
+                    <tr>
+                        <td style="text-align:center;vertical-align:middle;">{{ $u->id }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $u->name }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $u->email }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $u->roles->pluck('name')->join(', ') }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $u->created_at->format('Y-m-d') }}</td>
+                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                            @can('users.edit')
+                                <a href="{{ route('admin.users.edit', $u->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
+                                    Editar
+                                </a>
+                            @endcan
+                            @can('users.delete')
+                                <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon btn-danger" title="Apagar" aria-label="Apagar" onclick="return confirm('Deseja apagar este usuário?')">Apagar</button>
+                                </form>
+                            @endcan
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6">Nenhum usuário encontrado.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-3">{{ $users->links() }}</div>
 </div>
+
 @endsection
