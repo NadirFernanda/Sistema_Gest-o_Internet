@@ -103,6 +103,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users', [\App\Http\Controllers\UserController::class, 'store'])
         ->name('admin.users.store')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.create');
+    // Admin users index, edit, update and destroy
+    Route::get('/admin/users', [\App\Http\Controllers\UserController::class, 'index'])
+        ->name('admin.users.index')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.view');
+    Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])
+        ->name('admin.users.edit')
+        ->whereNumber('user')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.edit');
+    Route::put('/admin/users/{user}', [\App\Http\Controllers\UserController::class, 'update'])
+        ->name('admin.users.update')
+        ->whereNumber('user')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.edit');
+    Route::delete('/admin/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])
+        ->name('admin.users.destroy')
+        ->whereNumber('user')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.delete');
     
     // Plan templates (catalog of reusable plans)
     Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');

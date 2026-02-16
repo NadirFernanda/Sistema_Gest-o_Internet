@@ -37,8 +37,8 @@
                 </div>
             </div>
 
-            @can('users.create')
-                <a href="{{ route('admin.users.create') }}" class="btn btn-create-user">Criar utilizador</a>
+            @can('users.view')
+                <a href="{{ route('admin.users.index') }}" class="btn btn-create-user">Usuários</a>
             @endcan
 
             <!-- Button to change password -->
