@@ -1,55 +1,45 @@
 ﻿## Deploy e Atualização em Produção (Passo a Passo)
 
 ```bash
-ssh usuario@SEU_SERVIDOR
-cd /var/www/sgmrtexas
-git pull origin main
-npm install
-npm run build
-php artisan view:clear
-php artisan config:cache
-php artisan route:cache
-php artisan migrate --force
-```
+## SGA-MR.TEXAS — README
 
-### 2. Baixe as últimas alterações do repositório
+Este repositório contém o sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
+
+Principais tecnologias
+- PHP ^8.2
+- Laravel ^12
+- Blade
+- Composer
+- Node.js / npm (Vite)
+- Banco relacional (MySQL/Postgres/SQLite)
+
+---
+
+## Deploy e atualização em produção (resumido)
+
+1. Conecte-se ao servidor de produção e acesse a pasta da aplicação:
 
 ```bash
-git pull
+ssh usuario@SEU_SERVIDOR
+cd /var/www/sgmrtexas
 ```
 
-### 3. Instale dependências PHP
+2. Atualize o código e gere os assets:
+
+```bash
+git pull origin main
+npm install --production
+npm run build
+```
+
+3. Atualize dependências PHP e execute migrações (quando necessário):
 
 ```bash
 composer install --no-dev --optimize-autoloader
-```
-
-### 4. Instale dependências do front-end (Vite)
-
-```bash
-npm install
-npm run build
-```
-
-### 5. Gere a chave da aplicação (se necessário)
-
-```bash
-php artisan key:generate
-```
-
-### 6. Execute as migrações do banco de dados
-
-```bash
 php artisan migrate --force
 ```
 
-### 7. Gere o link de storage
-
-```bash
-php artisan storage:link
-```
-
-### 8. Limpe e gere o cache das views, configs e rotas
+4. Limpe e regenere caches:
 
 ```bash
 php artisan config:cache
@@ -57,446 +47,149 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-### 9. Comandos para deploy rápido:
-
-```bash
-git pull origin main
-npm install
-npm run build
-php artisan view:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
-### 10. Ajuste permissões das pastas (se necessário)
-
-```bash
-sudo chown -R www-data:www-data storage bootstrap/cache
-# Ensure directories keep the web group and are group-writable
-sudo find storage -type d -exec chmod 2775 {} \;
-# Set secure file permissions for files
-sudo find storage -type f -exec chmod 664 {} \;
-# Preserve group ownership for newly created files
-sudo chmod -R g+s storage bootstrap/cache
-# Regenerate Blade compiled views as the web user to avoid permission issues
-sudo -u www-data php artisan view:clear
-sudo -u www-data php artisan view:cache
-```
-
-### 11. Reinicie serviços PHP-FPM e Nginx (se necessário)
+5. Reinicie serviços se necessário:
 
 ```bash
 sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx
 ```
 
-### 12. Agende o cron do Laravel Scheduler
-
-```bash
-crontab -e
-# Adicione (ou confirme) esta linha:
-* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
-```
-
-Pronto! O sistema estará atualizado e rodando em produção.
-
-## Sistema de Gestão de Internet (Laravel)
-
-> Sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
-
-
-## Tecnologias
-
-- PHP ^8.2
-- Laravel ^12
-- Blade (views)
-- Composer
-- Node.js / npm (para Vite e assets front‑end)
-- Banco de dados relacional (MySQL/PostgreSQL/SQLite, conforme configuração do `.env`)
+Nota: ajuste os comandos conforme a versão do PHP e o usuário do sistema web no seu servidor.
 
 ---
 
-## Funcionalidades Principais
+## Instalação e execução local
 
-- Autenticação com sessão nativa do Laravel (login/logout)
-- Proteção de rotas administrativas (`/dashboard`, `/clientes`, `/planos`, `/alertas` etc.)
-- Layout com partials (header e sidebar)
-- Gestão de clientes
-- Gestão de planos (restrito a administradores)
-- Relatório de cobranças
-- Estoque de equipamentos
-- Alertas de vencimento de planos
-
----
-
-## Instalação e Execução (Ambiente Local)
-
-### 1. Acesse o servidor e entre na pasta do sistema
-Usuários `admin@angolawifi.ao`, `colaborador@angolawifi.ao` e `gerente@angolawifi.ao` já existem na tabela `users`.
-Senha para todos: `password`
-
-> Nota: As funcionalidades relacionadas a **planos** são restritas a administradores. Usuários com perfis "colaborador" e "gerente" não têm acesso às operações de criação, edição ou remoção de planos via interface administrativa.
-
-Instalar PHP, Nginx, Git e extensões necessárias:
+1. Clone e entre no projeto:
 
 ```bash
-sudo apt update
-sudo apt install -y nginx git php8.4 php8.4-fpm php8.4-mbstring php8.4-xml php8.4-curl php8.4-zip php8.4-pgsql
+git clone <URL-DO-REPOSITORIO>
+cd PROJECTO
 ```
 
-Instalar Composer (se ainda não existir):
-
-```bash
-cd /usr/local/bin
-sudo curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar composer
-```
-
-### 3. PostgreSQL (base de dados de produção)
-
-Instalar PostgreSQL e criar base/usuário:
-
-```bash
-sudo apt install -y postgresql postgresql-contrib
-
-sudo -u postgres psql
-CREATE DATABASE sgmrtexas OWNER sgmr_user ENCODING 'UTF8';
-CREATE USER sgmr_user WITH PASSWORD 'senha_forte_aqui';
-GRANT ALL PRIVILEGES ON DATABASE sgmrtexas TO sgmr_user;
-\q
-```
-
-### 4. Clonar o projeto no servidor
-
-```bash
-cd /var/www
-sudo git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git sgmrtexas
-cd sgmrtexas
-sudo chown -R $USER:$USER .
-```
-
-> Em produção, recomenda-se usar **SSH** em vez de HTTPS para não precisar digitar usuário/senha ou token a cada deploy. Ver secção "Acesso ao GitHub via SSH no servidor" mais abaixo.
-
-### 5. Configurar o `.env` para produção (PostgreSQL)
+2. Copie o `.env` e gere a chave da aplicação:
 
 ```bash
 cp .env.example .env
-```
-
-Editar o ficheiro `.env` com:
-
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://sgmrtexas.isp-bie.ao
-
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=sgmrtexas
-DB_USERNAME=sgmr_user
-DB_PASSWORD=senha_forte_aqui
-```
-
-Configurar também `MAIL_*`, `QUEUE_CONNECTION`, etc., conforme o ambiente.
-
-### 6. Instalar dependências e preparar a aplicação
-
-```bash
-composer install --no-dev --optimize-autoloader
 php artisan key:generate
-php artisan migrate --force
+```
+
+3. Instale dependências PHP e front-end:
+
+```bash
+composer install
+npm install
+npm run dev
+```
+
+4. Execute migrações e inicie o servidor de desenvolvimento:
+
+```bash
+php artisan migrate
+php artisan serve
+```
+
+Acesse http://localhost:8000
+
+---
+
+## Nota importante — Perfis e permissões
+
+- As funcionalidades relacionadas a criação, edição e remoção de **planos** são restritas a administradores.
+- Usuários de perfis "colaborador" e "gerente" têm acesso a visualização e operações limitadas (ex.: clientes, cobranças), mas não podem gerir planos via interface administrativa.
+
+Para testes rápidos em ambiente local, existem usuários já criados na base (exemplo):
+
+```text
+admin@angolawifi.ao
+colaborador@angolawifi.ao
+gerente@angolawifi.ao
+Senha para todos: password
+```
+
+---
+
+## Configuração de produção (exemplo resumido)
+
+- Ajuste o `.env` com as credenciais de produção e serviços (DB, MAIL, QUEUE, etc.).
+- Crie o link de storage:
+
+```bash
 php artisan storage:link
-
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 ```
 
-Ajustar permissões para o servidor web:
+- Ajuste permissões (exemplo para sistemas Debian/Ubuntu):
 
 ```bash
-sudo chown -R www-data:www-data /var/www/sgmrtexas/storage /var/www/sgmrtexas/bootstrap/cache
-sudo find /var/www/sgmrtexas/storage -type d -exec chmod 775 {} \;
-sudo find /var/www/sgmrtexas/bootstrap/cache -type d -exec chmod 775 {} \;
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo find storage -type d -exec chmod 775 {} \;
+sudo find bootstrap/cache -type d -exec chmod 775 {} \;
 ```
 
-### 7. Configurar o Nginx
+---
 
-Criar o virtual host:
+## Nginx — exemplo de vhost
 
-```bash
-sudo nano /etc/nginx/sites-available/sgmrtexas.isp-bie.ao
-```
-
-Exemplo de configuração:
+Exemplo básico para apontar `server_name` e `root` para `public/`:
 
 ```nginx
 server {
   listen 80;
   server_name sgmrtexas.isp-bie.ao;
-
   root /var/www/sgmrtexas/public;
   index index.php index.html;
 
-  add_header X-Frame-Options "SAMEORIGIN";
-  add_header X-Content-Type-Options "nosniff";
-
-  charset utf-8;
-
-  location / {
-    try_files $uri $uri/ /index.php?$query_string;
-  }
+  location / { try_files $uri $uri/ /index.php?$query_string; }
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
     fastcgi_pass unix:/run/php/php8.4-fpm.sock;
   }
-
-  location ~ /\.ht {
-    deny all;
-  }
 }
 ```
 
-Ativar o site e recarregar o Nginx:
+---
 
-```bash
-sudo ln -s /etc/nginx/sites-available/sgmrtexas.isp-bie.ao /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
+## Acesso ao GitHub via SSH (deploy sem senha)
 
-### 8. HTTPS com Let’s Encrypt (recomendado)
+Fluxo resumido:
 
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d sgmrtexas.isp-bie.ao
-```
-
-Escolher a opção que força redirecionamento HTTP → HTTPS.
-
-### 9. Cron e filas (se usado)
-
-**Agendador (cron):**
-
-```bash
-crontab -e
-```
-
-Adicionar:
-
-```cron
-* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
-```
-
-**Queue worker (Supervisor, opcional):**
-
-```bash
-sudo apt install -y supervisor
-sudo nano /etc/supervisor/conf.d/sgmrtexas-queue.conf
-```
-
-Conteúdo:
-
-```ini
-[program:sgmrtexas-queue]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/sgmrtexas/artisan queue:work --sleep=3 --tries=3 --timeout=90
-autostart=true
-autorestart=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/log/sgmrtexas-queue.log
-```
-
-Ativar:
-
-```bash
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl start sgmrtexas-queue:*
-```
+1. Gere uma chave SSH no servidor: `ssh-keygen -t ed25519 -C "deploy-sgmrtexas"`
+2. Cole a chave pública em Settings → SSH and GPG keys no GitHub.
+3. Teste: `ssh -T git@github.com`
 
 ---
 
-## Acesso ao GitHub via SSH no servidor (deploy sem pedir senha)
+## Funcionalidades principais
 
-Para que o servidor de produção consiga fazer `git clone` e `git pull` do repositório privado sem pedir usuário/senha, foi configurado acesso via **SSH key**. O fluxo é o seguinte:
-
-### 1. Gerar chave SSH no servidor
-
-No servidor (como usuário de deploy, ex.: `usuario`):
-
-```bash
-cd ~
-ssh-keygen -t ed25519 -C "deploy-sgmrtexas"
-```
-
-### 2. Copiar a chave pública
-
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
-
-Copiar a **linha inteira** que começa com `ssh-ed25519` (por exemplo, contendo o sufixo `deploy-sgmrtexas`).
-
-### 3. Adicionar a chave à conta GitHub
-
-Na interface web do GitHub, logado como o utilizador que tem acesso ao repositório:
-
-1. Acesse `Settings` (menu da foto de perfil).
-2. No menu lateral, clique em **SSH and GPG keys**.
-3. Clique em **New SSH key**.
-4. Preencha: Title, Key type (Authentication Key) e cole a chave.
-
-### 4. Testar a conexão SSH a partir do servidor
-
-```bash
-ssh -T git@github.com
-```
-
-### 5. Clonar o repositório usando SSH
-
-```bash
-cd /var/www
-sudo git clone git@github.com:SISTEMA_OU_USUARIO/SGA-MR-TEXAS.git sgmrtexas
-sudo chown -R usuario:usuario sgmrtexas
-
-cd /var/www/sgmrtexas
-ls artisan
-```
+- Autenticação e autorização (perfis: admin, gerente, colaborador)
+- Gestão de clientes
+- Gestão de planos (restrito a administradores)
+- Cobranças e relatórios (exportável)
+- Estoque de equipamentos
+- Alertas e agendamento (Laravel Scheduler)
 
 ---
 
-## Autenticação
+## Comandos úteis
 
-- Acesse `/login` para entrar no sistema.
-- Após login, o utilizador é redirecionado para `/dashboard`.
-- Todas as páginas administrativas exigem autenticação.
-- Para sair, use o botão de logout (requisição POST para `/logout`).
-
----
-
-## Estrutura de Layout (Views)
-
-- Layout base: `resources/views/layouts/app.blade.php`
-- Partials: `resources/views/layouts/partials/header.blade.php` e `resources/views/layouts/partials/sidebar.blade.php`
-- Páginas principais estendem o layout base, utilizando `@extends('layouts.app')`.
+- Rodar testes: `composer test`
+- Ambiente dev: `composer dev`
+- Setup rápido (script do `composer.json`): `composer run setup`
 
 ---
 
-## Comandos Úteis
+## Boas práticas e observações
 
-- Rodar testes de aplicação (PHPUnit / Artisan Test):
-
-```bash
-composer test
-```
-
-- Ambiente de desenvolvimento integrado (servidor, fila, logs e Vite):
-
-```bash
-composer dev
-```
-
-- Setup rápido (instala dependências, gera `.env`, chave, migrações e build):
-
-```bash
-composer run setup
-```
+- Não versionar `.env` nem secrets.
+- Manter `vendor/` e `node_modules/` fora do repositório.
+- Proteger branch `main` no GitHub e usar pull requests para alterações.
 
 ---
 
-## Boas Práticas adotadas no Repositório
+Se desejar, posso também adicionar botões na interface para baixar os relatórios automáticos (diário/semana/mês) que hoje são gerados pelo Scheduler e salvos em `storage/app/relatorios`.
 
-- Arquivo `.env` e variações **não são versionados** (`.gitignore` configurado).
-- Pastas `vendor/` e `node_modules/` fora do versionamento Git.
-- Arquivos de cache, logs e builds (`public/build`, `storage/*.key`, etc.) ignorados.
-- `.gitattributes` configurado para normalizar final de linha (EOL) e facilitar diffs de PHP, Blade, CSS, HTML e Markdown.
-
-Para colaboração, recomenda‑se ainda no GitHub:
-
-- Proteger a branch principal (`main`/`master`) exigindo pull requests.
-- Ativar verificação em 2 fatores (2FA) na conta.
-- Manter ao menos um e‑mail secundário verificado, para recuperação de acesso.
-
----
-
-## Histórico detalhado das configurações do repositório público
-
-Esta secção resume, passo a passo, as principais configurações feitas neste repositório público desde a criação até o CI.
-
-### 1. Criação do repositório e push do código
-
-1. Repositório criado no GitHub, configurado como **público**.
-2. Projeto Laravel existente na pasta local `PROJECTO` foi ligado ao repositório remoto com os comandos (exemplo):
-
-```bash
-cd /var/www/sgmrtexas
-git pull
-npm install
-npm run build
-php artisan view:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-sudo systemctl restart php8.4-fpm
-sudo systemctl reload nginx
-```
-
-### 2. Configuração de arquivos de controle (.gitignore e .gitattributes)
-
-1. O arquivo `.gitignore` foi configurado para:
-  - Ignorar arquivos sensíveis de ambiente: `.env`, `.env.backup`, `.env.production`.
-  - Ignorar dependências: `vendor/` (Composer) e `node_modules/` (npm).
-  - Ignorar artefatos de build e cache: `public/build`, `public/hot`, `public/storage`, `/storage/*.key`, caches e logs.
-  - Ignorar configurações de IDE/editor: `.idea`, `.vscode`, `.fleet`, `.zed`, etc.
-
-2. O arquivo `.gitattributes` foi configurado para:
-  - Forçar normalização de fim de linha: `* text=auto eol=lf`.
-
-### 3. Organização e documentação do projeto (README)
-
-O `README.md` contém instruções de deploy, instalação e boas práticas, incluindo que as operações de planos são restritas a administradores.
-
-### 4. Configuração de integração contínua (GitHub Actions)
-
-Workflow de CI em `.github/workflows/ci.yml` com PHP 8.2, MySQL, `composer install`, migrações e execução de testes.
-
----
-
-## Recomendações de segurança e colaboração na conta GitHub
-
-1. **Proteção da branch principal** (`main`/`master`): exigir pull requests para alterações.
-2. **Segurança da conta**: ativar 2FA.
-3. **Colaboração**: usar pull requests e conceder permissões com cuidado.
-
----
-
-## Observações finais
-
-Se quiser que os relatórios automáticos também apareçam como botões para download na interface, posso implementar isso para você. Deseja adicionar esses botões na tela?
-
-Para dúvidas técnicas do framework, consulte também a [documentação oficial do Laravel](https://laravel.com/docs).
----
-
-## Deploy e Atualização em Produção (Passo a Passo)
-
-
-
-
-
-```bash
-ssh usuario@SEU_SERVIDOR
-cd /var/www/sgmrtexas
-git pull origin main
-npm install
-npm run build
-php artisan view:clear
-php artisan config:cache
+Para detalhes ou personalizações no deploy, informe o ambiente alvo (SSH/usuario/PHP version) e eu adapto os comandos.
 php artisan route:cache
 php artisan migrate --force
 php artisan view:
