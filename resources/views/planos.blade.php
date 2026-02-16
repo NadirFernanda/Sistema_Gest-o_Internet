@@ -82,8 +82,7 @@
                 planTemplatesBase: "/plan-templates",
                 planosApi: "/api/planos",
                 planosCreateRoute: "{{ route('planos.create') }}",
-                clientesJson: "/clientes",
-                isAdmin: {{ auth()->user() && auth()->user()->hasRole('Administrador') ? 'true' : 'false' }}
+                clientesJson: "/clientes"
             };
         </script>
     @endpush
