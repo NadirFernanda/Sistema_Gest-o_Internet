@@ -8,6 +8,14 @@ use App\Models\PlanTemplate;
 
 class PlanTemplateController extends Controller
 {
+    public function __construct()
+    {
+        // Only users with the corresponding 'planos.*' permissions may create/edit/delete templates.
+        $permissionMiddleware = \Spatie\Permission\Middleware\PermissionMiddleware::class;
+        $this->middleware($permissionMiddleware . ':planos.create')->only(['create', 'store']);
+        $this->middleware($permissionMiddleware . ':planos.edit')->only(['edit', 'update']);
+        $this->middleware($permissionMiddleware . ':planos.delete')->only(['destroy']);
+    }
     public function index()
     {
         $templates = PlanTemplate::orderBy('name')->get();
