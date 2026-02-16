@@ -19,31 +19,31 @@ class RelatorioController extends Controller
             $basename = basename($file);
             $period = null;
             $lower = strtolower($basename);
-            // trate nomes com padrão 'ultimas_XXh' como relatório diário
-            if (str_contains($lower, 'diario') || str_contains($lower, 'ultimas_')) $period = 'diario';
-            elseif (str_contains($lower, 'semanal')) $period = 'semanal';
-            elseif (str_contains($lower, 'mensal')) $period = 'mensal';
+            // trate nomes com padrão esperado (mais específicos)
+            if (str_contains($lower, 'relatorio_geral_diario') || str_contains($lower, 'diario') || str_contains($lower, 'ultimas_')) {
+                $period = 'diario';
+            } elseif (str_contains($lower, 'relatorio_geral_semanal') || str_contains($lower, 'semanal')) {
+                $period = 'semanal';
+            } elseif (str_contains($lower, 'relatorio_geral_mensal') || str_contains($lower, 'mensal')) {
+                $period = 'mensal';
+            }
             if ($period) {
+                $ts = \Storage::lastModified($file);
                 $historico[] = [
                     'period' => $period,
                     'name' => $basename,
                     // link direto para o ficheiro histórico específico
                     'url' => route('relatorios.gerais.download', ['period' => $period, 'file' => $basename]),
-                    'date' => date('d/m/Y H:i', \Storage::lastModified($file)),
+                    'date' => date('d/m/Y H:i', $ts),
+                    'timestamp' => $ts,
                 ];
             }
         }
-        // Ordenar por data desc
-        usort($historico, fn($a, $b) => strcmp($b['date'], $a['date']));
-            // determinar ficheiro mais recente por período
-            $latest = ['diario' => null, 'semanal' => null, 'mensal' => null];
-            foreach ($historico as $item) {
-                if (!$latest[$item['period']]) {
-                    $latest[$item['period']] = $item['name'];
-                }
-            }
-
-            return view('relatorios-gerais', compact('historico', 'latest'));
+        // Ordenar por timestamp desc (garante ordem cronológica correta)
+        usort($historico, function ($a, $b) {
+            return $b['timestamp'] <=> $a['timestamp'];
+        });
+        return view('relatorios-gerais', compact('historico'));
     }
     /**
      * Download the latest report file for the given period (diario|semanal|mensal).
@@ -62,7 +62,6 @@ class RelatorioController extends Controller
         if ($file) {
             $basename = basename($file);
             $path = 'relatorios/' . $basename;
-            \Log::info('Relatorios: download requested', ['period' => $period, 'requested_file' => $basename, 'path' => $path]);
             if (!Storage::exists($path)) {
                 return back()->with('error', 'Arquivo de relatório não encontrado: ' . $basename);
             }
@@ -72,15 +71,17 @@ class RelatorioController extends Controller
         // otherwise find the latest file matching the requested period
         $files = Storage::files('relatorios');
         $matches = array_filter($files, function ($f) use ($period) {
-            $lower = strtolower($f);
+            $basename = strtolower(basename($f));
             if ($period === 'diario') {
-                return str_contains($lower, 'diario') || str_contains($lower, 'ultimas_');
+                // aceitar ficheiros explícitos 'relatorio_geral_diario' ou nomes antigos com 'ultimas_'
+                return str_contains($basename, 'relatorio_geral_diario') || str_contains($basename, 'diario') || str_contains($basename, 'ultimas_');
             }
-            return str_contains($lower, $period);
+            // procurar por padrão explícito relatorio_geral_<period> primeiro, ou fallback a palavra-chave
+            if (str_contains($basename, 'relatorio_geral_' . $period)) return true;
+            return str_contains($basename, $period);
         });
 
         if (empty($matches)) {
-            \Log::warning('Relatorios: nenhum ficheiro encontrado para período', ['period' => $period]);
             return back()->with('error', 'Nenhum relatório disponível para o período: ' . $period);
         }
 
@@ -92,11 +93,9 @@ class RelatorioController extends Controller
         $path = $matches[0];
 
         if (!Storage::exists($path)) {
-            \Log::error('Relatorios: ficheiro seleccionado não existe', ['path' => $path]);
             return back()->with('error', 'Arquivo de relatório não encontrado.');
         }
 
-        \Log::info('Relatorios: servindo download', ['period' => $period, 'selected_path' => $path]);
         return Storage::download($path);
     }
 }
