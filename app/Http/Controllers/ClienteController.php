@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use App\Models\Cliente;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CompensacoesExport;
 
 class ClienteController extends Controller
 {
@@ -123,6 +125,31 @@ class ClienteController extends Controller
         }
 
         return view('clientes.compensacoes', compact('cliente','compensacoes','planoMap','users'));
+    }
+    
+    /**
+     * Exporta o histórico de compensações para Excel
+     */
+    public function exportCompensacoes($cliente)
+    {
+        $cliente = Cliente::with('planos')->findOrFail($cliente);
+        $planoIds = $cliente->planos->pluck('id')->toArray();
+
+        $compensacoes = collect(\DB::table('compensacoes')
+            ->whereIn('plano_id', $planoIds ?: [0])
+            ->orderByDesc('created_at')
+            ->get()
+        );
+
+        $planoMap = $cliente->planos->keyBy('id');
+
+        $userIds = $compensacoes->pluck('user_id')->filter()->unique()->values()->all();
+        $users = collect([]);
+        if (!empty($userIds)) {
+            $users = User::whereIn('id', $userIds)->with('roles')->get()->keyBy('id');
+        }
+
+        return Excel::download(new CompensacoesExport($compensacoes, $users, $planoMap), 'compensacoes.xlsx');
     }
     /**
      * Retorna planos elegíveis para alerta de vencimento (para exibir na lista do frontend)
