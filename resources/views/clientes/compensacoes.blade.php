@@ -11,24 +11,82 @@
         'subtitle' => '',
         'stackLeft' => true,
     ])
+    {{-- Toolbar padronizada com Planos: pesquisa à esquerda, CTAs à direita --}}
+    <style>
+    /* Força padronização visual da toolbar de estoque */
+    .clientes-toolbar, .clientes-toolbar form.search-form-inline {
+        max-width:1100px;
+        margin:18px auto;
+        display:flex;
+        gap:10px;
+        align-items:center;
+    }
+    .clientes-toolbar form.search-form-inline {
+        flex:1;
+        display:flex;
+        gap:8px;
+        align-items:center;
+    }
+    .clientes-toolbar .search-input {
+        height:40px !important;
+        flex:1 !important;
+        min-width:320px !important;
+        max-width:100%;
+        padding:0 12px !important;
+        border-radius:8px !important;
+        border:2px solid #e6a248 !important;
+        box-sizing:border-box;
+        font-size:1rem;
+        display:inline-flex;
+        align-items:center;
+    }
+    .clientes-toolbar .btn,
+    .clientes-toolbar .btn-search,
+    .clientes-toolbar .btn-cta,
+    .clientes-toolbar .btn-ghost {
+        height:40px !important;
+        min-width:140px !important;
+        max-width:140px !important;
+        width:140px !important;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700;
+        border-radius:8px;
+        text-align:center;
+        white-space:nowrap;
+        box-sizing:border-box;
+    }
+    .clientes-toolbar .btn,
+    .clientes-toolbar .btn-search,
+    .clientes-toolbar .btn-cta,
+    .clientes-toolbar .btn-ghost {
+        height:40px !important;
+        min-width:140px !important;
+        max-width:140px !important;
+        width:140px !important;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700;
+        border-radius:8px;
+        text-align:center;
+        white-space:nowrap;
+        box-sizing:border-box;
+    }
+    </style>
 
-    <div style="margin-top:12px;">
-        <div class="clientes-toolbar" style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back btn-back-circle btn-ghost" title="Voltar">←</a>
-                <form method="GET" action="{{ route('clientes.compensacoes', $cliente->id) }}" class="search-form-inline" style="display:flex;gap:8px;align-items:center;">
-                    <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por plano, usuário ou data..." class="search-input" />
-                    <button type="submit" class="btn btn-search">Pesquisar</button>
-                    @if(request('busca'))
-                        <a href="{{ route('clientes.compensacoes', $cliente->id) }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
-                    @endif
-                </form>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-                @if(Route::has('clientes.compensacoes.export'))
-                    <a href="{{ route('clientes.compensacoes.export', $cliente->id) }}" class="btn btn-cta" target="_blank">Exportar</a>
-                @endif
-            </div>
+    <div class="clientes-toolbar">
+        <form method="GET" action="{{ route('clientes.compensacoes', $cliente->id) }}" class="search-form-inline">
+            <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por plano, usuário ou data..." class="search-input" />
+            <button type="submit" class="btn btn-search">Pesquisar</button>
+            @if(request('busca'))
+                <a href="{{ route('clientes.compensacoes', $cliente->id) }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
+            @endif
+        </form>
+        <div style="display:flex;gap:8px;">
+            <a href="{{ route('clientes.compensacoes.export', $cliente->id) ?? '#' }}" class="btn btn-cta" target="_blank">Exportar</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
         </div>
     </div>
 
