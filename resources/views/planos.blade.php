@@ -63,8 +63,8 @@
             </form>
             <div style="display:flex;gap:8px;">
                 @if(auth()->user() && auth()->user()->hasRole('Administrador'))
-                <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
                 <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
+                <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
                 @endif
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
             </div>
