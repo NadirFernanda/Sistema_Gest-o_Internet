@@ -43,7 +43,7 @@
                         <a href="{{ url('/clientes/create') }}" class="btn btn-cta">Cadastrar</a>
                     @endif
                 @endcan
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
         @if(isset($clientes))

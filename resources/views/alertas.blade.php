@@ -18,7 +18,7 @@
             </div>
             <div class="alertas-toolbar-actions">
                 <button id="btnDispararAlertas" class="btn btn-cta">Disparar</button>
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
         <div class="alertas-lista" id="alertasLista">

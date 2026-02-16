@@ -139,7 +139,7 @@
             });
         }
 
-        // Load templates into selector (if plan templates present)
+        // Carregar modelos de plano no seletor (se houver modelos)
         (function(){
             const tplSelect = document.getElementById('templateSelector');
             if(!tplSelect) return;
@@ -157,7 +157,7 @@
                             opt.textContent = t.name + (t.preco ? ' — Kz ' + Number(t.preco).toLocaleString('pt-AO', {minimumFractionDigits:2}) : '');
                             tplSelect.appendChild(opt);
                         });
-                    }).catch(err => { console.error('loadTemplates failed', err); });
+                    }).catch(err => { console.error('Falha ao carregar modelos', err); });
             };
             tplSelect.addEventListener('change', function(){
                 const id = this.value;

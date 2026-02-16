@@ -4,7 +4,7 @@
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
     <div class="mb-3 d-flex justify-content-between align-items-center">
-        <a href="{{ route('dashboard') }}" class="btn-back-circle btn-ghost" title="Voltar ao Dashboard" aria-label="Voltar ao Dashboard">
+        <a href="{{ route('dashboard') }}" class="btn-back-circle btn-ghost" title="Voltar ao Painel" aria-label="Voltar ao Painel">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </a>
     </div>
@@ -16,7 +16,7 @@
         </form>
         <div style="display:flex;gap:8px;">
             <a href="{{ route('equipamentos.relatorio.export', request()->all()) }}" class="btn btn-cta" style="min-width:140px;">Exportar Excel</a>
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
         </div>
     </div>
     <table class="table table-bordered table-striped mt-4" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">

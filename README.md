@@ -1,4 +1,489 @@
-﻿## Deploy e Atualização em Produção (Passo a Passo)
+﻿## SGA-MR.TEXAS — Sistema de Gestão (README)
+
+SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
+
+Principais tecnologias
+- PHP ^8.2
+- Laravel ^12
+- Blade (views)
+- Composer
+- Node.js / npm (Vite)
+- Banco relacional (MySQL/Postgres/SQLite)
+
+Índice
+- Deploy e atualização em produção
+- Instalação e execução local
+- Perfis e permissões
+- Configuração de produção
+- Nginx (exemplo)
+- Comandos úteis
+
+---
+
+## Deploy e Atualização em Produção (Passo a Passo)
+
+SGA-MR.TEXAS pode ser atualizado manualmente via SSH. Abaixo segue um passo a passo recomendado.
+
+1. Acesse o servidor e entre na pasta do sistema
+
+```bash
+ssh usuario@SEU_SERVIDOR
+cd /var/www/sgmrtexas
+```
+
+Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela users.
+Senha para todos: password
+
+2. Atualize o código e gere os assets (opção A: gerar no servidor; opção B: build local e subir `public/build`)
+
+```bash
+git pull origin main
+# Se preferir build no servidor
+npm ci
+npm run build
+
+# Ou: gerar localmente e subir apenas public/build
+```
+
+3. Atualize dependências PHP e execute migrações (quando necessário)
+
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+```
+
+4. Limpe e regenere caches
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan permission:cache-reset
+php artisan cache:clear
+```
+
+5. Reinicie serviços se necessário
+
+```bash
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+```
+
+Nota: ajuste os comandos conforme a versão do PHP e o usuário do sistema web no seu servidor.
+
+---
+
+## Instalação e execução local
+
+1. Clone e entre no projeto:
+
+```bash
+git clone <URL-DO-REPOSITORIO>
+cd PROJECTO
+```
+
+2. Copie o `.env` e gere a chave da aplicação:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+3. Instale dependências PHP e front-end:
+
+```bash
+composer install
+npm install
+npm run dev
+```
+
+4. Execute migrações e inicie o servidor de desenvolvimento:
+
+```bash
+php artisan migrate
+php artisan serve
+```
+
+Acesse http://localhost:8000
+
+> Dica: o projeto possui um script de conveniência no `composer.json` chamado `setup`, que automatiza parte desses passos. Use com cuidado em ambiente local:
+>
+> ```bash
+> composer run setup
+> ```
+
+---
+
+## Nota importante — Perfis e permissões
+
+- **Planos (criar/editar/remover):** restritos exclusivamente a usuários com perfil **Administrador**.
+- Perfis como **Gerente** e **Colaborador** possuem acesso a clientes e cobranças, mas não podem gerir planos via interface administrativa.
+- O link "Usuários" no painel é controlado por permissões (`users.view`). Se um Administrador não visualizar o botão, verifique permissões e caches do pacote `spatie/laravel-permission` (ex.: `php artisan permission:cache-reset`, `php artisan view:clear`).
+
+Para testes rápidos em ambiente local, existem usuários já criados na base (exemplo):
+
+```
+admin@angolawifi.ao
+colaborador@angolawifi.ao
+gerente@angolawifi.ao
+Senha para todos: password
+```
+
+---
+
+## Configuração de produção (resumo)
+
+- Ajuste o `.env` com as credenciais de produção e serviços (DB, MAIL, QUEUE, etc.).
+- Crie o link de storage:
+
+```bash
+php artisan storage:link
+```
+
+- Ajuste permissões (exemplo para sistemas Debian/Ubuntu):
+
+```bash
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo find storage -type d -exec chmod 775 {} \;
+sudo find bootstrap/cache -type d -exec chmod 775 {} \;
+```
+
+---
+
+## Nginx — exemplo de vhost
+
+Exemplo básico para apontar `server_name` e `root` para `public/`:
+
+```nginx
+server {
+  listen 80;
+  server_name sgmrtexas.isp-bie.ao;
+  root /var/www/sgmrtexas/public;
+  index index.php index.html;
+
+  add_header X-Frame-Options "SAMEORIGIN";
+  add_header X-Content-Type-Options "nosniff";
+  charset utf-8;
+
+  location / {
+    try_files $uri $uri/ /index.php?$query_string;
+  }
+
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+  }
+
+  location ~ /\.ht {
+    deny all;
+  }
+}
+```
+
+---
+
+## Acesso ao GitHub via SSH (deploy sem senha)
+
+1. Gere uma chave SSH no servidor: `ssh-keygen -t ed25519 -C "deploy-sgmrtexas"`
+2. Cole a chave pública nas **SSH and GPG keys** do GitHub.
+3. Teste com: `ssh -T git@github.com`
+4. Clone via SSH:
+
+```bash
+cd /var/www
+git clone git@github.com:SISTEMA_OU_USUARIO/SGA-MR-TEXAS.git sgmrtexas
+cd sgmrtexas
+```
+
+---
+
+## Funcionalidades Principais
+
+- Autenticação e autorização (perfis: admin, gerente, colaborador)
+- Gestão de clientes
+- Gestão de planos (restrito a administradores)
+- Cobranças e relatórios (exportável)
+- Estoque de equipamentos
+- Alertas e agendamento (Laravel Scheduler)
+
+---
+
+## Relatórios automáticos
+
+O sistema gera relatórios automáticos gerais do sistema (multi-aba) e os salva em `storage/app/relatorios`, além de enviá‑los por e‑mail conforme configuração no `.env`.
+
+Comandos manuais para gerar relatórios:
+
+```bash
+php artisan relatorio:geral-diario
+php artisan relatorio:geral-semanal
+php artisan relatorio:geral-mensal
+```
+
+Observação: o botão "Exportar Excel" na interface faz uma exportação manual do filtro atual; os relatórios automáticos são enviados e salvos automaticamente pelo Scheduler.
+
+---
+
+## Comandos úteis
+
+- Rodar testes: `composer test`
+- Ambiente dev completo: `composer dev`
+- Setup rápido (script do `composer.json`): `composer run setup`
+
+---
+
+## Passos rápidos de deploy (exemplo)
+
+```bash
+git pull origin main
+npm ci
+npm run build
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+```
+
+---
+
+## Cron e filas (opcional)
+
+Agende o Scheduler:
+
+```bash
+crontab -e
+# Adicione:
+* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
+```
+
+Para filas com Supervisor, crie `/etc/supervisor/conf.d/sgmrtexas-queue.conf` e gerencie com `supervisorctl`.
+
+---
+
+## Acesso ao GitHub via SSH no servidor (deploy sem pedir senha)
+
+Para que o servidor de produção consiga fazer `git clone` e `git pull` do repositório privado sem pedir usuário/senha, foi configurado acesso via **SSH key**. O fluxo é o seguinte:
+
+### 1. Gerar chave SSH no servidor
+
+No servidor (como usuário de deploy, ex.: `usuario`):
+
+```bash
+cd ~
+ssh-keygen -t ed25519 -C "deploy-sgmrtexas"
+```
+
+- Quando perguntar o caminho do ficheiro, pode aceitar o padrão (`/home/usuario/.ssh/id_ed25519`).
+- Quando perguntar passphrase, pode deixar em branco (Enter duas vezes) para uso automático.
+
+### 2. Copiar a chave pública
+
+Ainda no servidor:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copiar a **linha inteira** que começa com `ssh-ed25519` (por exemplo, contendo o sufixo `deploy-sgmrtexas`).
+
+### 3. Adicionar a chave à conta GitHub
+
+Na interface web do GitHub, logado como o utilizador que tem acesso ao repositório:
+
+1. Acesse `Settings` (menu da foto de perfil).
+2. No menu lateral, clique em **SSH and GPG keys**.
+3. Clique em **New SSH key**.
+4. Preencha:
+   - **Title**: um nome descritivo, ex.: `isp-bie servidor`.
+   - **Key type**: `Authentication Key`.
+   - **Key**: cole a linha copiada do `id_ed25519.pub`.
+5. Clique em **Add SSH key** e confirme a senha, se solicitado.
+
+Se o repositório estiver numa organização, pode ser necessário autorizar a chave para essa organização (Enable SSO).
+
+### 4. Testar a conexão SSH a partir do servidor
+
+De volta ao servidor:
+
+```bash
+ssh -T git@github.com
+```
+
+- Na primeira vez, pode perguntar se deseja confiar na chave do GitHub. Responda `yes`.
+- Saída esperada: `Hi NOME_DE_USUARIO! You've successfully authenticated, but GitHub does not provide shell access.`
+
+### 5. Clonar o repositório usando SSH
+
+```bash
+cd /var/www
+sudo git clone git@github.com:SISTEMA_OU_USUARIO/SGA-MR-TEXAS.git sgmrtexas
+sudo chown -R usuario:usuario sgmrtexas
+
+cd /var/www/sgmrtexas
+ls artisan
+```
+
+---
+
+## Autenticação
+
+- Acesse `/login` para entrar no sistema.
+- Após login, o utilizador é redirecionado para `/dashboard`.
+- Todas as páginas administrativas exigem autenticação.
+- Para sair, use o botão de logout (requisição POST para `/logout`).
+
+---
+
+## Estrutura de Layout (Views)
+
+- Layout base: `resources/views/layouts/app.blade.php`
+- Partials: `resources/views/layouts/partials/header.blade.php` e `resources/views/layouts/partials/sidebar.blade.php`
+- Páginas principais estendem o layout base, utilizando `@extends('layouts.app')`.
+
+---
+
+## Comandos Úteis
+
+- Rodar testes de aplicação (PHPUnit / Artisan Test):
+
+  ```bash
+  composer test
+  ```
+
+- Ambiente de desenvolvimento integrado (servidor, fila, logs e Vite):
+
+  ```bash
+  composer dev
+  ```
+
+- Setup rápido (instala dependências, gera `.env`, chave, migrações e build):
+
+  ```bash
+  composer run setup
+  ```
+
+---
+
+## Boas Práticas adotadas no Repositório
+
+- Arquivo `.env` e variações **não são versionados** (`.gitignore` configurado).
+- Pastas `vendor/` e `node_modules/` fora do versionamento Git.
+- Arquivos de cache, logs e builds (`public/build`, `storage/*.key`, etc.) ignorados.
+- `.gitattributes` configurado para normalizar final de linha (EOL) e facilitar diffs de PHP, Blade, CSS, HTML e Markdown.
+
+Para colaboração, recomenda‑se ainda no GitHub:
+
+- Proteger a branch principal (`main`/`master`) exigindo pull requests.
+- Ativar verificação em 2 fatores (2FA) na conta.
+- Manter ao menos um e‑mail secundário verificado, para recuperação de acesso.
+
+---
+
+## Histórico detalhado das configurações do repositório público
+
+Esta secção resume, passo a passo, as principais configurações feitas neste repositório público desde a criação até o CI.
+
+### 1. Criação do repositório e push do código
+
+1. Repositório criado no GitHub, configurado como **público**.
+2. Projeto Laravel existente na pasta local `PROJECTO` foi ligado ao repositório remoto com os comandos (exemplo):
+
+```bash
+cd /var/www/sgmrtexas
+git pull
+npm install
+npm run build
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+cd /var/www/sgmrtexas
+git pull origin main
+npm install
+npm run build
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+
+
+git fetch origin
+git reset --hard origin/main
+# local (na sua máquina/ambiente de desenvolvimento)
+git checkout main
+git fetch origin
+git merge --no-ff origin/feature/alerts-audit-ui -m "Merge feature/alerts-audit-ui"
+git push origin main
+```
+
+### 2. Configuração de arquivos de controle (.gitignore e .gitattributes)
+
+1. O arquivo `.gitignore` foi configurado para:
+  - Ignorar arquivos sensíveis de ambiente: `.env`, `.env.backup`, `.env.production`.
+  - Ignorar dependências: `vendor/` (Composer) e `node_modules/` (npm).
+  - Ignorar artefatos de build e cache: `public/build`, `public/hot`, `public/storage`, `/storage/*.key`, `/storage/pail`, caches e logs.
+  - Ignorar configurações de IDE/editor: `.idea`, `.vscode`, `.fleet`, `.zed`, etc.
+
+2. O arquivo `.gitattributes` foi configurado para:
+  - Forçar normalização de fim de linha: `* text=auto eol=lf` (evita conflitos entre Windows/Linux/Mac).
+  - Melhorar visualização de diffs para tipos de ficheiros específicos: Blade, CSS, HTML, Markdown e PHP.
+  - Excluir alguns ficheiros de distribuição (como `.github` e `CHANGELOG.md`) em exportações (usar `export-ignore`).
+
+### 3. Organização e documentação do projeto (README)
+
+1. O `README.md` original padrão do Laravel foi substituído por uma documentação específica deste sistema, contendo:
+  - Descrição do sistema de gestão de internet (clientes, planos, cobranças, estoque e alertas).
+  - Tecnologias utilizadas (PHP 8.2, Laravel 12, Blade, Composer, Node/Vite, BD relacional).
+  - Resumo dos fluxos principais (login, dashboard, gestão de clientes, planos, cobranças, estoque, alertas).
+  - Passo a passo de instalação em ambiente local (clone, `.env`, `composer install`, `php artisan key:generate`, migrações, `npm install`, `npm run dev`, `php artisan serve`).
+  - Comandos úteis (`composer test`, `composer dev`, `composer run setup`).
+  - Secção de boas práticas de repositório (esta secção).
+
+### 4. Configuração de integração contínua (GitHub Actions)
+
+1. Foi criada a pasta de workflows do GitHub Actions:
+
+  - `.github/`
+  - `.github/workflows/`
+
+2. Foi adicionado o workflow de CI em `.github/workflows/ci.yml` com as seguintes características:
+  - Disparo em `push` e `pull_request` para as branches `main` e `master`.
+  - Runner `ubuntu-latest` com **PHP 8.2**.
+  - Serviço de base de dados **MySQL 8.0** configurado como container.
+  - Instalação de dependências PHP via `composer install`.
+  - Cópia automática de `.env.example` para `.env` no ambiente de CI.
+  - Geração de `APP_KEY` com `php artisan key:generate`.
+  - Configuração das variáveis de conexão ao MySQL no `.env` do CI.
+  - Execução de migrações com `php artisan migrate --force`.
+  - Execução dos testes automatizados com `composer test`.
+
+Com isso, a cada **push** ou **pull request**, o GitHub valida automaticamente se o projeto ainda compila e se os testes passam.
+
+### 5. Recomendações de segurança e colaboração na conta GitHub
+
+Embora estas configurações sejam feitas diretamente na interface do GitHub (e não no código), foram definidas as seguintes boas práticas recomendadas:
+
+1. **Proteção da branch principal** (`main`/`master`):
+  - Exigir pull requests para qualquer alteração na branch principal.
+  - (Opcional) Exigir pelo menos uma aprovação de reviewer antes do merge.
+
+2. **Segurança da conta**:
+  - Ativar autenticação em dois fatores (2FA) na conta GitHub do proprietário.
+  - Manter pelo menos **um e‑mail secundário verificado** para recuperação de acesso, conforme aviso do próprio GitHub.
+
+3. **Colaboração**:
+  - Adicionar colaboradores como `Write` ou `Maintain` apenas para pessoas de confiança.
+  - Usar pull requests para histórico claro de revisões e auditoria.
+
+---
+
+Para dúvidas técnicas do framework, consulte também a [documentação oficial do Laravel](https://laravel.com/docs).
+## Deploy e Atualização em Produção (Passo a Passo)
 
 SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
 
@@ -292,14 +777,14 @@ Fluxo resumido:
 
 ## Relatórios automáticos
 
-O sistema gera relatórios automáticos de cobranças e os salva em `storage/app/relatorios` além de enviá‑los por e‑mail conforme configuração no `.env`.
+O sistema gera relatórios automáticos gerais do sistema (multi-aba) e os salva em `storage/app/relatorios` além de enviá‑los por e‑mail conforme configuração no `.env`.
 
 Comandos manuais para gerar relatórios:
 
 ```bash
-php artisan relatorio:cobrancas-diario
-php artisan relatorio:cobrancas-semanal
-php artisan relatorio:cobrancas-mensal
+php artisan relatorio:geral-diario
+php artisan relatorio:geral-semanal
+php artisan relatorio:geral-mensal
 ```
 
 ---
@@ -402,13 +887,13 @@ ls -l -l /var/www/sgmrte/oeie/a-A/siidsea/cesso ao relatório de cobranças.
 - Listagem e filtros por cliente, descrição, status, valor e datas.
 - Exportação para Excel.
 - **Relatórios automáticos:** O sistema gera e envia automaticamente relatórios de cobranças em três períodos:
-  - **Diário:** Relatório das cobranças do dia, enviado por e-mail e salvo em `storage/app/relatorios`.
-  - **Semanal:** Relatório das cobranças da semana atual, enviado por e-mail e salvo em `storage/app/relatorios`.
-  - **Mensal:** Relatório das cobranças do mês atual, enviado por e-mail e salvo em `storage/app/relatorios`.
+  - **Diário:** Relatório geral do sistema (últimas atividades do dia), enviado por e-mail e salvo em `storage/app/relatorios`.
+  - **Semanal:** Relatório geral do sistema (atividades da semana atual), enviado por e-mail e salvo em `storage/app/relatorios`.
+  - **Mensal:** Relatório geral do sistema (atividades do mês atual), enviado por e-mail e salvo em `storage/app/relatorios`.
   - Os comandos são agendados via Laravel Scheduler e podem ser executados manualmente:
-    - `php artisan relatorio:cobrancas-diario`
-    - `php artisan relatorio:cobrancas-semanal`
-    - `php artisan relatorio:cobrancas-mensal`
+    - `php artisan relatorio:geral-diario`
+    - `php artisan relatorio:geral-semanal`
+    - `php artisan relatorio:geral-mensal`
   - O e-mail de envio é definido pela variável `MAIL_FROM_ADDRESS` no `.env`.
 
 ### 6. Estoque de Equipamentos

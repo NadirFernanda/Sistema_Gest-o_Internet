@@ -87,7 +87,7 @@
                 <button type="button" id="filtrar-btn" class="btn btn-primary filtro-btn">Filtrar</button>
                 <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
                 <a href="{{ route('cobrancas.export') }}" id="export-excel" class="btn btn-success filtro-btn" target="_blank">Exportar</a>
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
                 @can('cobrancas.create')
                 <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
                 @endcan

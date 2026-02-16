@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - LuandaWiFi</title>
+    <title>Painel Administrativo - LuandaWiFi</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
     <div class="dashboard-container">
         <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-        <h1>Dashboard Administrativo</h1>
+        <h1>Painel Administrativo</h1>
         <p>Bem-vindo ao painel de gestão de clientes e planos.</p>
         @auth
         @php

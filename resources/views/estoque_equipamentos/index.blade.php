@@ -88,7 +88,7 @@
                 <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
                 @endcan
                 <a href="{{ route('estoque_equipamentos.export') }}" class="btn btn-cta" target="_blank">Exportar</a>
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
     @if(session('success'))

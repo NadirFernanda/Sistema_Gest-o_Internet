@@ -24,7 +24,7 @@
             @can('users.create')
             <a href="{{ route('admin.users.create') }}" class="btn btn-cta">Criar usuário</a>
             @endcan
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
         </div>
     </div>
 
