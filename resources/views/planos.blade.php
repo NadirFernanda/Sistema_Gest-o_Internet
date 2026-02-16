@@ -75,6 +75,19 @@
         </div>
     </div>
 
+    <!-- Modal exibido quando o usuário tenta executar ação sem permissão -->
+    <div id="noPermModal" style="display:none;position:fixed;inset:0;z-index:1300;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">
+        <div style="background:#fff;border-radius:10px;padding:18px;max-width:520px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:1.05rem;">Acesso negado</h3>
+                <button id="noPermClose" style="background:transparent;border:0;font-size:1.1rem;cursor:pointer;">✕</button>
+            </div>
+            <p style="margin:0 0 12px;">Você não tem permissão para executar esta ação. Por favor contacte o administrador do sistema para obter acesso.</p>
+            <p style="margin:0 0 18px;">Enviar e-mail: <a id="noPermMailLink" href="mailto:{{ config('mail.from.address', 'admin@example.com') }}">{{ config('mail.from.address', 'admin@example.com') }}</a></p>
+            <div style="text-align:right;"><button id="noPermOk" class="btn btn-ghost">Fechar</button></div>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             window.planosConfig = {
@@ -82,7 +95,8 @@
                 planTemplatesBase: "/plan-templates",
                 planosApi: "/api/planos",
                 planosCreateRoute: "{{ route('planos.create') }}",
-                clientesJson: "/clientes"
+                clientesJson: "/clientes",
+                adminContactEmail: "{{ config('mail.from.address', 'admin@example.com') }}"
             };
         </script>
     @endpush

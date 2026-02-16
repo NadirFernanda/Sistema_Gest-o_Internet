@@ -173,6 +173,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         else if (estado === 'Suspenso') badge = '<span class="badge bg-danger">Suspenso</span>';
                         else if (estado === 'Cancelado') badge = '<span class="badge bg-danger">Cancelado</span>';
                         else badge = `<span class="badge bg-secondary">${estado}</span>`;
+                        // action buttons: show placeholders that trigger a "contact admin" modal when user lacks permission
+                        const editBtn = (p.can_edit ? `<button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>` : `<button class="btn-editar-plano btn-no-perm" data-action="edit" data-id="${p.id}">Editar</button>`);
+                        const delBtn = (p.can_delete ? `<button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>` : `<button class="btn-remover-plano btn-no-perm" data-action="delete" data-id="${p.id}">Remover</button>`);
+
                         html += `<tr>
                             <td><span style="font-weight:500;">${clienteNome}</span></td>
                             <td>${p.nome}</td>
@@ -183,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${vencimento}</td>
                             <td>${badge}</td>
                             <td style="text-align:center;">
-                                ${ (p.can_edit ? `<button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>` : '') + (p.can_delete ? `<button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>` : '') }
+                                ${ editBtn + delBtn }
                             </td>
                         </tr>`;
                     });
@@ -356,5 +360,38 @@ document.addEventListener('DOMContentLoaded', function() {
         preencherSelectClientesPlano();
         renderPlanos();
         window.addEventListener('focus', preencherSelectClientesPlano);
+
+        // Show "no permission" modal when user tries forbidden action
+        function showNoPermModal() {
+            const modal = document.getElementById('noPermModal');
+            if (!modal) {
+                alert('Você não tem permissão para executar esta ação. Contacte o administrador.');
+                return;
+            }
+            // Update mail link if available
+            try {
+                const mailLink = document.getElementById('noPermMailLink');
+                if (mailLink && window.planosConfig && window.planosConfig.adminContactEmail) {
+                    mailLink.href = 'mailto:' + window.planosConfig.adminContactEmail;
+                    mailLink.textContent = window.planosConfig.adminContactEmail;
+                }
+            } catch (_) {}
+            modal.style.display = 'flex';
+            const closeBtn = document.getElementById('noPermClose');
+            const okBtn = document.getElementById('noPermOk');
+            function hide() { modal.style.display = 'none'; }
+            if (closeBtn) { closeBtn.onclick = hide; }
+            if (okBtn) { okBtn.onclick = hide; }
+            // click outside
+            modal.addEventListener('click', function(ev) { if (ev.target === modal) hide(); });
+        }
+
+        document.body.addEventListener('click', function(e) {
+            const t = e.target;
+            if (t && t.classList && t.classList.contains('btn-no-perm')) {
+                e.preventDefault();
+                showNoPermModal();
+            }
+        });
     }
 });
