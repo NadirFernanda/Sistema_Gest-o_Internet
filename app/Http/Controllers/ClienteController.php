@@ -540,13 +540,13 @@ class ClienteController extends Controller
             if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'redirect' => route('clientes.index'),
+                    'redirect' => route('clientes'),
                     'message' => 'Cliente cadastrado com sucesso!'
                 ]);
             }
 
             // Redireciona para a página de clientes com mensagem de sucesso (form tradicional)
-            return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
+            return redirect()->route('clientes')->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             // Se for erro de duplicidade, mostra mensagem amigável
@@ -570,7 +570,7 @@ class ClienteController extends Controller
             if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Erro inesperado ao cadastrar cliente.'], 500);
             }
-            return redirect()->route('clientes.index')->with('error', 'Erro inesperado ao cadastrar cliente.');
+            return redirect()->route('clientes')->with('error', 'Erro inesperado ao cadastrar cliente.');
         }
     }
 
