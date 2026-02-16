@@ -8,8 +8,6 @@
                     if(!isNaN(n)) hidden.value = n.toFixed(2);
                 });
             }
-        }
-    })();
 
     // Templates loader and modal (depends on window.planosConfig)
     (function(){
