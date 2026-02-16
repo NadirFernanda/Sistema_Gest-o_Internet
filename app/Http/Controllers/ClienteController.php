@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Carbon\Carbon;
 use App\Models\Cliente;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ClienteController extends Controller
@@ -117,7 +118,8 @@ class ClienteController extends Controller
         $userIds = $compensacoes->pluck('user_id')->filter()->unique()->values()->all();
         $users = collect([]);
         if (!empty($userIds)) {
-            $users = collect(\DB::table('users')->whereIn('id', $userIds)->get())->keyBy('id');
+            // Load Eloquent User models with roles (spatie) so the view can show role name and real name
+            $users = User::whereIn('id', $userIds)->with('roles')->get()->keyBy('id');
         }
 
         return view('clientes.compensacoes', compact('cliente','compensacoes','planoMap','users'));

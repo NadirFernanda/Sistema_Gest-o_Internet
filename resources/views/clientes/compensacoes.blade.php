@@ -117,6 +117,37 @@
                             if (!$planoNome) {
                                 $planoNome = 'Plano #' . $c->plano_id;
                             }
+
+                            // Prepare user display: prefer role name (e.g. Admin) followed by real name
+                            $userObj = $users->get($c->user_id);
+                            $userName = null;
+                            $roleName = null;
+                            if ($userObj) {
+                                // Eloquent User with roles
+                                if (isset($userObj->name)) {
+                                    $userName = $userObj->name;
+                                }
+                                if (isset($userObj->roles) && is_iterable($userObj->roles)) {
+                                    // roles is a Collection when loaded via Eloquent
+                                    try {
+                                        $roleName = $userObj->roles->pluck('name')->first();
+                                    } catch (\Exception $e) {
+                                        // fallback for unexpected structure
+                                        $roleName = null;
+                                    }
+                                }
+                                // If roles not available, check common fallback fields
+                                if (!$roleName && isset($userObj->role)) {
+                                    $roleName = $userObj->role;
+                                }
+                            }
+                            if (!$userName) {
+                                $userName = $c->user_id ? 'Usuário #' . $c->user_id : '-';
+                            }
+                            $displayUser = $userName;
+                            if ($roleName) {
+                                $displayUser = ucfirst($roleName) . ': ' . $userName;
+                            }
                         @endphp
                         <tr>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->id }}</td>
@@ -124,7 +155,7 @@
                             <td style="text-align:center;vertical-align:middle;">{{ $c->dias_compensados }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->anterior }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->novo }}</td>
-                            <td style="text-align:center;vertical-align:middle;">{{ optional($users->get($c->user_id))->name ?? ($c->user_id ? 'Usuário #' . $c->user_id : '-') }}</td>
+                            <td style="text-align:center;vertical-align:middle;">{{ $displayUser }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ \Carbon\Carbon::parse($c->created_at)->format('d/m/Y H:i') }}</td>
                         </tr>
                     @endforeach
