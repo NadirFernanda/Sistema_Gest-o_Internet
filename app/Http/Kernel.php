@@ -12,6 +12,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        // Trust proxy headers (when app is behind a load balancer/proxy)
+        \App\Http\Middleware\TrustProxies::class,
         // ...existing Laravel middleware...
         \Illuminate\Http\Middleware\HandleCors::class,
     ];
