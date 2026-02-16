@@ -269,7 +269,15 @@
                             loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none';
                         })
                         .catch((err)=> {
-                            try{ console.error(err); alert('Erro ao salvar: ' + (err && err.message ? err.message : 'Erro desconhecido')); }catch(_){}
+                            try{
+                                console.error(err);
+                                const msg = (err && err.message) ? String(err.message) : '';
+                                if(msg.trim().startsWith('<') || msg.trim().toLowerCase().indexOf('<!doctype') === 0){
+                                    showNoPermModal('Erro ao salvar. Contacte o administrador.');
+                                } else {
+                                    alert('Erro ao salvar: ' + (msg || 'Erro desconhecido'));
+                                }
+                            }catch(_){ }
                         });
                 });
             }
@@ -285,7 +293,7 @@
                         try{ alert('Modelo apagado com sucesso.'); }catch(_){}
                         loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; 
                     })
-                    .catch((err)=> { try{ console.error(err); alert('Erro ao apagar: ' + (err && err.message ? err.message : 'Erro desconhecido')); }catch(_){} });
+                    .catch((err)=> { try{ console.error(err); const msg = (err && err.message) ? String(err.message) : ''; if(msg.trim().startsWith('<') || msg.trim().toLowerCase().indexOf('<!doctype') === 0){ showNoPermModal('Erro ao apagar. Contacte o administrador.'); } else { alert('Erro ao apagar: ' + (msg || 'Erro desconhecido')); } }catch(_){} });
             }
 
             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
