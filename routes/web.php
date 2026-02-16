@@ -55,8 +55,8 @@ Route::middleware('auth')->group(function () {
     // Página geral de relatórios multi-aba
     Route::get('/relatorios-gerais', [\App\Http\Controllers\RelatorioController::class, 'geral'])
         ->name('relatorios.gerais');
-    // Download dos relatórios automáticos
-    Route::get('/relatorios-gerais/download/{period}', [\App\Http\Controllers\RelatorioController::class, 'download'])
+    // Download dos relatórios automáticos (aceita nome de ficheiro opcional para histórico)
+    Route::get('/relatorios-gerais/download/{period}/{file?}', [\App\Http\Controllers\RelatorioController::class, 'download'])
         ->name('relatorios.gerais.download');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');

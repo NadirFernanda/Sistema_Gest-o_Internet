@@ -6,9 +6,9 @@
     <p class="mb-3">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
     <div class="ficha-toolbar mb-4" style="justify-content:center;gap:12px;">
         <a href="{{ route('dashboard') }}" class="ficha-download" style="min-width:140px;text-align:center;">Painel</a>
-        <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Diário</a>
-        <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Semanal</a>
-        <a href="{{ route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Mensal</a>
+        <a href="{{ isset($latest['diario']) ? route('relatorios.gerais.download', ['period' => 'diario', 'file' => $latest['diario']]) : route('relatorios.gerais.download', ['period' => 'diario']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Diário</a>
+        <a href="{{ isset($latest['semanal']) ? route('relatorios.gerais.download', ['period' => 'semanal', 'file' => $latest['semanal']]) : route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Semanal</a>
+        <a href="{{ isset($latest['mensal']) ? route('relatorios.gerais.download', ['period' => 'mensal', 'file' => $latest['mensal']]) : route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="ficha-download" style="min-width:140px;text-align:center;">Baixar Mensal</a>
     </div>
     <small class="text-muted">Os arquivos são gerados automaticamente pelo sistema e incluem todas as movimentações do período.</small>
     <hr class="my-4">
