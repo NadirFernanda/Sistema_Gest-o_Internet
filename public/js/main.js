@@ -183,8 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${vencimento}</td>
                             <td>${badge}</td>
                             <td style="text-align:center;">
+                                ${ (window.planosConfig && window.planosConfig.isAdmin) ? `
                                 <button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>
                                 <button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>
+                                ` : '' }
                             </td>
                         </tr>`;
                     });
