@@ -66,7 +66,10 @@ class PlanoController extends Controller
             }
             if ($exists) {
                 \Log::warning('PlanoController@store - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
-                return response()->json(['error' => 'Já existe um plano ativo com esse nome para este cliente.'], 409);
+                if (! $request->wantsJson()) {
+                    return back()->with('error', 'Já existe um plano ativo com esse nome para este cliente.')->withInput();
+                }
+                return response()->json(['success' => false, 'message' => 'Já existe um plano ativo com esse nome para este cliente.'], 409);
             }
 
             $plano = Plano::create($validated);
@@ -77,14 +80,14 @@ class PlanoController extends Controller
                 return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
             }
 
-            \Log::info('PlanoController@store - Resposta enviada (JSON)', ['response' => ['success' => true, 'plano' => $plano]]);
-            return response()->json(['success' => true, 'plano' => $plano], 201)
+            \Log::info('PlanoController@store - Resposta enviada (JSON)', ['response' => ['success' => true, 'message' => 'Plano cadastrado com sucesso.', 'plano' => $plano]]);
+            return response()->json(['success' => true, 'message' => 'Plano cadastrado com sucesso.', 'plano' => $plano], 201)
                 ->header('Content-Type', 'application/json');
         } catch (\Illuminate\Validation\ValidationException $e) {
             if (! $request->wantsJson()) {
                 return back()->withErrors($e->errors())->withInput();
             }
-            return response()->json(['error' => 'Erro de validação', 'details' => $e->errors()], 422);
+            return response()->json(['success' => false, 'message' => 'Erro de validação', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             \Log::error('PlanoController@store - Erro ao cadastrar plano', [
                 'error' => $e->getMessage(),
@@ -95,7 +98,7 @@ class PlanoController extends Controller
             if (! $request->wantsJson()) {
                 return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
             }
-            return response()->json(['error' => 'Erro ao cadastrar plano', 'details' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Erro ao cadastrar plano', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -182,10 +185,10 @@ class PlanoController extends Controller
     {
         $plano = Plano::find($id);
         if (!$plano) {
-            return response()->json(['error' => 'Plano não encontrado'], 404);
+            return response()->json(['success' => false, 'message' => 'Plano não encontrado'], 404);
         }
         $plano->delete();
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Plano removido com sucesso.']);
     }
 
     public function update(Request $request, $id)
