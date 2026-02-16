@@ -66,10 +66,18 @@ class PlanoController extends Controller
             }
             if ($exists) {
                 \Log::warning('PlanoController@store - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
-                if (! $request->wantsJson()) {
-                    return back()->with('error', 'Já existe um plano ativo com esse nome para este cliente.')->withInput();
+                $clienteNome = null;
+                try {
+                    $cliente = \App\Models\Cliente::find($validated['cliente_id']);
+                    $clienteNome = $cliente?->nome;
+                } catch (\Exception $e) {
+                    $clienteNome = null;
                 }
-                return response()->json(['success' => false, 'message' => 'Já existe um plano ativo com esse nome para este cliente.'], 409);
+                $msg = 'Esse plano já foi cadastrado para o cliente' . ($clienteNome ? (': ' . $clienteNome) : '.');
+                if (! $request->wantsJson()) {
+                    return back()->with('error', $msg)->withInput();
+                }
+                return response()->json(['success' => false, 'message' => $msg], 409);
             }
 
             $plano = Plano::create($validated);
@@ -266,7 +274,15 @@ class PlanoController extends Controller
             }
             if ($exists) {
                 \Log::warning('PlanoController@storeWeb - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
-                return back()->with('error', 'Já existe um plano ativo com esse nome para este cliente.')->withInput();
+                $clienteNome = null;
+                try {
+                    $cliente = \App\Models\Cliente::find($validated['cliente_id']);
+                    $clienteNome = $cliente?->nome;
+                } catch (\Exception $e) {
+                    $clienteNome = null;
+                }
+                $msg = 'Esse plano já foi cadastrado para o cliente' . ($clienteNome ? (': ' . $clienteNome) : '.');
+                return back()->with('error', $msg)->withInput();
             }
 
             $plano = Plano::create($validated);
