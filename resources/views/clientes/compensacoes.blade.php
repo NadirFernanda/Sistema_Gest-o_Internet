@@ -120,7 +120,7 @@
                         @endphp
                         <tr>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->id }}</td>
-                            <td style="text-align:left;vertical-align:middle;padding-left:12px;">{{ $planoNome }}</td>
+                            <td style="text-align:center;vertical-align:middle;">{{ $planoNome }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->dias_compensados }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->anterior }}</td>
                             <td style="text-align:center;vertical-align:middle;">{{ $c->novo }}</td>
