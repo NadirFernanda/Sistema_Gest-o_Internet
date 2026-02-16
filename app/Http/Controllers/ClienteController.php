@@ -52,7 +52,7 @@ class ClienteController extends Controller
             if (!empty($plano->proxima_renovacao)) {
                 $currentNext = Carbon::parse($plano->proxima_renovacao);
             } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
-                $currentNext = Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1);
+                $currentNext = Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1);
             } else {
                 // fallback para hoje
                 $currentNext = $hoje;
@@ -63,7 +63,7 @@ class ClienteController extends Controller
         }
 
         $anterior = $currentNext->toDateString();
-        $novo = $currentNext->copy()->addDays($request->dias_compensados)->toDateString();
+        $novo = $currentNext->copy()->addDays((int)$request->dias_compensados)->toDateString();
 
         $plano->proxima_renovacao = $novo;
         $plano->save();
@@ -128,13 +128,13 @@ class ClienteController extends Controller
             if (!$plano->data_ativacao || !$plano->ciclo) {
                 return false;
             }
-            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
+            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1)->startOfDay();
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
             return $diasRestantes >= 0 && $diasRestantes <= $dias;
         });
 
         $alertas = $planos->map(function ($plano) use ($hoje) {
-            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($plano->ciclo - 1)->startOfDay();
+            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1)->startOfDay();
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
             return [
                 'plano_id' => $plano->id,
