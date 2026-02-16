@@ -6,17 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        try {
-            Log::info('auth.showLoginForm', ['session_id' => session()->getId(), 'page_csrf' => csrf_token(), 'session_cookie' => request()->cookie('laravel-session')]);
-        } catch (\Throwable $e) {
-            // ignore logging failures during debug
-        }
+        // debug logging removed
         if (Auth::check()) {
             return redirect('/dashboard');
         }
@@ -25,11 +20,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        try {
-            Log::info('auth.login.attempt', ['session_id' => session()->getId(), 'cookie' => $request->cookie('laravel-session'), 'input_csrf' => $request->input('_token')]);
-        } catch (\Throwable $e) {
-            // ignore
-        }
+        // debug logging removed
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -37,9 +28,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            try {
-                Log::info('auth.login.success', ['new_session_id' => session()->getId()]);
-            } catch (\Throwable $e) {}
             return redirect()->intended('/dashboard');
         }
 
