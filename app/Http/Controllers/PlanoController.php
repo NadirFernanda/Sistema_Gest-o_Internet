@@ -115,7 +115,29 @@ class PlanoController extends Controller
 
         $planos = $query->get();
         \Log::info('Planos retornados', ['total' => $planos->count()]);
-        return response()->json($planos);
+
+        // Attach canonical web URLs to each plano so front-end can use server-generated routes
+        $payload = $planos->map(function ($p) {
+            $arr = $p->toArray();
+            try {
+                $arr['web_show'] = route('planos.show', ['plano' => $p->id]);
+            } catch (\Exception $e) {
+                $arr['web_show'] = '/planos/' . ($p->id ?? '');
+            }
+            try {
+                $arr['web_edit'] = route('planos.edit', ['plano' => $p->id]);
+            } catch (\Exception $e) {
+                $arr['web_edit'] = '/planos/' . ($p->id ?? '') . '/edit';
+            }
+            try {
+                $arr['web_delete'] = route('planos.destroy', ['plano' => $p->id]);
+            } catch (\Exception $e) {
+                $arr['web_delete'] = '/planos/' . ($p->id ?? '');
+            }
+            return $arr;
+        });
+
+        return response()->json($payload);
     }
 
     /**
