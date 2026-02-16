@@ -194,7 +194,7 @@ class PlanoController extends Controller
             return redirect()->route('planos.show', $plano->id)->with('success', 'Plano atualizado com sucesso.');
         }
 
-        return response()->json(['success' => true, 'plano' => $plano]);
+        return response()->json(['success' => true, 'message' => 'Plano atualizado com sucesso.', 'plano' => $plano]);
     }
 
     /**

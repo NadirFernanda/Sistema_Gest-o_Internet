@@ -226,18 +226,33 @@
                     const url = id?`${planTemplatesBase}/${id}`:`${planTemplatesBase}`;
                     const method = id?'PUT':'POST';
                     fetch(url, { method: 'POST', headers: {'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override': method }, body: fd })
-                        .then(r => { if(r.ok) return r.text(); throw new Error('Erro'); })
-                        .then(()=>{ loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none'; })
-                        .catch(()=> alert('Erro ao salvar.'));
+                        .then(r => {
+                            if (r.ok) return r.text();
+                            return r.text().then(t => { throw new Error(t || 'Erro'); });
+                        })
+                        .then((txt) =>{
+                            // show simple success feedback, then refresh list and close form
+                            try{ alert('Modelo salvo com sucesso.'); }catch(_){}
+                            loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; formContainer.style.display='none';
+                        })
+                        .catch((err)=> {
+                            try{ console.error(err); alert('Erro ao salvar: ' + (err && err.message ? err.message : 'Erro desconhecido')); }catch(_){}
+                        });
                 });
             }
 
             function deleteTemplate(id){
                 if(!confirm('Confirma apagar este modelo?')) return;
                 fetch(`${planTemplatesBase}/${id}`, { method:'POST', headers:{ 'X-CSRF-TOKEN': csrf, 'X-HTTP-Method-Override':'DELETE' } })
-                    .then(r => { if(r.ok) return r.text(); throw new Error('Erro'); })
-                    .then(()=>{ loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; })
-                    .catch(()=> alert('Erro ao apagar.'));
+                    .then(r => {
+                        if (r.ok) return r.text();
+                        return r.text().then(t => { throw new Error(t || 'Erro'); });
+                    })
+                    .then(()=>{
+                        try{ alert('Modelo apagado com sucesso.'); }catch(_){}
+                        loadList(); if(typeof window.loadTemplates === 'function') try{ window.loadTemplates(); }catch(_){}; 
+                    })
+                    .catch((err)=> { try{ console.error(err); alert('Erro ao apagar: ' + (err && err.message ? err.message : 'Erro desconhecido')); }catch(_){} });
             }
 
             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
