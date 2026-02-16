@@ -116,8 +116,10 @@ class PlanoController extends Controller
         $planos = $query->get();
         \Log::info('Planos retornados', ['total' => $planos->count()]);
 
-        // Attach canonical web URLs to each plano so front-end can use server-generated routes
-        $payload = $planos->map(function ($p) {
+        // Attach canonical web URLs to each plano and permission flags so front-end
+        // can safely decide which actions to render per-plan.
+        $user = auth()->user();
+        $payload = $planos->map(function ($p) use ($user) {
             $arr = $p->toArray();
             try {
                 $arr['web_show'] = route('planos.show', ['plano' => $p->id]);
@@ -134,6 +136,16 @@ class PlanoController extends Controller
             } catch (\Exception $e) {
                 $arr['web_delete'] = '/planos/' . ($p->id ?? '');
             }
+
+            // Permission flags (default to false on any exception)
+            try {
+                $arr['can_edit'] = $user ? (bool) $user->can('update', $p) : false;
+                $arr['can_delete'] = $user ? (bool) $user->can('delete', $p) : false;
+            } catch (\Exception $e) {
+                $arr['can_edit'] = false;
+                $arr['can_delete'] = false;
+            }
+
             return $arr;
         });
 
