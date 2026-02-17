@@ -1,0 +1,40 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6250
+    [34mall[39m: [
+      [34;4mSpatie\Permission\Models\Permission[39;24m {#6251
+        [34mid[39m: [35m1[39m,
+        [34mname[39m: "[32macessar dashboard[39m",
+        [34mguard_name[39m: "[32mweb[39m",
+        [34mcreated_at[39m: "[32m2026-02-15 17:20:35[39m",
+        [34mupdated_at[39m: "[32m2026-02-15 17:20:35[39m",
+      },
+      [34;4mSpatie\Permission\Models\Permission[39;24m {#6248
+        [34mid[39m: [35m3[39m,
+        [34mname[39m: "[32mver relatorios[39m",
+        [34mguard_name[39m: "[32mweb[39m",
+        [34mcreated_at[39m: "[32m2026-02-15 17:20:35[39m",
+        [34mupdated_at[39m: "[32m2026-02-15 17:20:35[39m",
+      },
+      [34;4mSpatie\Permission\Models\Permission[39;24m {#6247
+        [34mid[39m: [35m8[39m,
+        [34mname[39m: "[32mclientes.view[39m",
+        [34mguard_name[39m: "[32mweb[39m",
+        [34mcreated_at[39m: "[32m2026-02-15 18:32:52[39m",
+        [34mupdated_at[39m: "[32m2026-02-15 18:32:52[39m",
+      },
+      [34;4mSpatie\Permission\Models\Permission[39;24m {#5865
+        [34mid[39m: [35m9[39m,
+        [34mname[39m: "[32mcobrancas.view[39m",
+        [34mguard_name[39m: "[32mweb[39m",
+        [34mcreated_at[39m: "[32m2026-02-15 18:32:52[39m",
+        [34mupdated_at[39m: "[32m2026-02-15 18:32:52[39m",
+      },
+      [34;4mSpatie\Permission\Models\Permission[39;24m {#5868
+        [34mid[39m: [35m14[39m,
+        [34mname[39m: "[32mplanos.view[39m",
+        [34mguard_name[39m: "[32mweb[39m",
+        [34mcreated_at[39m: "[32m2026-02-15 19:41:48[39m",
+        [34mupdated_at[39m: "[32m2026-02-15 19:41:48[39m",
+      },
+    ],
+  }
+

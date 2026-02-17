@@ -1,0 +1,75 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#6125
+    [34mid[39m: [35m6[39m,
+    [34mname[39m: "[32mAdmin[39m",
+    [34memail[39m: "[32madmin@angolawifi.ao[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$gPEky13I9L7yVF7f0uNKvOL2Jr09fh6HUiEg.qTGVjfOy5qymya2O[39m",
+    #[33mremember_token[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2026-02-15 18:09:54[39m",
+    [34mupdated_at[39m: "[32m2026-02-15 18:09:54[39m",
+    [34mpermissions[39m: [34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6737
+      [34mall[39m: [
+        [34;4mSpatie\Permission\Models\Permission[39;24m {#6648
+          [34mid[39m: [35m4[39m,
+          [34mname[39m: "[32mclientes.create[39m",
+          [34mguard_name[39m: "[32mweb[39m",
+          [34mcreated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mupdated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mpivot[39m: [34;4mIlluminate\Database\Eloquent\Relations\MorphPivot[39;24m {#6640
+            [34mmodel_type[39m: "[32mApp\Models\User[39m",
+            [34mmodel_id[39m: [35m6[39m,
+            [34mpermission_id[39m: [35m4[39m,
+          },
+        },
+        [34;4mSpatie\Permission\Models\Permission[39;24m {#6178
+          [34mid[39m: [35m5[39m,
+          [34mname[39m: "[32mclientes.edit[39m",
+          [34mguard_name[39m: "[32mweb[39m",
+          [34mcreated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mupdated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mpivot[39m: [34;4mIlluminate\Database\Eloquent\Relations\MorphPivot[39;24m {#6741
+            [34mmodel_type[39m: "[32mApp\Models\User[39m",
+            [34mmodel_id[39m: [35m6[39m,
+            [34mpermission_id[39m: [35m5[39m,
+          },
+        },
+        [34;4mSpatie\Permission\Models\Permission[39;24m {#6713
+          [34mid[39m: [35m6[39m,
+          [34mname[39m: "[32mclientes.delete[39m",
+          [34mguard_name[39m: "[32mweb[39m",
+          [34mcreated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mupdated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mpivot[39m: [34;4mIlluminate\Database\Eloquent\Relations\MorphPivot[39;24m {#6711
+            [34mmodel_type[39m: "[32mApp\Models\User[39m",
+            [34mmodel_id[39m: [35m6[39m,
+            [34mpermission_id[39m: [35m6[39m,
+          },
+        },
+        [34;4mSpatie\Permission\Models\Permission[39;24m {#6692
+          [34mid[39m: [35m7[39m,
+          [34mname[39m: "[32mplanos.create[39m",
+          [34mguard_name[39m: "[32mweb[39m",
+          [34mcreated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mupdated_at[39m: "[32m2026-02-15 18:27:41[39m",
+          [34mpivot[39m: [34;4mIlluminate\Database\Eloquent\Relations\MorphPivot[39;24m {#6179
+            [34mmodel_type[39m: "[32mApp\Models\User[39m",
+            [34mmodel_id[39m: [35m6[39m,
+            [34mpermission_id[39m: [35m7[39m,
+          },
+        },
+        [34;4mSpatie\Permission\Models\Permission[39;24m {#6709
+          [34mid[39m: [35m13[39m,
+          [34mname[39m: "[32musers.create[39m",
+          [34mguard_name[39m: "[32mweb[39m",
+          [34mcreated_at[39m: "[32m2026-02-15 19:18:39[39m",
+          [34mupdated_at[39m: "[32m2026-02-15 19:18:39[39m",
+          [34mpivot[39m: [34;4mIlluminate\Database\Eloquent\Relations\MorphPivot[39;24m {#6644
+            [34mmodel_type[39m: "[32mApp\Models\User[39m",
+            [34mmodel_id[39m: [35m6[39m,
+            [34mpermission_id[39m: [35m13[39m,
+          },
+        },
+      ],
+    },
+  }
+
