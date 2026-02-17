@@ -15,10 +15,11 @@ class AuditService
         $resourceType = $audit->resource_type ?? $audit->auditable_type ?? null;
         $resourceId = $audit->resource_id ?? $audit->auditable_id ?? null;
 
+        $computedModule = class_basename($resourceType ?? '') ?: ($audit->action ?? 'Geral');
         $params = [
             'actor' => $audit->actor_name ?? 'Sistema',
             'role' => $audit->actor_role ?? $audit->role ?? '',
-            'module' => $audit->module ?? class_basename($resourceType ?? ''),
+            'module' => $audit->module ?? $computedModule,
             'resource' => class_basename($resourceType ?? ''),
             'resource_id' => $resourceId ?? '',
             'when' => $audit->created_at ? $audit->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
