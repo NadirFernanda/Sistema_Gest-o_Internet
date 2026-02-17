@@ -12,16 +12,7 @@
         'stackLeft' => true,
     ])
 
-    <form method="get" class="mb-3">
-        <div class="row g-2">
-            <div class="col-sm-3"><input name="user" value="{{ request('user') }}" placeholder="Usuário" class="form-control"/></div>
-            <div class="col-sm-2"><input name="module" value="{{ request('module') }}" placeholder="Módulo" class="form-control"/></div>
-            <div class="col-sm-2"><input name="action" value="{{ request('action') }}" placeholder="Ação" class="form-control"/></div>
-            <div class="col-sm-2"><input type="date" name="from" value="{{ request('from') }}" class="form-control"/></div>
-            <div class="col-sm-2"><input type="date" name="to" value="{{ request('to') }}" class="form-control"/></div>
-            <div class="col-sm-1"><button class="btn btn-primary">Filtrar</button></div>
-        </div>
-    </form>
+    {{-- filtro removido conforme solicitado: permanecer apenas header e tabela --}}
 
     <div class="estoque-tabela-moderna">
         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
