@@ -11,10 +11,8 @@
             <input type="date" name="from" value="{{ request('from') }}" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;">
             <input type="date" name="to" value="{{ request('to') }}" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;">
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div>
             <button class="btn btn-cta">Filtrar</button>
-            <a href="{{ url('/audits/export') }}{{ request()->getQueryString() ? ('?' . request()->getQueryString()) : '' }}" class="btn btn-outline">Exportar CSV (filtros)</a>
-            <a href="{{ url('/audits/export-xlsx') }}{{ request()->getQueryString() ? ('?' . request()->getQueryString()) : '' }}" class="btn btn-outline">Exportar Excel (XLSX)</a>
         </div>
     </form>
 
