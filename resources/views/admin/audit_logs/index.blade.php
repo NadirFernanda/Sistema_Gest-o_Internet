@@ -52,6 +52,5 @@
       <a href="{{ route('admin.audit_logs.export_xlsx') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-outline-primary ms-2">Exportar Excel (XLSX)</a>
     </div>
   </div>
-</div>
-@endsection
+  </div>
 @endsection
