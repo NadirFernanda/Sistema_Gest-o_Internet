@@ -52,20 +52,5 @@
     </div>
     </div>
     </div>
-                    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
-                    <header class="clientes-hero modern-hero">
-                        <div class="hero-inner">
-                            <div class="hero-left">
-                                <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-                                <div class="hero-titles">
-                                    <h1>Relatórios Gerais</h1>
-                                    <p class="hero-sub">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
-                                </div>
-                            </div>
-                            <div class="hero-right">
-                                <!-- space reserved for header right (visual only) -->
-                            </div>
-                        </div>
-                    </header>
 </div>
 @endsection
