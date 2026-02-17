@@ -44,6 +44,16 @@
       </div>
     </div>
   </form>
+</div>
 
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-12">
+      <p class="small text-muted">Aplicar filtros acima e depois usar os botões para exportar os resultados filtrados.</p>
+      <a href="{{ route('admin.audit_logs.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-outline-success">Exportar CSV (filtros)</a>
+      <a href="{{ route('admin.audit_logs.export_xlsx') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-outline-primary ms-2">Exportar Excel (XLSX)</a>
+    </div>
+  </div>
+</div>
 </div>
 @endsection
