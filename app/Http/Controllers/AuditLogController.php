@@ -41,7 +41,7 @@ class AuditLogController extends Controller
 
         // eager load user display names to avoid N+1 when rendering
         $userIds = $logs->pluck('user_id')->filter()->unique()->toArray();
-        $users = [];
+        $users = collect();
         if (! empty($userIds)) {
             $users = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
         }

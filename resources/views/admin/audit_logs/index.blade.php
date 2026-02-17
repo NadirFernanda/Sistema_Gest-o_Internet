@@ -4,12 +4,23 @@
 <div class="container">
   <h1>Logs de Auditoria</h1>
 
-  <form class="mb-3" method="get">
-    <div class="row">
-      <div class="col-md-3"><input name="role" class="form-control" placeholder="Role" value="{{ request('role') }}"></div>
-      <div class="col-md-3"><input name="action" class="form-control" placeholder="Action" value="{{ request('action') }}"></div>
-      <div class="col-md-4"><input name="model" class="form-control" placeholder="Model (FQCN)" value="{{ request('model') }}"></div>
-      <div class="col-md-2"><button class="btn btn-primary">Filtrar</button></div>
+  <form class="mb-3" method="get" aria-label="Filtrar logs de auditoria">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small">Função</label>
+        <input name="role" class="form-control" placeholder="Ex: Administrador" value="{{ request('role') }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Ação</label>
+        <input name="action" class="form-control" placeholder="Ex: updated, created, deleted" value="{{ request('action') }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">Modelo (FQCN)</label>
+        <input name="model" class="form-control" placeholder="Ex: App\\Models\\Cliente" value="{{ request('model') }}">
+      </div>
+      <div class="col-md-2 text-end">
+        <button class="btn btn-warning w-100">Filtrar</button>
+      </div>
     </div>
   </form>
 
@@ -20,11 +31,13 @@
           <th>#</th>
           <th>Quando</th>
           <th>Usuário</th>
-          <th>Role</th>
+          <th>Função</th>
           <th>Ação</th>
           <th>Alvo</th>
-          <th>Antes / Depois</th>
+          <th>Antes</th>
+          <th>Depois</th>
           <th>IP</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -43,18 +56,20 @@
           <td>{{ $log->role }}</td>
           <td>{{ $log->action }}</td>
           <td>{{ optional($log->auditable_type) ? class_basename($log->auditable_type)." (#{$log->auditable_id})" : '-' }}</td>
-          <td style="max-width:400px;overflow:hidden;">
-            @php
-              $old = $log->old_values ? json_encode($log->old_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '';
-              $new = $log->new_values ? json_encode($log->new_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '';
-            @endphp
-            <div style="max-height:3.6rem;overflow:hidden;white-space:pre-wrap;font-family:monospace;">{{ Str::limit($old, 200) }}</div>
-            <div style="max-height:3.6rem;overflow:hidden;white-space:pre-wrap;font-family:monospace;margin-top:6px;">{{ Str::limit($new, 200) }}</div>
-            <div style="margin-top:6px;">
-              <button type="button" class="btn btn-sm btn-outline-secondary" data-json-old='@json($old)' data-json-new='@json($new)' onclick="showAuditModal(this)">Ver</button>
-            </div>
+          @php
+            $old = $log->old_values ? json_encode($log->old_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '';
+            $new = $log->new_values ? json_encode($log->new_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '';
+          @endphp
+          <td style="max-width:240px;overflow:hidden;vertical-align:top;">
+            <div class="small text-muted">{{ Str::limit($old, 180) ?: '(vazio)' }}</div>
+          </td>
+          <td style="max-width:240px;overflow:hidden;vertical-align:top;">
+            <div class="small">{{ Str::limit($new, 180) ?: '(vazio)' }}</div>
           </td>
           <td>{{ $log->ip_address }}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-json-old='@json($old)' data-json-new='@json($new)' onclick="showAuditModal(this)">Ver</button>
+          </td>
         </tr>
         @endforeach
       </tbody>
