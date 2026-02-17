@@ -139,6 +139,14 @@
 .clientes-hero.modern-hero { padding: 28px 0; }
 .clientes-hero .logo { max-width: 110px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 
+/* Relatórios gerais: garantir paridade visual com estoque de equipamentos */
+/* Centraliza a tabela dentro do wrapper e força cabeçalhos com texto branco */
+.ficha-equip-table { display:flex; justify-content:center; }
+.ficha-equip-table table { margin: 0 auto; }
+.tabela-estoque-moderna thead th { color: #fff !important; }
+/* Forçar título hero branco para paridade quando necessário */
+.clientes-hero .hero-titles h1 { color: #fff !important; }
+
 
     
 
