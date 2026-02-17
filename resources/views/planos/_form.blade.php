@@ -34,8 +34,8 @@
     <div class="form-grid">
         <div class="form-row-full">
             <label class="field-label">Usar plano (opcional)</label>
-            <select id="templateSelector" class="select" name="template_id" data-placeholder="Pesquisar modelos de plano...">
-                <option value="">-- Usar plano --</option>
+            <select id="templateSelector" class="select" name="template_id" data-placeholder="Pesquisar modelos de plano..." required>
+                <option value="" disabled selected>-- Selecionar modelo (obrigatório) --</option>
             </select>
             <div id="templateNote" class="muted" style="margin-top:8px;display:none">Campos travados — valores do plano serão aplicados. Apenas Data de ativação e Estado podem ser editados.</div>
         </div>
@@ -54,23 +54,23 @@
 
         <div>
             <label class="field-label">Nome do plano</label>
-            <input type="text" id="nomePlano" name="nome" class="input" placeholder="Ex: Plano Residencial 10Mbps" required value="{{ old('nome') }}">
+            <input type="text" id="nomePlano" name="nome" class="input" placeholder="Ex: Plano Residencial 10Mbps" required value="{{ old('nome') }}" readonly>
         </div>
 
         <div>
             <label class="field-label">Preço (Kz)</label>
             <input type="hidden" name="preco" id="precoPlano" value="{{ old('preco') }}">
-            <input type="text" id="precoPlanoDisplay" class="input" placeholder="0,00" required value="{{ old('preco') ? old('preco') : '' }}">
+            <input type="text" id="precoPlanoDisplay" class="input" placeholder="0,00" required value="{{ old('preco') ? old('preco') : '' }}" readonly>
         </div>
 
         <div class="form-row-full">
             <label class="field-label">Descrição</label>
-            <input type="text" id="descricaoPlano" name="descricao" class="input" placeholder="Breve descrição do plano" required value="{{ old('descricao') }}">
+            <input type="text" id="descricaoPlano" name="descricao" class="input" placeholder="Breve descrição do plano" required value="{{ old('descricao') }}" readonly>
         </div>
 
         <div>
             <label class="field-label">Ciclo (dias)</label>
-            <input type="number" id="cicloPlano" name="ciclo" class="input" placeholder="30" min="1" required value="{{ old('ciclo', 30) }}">
+            <input type="number" id="cicloPlano" name="ciclo" class="input" placeholder="30" min="1" required value="{{ old('ciclo', 30) }}" disabled>
         </div>
 
         <div>
