@@ -36,7 +36,7 @@
                     <td>{{ $a->action }}</td>
                     <td>{{ $a->module }}</td>
                     <td>{{ $a->resource_type }}#{{ $a->resource_id }}</td>
-                    <td>{{ \\App\\Services\\AuditService::formatHumanReadable($a) }}</td>
+                    <td>{{ \App\Services\AuditService::formatHumanReadable($a) }}</td>
                 </tr>
             @endforeach
         </tbody>
