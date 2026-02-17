@@ -42,8 +42,16 @@ class ClienteEquipamentoController extends Controller
             return back()->withErrors(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
         }
 
-        // perform create and decrement stock atomically
-        \DB::transaction(function() use ($request, $clienteId, $estoque) {
+        // perform create and decrement stock atomically with row lock to avoid race conditions
+        \DB::transaction(function() use ($request, $clienteId) {
+            $estoque = EstoqueEquipamento::where('id', $request->estoque_equipamento_id)->lockForUpdate()->first();
+            if (!$estoque) {
+                throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['estoque_equipamento_id' => 'Equipamento inválido.'], 422));
+            }
+            if ((int)$request->quantidade > (int)$estoque->quantidade) {
+                throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."], 422));
+            }
+
             ClienteEquipamento::create([
                 'cliente_id' => $clienteId,
                 'estoque_equipamento_id' => $request->estoque_equipamento_id,
@@ -108,15 +116,15 @@ class ClienteEquipamentoController extends Controller
             }
         }
 
-        \DB::transaction(function() use ($request, $vinculo, $oldQty, $oldEstoqueId, $newEstoqueId, $newQty) {
+        \DB::transaction(function() use ($request, $vinculo) {
             $oldQty = (int) ($vinculo->quantidade ?? 0);
             $oldEstoqueId = $vinculo->estoque_equipamento_id;
             $newEstoqueId = (int) $request->estoque_equipamento_id;
             $newQty = (int) $request->quantidade;
 
             if ($oldEstoqueId === $newEstoqueId) {
-                // same estoque: check availability for the delta
-                $estoque = EstoqueEquipamento::findOrFail($newEstoqueId);
+                // same estoque: lock row and check availability for the delta
+                $estoque = EstoqueEquipamento::where('id', $newEstoqueId)->lockForUpdate()->firstOrFail();
                 $delta = $newQty - $oldQty; // positive means we need more
                 if ($delta > 0 && $delta > $estoque->quantidade) {
                     throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$estoque->quantidade})."], 422));
@@ -124,14 +132,21 @@ class ClienteEquipamentoController extends Controller
                 $estoque->quantidade = max(0, $estoque->quantidade - $delta);
                 $estoque->save();
             } else {
-                // different estoque: restore old, deduct new
-                $oldEst = EstoqueEquipamento::findOrFail($oldEstoqueId);
-                $oldEst->quantidade = $oldEst->quantidade + $oldQty;
-                $oldEst->save();
+                // different estoque: lock both rows (order by id to avoid deadlocks), restore old, deduct new
+                $firstId = min($oldEstoqueId, $newEstoqueId);
+                $secondId = max($oldEstoqueId, $newEstoqueId);
+                $rows = EstoqueEquipamento::whereIn('id', [$firstId, $secondId])->lockForUpdate()->get()->keyBy('id');
 
-                $newEst = EstoqueEquipamento::findOrFail($newEstoqueId);
-                if ($newQty > $newEst->quantidade) {
-                    throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$newEst->quantidade})."], 422));
+                $oldEst = $rows->get($oldEstoqueId);
+                $newEst = $rows->get($newEstoqueId);
+
+                if ($oldEst) {
+                    $oldEst->quantidade = $oldEst->quantidade + $oldQty;
+                    $oldEst->save();
+                }
+
+                if (!$newEst || $newQty > $newEst->quantidade) {
+                    throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({" . ($newEst->quantidade ?? '0') . "})."], 422));
                 }
                 $newEst->quantidade = max(0, $newEst->quantidade - $newQty);
                 $newEst->save();
@@ -153,8 +168,8 @@ class ClienteEquipamentoController extends Controller
         $vinculo = ClienteEquipamento::findOrFail($vinculoId);
 
         \DB::transaction(function() use ($vinculo) {
-            // restore stock
-            $estoque = EstoqueEquipamento::find($vinculo->estoque_equipamento_id);
+            // restore stock with row lock
+            $estoque = EstoqueEquipamento::where('id', $vinculo->estoque_equipamento_id)->lockForUpdate()->first();
             if ($estoque) {
                 $estoque->quantidade = $estoque->quantidade + (int)($vinculo->quantidade ?? 0);
                 $estoque->save();
