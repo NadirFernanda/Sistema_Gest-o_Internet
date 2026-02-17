@@ -718,21 +718,7 @@ class ClienteController extends Controller
     {
         $cliente = Cliente::findOrFail($id);
 
-        // record audit before deletion
-        try {
-            $userId = auth()->id();
-            $reason = $request->input('reason') ?? null;
-            $payload = $cliente->toArray();
-            \App\Models\DeletionAudit::create([
-                'entity_type' => Cliente::class,
-                'entity_id' => $cliente->id,
-                'user_id' => $userId,
-                'reason' => $reason,
-                'payload' => $payload,
-            ]);
-        } catch (\Exception $e) {
-            \Log::warning('Falha ao gravar audit deletion: ' . $e->getMessage());
-        }
+        // legacy deletion audits removed — no-op
 
         $cliente->delete();
 

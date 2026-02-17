@@ -33,7 +33,6 @@ class RelatorioMultiAbaExport implements WithMultipleSheets
             new \App\Exports\Sheets\EstoqueEquipamentosSheet($this->estoque ?? collect()),
             new \App\Exports\Sheets\PlanTemplatesSheet($this->planTemplates ?? collect()),
             new \App\Exports\Sheets\UsersSheet($this->users ?? collect()),
-            new \App\Exports\Sheets\DeletionAuditsSheet($this->deletionAudits ?? collect()),
         ];
     }
 
@@ -41,7 +40,6 @@ class RelatorioMultiAbaExport implements WithMultipleSheets
     public function withClienteEquipamentos($cols) { $this->clienteEquipamentos = $cols; return $this; }
     public function withPlanTemplates($cols) { $this->planTemplates = $cols; return $this; }
     public function withUsers($cols) { $this->users = $cols; return $this; }
-    public function withDeletionAudits($cols) { $this->deletionAudits = $cols; return $this; }
     public function withEstoque($cols) { $this->estoque = $cols; return $this; }
     
 }

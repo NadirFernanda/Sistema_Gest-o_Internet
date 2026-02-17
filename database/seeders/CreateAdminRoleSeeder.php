@@ -10,15 +10,8 @@ class CreateAdminRoleSeeder extends Seeder
 {
     public function run()
     {
-        // Ensure permission exists
-        Permission::firstOrCreate(['name' => 'audits.view']);
-
         // Create admin role if missing
         $role = Role::firstOrCreate(['name' => 'admin']);
-
-        // Assign permission to admin role
-        $role->givePermissionTo('audits.view');
-
-        $this->command->info("Role 'admin' ensured and 'audits.view' assigned.");
+        $this->command->info("Role 'admin' ensured.");
     }
 }
