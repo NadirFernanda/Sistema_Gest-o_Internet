@@ -17,7 +17,8 @@
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
         </div>
     </div>
-    <table class="table table-bordered table-striped mt-4" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">
+    <div class="ficha-equip-table">
+    <table class="table table-bordered table-striped mt-4 tabela-estoque-moderna" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">
         <thead style="background:#f7b500;color:#fff;">
             <tr>
                 <th>Período</th>
@@ -46,8 +47,8 @@
         </tbody>
     </table>
     <div class="d-flex justify-content-center">
-        {{-- mantemos o wrapper de paginação igual ao da listagem de equipamentos para paridade visual --}}
-        {!! $paginacao ?? '' !!}
+        {{ $paginacao ?? '' }}
+    </div>
     </div>
     </div>
     </div>
