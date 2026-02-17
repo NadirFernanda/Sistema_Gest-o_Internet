@@ -12,44 +12,25 @@ class PlanoController extends Controller
     {
         \Log::info('PlanoController@store - Request recebido', ['request' => $request->all()]);
         try {
-            // If a template_id is provided, load it and enforce its values server-side.
-            $template = null;
-            if ($request->filled('template_id')) {
-                $templateId = $request->input('template_id');
-                if ($templateId) {
-                    $template = PlanTemplate::find($templateId);
-                } else {
-                    return back()->withErrors(['template_id' => 'Template não selecionado'])->withInput();
-                }
+            // Require a template_id for creating planos. Template values are enforced server-side.
+            $validated = $request->validate([
+                'template_id' => 'required|exists:plan_templates,id',
+                'cliente_id' => 'required|exists:clientes,id',
+                'estado' => 'required|string',
+                'data_ativacao' => 'required|date',
+            ]);
+
+            $template = PlanTemplate::find($validated['template_id']);
+            if (! $template) {
+                return back()->withErrors(['template_id' => 'Template não encontrado'])->withInput();
             }
 
-            if ($template) {
-                // Minimal validation when a template is used (security: template values will be applied server-side)
-                $validated = $request->validate([
-                    'template_id' => 'required|exists:plan_templates,id',
-                    'cliente_id' => 'required|exists:clientes,id',
-                    'estado' => 'required|string',
-                    'data_ativacao' => 'required|date',
-                ]);
-
-                // Overwrite/ensure values come from the template
-                $validated['nome'] = $template->name;
-                $validated['descricao'] = $template->description ?? '';
-                $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
-                $validated['ciclo'] = $template->ciclo;
-                $validated['template_id'] = $template->id;
-            } else {
-                // Full validation when no template is selected
-                $validated = $request->validate([
-                    'nome' => 'required|string|max:255',
-                    'descricao' => 'required|string',
-                    'preco' => 'required|numeric|min:0',
-                    'ciclo' => 'required|integer|min:1',
-                    'cliente_id' => 'required|exists:clientes,id',
-                    'estado' => 'required|string',
-                    'data_ativacao' => 'required|date',
-                ]);
-            }
+            // Populate plan fields from template (server-side authoritative)
+            $validated['nome'] = $template->name;
+            $validated['descricao'] = $template->description ?? '';
+            $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
+            $validated['ciclo'] = $template->ciclo;
+            $validated['template_id'] = $template->id;
 
             \Log::info('PlanoController@store - Dados validados', ['validated' => $validated, 'template_used' => $template ? $template->id : null]);
             // prevent duplicate active plan name for the same client
@@ -227,40 +208,24 @@ class PlanoController extends Controller
     {
         \Log::info('PlanoController@storeWeb - Request recebido', ['request' => $request->all()]);
         try {
-            $template = null;
-            if ($request->filled('template_id')) {
-                $templateId = $request->input('template_id');
-                if ($templateId) {
-                    $template = PlanTemplate::find($templateId);
-                } else {
-                    return back()->withErrors(['template_id' => 'Template não selecionado'])->withInput();
-                }
+            // Require a template_id for web form creation. Populate plan fields from template.
+            $validated = $request->validate([
+                'template_id' => 'required|exists:plan_templates,id',
+                'cliente_id' => 'required|exists:clientes,id',
+                'estado' => 'required|string',
+                'data_ativacao' => 'required|date',
+            ]);
+
+            $template = PlanTemplate::find($validated['template_id']);
+            if (! $template) {
+                return back()->withErrors(['template_id' => 'Template não encontrado'])->withInput();
             }
 
-            if ($template) {
-                $validated = $request->validate([
-                    'template_id' => 'required|exists:plan_templates,id',
-                    'cliente_id' => 'required|exists:clientes,id',
-                    'estado' => 'required|string',
-                    'data_ativacao' => 'required|date',
-                ]);
-
-                $validated['nome'] = $template->name;
-                $validated['descricao'] = $template->description ?? '';
-                $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
-                $validated['ciclo'] = $template->ciclo;
-                $validated['template_id'] = $template->id;
-            } else {
-                $validated = $request->validate([
-                    'nome' => 'required|string|max:255',
-                    'descricao' => 'required|string',
-                    'preco' => 'required|numeric|min:0',
-                    'ciclo' => 'required|integer|min:1',
-                    'cliente_id' => 'required|exists:clientes,id',
-                    'estado' => 'required|string',
-                    'data_ativacao' => 'required|date',
-                ]);
-            }
+            $validated['nome'] = $template->name;
+            $validated['descricao'] = $template->description ?? '';
+            $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
+            $validated['ciclo'] = $template->ciclo;
+            $validated['template_id'] = $template->id;
             // prevent duplicate when submitting from web form
             try {
                 $exists = Plano::where('cliente_id', $validated['cliente_id'])
