@@ -50,6 +50,8 @@
 </div>
 
 <style>
+.planos-toolbar .btn { flex: 0 0 auto; min-width: 140px; padding: 10px 18px; border-radius: 10px; }
+.planos-toolbar { display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
 .estoque-tabela-moderna {
     background: transparent;
     border-radius: 12px;
