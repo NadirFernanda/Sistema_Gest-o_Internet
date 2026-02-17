@@ -139,6 +139,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/audits', [\App\Http\Controllers\AuditController::class, 'index'])
         ->name('audits.index')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    Route::get('/audits/export', [\App\Http\Controllers\AuditController::class, 'exportCsv'])
+        ->name('audits.export')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    Route::get('/audits/export-xlsx', [\App\Http\Controllers\AuditController::class, 'exportXlsx'])
+        ->name('audits.export_xlsx')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
