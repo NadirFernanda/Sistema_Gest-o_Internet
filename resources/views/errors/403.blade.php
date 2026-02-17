@@ -13,7 +13,7 @@
         &nbsp;ou&nbsp;
         <a href="{{ route('dashboard') }}" class="btn" style="padding:10px 14px;">Voltar ao Painel</a>
         &nbsp;
-        <a href="{{ url()->previous() }}" class="btn btn-ghost" style="padding:10px 14px;">Voltar</a>
+        {{-- previous-link removed from header/content area to avoid back button in header --}}
     </p>
 </div>
 @endsection

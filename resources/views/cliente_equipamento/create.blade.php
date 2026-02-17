@@ -3,11 +3,7 @@
 @section('content')
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     
-    <div class="back-wrap">
-    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn-back-circle btn-ghost" aria-label="Voltar à Ficha do Cliente" title="Voltar à Ficha do Cliente">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </a>
-    </div>
+    {{-- back button removed from header area to comply with header rules --}}
     <h2>Vincular Equipamento ao Cliente</h2>
     <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
 <form action="{{ route('cliente_equipamento.store', $cliente->id) }}" method="POST" style="margin-top: 20px;">

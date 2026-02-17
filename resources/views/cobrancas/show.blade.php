@@ -22,8 +22,6 @@
         </div>
     </div>
     <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-primary mt-3" target="_blank">Gerar Comprovante PDF</a>
-    <a href="{{ route('cobrancas.index') }}" class="btn-back-circle btn-ghost mt-3" title="Voltar" aria-label="Voltar">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </a>
+    {{-- back button removed from header area --}}
 </div>
 @endsection
