@@ -70,16 +70,32 @@ class RelatorioController extends Controller
 
         // otherwise find the latest file matching the requested period
         $files = Storage::files('relatorios');
-        $matches = array_filter($files, function ($f) use ($period) {
+
+        // Prefer explicit "relatorio_geral_<period>" files (or files containing both
+        // "relatorio_geral" and the period). If none, fall back to the older
+        // permissive matching (e.g. 'diario' or 'ultimas_'). This prevents returning
+        // unrelated reports like 'relatorio_cobrancas_mensal_...' when a
+        // multi-sheet general report is expected.
+        $preferred = array_filter($files, function ($f) use ($period) {
             $basename = strtolower(basename($f));
-            if ($period === 'diario') {
-                // aceitar ficheiros explícitos 'relatorio_geral_diario' ou nomes antigos com 'ultimas_'
-                return str_contains($basename, 'relatorio_geral_diario') || str_contains($basename, 'diario') || str_contains($basename, 'ultimas_');
-            }
-            // procurar por padrão explícito relatorio_geral_<period> primeiro, ou fallback a palavra-chave
             if (str_contains($basename, 'relatorio_geral_' . $period)) return true;
-            return str_contains($basename, $period);
+            if (str_contains($basename, 'relatorio_geral') && str_contains($basename, $period)) return true;
+            return false;
         });
+
+        if (!empty($preferred)) {
+            $matches = $preferred;
+        } else {
+            // fallback to legacy/permissive matching
+            $matches = array_filter($files, function ($f) use ($period) {
+                $basename = strtolower(basename($f));
+                if ($period === 'diario') {
+                    return str_contains($basename, 'relatorio_geral_diario') || str_contains($basename, 'diario') || str_contains($basename, 'ultimas_');
+                }
+                if (str_contains($basename, 'relatorio_geral_' . $period)) return true;
+                return str_contains($basename, $period);
+            });
+        }
 
         if (empty($matches)) {
             return back()->with('error', 'Nenhum relatório disponível para o período: ' . $period);
