@@ -34,9 +34,9 @@
                     <td>{{ $a->created_at }}</td>
                     <td>
                         {{ $a->actor_name ?? (\App\Models\User::find($a->user_id)?->name ?? $a->user_id) }}
-                        ({{ $a->actor_role ?? $a->role }})
+                        ({{ \App\Services\AuditService::translateRole($a->actor_role ?? $a->role) }})
                     </td>
-                    <td>{{ $a->action }}</td>
+                    <td>{{ \App\Services\AuditService::translateAction($a->action) }}</td>
                     <td>{{ $a->module }}</td>
                     <td>{{ class_basename($a->resource_type ?? $a->auditable_type) }}#{{ $a->resource_id ?? $a->auditable_id }}</td>
                     <td>{{ \App\Services\AuditService::formatHumanReadable($a) }}</td>
