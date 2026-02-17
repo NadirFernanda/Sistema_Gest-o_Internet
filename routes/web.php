@@ -120,16 +120,7 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('user')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.delete');
     
-    // Audit logs viewer (admin)
-    Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])
-        ->name('admin.audit_logs.index')
-        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
-    Route::get('/admin/audit-logs/export', [\App\Http\Controllers\AuditLogController::class, 'export'])
-        ->name('admin.audit_logs.export')
-        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
-    Route::get('/admin/audit-logs/export-xlsx', [\App\Http\Controllers\AuditLogController::class, 'exportXlsx'])
-        ->name('admin.audit_logs.export_xlsx')
-        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    // Audit logs removed (legacy) — routes cleaned
     
     // Plan templates (catalog of reusable plans)
     Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');
