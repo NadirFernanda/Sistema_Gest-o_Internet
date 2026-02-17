@@ -7,56 +7,47 @@ use Illuminate\Support\Facades\Lang;
 
 class AuditService
 {
-    public static function formatHumanReadable(AuditLog $a, ?string $locale = null): string
+    public static function formatHumanReadable(AuditLog $audit, ?string $locale = null): string
     {
         $locale = $locale ?? app()->getLocale();
-        $tplKey = 'audit.' . ($a->action ?? 'generic');
+        $tplKey = 'audit.' . ($audit->action ?? 'generic');
+
+        $resourceType = $audit->resource_type ?? $audit->auditable_type ?? null;
+        $resourceId = $audit->resource_id ?? $audit->auditable_id ?? null;
 
         $params = [
-            'actor' => $a->actor_name ?? 'Sistema',
-            'role' => $a->actor_role ?? '',
-            'module' => $a->module ?? '',
-            'resource' => class_basename($a->resource_type ?? ''),
-            'resource_id' => $a->resource_id ?? '',
-            'when' => $a->created_at?->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
+            'actor' => $audit->actor_name ?? 'Sistema',
+            'role' => $audit->actor_role ?? $audit->role ?? '',
+            'module' => $audit->module ?? class_basename($resourceType ?? ''),
+            'resource' => class_basename($resourceType ?? ''),
+            'resource_id' => $resourceId ?? '',
+            'when' => $audit->created_at ? $audit->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
         ];
 
         if (Lang::has($tplKey, $locale)) {
             return trans($tplKey, $params, $locale);
         }
 
-        return sprintf('%s %s %s #%s at %s', $params['actor'], $a->action, $params['resource'], $params['resource_id'], $params['when']);
-    }
-}
-<?php
+        // Fallback human readable (Portuguese friendly)
+        $actor = $params['actor'];
+        $action = $audit->action ?? 'ação';
+        $module = $params['module'];
+        $time = $params['when'];
 
-namespace App\Services;
-
-use App\Models\AuditLog;
-use Illuminate\Support\Facades\Config;
-
-class AuditService
-{
-    public static function formatHumanReadable(AuditLog $audit, string $locale = 'pt'): string
-    {
-        // Basic example formatter; extend with i18n templates later
-        $actor = $audit->actor_name ?? 'Sistema';
-        $action = $audit->action;
-        $module = $audit->module ?? $audit->resource_type;
-        $time = $audit->created_at ? $audit->created_at->format('Y-m-d H:i:s') : '';
-
-        if ($action === 'update' && is_array($audit->before) && is_array($audit->after)) {
+        if ($action === 'update' && is_array($audit->before ?? null) && is_array($audit->after ?? null)) {
             $changes = [];
-            foreach ($audit->after as $k => $v) {
+            foreach (($audit->after ?? []) as $k => $v) {
                 $before = $audit->before[$k] ?? null;
                 if ($before !== $v) {
-                    $changes[] = "$k: '$before' → '$v'";
+                    $beforeStr = is_scalar($before) ? (string)$before : json_encode($before, JSON_UNESCAPED_UNICODE);
+                    $afterStr = is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE);
+                    $changes[] = "$k: '$beforeStr' → '$afterStr'";
                 }
             }
             $changeStr = implode(', ', $changes);
-            return "$actor atualizou $module ({$audit->resource_id}) — $changeStr às $time";
+            return "$actor atualizou $module ({$params['resource_id']}) — $changeStr às $time";
         }
 
-        return "$actor realizou '$action' em $module ({$audit->resource_id}) às $time";
+        return "$actor realizou '$action' em $module ({$params['resource_id']}) às $time";
     }
 }
