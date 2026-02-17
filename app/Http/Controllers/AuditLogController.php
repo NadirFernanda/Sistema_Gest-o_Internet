@@ -39,6 +39,13 @@ class AuditLogController extends Controller
 
         $logs = $query->orderBy('created_at', 'desc')->paginate(25)->withQueryString();
 
-        return view('admin.audit_logs.index', compact('logs'));
+        // eager load user display names to avoid N+1 when rendering
+        $userIds = $logs->pluck('user_id')->filter()->unique()->toArray();
+        $users = [];
+        if (! empty($userIds)) {
+            $users = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
+        }
+
+        return view('admin.audit_logs.index', compact('logs', 'users'));
     }
 }
