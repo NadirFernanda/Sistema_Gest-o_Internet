@@ -51,7 +51,7 @@
 
             <div class="form-group">
                 <label>Papel</label>
-                <select name="role" class="form-control" data-placeholder="-- Selecionar --">
+                <select name="role" class="form-control select" data-placeholder="-- Selecionar --">
                     <option value="">-- Selecionar --</option>
                     @foreach($roles as $role)
                         <option value="{{ $role }}">{{ $role }}</option>

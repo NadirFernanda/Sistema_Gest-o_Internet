@@ -36,7 +36,7 @@
             </div>
             <div class="form-group">
                 <label>Papel</label>
-                <select name="role" class="form-control">
+                <select name="role" class="form-control select">
                     <option value="">-- Nenhum --</option>
                     @foreach($roles as $r)
                         <option value="{{ $r }}" {{ in_array($r, $user->roles->pluck('name')->toArray()) ? 'selected' : '' }}>{{ $r }}</option>

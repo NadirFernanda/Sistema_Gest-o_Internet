@@ -12,7 +12,7 @@
         @method('PUT')
         <div class="form-group-custom">
             <label for="estoque_equipamento_id" class="form-label">Selecione o Equipamento</label>
-            <select class="form-control" id="estoque_equipamento_id" name="estoque_equipamento_id" required>
+            <select class="form-control select" id="estoque_equipamento_id" name="estoque_equipamento_id" required>
                 <option value="">-- Escolha um equipamento --</option>
                 @foreach($equipamentos as $equipamento)
                     <option value="{{ $equipamento->id }}" {{ $vinculo->estoque_equipamento_id == $equipamento->id ? 'selected' : '' }}>{{ $equipamento->nome }} ({{ $equipamento->modelo }})</option>
