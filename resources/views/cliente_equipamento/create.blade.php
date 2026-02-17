@@ -45,7 +45,7 @@
         @csrf
         <div class="form-group-custom">
             <label for="estoque_equipamento_id" class="form-label">Selecione o Equipamento <span class="required-asterisk">*</span></label>
-            <select class="form-control select" id="estoque_equipamento_id" name="estoque_equipamento_id" style="width:100%">
+            <select class="form-control select" id="estoque_equipamento_id" name="estoque_equipamento_id" style="width:100%" data-no-choices="1">
                 <option value="">-- Escolha um equipamento --</option>
                 @foreach($equipamentos as $equipamento)
                     @php $qty = (int) $equipamento->quantidade; @endphp

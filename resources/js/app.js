@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	try {
 			document.querySelectorAll('.select').forEach(function(el){
 				if (!el) return;
+				// skip selects explicitly opting out (e.g., pages using Select2)
+				if (el.hasAttribute('data-no-choices')) return;
 				if (!el.id) el.id = 'select-' + Math.random().toString(36).slice(2,9);
 				if (el && !el.classList.contains('choices-initialized')){
 					window._choicesMap = window._choicesMap || {};
