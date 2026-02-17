@@ -15,7 +15,7 @@
             <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
         </form>
         <div style="display:flex;gap:8px;">
-            <a href="{{ route('equipamentos.relatorio.export', request()->all()) }}" class="btn btn-cta" style="min-width:140px;">Exportar Excel</a>
+            
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
         </div>
     </div>

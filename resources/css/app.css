@@ -113,12 +113,6 @@
         font-size:0.95rem;
     }
 
-    /* Audit UI global tweaks */
-    .audit-pre{background:#f8f9fa;padding:12px;border-radius:6px;max-height:52vh;overflow:auto;font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.9rem}
-    .audit-table-head th{vertical-align:middle}
-    .audit-table td{vertical-align:middle}
-    .btn-warning{background:#f0b400;border-color:#f0b400;color:#111}
-    .audit-filter-label{font-size:.85rem;color:#666;margin-bottom:4px}
-    .audit-truncate{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    
 
 

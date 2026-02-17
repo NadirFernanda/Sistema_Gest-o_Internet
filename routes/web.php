@@ -135,10 +135,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/plan-templates/list.json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson']);
     Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 
-    // Auditoria de exclusões (admin)
-    Route::get('/audits', [\App\Http\Controllers\AuditController::class, 'index'])
-        ->name('audits.index')
-        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    
     // Export routes removed per request
 });
 // Rotas de Estoque de Equipamentos

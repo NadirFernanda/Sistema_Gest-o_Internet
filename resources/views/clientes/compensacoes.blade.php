@@ -86,7 +86,7 @@
         </form>
         <div style="display:flex;gap:8px;">
             @if(Route::has('clientes.compensacoes.export'))
-                <a href="{{ route('clientes.compensacoes.export', $cliente->id) }}" class="btn btn-cta" target="_blank">Exportar</a>
+                
             @endif
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
         </div>
