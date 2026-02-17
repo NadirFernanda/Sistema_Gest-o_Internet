@@ -29,6 +29,12 @@ class GerarRelatorioGeralSemanal extends Command
         $fim = Carbon::now()->endOfWeek();
         $field = $this->option('field') ?? 'data_vencimento';
         $cobrancas = Cobranca::whereBetween($field, [$inicio, $fim])->get();
+        if ($cobrancas->isEmpty()) {
+            $cobrancas = Cobranca::whereBetween('created_at', [$inicio, $fim])
+                ->orWhereBetween('data_vencimento', [$inicio, $fim])
+                ->orWhereBetween('data_pagamento', [$inicio, $fim])
+                ->get();
+        }
         $clientes = Cliente::whereBetween('created_at', [$inicio, $fim])->get();
         $planos = Plano::whereBetween('created_at', [$inicio, $fim])->get();
         $equipamentos = Equipamento::whereBetween('created_at', [$inicio, $fim])->get();
