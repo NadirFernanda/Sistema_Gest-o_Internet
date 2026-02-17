@@ -125,6 +125,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditController::class, 'index'])
         ->name('admin.audit.index')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+
+
     
     // Plan templates (catalog of reusable plans)
     Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');
@@ -164,6 +166,81 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'update'])->name('cliente_equipamento.update');
     Route::delete('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'destroy'])->name('cliente_equipamento.destroy');
 });
+
+// Dev-only preview routes (outside auth) to inspect views without login when running locally
+if (app()->isLocal() || env('APP_DEBUG')) {
+    Route::get('/dev/audit-preview', function () {
+        $audits = \App\Models\AuditLog::orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.audits.index', ['audits' => $audits]);
+    })->name('dev.audit.preview');
+
+    // Dev preview: render the cliente vincular view without auth
+    Route::get('/dev/clientes/{cliente}/vincular', [\App\Http\Controllers\ClienteEquipamentoController::class, 'create'])
+        ->name('dev.cliente.vincular');
+
+    // Dev preview: render estoque index without auth
+    Route::get('/dev/estoque-preview', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'index'])->name('dev.estoque.preview');
+
+    // Dev helper: create test equipment and client (idempotent)
+    Route::get('/dev/create-test-data', function () {
+        $e = \App\Models\EstoqueEquipamento::firstOrCreate(
+            ['numero_serie' => 'TS-TEST-1'],
+            ['nome' => 'Teste Equip', 'descricao' => 'Equip para teste', 'modelo' => 'T1', 'quantidade' => 2]
+        );
+        $c = \App\Models\Cliente::firstOrCreate(
+            ['bi' => '0000TEST'],
+            ['nome' => 'Cliente Teste', 'email' => 'teste@example.com', 'contato' => '+244000']
+        );
+        return response()->json(['estoque_id' => $e->id, 'cliente_id' => $c->id]);
+    })->name('dev.create.test.data');
+}
+
+if (app()->isLocal() || env('APP_DEBUG')) {
+    // Dev helper: link the test equipment to the test client (quantity param optional)
+    Route::get('/dev/link-test', function () {
+        $estoque = \App\Models\EstoqueEquipamento::where('numero_serie', 'TS-TEST-1')->first();
+        $cliente = \App\Models\Cliente::where('bi', '0000TEST')->first();
+        if (!$estoque || !$cliente) {
+            return response()->json(['error' => 'missing test data'], 400);
+        }
+        $quantidade = 2;
+        if ($quantidade > $estoque->quantidade) {
+            return response()->json(['error' => 'not enough stock', 'available' => $estoque->quantidade], 400);
+        }
+
+        \DB::transaction(function() use ($cliente, $estoque, $quantidade) {
+            \App\Models\ClienteEquipamento::create([
+                'cliente_id' => $cliente->id,
+                'estoque_equipamento_id' => $estoque->id,
+                'quantidade' => $quantidade,
+                'morada' => 'Rua Teste',
+                'ponto_referencia' => 'Ponto Teste',
+            ]);
+            $estoque->quantidade = max(0, $estoque->quantidade - $quantidade);
+            $estoque->save();
+        });
+
+        return response()->json(['linked' => true]);
+    })->name('dev.link.test');
+}
+
+if (app()->isLocal() || env('APP_DEBUG')) {
+    Route::get('/dev/reset-test-stock', function () {
+        $e = \App\Models\EstoqueEquipamento::where('numero_serie', 'TS-TEST-1')->first();
+        if (!$e) return response()->json(['error'=>'missing'], 404);
+        $e->quantidade = 2;
+        $e->save();
+        return response()->json(['reset' => true, 'quantidade' => $e->quantidade]);
+    })->name('dev.reset.test.stock');
+}
+
+if (app()->isLocal() || env('APP_DEBUG')) {
+    Route::get('/dev/get-test-quantity', function () {
+        $e = \App\Models\EstoqueEquipamento::where('numero_serie', 'TS-TEST-1')->first();
+        if (!$e) return response()->json(['error'=>'missing'], 404);
+        return response()->json(['quantidade' => $e->quantidade]);
+    })->name('dev.get.test.quantity');
+}
 
 // Temporary probe route - remove after testing
 Route::get('/_probe/hasroles', function () {

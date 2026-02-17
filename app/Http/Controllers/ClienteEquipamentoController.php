@@ -42,13 +42,21 @@ class ClienteEquipamentoController extends Controller
             return back()->withErrors(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
         }
 
-        ClienteEquipamento::create([
-            'cliente_id' => $clienteId,
-            'estoque_equipamento_id' => $request->estoque_equipamento_id,
-            'quantidade' => $request->quantidade,
-            'morada' => $request->morada,
-            'ponto_referencia' => $request->ponto_referencia,
-        ]);
+        // perform create and decrement stock atomically
+        \DB::transaction(function() use ($request, $clienteId, $estoque) {
+            ClienteEquipamento::create([
+                'cliente_id' => $clienteId,
+                'estoque_equipamento_id' => $request->estoque_equipamento_id,
+                'quantidade' => $request->quantidade,
+                'morada' => $request->morada,
+                'ponto_referencia' => $request->ponto_referencia,
+            ]);
+
+            // decrement stock
+            $estoque->quantidade = max(0, $estoque->quantidade - (int)$request->quantidade);
+            $estoque->save();
+        });
+
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Equipamento vinculado ao cliente!');
     }
 
@@ -79,29 +87,81 @@ class ClienteEquipamentoController extends Controller
             'morada' => 'required|string|max:255',
             'ponto_referencia' => 'required|string|max:255',
         ]);
-        // check estoque availability
-        $estoque = EstoqueEquipamento::find($request->estoque_equipamento_id);
-        if (!$estoque) {
-            return back()->withErrors(['estoque_equipamento_id' => 'Equipamento inválido.'])->withInput();
-        }
-        if ($request->quantidade > $estoque->quantidade) {
-            return back()->withErrors(['quantidade' => "Quantidade solicitada ({$request->quantidade}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
+        $vinculo = ClienteEquipamento::findOrFail($vinculoId);
+
+        // pre-validate availability to provide friendly errors
+        $oldQty = (int) ($vinculo->quantidade ?? 0);
+        $oldEstoqueId = $vinculo->estoque_equipamento_id;
+        $newEstoqueId = (int) $request->estoque_equipamento_id;
+        $newQty = (int) $request->quantidade;
+
+        if ($oldEstoqueId === $newEstoqueId) {
+            $estoque = EstoqueEquipamento::find($newEstoqueId);
+            $delta = $newQty - $oldQty;
+            if ($delta > 0 && $delta > ($estoque->quantidade ?? 0)) {
+                return back()->withErrors(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$estoque->quantidade})."])->withInput();
+            }
+        } else {
+            $newEst = EstoqueEquipamento::find($newEstoqueId);
+            if (!$newEst || $newQty > ($newEst->quantidade ?? 0)) {
+                return back()->withErrors(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$newEst->quantidade})."])->withInput();
+            }
         }
 
-        $vinculo = ClienteEquipamento::findOrFail($vinculoId);
-        $vinculo->update([
-            'estoque_equipamento_id' => $request->estoque_equipamento_id,
-            'quantidade' => $request->quantidade,
-            'morada' => $request->morada,
-            'ponto_referencia' => $request->ponto_referencia,
-        ]);
+        \DB::transaction(function() use ($request, $vinculo, $oldQty, $oldEstoqueId, $newEstoqueId, $newQty) {
+            $oldQty = (int) ($vinculo->quantidade ?? 0);
+            $oldEstoqueId = $vinculo->estoque_equipamento_id;
+            $newEstoqueId = (int) $request->estoque_equipamento_id;
+            $newQty = (int) $request->quantidade;
+
+            if ($oldEstoqueId === $newEstoqueId) {
+                // same estoque: check availability for the delta
+                $estoque = EstoqueEquipamento::findOrFail($newEstoqueId);
+                $delta = $newQty - $oldQty; // positive means we need more
+                if ($delta > 0 && $delta > $estoque->quantidade) {
+                    throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$estoque->quantidade})."], 422));
+                }
+                $estoque->quantidade = max(0, $estoque->quantidade - $delta);
+                $estoque->save();
+            } else {
+                // different estoque: restore old, deduct new
+                $oldEst = EstoqueEquipamento::findOrFail($oldEstoqueId);
+                $oldEst->quantidade = $oldEst->quantidade + $oldQty;
+                $oldEst->save();
+
+                $newEst = EstoqueEquipamento::findOrFail($newEstoqueId);
+                if ($newQty > $newEst->quantidade) {
+                    throw new \Illuminate\Validation\ValidationException(\Validator::make([], []), response()->json(['quantidade' => "Quantidade solicitada ({$newQty}) excede o estoque disponível ({$newEst->quantidade})."], 422));
+                }
+                $newEst->quantidade = max(0, $newEst->quantidade - $newQty);
+                $newEst->save();
+            }
+
+            $vinculo->update([
+                'estoque_equipamento_id' => $newEstoqueId,
+                'quantidade' => $newQty,
+                'morada' => $request->morada,
+                'ponto_referencia' => $request->ponto_referencia,
+            ]);
+        });
+
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Vínculo atualizado com sucesso!');
     }
 
     public function destroy($clienteId, $vinculoId)
     {
         $vinculo = ClienteEquipamento::findOrFail($vinculoId);
-        $vinculo->delete();
+
+        \DB::transaction(function() use ($vinculo) {
+            // restore stock
+            $estoque = EstoqueEquipamento::find($vinculo->estoque_equipamento_id);
+            if ($estoque) {
+                $estoque->quantidade = $estoque->quantidade + (int)($vinculo->quantidade ?? 0);
+                $estoque->save();
+            }
+            $vinculo->delete();
+        });
+
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Vínculo removido com sucesso!');
     }
 }

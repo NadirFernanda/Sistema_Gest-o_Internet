@@ -48,7 +48,10 @@
             <select class="form-control" id="estoque_equipamento_id" name="estoque_equipamento_id" style="width:100%">
                 <option value="">-- Escolha um equipamento --</option>
                 @foreach($equipamentos as $equipamento)
-                    <option value="{{ $equipamento->id }}" data-quantidade="{{ $equipamento->quantidade }}">{{ $equipamento->nome }} ({{ $equipamento->modelo }}) - em estoque: {{ $equipamento->quantidade }}</option>
+                    @php $qty = (int) $equipamento->quantidade; @endphp
+                    <option value="{{ $equipamento->id }}" data-quantidade="{{ $qty }}" @if($qty <= 0) disabled @endif>
+                        {{ $equipamento->nome }} ({{ $equipamento->modelo }}) - em estoque: {{ $qty }}@if($qty <= 0) - Indisponível @endif
+                    </option>
                 @endforeach
             </select>
             @if ($errors->has('estoque_equipamento_id'))
@@ -67,7 +70,8 @@
             <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1">
             <div id="quantidade-error" class="text-danger small" style="display:none; margin-top:6px;"></div>
             <div id="estoque-info" role="status" aria-live="polite" style="margin-top:10px;">
-                <div style="background:#fff8e1;border-left:4px solid #f7b500;padding:10px 12px;border-radius:8px;color:#374151;font-weight:600;">Quantidade disponível em estoque: <span id="estoque-quant">-</span></div>
+                <div id="estoque-quant-box" style="background:#fff8e1;border-left:4px solid #f7b500;padding:10px 12px;border-radius:8px;color:#374151;font-weight:600;">Quantidade disponível em estoque: <span id="estoque-quant">-</span></div>
+                <div id="estoque-indisponivel" style="display:none;margin-top:8px;color:#b91c1c;font-weight:700;">Esse equipamento já não está disponível em estoque.</div>
             </div>
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade', 'Informe uma quantidade válida.') }}</div>
@@ -173,6 +177,14 @@ jQuery(function($){
 
         $('#estoque-quant').text(avail);
         $('#quantidade').attr('max', avail);
+        if (avail <= 0) {
+            $('#estoque-indisponivel').show();
+            $('#quantidade').val(0);
+            $('#quantidade').attr('disabled', true);
+        } else {
+            $('#estoque-indisponivel').hide();
+            $('#quantidade').removeAttr('disabled');
+        }
 
         var cur = parseInt($('#quantidade').val(), 10) || 0;
         try { console.log('[updateEstoqueInfo] cur:', cur); } catch(e){}

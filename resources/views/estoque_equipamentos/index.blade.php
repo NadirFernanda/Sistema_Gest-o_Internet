@@ -114,7 +114,14 @@
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie }}</td>
-                        <td style="text-align:center;vertical-align:middle;">{{ $equipamento->quantidade }}</td>
+                        @php $qty = (int) $equipamento->quantidade; @endphp
+                        <td style="text-align:center;vertical-align:middle;">
+                            @if($qty <= 0)
+                                <span style="color:#b91c1c;font-weight:700;">Esse equipamento já não está disponível em estoque.</span>
+                            @else
+                                {{ $qty }}
+                            @endif
+                        </td>
                         <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
                                 @can('estoque_equipamentos.edit')
                                 <a href="{{ route('estoque_equipamentos.edit', $equipamento->id) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
