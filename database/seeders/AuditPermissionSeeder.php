@@ -13,13 +13,13 @@ class AuditPermissionSeeder extends Seeder
         // create permission if not exists
         Permission::firstOrCreate(['name' => 'audits.view']);
 
-        // assign to admin role if exists
-        $role = Role::where('name', 'admin')->first();
+        // try common admin role names (Portuguese and English)
+        $role = Role::whereIn('name', ['Administrador', 'administrator', 'admin', 'Admin'])->first();
         if ($role) {
             $role->givePermissionTo('audits.view');
-            $this->command->info("Permission 'audits.view' assigned to role 'admin'.");
+            $this->command->info("Permission 'audits.view' assigned to role '{$role->name}'.");
         } else {
-            $this->command->warn("Role 'admin' not found. Created permission only.");
+            $this->command->warn("No admin role found (checked 'Administrador', 'administrator', 'admin'). Created permission only.");
         }
     }
 }
