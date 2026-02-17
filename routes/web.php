@@ -120,6 +120,11 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('user')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.delete');
     
+    // Audit logs viewer (admin)
+    Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])
+        ->name('admin.audit_logs.index')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    
     // Plan templates (catalog of reusable plans)
     Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');
     Route::get('/plan-templates/create', [\App\Http\Controllers\PlanTemplateController::class, 'create'])->name('plan-templates.create');

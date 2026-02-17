@@ -26,6 +26,8 @@ class Kernel extends HttpKernel
     protected $middlewareGroups = [
         'web' => [
             // ...existing Laravel web middleware...
+            // Audit actor context (records authenticated user for observers/jobs)
+            \App\Http\Middleware\SetAuditActor::class,
         ],
 
         'api' => [

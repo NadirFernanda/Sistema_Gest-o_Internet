@@ -235,6 +235,7 @@ Observação: o botão "Exportar Excel" na interface faz uma exportação manual
 ## Passos rápidos de deploy (exemplo)
 
 ```bash
+cd /var/www/sgmrtexas
 git pull origin main
 npm ci
 npm run build

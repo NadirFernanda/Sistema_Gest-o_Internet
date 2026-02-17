@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\TestDomPdf::class,
         \App\Console\Commands\TestFicha::class,
         \App\Console\Commands\MigratePlansToTemplates::class,
+        \App\Console\Commands\ResetAdminPassword::class,
     ];
 
     protected function schedule(Schedule $schedule)
