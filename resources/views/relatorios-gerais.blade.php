@@ -3,16 +3,7 @@
 @section('content')
 @include('layouts.partials.clientes-hero', ['title' => 'Relatórios Gerais', 'subtitle' => 'Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.'])
 
-@push('styles')
-<style>
-/* Ensure this page uses the standard modern header but with black title per visual standard */
-.clientes-hero .hero-titles h1 { color: #222 !important; }
-.clientes-hero .hero-sub { color: #555 !important; }
-/* tighten spacing to match reference */
-.clientes-hero.modern-hero { padding: 28px 0; }
-.clientes-hero .logo { max-width: 110px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-</style>
-@endpush
+{{-- header styles moved to resources/css/app.css to standardize across pages --}}
 
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
     <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">

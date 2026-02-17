@@ -133,6 +133,13 @@
     background: transparent;
 }
 
+/* Header hero tweaks for relatorios-gerais (moved from view override) */
+.clientes-hero .hero-titles h1 { color: #222 !important; }
+.clientes-hero .hero-sub { color: #555 !important; }
+.clientes-hero.modern-hero { padding: 28px 0; }
+.clientes-hero .logo { max-width: 110px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+
     
 
 
