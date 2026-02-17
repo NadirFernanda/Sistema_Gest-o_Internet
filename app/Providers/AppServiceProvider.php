@@ -28,9 +28,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Garante que o CorsMiddleware seja aplicado ao grupo 'api'
         $this->app['router']->pushMiddlewareToGroup('api', \App\Http\Middleware\CorsMiddleware::class);
-        // Register AuditServiceProvider to attach audit observers for core models
-        if (class_exists(\App\Providers\AuditServiceProvider::class)) {
-            $this->app->register(\App\Providers\AuditServiceProvider::class);
-        }
+        // (AuditServiceProvider removed) — legacy audit observers unregistered
     }
 }
