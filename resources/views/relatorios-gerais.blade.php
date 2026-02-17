@@ -33,7 +33,7 @@
                     <td style="word-break:break-all;">{{ $item['name'] }}</td>
                     <td>{{ $item['date'] }}</td>
                     <td class="text-center">
-                        <a href="{{ $item['url'] }}" class="btn-icon" title="Baixar" aria-label="Baixar">
+                        <a href="{{ $item['url'] }}" class="btn btn-outline-light" style="border-radius:10px;padding:8px 10px;border:1px solid rgba(0,0,0,0.06);background:#fff;color:#333;box-shadow:0 4px 10px rgba(0,0,0,0.04);" title="Baixar" aria-label="Baixar">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
                         </a>
                     </td>
@@ -45,7 +45,10 @@
             @endforelse
         </tbody>
     </table>
-        {{ $paginacao ?? '' }}
+    <div class="d-flex justify-content-center">
+        {{-- mantemos o wrapper de paginação igual ao da listagem de equipamentos para paridade visual --}}
+        {!! $paginacao ?? '' !!}
+    </div>
     </div>
     </div>
                     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
