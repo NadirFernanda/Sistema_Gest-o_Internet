@@ -103,7 +103,7 @@
         </div>
         <div class="filtro-group">
             <label for="status">Status</label>
-            <select name="status" id="status" class="select">
+            <select name="status" id="status" class="select" data-placeholder="Filtrar por status...">
                 <option value="">Todos</option>
                 <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
                 <option value="pago" {{ request('status') == 'pago' ? 'selected' : '' }}>Pago</option>

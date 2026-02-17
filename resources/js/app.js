@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (!el.id) el.id = 'select-' + Math.random().toString(36).slice(2,9);
 				if (el && !el.classList.contains('choices-initialized')){
 					window._choicesMap = window._choicesMap || {};
+					// determine placeholder text (data-placeholder -> placeholder attr -> default)
+					let ph = el.getAttribute('data-placeholder') || el.getAttribute('placeholder') || 'Pesquisar...';
 					window._choicesMap[el.id] = new Choices(el, {
 						searchEnabled: true,
 						searchFloor: 1,
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						shouldSort: false,
 						allowHTML: false,
 						placeholder: true,
+						placeholderValue: ph,
 					});
 					el.classList.add('choices-initialized');
 				}

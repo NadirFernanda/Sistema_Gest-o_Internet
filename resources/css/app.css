@@ -113,6 +113,26 @@
         font-size:0.95rem;
     }
 
+/* Make placeholder text more perceptible across search fields and Choices.js */
+.search-input::placeholder,
+.input::placeholder {
+    color: #6b7280; /* slightly darker gray for readability */
+    opacity: 1;
+    font-style: italic;
+}
+
+/* Choices.js placeholder styling */
+.choices__inner .choices__placeholder {
+    color: #6b7280;
+    font-style: italic;
+    opacity: 0.95;
+}
+
+/* Optional subtle hint underline to emphasize search fields */
+.search-input {
+    background: transparent;
+}
+
     
 
 

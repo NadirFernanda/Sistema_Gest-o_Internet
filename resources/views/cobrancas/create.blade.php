@@ -86,7 +86,7 @@
         @endif
         <div class="form-group">
             <label for="cliente_id">Cliente <span class="text-danger">*</span></label>
-            <select name="cliente_id" id="cliente_id" class="select" required>
+            <select name="cliente_id" id="cliente_id" class="select" required data-placeholder="Pesquisar cliente...">
                 <option value="">Selecione o cliente</option>
                 @foreach($clientes as $cliente)
                     <option value="{{ $cliente->id }}" 
@@ -129,7 +129,7 @@
         </div>
         <div class="form-group">
             <label for="status">Status <span class="text-danger">*</span></label>
-            <select name="status" id="status" class="select" required>
+            <select name="status" id="status" class="select" required data-placeholder="Filtrar por status...">
                 <option value="pendente" {{ (old('status', $cobranca->status ?? '') == 'pendente') ? 'selected' : '' }}>Pendente</option>
                 <option value="pago" {{ (old('status', $cobranca->status ?? '') == 'pago') ? 'selected' : '' }}>Pago</option>
                 <option value="atrasado" {{ (old('status', $cobranca->status ?? '') == 'atrasado') ? 'selected' : '' }}>Atrasado</option>

@@ -41,7 +41,7 @@
 
             <div class="field">
                 <label for="bi_tipo">Tipo de documento *</label>
-                <select id="bi_tipo" name="bi_tipo" class="select">
+                <select id="bi_tipo" name="bi_tipo" class="select" data-placeholder="Tipo de documento (BI, NIF...)">
                     <option value="BI" @if(old('bi_tipo')=='BI') selected @endif>BI</option>
                     <option value="NIF" @if(old('bi_tipo')=='NIF') selected @endif>NIF</option>
                     <option value="Outro" @if(old('bi_tipo')=='Outro') selected @endif>Outro</option>

@@ -9,7 +9,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                 <input name="nome" value="{{ old('nome', $plano->nome) }}" required placeholder="Nome" />
                 <input name="preco" value="{{ old('preco', $plano->preco) }}" placeholder="Preço" />
-                <select name="cliente_id" class="select">
+                <select name="cliente_id" class="select" data-placeholder="Pesquisar cliente...">
                     @foreach($clientes as $c)
                         <option value="{{ $c->id }}" {{ $plano->cliente_id == $c->id ? 'selected' : '' }}>{{ $c->nome }}</option>
                     @endforeach

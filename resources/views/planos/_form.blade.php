@@ -34,7 +34,7 @@
     <div class="form-grid">
         <div class="form-row-full">
             <label class="field-label">Usar plano (opcional)</label>
-            <select id="templateSelector" class="select" name="template_id">
+            <select id="templateSelector" class="select" name="template_id" data-placeholder="Pesquisar modelos de plano...">
                 <option value="">-- Usar plano --</option>
             </select>
             <div id="templateNote" class="muted" style="margin-top:8px;display:none">Campos travados — valores do plano serão aplicados. Apenas Data de ativação e Estado podem ser editados.</div>
@@ -42,7 +42,7 @@
 
         <div>
             <label class="field-label">Cliente</label>
-            <select id="clientePlano" name="cliente_id" class="select" required>
+            <select id="clientePlano" name="cliente_id" class="select" required data-placeholder="Pesquisar cliente...">
                 <option value="">Selecione o cliente</option>
                 @if(isset($clientes) && count($clientes))
                     @foreach($clientes as $c)
@@ -80,7 +80,7 @@
 
         <div>
             <label class="field-label">Estado</label>
-            <select id="estadoPlano" name="estado" class="select" required>
+            <select id="estadoPlano" name="estado" class="select" required data-placeholder="Filtrar por estado...">
                 <option value="">Escolha o estado</option>
                 <option value="Ativo" {{ old('estado') == 'Ativo' ? 'selected' : '' }}>Ativo</option>
                 <option value="Em aviso" {{ old('estado') == 'Em aviso' ? 'selected' : '' }}>Em aviso</option>
