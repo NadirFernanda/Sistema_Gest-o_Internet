@@ -35,10 +35,15 @@ class AuditService
         $module = $params['module'];
         $time = $params['when'];
 
-        if ($action === 'update' && is_array($audit->before ?? null) && is_array($audit->after ?? null)) {
+        // Support different audit payload schemas: some entries use `before`/`after`,
+        // others use `payload_before`/`payload_after` (as stored by AuditLog).
+        $beforeArr = is_array($audit->before ?? null) ? $audit->before : ($audit->payload_before ?? null);
+        $afterArr = is_array($audit->after ?? null) ? $audit->after : ($audit->payload_after ?? null);
+
+        if ($action === 'update' && is_array($beforeArr) && is_array($afterArr)) {
             $changes = [];
-            foreach (($audit->after ?? []) as $k => $v) {
-                $before = $audit->before[$k] ?? null;
+            foreach ($afterArr as $k => $v) {
+                $before = $beforeArr[$k] ?? null;
                 if ($before !== $v) {
                     $beforeStr = is_scalar($before) ? (string)$before : json_encode($before, JSON_UNESCAPED_UNICODE);
                     $afterStr = is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE);
