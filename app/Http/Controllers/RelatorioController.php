@@ -65,19 +65,7 @@ class RelatorioController extends Controller
             if (!Storage::exists($path)) {
                 return back()->with('error', 'Arquivo de relatório não encontrado: ' . $basename);
             }
-            $full = Storage::disk('local')->path($path);
-            if (!file_exists($full)) {
-                return back()->with('error', 'Arquivo de relatório não encontrado: ' . basename($path));
-            }
-            $headers = [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => 'attachment; filename="' . basename($full) . '"',
-            ];
-            // clear any output buffers to avoid corrupting binary responses
-            while (ob_get_level()) { ob_end_clean(); }
-            return response()->streamDownload(function () use ($full) {
-                readfile($full);
-            }, basename($full), $headers);
+            return Storage::download($path);
         }
 
         // otherwise find the latest file matching the requested period
