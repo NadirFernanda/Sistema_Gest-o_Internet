@@ -87,10 +87,16 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h6>Antes</h6>
-          <pre id="auditOld" style="background:#f8f9fa;padding:12px;border-radius:4px;max-height:40vh;overflow:auto;"></pre>
-          <h6 class="mt-3">Depois</h6>
-          <pre id="auditNew" style="background:#f8f9fa;padding:12px;border-radius:4px;max-height:40vh;overflow:auto;"></pre>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Antes</h6>
+              <pre id="auditOld" class="audit-pre"></pre>
+            </div>
+            <div class="col-md-6">
+              <h6>Depois</h6>
+              <pre id="auditNew" class="audit-pre"></pre>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -118,6 +124,18 @@
     modal.show();
   }
   </script>
+  @endpush
+
+  @push('styles')
+  <style>
+    /* Audit UI small tweaks to match app theme */
+    .audit-pre{background:#f8f9fa;padding:12px;border-radius:6px;max-height:52vh;overflow:auto;font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.9rem}
+    .table thead th{vertical-align:middle}
+    .table td{vertical-align:middle}
+    .btn-warning{background:#f0b400;border-color:#f0b400;color:#111}
+    .form-label.small{font-size:.8rem;color:#666}
+    .small.text-muted{color:#6c757d}
+  </style>
   @endpush
 
 </div>
