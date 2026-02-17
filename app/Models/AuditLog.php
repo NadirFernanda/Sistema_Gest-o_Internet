@@ -10,7 +10,7 @@ class AuditLog extends Model
 
     protected $fillable = [
         'user_id', 'role', 'action', 'auditable_type', 'auditable_id',
-        'old_values', 'new_values', 'ip_address', 'user_agent', 'url'
+        'old_values', 'new_values', 'ip_address', 'user_agent', 'url', 'hmac'
     ];
 
     protected $casts = [

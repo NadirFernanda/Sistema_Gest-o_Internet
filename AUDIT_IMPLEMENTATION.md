@@ -68,6 +68,29 @@ O `AuditServiceProvider` já tenta registrar observers para `Cliente`, `Cobranca
 - Não registre valores sensíveis (passwords, tokens). O observer faz `REDACTED` para campos comuns.
 - Configure políticas de retenção/backup: exporte logs para S3/ELK se precisar de imutabilidade.
 
+HMAC + S3 (integridade e arquivamento)
+
+- Gere `AUDIT_HMAC_KEY` no `.env` (se não informado, usa `APP_KEY`):
+
+```env
+AUDIT_HMAC_KEY=base64:...your_secret...
+AUDIT_DISK=s3
+```
+
+- Configure `filesystems.php` com a disk `s3` e as credenciais AWS (ou use qualquer disk suportado pelo Laravel).
+- O observer calcula um HMAC SHA256 por linha e armazena no campo `hmac` da tabela `audit_logs`.
+- Cada log é replicado para o disk configurado (por padrão `s3`). Se o envio falhar, uma cópia local é gravada em `storage/app/audit_backups`.
+
+Notas operacionais:
+
+- Execute um worker de filas para garantir réplica assíncrona:
+
+```bash
+php artisan queue:work --queue=audit
+```
+
+Recomenda-se combinar HMAC + envio para S3 para maior prova forense (assinatura + cópia imutável).
+
 Exemplo de consulta rápida (auditoria por role):
 
 ```php

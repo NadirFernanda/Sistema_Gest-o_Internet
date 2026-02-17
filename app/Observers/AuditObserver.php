@@ -40,8 +40,9 @@ class AuditObserver
 
         $userId = $actor['id'] ?? (auth()->check() ? auth()->id() : null);
         $role = $actor['role'] ?? (auth()->check() ? (auth()->user()->role ?? null) : null);
+        $now = now();
 
-        AuditLog::create([
+        $payload = [
             'user_id' => $userId,
             'role' => $role,
             'action' => $action,
@@ -52,6 +53,22 @@ class AuditObserver
             'ip_address' => request()->ip() ?? null,
             'user_agent' => request()->userAgent() ?? null,
             'url' => request()->fullUrl() ?? null,
-        ]);
+            'created_at' => $now->toDateTimeString(),
+        ];
+
+        $hmacKey = env('AUDIT_HMAC_KEY', config('app.key'));
+        $hmacPayload = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $payload['hmac'] = hash_hmac('sha256', $hmacPayload, $hmacKey);
+
+        $audit = AuditLog::create($payload);
+
+        // Dispatch replication to S3 (if configured) for immutability/archival
+        if (class_exists('\App\Jobs\ReplicateAuditLog')) {
+            try {
+                \App\Jobs\ReplicateAuditLog::dispatch($audit);
+            } catch (\Throwable $e) {
+                // don't break main flow if job dispatch fails
+            }
+        }
     }
 }
