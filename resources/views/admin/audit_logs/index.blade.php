@@ -7,19 +7,40 @@
   <form class="mb-3" method="get" aria-label="Filtrar logs de auditoria">
     <div class="row g-2 align-items-end">
       <div class="col-md-3">
-        <label class="form-label small">Função</label>
-        <input name="role" class="form-control" placeholder="Ex: Administrador" value="{{ request('role') }}">
+        <label class="form-label small">Usuário (nome ou email)</label>
+        <input name="user" class="form-control" placeholder="Digite nome ou email" value="{{ request('user') }}">
       </div>
       <div class="col-md-3">
-        <label class="form-label small">Ação</label>
-        <input name="action" class="form-control" placeholder="Ex: updated, created, deleted" value="{{ request('action') }}">
+        <label class="form-label small">Função</label>
+        <select name="role" class="form-control">
+          <option value="">— Todas —</option>
+          @if(!empty($roles))
+            @foreach($roles as $r)
+              <option value="{{ $r }}" @selected(request('role') == $r)>{{ $r }}</option>
+            @endforeach
+          @endif
+        </select>
       </div>
-      <div class="col-md-4">
-        <label class="form-label small">Modelo (FQCN)</label>
-        <input name="model" class="form-control" placeholder="Ex: App\\Models\\Cliente" value="{{ request('model') }}">
+      <div class="col-md-2">
+        <label class="form-label small">Data (de)</label>
+        <input type="date" name="from" class="form-control" value="{{ request('from') }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Data (até)</label>
+        <input type="date" name="to" class="form-control" value="{{ request('to') }}">
       </div>
       <div class="col-md-2 text-end">
         <button class="btn btn-warning w-100">Filtrar</button>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-4">
+        <label class="form-label small">Ação</label>
+        <input name="action" class="form-control" placeholder="Ex: updated, created, deleted" value="{{ request('action') }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label small">Modelo (FQCN)</label>
+        <input name="model" class="form-control" placeholder="Ex: App\\Models\\Cliente" value="{{ request('model') }}">
       </div>
     </div>
   </form>
@@ -30,7 +51,7 @@
         <tr>
           <th>#</th>
           <th>Quando</th>
-          <th>Usuário</th>
+          <th>Nome</th>
           <th>Função</th>
           <th>Ação</th>
           <th>Alvo</th>
@@ -47,13 +68,34 @@
           <td>{{ $log->created_at }}</td>
           <td>
             @if(isset($users) && $users->has($log->user_id))
-              {{ $users->get($log->user_id)->name }}
-              <br><small>{{ $users->get($log->user_id)->email }}</small>
+              <div>{{ $users->get($log->user_id)->name }}</div>
+              <div class="small text-muted">{{ $users->get($log->user_id)->email }}</div>
             @else
-              {{ $log->user_id ?? '-' }}
+              <div>{{ $log->user_id ?? '-' }}</div>
             @endif
           </td>
-          <td>{{ $log->role }}</td>
+          <td>
+            @php
+              $rolesList = [];
+              if(isset($users) && $users->has($log->user_id)) {
+                $rolesList = $users->get($log->user_id)->roles->pluck('name')->toArray();
+              } elseif(!empty($log->role)) {
+                $rolesList = array_map('trim', explode(',', $log->role));
+              }
+              $roleColors = [
+                'Administrador' => 'bg-danger',
+                'Gerente' => 'bg-primary',
+                'Colaborador' => 'bg-secondary',
+              ];
+            @endphp
+            @if(count($rolesList))
+              @foreach($rolesList as $r)
+                <span class="badge {{ $roleColors[$r] ?? 'bg-light text-dark' }} me-1">{{ $r }}</span>
+              @endforeach
+            @else
+              -
+            @endif
+          </td>
           <td>{{ $log->action }}</td>
           <td>{{ optional($log->auditable_type) ? class_basename($log->auditable_type)." (#{$log->auditable_id})" : '-' }}</td>
           @php
@@ -69,6 +111,8 @@
           <td>{{ $log->ip_address }}</td>
           <td>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-json-old='@json($old)' data-json-new='@json($new)' onclick="showAuditModal(this)">Ver</button>
+            <a href="{{ route('admin.audit_logs.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-outline-success">Exportar CSV (filtros)</a>
+            <a href="{{ route('admin.audit_logs.export_xlsx') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-outline-primary ms-1">Exportar Excel (XLSX)</a>
           </td>
         </tr>
         @endforeach
