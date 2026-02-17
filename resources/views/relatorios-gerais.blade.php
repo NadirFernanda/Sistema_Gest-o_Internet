@@ -1,21 +1,5 @@
 @extends('layouts.app')
-
-@section('content')
-@include('layouts.partials.clientes-hero', ['title' => 'Relatórios Gerais', 'subtitle' => 'Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.'])
-
-{{-- header styles moved to resources/css/app.css to standardize across pages --}}
-
-<div class="d-flex justify-content-center" style="min-height: 100vh;">
-    <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
-    {{-- copied layout exactly from equipamentos/relatorio.blade.php and adapted headers --}}
-    <div class="planos-toolbar" style="max-width:1100px;margin:18px auto 32px auto;display:flex;gap:10px;align-items:center;">
-        <form class="search-form-inline" method="GET" action="{{ route('relatorios.gerais') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
-            <input type="search" name="q" id="buscaRelatorios" class="search-input" placeholder="Pesquise por nome do arquivo..." aria-label="Pesquisar relatórios" value="{{ request('q') }}" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
-            <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
-        </form>
-        <div style="display:flex;gap:8px;">
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
-        </div>
+    </div>
     </div>
     <div class="ficha-equip-table">
     <table class="table table-bordered table-striped mt-4 tabela-estoque-moderna" style="width:auto; min-width: 700px; font-size: 1.05rem; margin-bottom:0;">
