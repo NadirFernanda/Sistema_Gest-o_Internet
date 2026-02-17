@@ -36,11 +36,11 @@
     <div class="row mt-2">
       <div class="col-md-4">
         <label class="form-label small">Ação</label>
-        <input name="action" class="form-control" placeholder="Ex: updated, created, deleted" value="{{ request('action') }}">
+        <input name="action" class="form-control" value="{{ request('action') }}">
       </div>
       <div class="col-md-6">
         <label class="form-label small">Modelo (FQCN)</label>
-        <input name="model" class="form-control" placeholder="Ex: App\\Models\\Cliente" value="{{ request('model') }}">
+        <input name="model" class="form-control" value="{{ request('model') }}">
       </div>
     </div>
   </form>
