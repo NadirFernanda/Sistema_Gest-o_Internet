@@ -9,8 +9,8 @@
             <div class="col-sm-3"><input name="user" value="{{ request('user') }}" placeholder="Usuário" class="form-control"/></div>
             <div class="col-sm-2"><input name="module" value="{{ request('module') }}" placeholder="Módulo" class="form-control"/></div>
             <div class="col-sm-2"><input name="action" value="{{ request('action') }}" placeholder="Ação" class="form-control"/></div>
-            <div class="col-sm-2"><input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control"/></div>
-            <div class="col-sm-2"><input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control"/></div>
+            <div class="col-sm-2"><input type="date" name="from" value="{{ request('from') }}" class="form-control"/></div>
+            <div class="col-sm-2"><input type="date" name="to" value="{{ request('to') }}" class="form-control"/></div>
             <div class="col-sm-1"><button class="btn btn-primary">Filtrar</button></div>
         </div>
     </form>
@@ -35,7 +35,7 @@
                     <td>{{ $a->actor_name }} ({{ $a->actor_role }})</td>
                     <td>{{ $a->action }}</td>
                     <td>{{ $a->module }}</td>
-                    <td>{{ $a->resource_type }}#{{ $a->resource_id }}</td>
+                    <td>{{ class_basename($a->resource_type) }}#{{ $a->resource_id }}</td>
                     <td>{{ \App\Services\AuditService::formatHumanReadable($a) }}</td>
                 </tr>
             @endforeach

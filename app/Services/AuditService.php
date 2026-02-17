@@ -3,6 +3,36 @@
 namespace App\Services;
 
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Lang;
+
+class AuditService
+{
+    public static function formatHumanReadable(AuditLog $a, ?string $locale = null): string
+    {
+        $locale = $locale ?? app()->getLocale();
+        $tplKey = 'audit.' . ($a->action ?? 'generic');
+
+        $params = [
+            'actor' => $a->actor_name ?? 'Sistema',
+            'role' => $a->actor_role ?? '',
+            'module' => $a->module ?? '',
+            'resource' => class_basename($a->resource_type ?? ''),
+            'resource_id' => $a->resource_id ?? '',
+            'when' => $a->created_at?->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
+        ];
+
+        if (Lang::has($tplKey, $locale)) {
+            return trans($tplKey, $params, $locale);
+        }
+
+        return sprintf('%s %s %s #%s at %s', $params['actor'], $a->action, $params['resource'], $params['resource_id'], $params['when']);
+    }
+}
+<?php
+
+namespace App\Services;
+
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Config;
 
 class AuditService

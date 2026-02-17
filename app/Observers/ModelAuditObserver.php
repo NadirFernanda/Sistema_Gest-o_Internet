@@ -28,8 +28,8 @@ class ModelAuditObserver
             'resource_type' => get_class($model),
             'resource_id' => $model->getKey(),
             'action' => $action,
-            'before' => $before ?: null,
-            'after' => $after ?: null,
+            'payload_before' => $before ?: null,
+            'payload_after' => $after ?: null,
             'request_id' => request()->header('X-Request-Id') ?? (Str::uuid()->toString()),
             'channel' => $channel,
         ];
@@ -37,16 +37,16 @@ class ModelAuditObserver
 
     public function created($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'create'));
+        WriteAuditLogJob::dispatch($this->buildPayload($model, 'created'));
     }
 
     public function updated($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'update'));
+        WriteAuditLogJob::dispatch($this->buildPayload($model, 'updated'));
     }
 
     public function deleted($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'delete'));
+        WriteAuditLogJob::dispatch($this->buildPayload($model, 'deleted'));
     }
 }
