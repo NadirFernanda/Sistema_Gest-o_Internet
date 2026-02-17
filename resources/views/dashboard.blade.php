@@ -34,7 +34,11 @@
                 <div id="relatoriosMenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #ccc;z-index:10;min-width:180px;box-shadow:0 2px 8px rgba(0,0,0,0.08);width:100%;">
                     <a href="{{ route('cobrancas.index') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Cobrança</a>
                     <a href="{{ route('relatorios.gerais') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Geral</a>
-                    <!-- Auditoria link removed (legacy) -->
+                    @if (app()->router->has('admin.audit.index'))
+                        <a href="{{ route('admin.audit.index') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Auditoria</a>
+                    @else
+                        <a href="{{ url('/admin/audit-logs') }}" class="btn" style="display:block;text-align:left;border-radius:0;padding:8px 12px;">Auditoria</a>
+                    @endif
                 </div>
             </div>
 

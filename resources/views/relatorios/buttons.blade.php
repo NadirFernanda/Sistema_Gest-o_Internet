@@ -2,6 +2,11 @@
     <a href="{{ route('relatorios.gerais.download', 'diario') }}" class="btn btn-sm btn-primary">Relatório Diário</a>
     <a href="{{ route('relatorios.gerais.download', 'semanal') }}" class="btn btn-sm btn-secondary">Relatório Semanal</a>
     <a href="{{ route('relatorios.gerais.download', 'mensal') }}" class="btn btn-sm btn-success">Relatório Mensal</a>
+    @if (app()->router->has('admin.audit.index'))
+        <a href="{{ route('admin.audit.index') }}" class="btn btn-sm btn-warning">Auditoria</a>
+    @else
+        <a href="{{ url('/admin/audit-logs') }}" class="btn btn-sm btn-warning">Auditoria</a>
+    @endif
 </div>
 
 @push('scripts')
