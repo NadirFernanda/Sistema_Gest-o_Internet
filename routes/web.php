@@ -121,6 +121,10 @@ Route::middleware('auth')->group(function () {
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.delete');
     
     // Audit logs removed (legacy) — routes cleaned
+    // New audit UI (minimal) - access controlled by permission 'audits.view' if present
+    Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditController::class, 'index'])
+        ->name('admin.audit.index')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
     
     // Plan templates (catalog of reusable plans)
     Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateController::class, 'index'])->name('plan-templates.index');
