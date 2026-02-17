@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
-    <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 24px; width: 100%; max-width: 1200px; margin: 40px auto; padding: 36px 32px; overflow-x: auto;">
-        <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:24px;">Relatórios Gerais</h1>
-        <p class="mb-3">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
+    <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
+        <h1 style="color:#f7b500;font-weight:700;font-size:2.1rem;margin-bottom:32px;text-align:center;">Relatórios Gerais</h1>
+        <p class="mb-3" style="text-align:center;max-width:1100px;margin:0 auto 18px;">Baixe os relatórios automáticos multi-aba (Clientes, Planos, Cobranças, Equipamentos, Alertas) gerados diariamente, semanalmente e mensalmente.</p>
 
-        <div class="planos-toolbar mb-4" style="display:flex;gap:10px;align-items:center;justify-content:flex-start;flex-wrap:wrap;">
+        <div class="planos-toolbar" style="max-width:1100px;margin:18px auto 32px auto;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
             <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="btn btn-primary">Baixar Diário</a>
             <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="btn btn-secondary">Baixar Semanal</a>
@@ -18,7 +18,7 @@
 
         <h5 class="mb-2" style="color:#f7b500;font-weight:700;">Histórico de Relatórios Disponíveis</h5>
 
-        <div class="estoque-tabela-moderna">
+        <div class="estoque-tabela-moderna" style="margin-top:22px;">
             <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
                 <thead>
                     <tr>
