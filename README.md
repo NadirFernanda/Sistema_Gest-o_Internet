@@ -18,120 +18,7 @@ Principais tecnologias
 - Nginx (exemplo)
 - Comandos úteis
 
----
-
-## Deploy e Atualização em Produção (Passo a Passo)
-
-SGA-MR.TEXAS pode ser atualizado manualmente via SSH. Abaixo segue um passo a passo recomendado.
-
-1. Acesse o servidor e entre na pasta do sistema
-
-```bash
-ssh usuario@SEU_SERVIDOR
-cd /var/www/sgmrtexas
-```
-
-Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela users.
-Senha para todos: password
-
-2. Atualize o código e gere os assets (opção A: gerar no servidor; opção B: build local e subir `public/build`)
-
-```bash
-git pull origin main
-# Se preferir build no servidor
-npm ci
-npm run build
-
-# Ou: gerar localmente e subir apenas public/build
-```
-
-3. Atualize dependências PHP e execute migrações (quando necessário)
-
-```bash
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-```
-
-4. Limpe e regenere caches
-
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan permission:cache-reset
-php artisan cache:clear
-```
-
-5. Reinicie serviços se necessário
-
-```bash
-sudo systemctl restart php8.4-fpm
-sudo systemctl reload nginx
-```
-
-Nota: ajuste os comandos conforme a versão do PHP e o usuário do sistema web no seu servidor.
-
----
-
-## Instalação e execução local
-
-1. Clone e entre no projeto:
-
-```bash
-git clone <URL-DO-REPOSITORIO>
-cd PROJECTO
-```
-
-2. Copie o `.env` e gere a chave da aplicação:
-
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-3. Instale dependências PHP e front-end:
-
-```bash
-composer install
-npm install
-npm run dev
-```
-
-4. Execute migrações e inicie o servidor de desenvolvimento:
-
-```bash
-php artisan migrate
-php artisan serve
-```
-
-Acesse http://localhost:8000
-
-> Dica: o projeto possui um script de conveniência no `composer.json` chamado `setup`, que automatiza parte desses passos. Use com cuidado em ambiente local:
->
-> ```bash
-> composer run setup
-> ```
-
----
-
-## Nota importante — Perfis e permissões
-
-- **Planos (criar/editar/remover):** restritos exclusivamente a usuários com perfil **Administrador**.
-- Perfis como **Gerente** e **Colaborador** possuem acesso a clientes e cobranças, mas não podem gerir planos via interface administrativa.
-- O link "Usuários" no painel é controlado por permissões (`users.view`). Se um Administrador não visualizar o botão, verifique permissões e caches do pacote `spatie/laravel-permission` (ex.: `php artisan permission:cache-reset`, `php artisan view:clear`).
-
-Para testes rápidos em ambiente local, existem usuários já criados na base (exemplo):
-
-```
-admin@angolawifi.ao
-colaborador@angolawifi.ao
-gerente@angolawifi.ao
-Senha para todos: password
-```
-
----
-
-## SGA-MR.TEXAS — Sistema de Gestão
+## SGA-MR.TEXAS — Sistema de Gestão (README)
 
 SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
 
@@ -174,7 +61,7 @@ gerente@angolawifi.ao
 
 Senha para todos: password
 
-> Observação de permissão: apenas usuários com perfil **Administrador** podem criar/editar/remover **Planos**. Perfis **Gerente** e **Colaborador** têm acesso às áreas de clientes e cobranças, mas não podem gerir Planos.
+Obs.: abaixo há um exemplo sucinto de fluxo de atualização — adapte conforme necessidade.
 
 ### 2. Atualize o código e gere os assets (opção A: gerar no servidor; opção B: gerar local e subir `public/build`)
 
@@ -257,7 +144,7 @@ composer run setup
 ## Nota importante — Perfis e permissões
 
 - **Planos (criar/editar/remover):** restritos exclusivamente a usuários com perfil **Administrador**.
-- Perfis como **Gerente** e **Colaborador** possuem acesso às funcionalidades de **Clientes** e **Cobranças**, mas não podem gerir Planos via interface administrativa.
+- **Gerente** e **Colaborador:** têm acesso às áreas de **Clientes** e **Cobranças**, porém NÃO podem criar/editar/remover **Planos** pela interface.
 - O menu/links para páginas sensíveis (ex.: `Usuários`) são controlados por permissões (`users.view`). Se um Administrador não visualizar um recurso, verifique os caches do `spatie/laravel-permission`:
 
 ```bash
@@ -265,7 +152,76 @@ php artisan permission:cache-reset
 php artisan view:clear
 ```
 
-Para testes rápidos em ambiente local, utilize os usuários de exemplo mencionados na secção de Deploy.
+Para testes rápidos em ambiente local, existem usuários já criados na base (exemplo):
+
+```
+admin@angolawifi.ao
+colaborador@angolawifi.ao
+gerente@angolawifi.ao
+```
+
+Senha para todos: password
+
+---
+
+## Notas rápidas de deploy com SSH (recomendado)
+
+1. Gere uma chave SSH no servidor (como usuário de deploy):
+
+```bash
+ssh-keygen -t ed25519 -C "deploy-sgmrtexas"
+```
+
+2. Copie a chave pública:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+3. Adicione essa chave em **Settings → SSH and GPG keys** na conta GitHub que tem acesso ao repositório. Se o repositório pertence a uma organização, autorize a chave via SSO quando necessário.
+
+4. Teste a conexão:
+
+```bash
+ssh -T git@github.com
+```
+
+Com a chave autorizada, `git pull` e `git clone` via `git@github.com:...` funcionarão sem senha.
+
+---
+
+## Funcionalidades Principais
+
+- Autenticação e autorização (perfis: admin, gerente, colaborador)
+- Gestão de clientes
+- Gestão de planos (restrito a administradores)
+- Cobranças e relatórios (exportável)
+- Estoque de equipamentos
+- Alertas e agendamento (Laravel Scheduler)
+
+---
+
+## Relatórios automáticos
+
+O sistema gera relatórios automáticos gerais do sistema (multi-aba) e os salva em `storage/app/relatorios`, além de enviá‑los por e‑mail conforme configuração no `.env`.
+
+Comandos manuais para gerar relatórios:
+
+```bash
+php artisan relatorio:geral-diario
+php artisan relatorio:geral-semanal
+php artisan relatorio:geral-mensal
+```
+
+Observação: o botão "Exportar Excel" na interface faz uma exportação manual do filtro atual; os relatórios automáticos são gerados pelo Scheduler e não aparecem como botões por padrão. Se desejar, posso adicionar botões de download na interface para os relatórios salvos em `storage/app/relatorios`.
+
+---
+
+## Comandos úteis
+
+- Rodar testes: `composer test`
+- Ambiente dev completo: `composer dev`
+- Setup rápido (script do `composer.json`): `composer run setup`
 
 ---
 
@@ -320,11 +276,25 @@ server {
 
 ---
 
-## Acesso ao GitHub via SSH (deploy sem senha)
+## Cron e filas (opcional)
+
+Agende o Scheduler:
+
+```bash
+crontab -e
+# Adicione (ou confirme):
+* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
+```
+
+Para filas com Supervisor, crie `/etc/supervisor/conf.d/sgmrtexas-queue.conf` e gerencie com `supervisorctl`.
+
+---
+
+## Acesso ao GitHub via SSH no servidor (fluxo resumido)
 
 1. Gere uma chave SSH no servidor: `ssh-keygen -t ed25519 -C "deploy-sgmrtexas"`
-2. Cole a chave pública nas **SSH and GPG keys** do GitHub.
-3. Teste com: `ssh -T git@github.com`
+2. Cole a chave pública em **Settings → SSH and GPG keys** no GitHub.
+3. Teste: `ssh -T git@github.com`
 4. Clone via SSH:
 
 ```bash
@@ -333,63 +303,7 @@ git clone git@github.com:SISTEMA_OU_USUARIO/SGA-MR-TEXAS.git sgmrtexas
 cd sgmrtexas
 ```
 
----
-
-## Funcionalidades Principais
-
-- Autenticação e autorização (perfis: admin, gerente, colaborador)
-- Gestão de clientes
-- Gestão de planos (restrito a administradores)
-- Cobranças e relatórios (exportável)
-- Estoque de equipamentos
-- Alertas e agendamento (Laravel Scheduler)
-
----
-
-## Relatórios automáticos
-
-O sistema gera relatórios automáticos gerais do sistema (multi-aba) e os salva em `storage/app/relatorios`, além de enviá‑los por e‑mail conforme configuração no `.env`.
-
-Comandos manuais para gerar relatórios:
-
-```bash
-php artisan relatorio:geral-diario
-php artisan relatorio:geral-semanal
-php artisan relatorio:geral-mensal
-```
-
-Observação: o botão "Exportar Excel" na interface faz uma exportação manual do filtro atual; os relatórios automáticos são gerados pelo Scheduler e não aparecem como botões por padrão.
-
----
-
-## Comandos úteis
-
-- Rodar testes: `composer test`
-- Ambiente dev completo: `composer dev`
-- Setup rápido (script do `composer.json`): `composer run setup`
-
----
-
-## Cron e filas (opcional)
-
-Agende o Scheduler:
-
-```bash
-crontab -e
-# Adicione:
-* * * * * php /var/www/sgmrtexas/artisan schedule:run >> /dev/null 2>&1
-```
-
-Para filas com Supervisor, crie `/etc/supervisor/conf.d/sgmrtexas-queue.conf` e gerencie com `supervisorctl`.
-
----
-
-## Autenticação
-
-- Acesse `/login` para entrar no sistema.
-- Após login, o utilizador é redirecionado para `/dashboard`.
-- Todas as páginas administrativas exigem autenticação.
-- Para sair, use o botão de logout (requisição POST para `/logout`).
+Se o repositório pertencer a uma organização, autorize a chave via SSO quando solicitado.
 
 ---
 
@@ -401,73 +315,20 @@ Para filas com Supervisor, crie `/etc/supervisor/conf.d/sgmrtexas-queue.conf` e 
 
 ---
 
-## Boas Práticas adotadas no Repositório
+## Boas práticas adotadas no Repositório
 
 - Arquivo `.env` e variações **não são versionados** (`.gitignore` configurado).
 - Pastas `vendor/` e `node_modules/` fora do versionamento Git.
 - Arquivos de cache, logs e builds (`public/build`, `storage/*.key`, etc.) ignorados.
 - `.gitattributes` configurado para normalizar final de linha (EOL) e facilitar diffs de PHP, Blade, CSS, HTML e Markdown.
 
-Para colaboração, recomenda‑se ainda no GitHub:
+Para colaboração, recomenda‑se:
 - Proteger a branch principal (`main`/`master`) exigindo pull requests.
 - Ativar verificação em 2 fatores (2FA) na conta.
-- Manter ao menos um e‑mail secundário verificado, para recuperação de acesso.
 
 ---
 
 Para dúvidas técnicas do framework, consulte também a [documentação oficial do Laravel](https://laravel.com/docs/).
-npm run build
-```
-
-3. Atualize dependências PHP e execute migrações (quando necessário)
-
-```bash
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-```
-
-4. Limpe e regenere caches
-
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
-5. Reinicie serviços se necessário
-
-```bash
-sudo systemctl restart php8.4-fpm
-sudo systemctl reload nginx
-```
-
-Nota: ajuste os comandos conforme a versão do PHP e o usuário do sistema web no seu servidor.
-
----
-
-## Instalação e execução local
-
-1. Clone e entre no projeto:
-
-```bash
-git clone <URL-DO-REPOSITORIO>
-cd PROJECTO
-```
-
-2. Copie o `.env` e gere a chave da aplicação:
-
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-3. Instale dependências PHP e front-end:
-
-```bash
-composer install
-npm install
-npm run dev
-```
 
 4. Execute migrações e inicie o servidor de desenvolvimento:
 
