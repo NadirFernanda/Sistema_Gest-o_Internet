@@ -1,16 +1,3 @@
-<div class="btn-group" role="group" aria-label="Relatórios automáticos">
-    <a href="{{ route('relatorios.gerais.download', 'diario') }}" class="btn btn-sm btn-primary">Relatório Diário</a>
-    <a href="{{ route('relatorios.gerais.download', 'semanal') }}" class="btn btn-sm btn-secondary">Relatório Semanal</a>
-    <a href="{{ route('relatorios.gerais.download', 'mensal') }}" class="btn btn-sm btn-success">Relatório Mensal</a>
-    @if (app()->router->has('admin.audit.index'))
-        <a href="{{ route('admin.audit.index') }}" class="btn btn-sm btn-warning">Auditoria</a>
-    @else
-        <a href="{{ url('/admin/audit-logs') }}" class="btn btn-sm btn-warning">Auditoria</a>
-    @endif
-</div>
+{{-- Relatórios automáticos: botões removidos por solicitação --}}
 
-@push('scripts')
-<script>
-// Optional: could add JS handling for login-redirect detection, but links use same-origin auth cookies.
-</script>
-@endpush
+{{-- Se precisar restaurar os botões, reveja resources/views/relatorios/buttons.blade.php histórico no Git. --}}
