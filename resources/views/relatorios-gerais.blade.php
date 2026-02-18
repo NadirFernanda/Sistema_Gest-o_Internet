@@ -63,12 +63,12 @@
     <div class="estoque-tabela-moderna" style="margin-top:18px;">
         <table class="tabela-estoque-moderna">
             <thead>
-                <tr>
-                    <th style="text-align:center;vertical-align:middle;">Período</th>
-                    <th style="text-align:center;vertical-align:middle;">Arquivo</th>
-                    <th style="text-align:center;vertical-align:middle;">Data</th>
-                    <th style="text-align:center;vertical-align:middle;width:120px;">Download</th>
-                </tr>
+                    <tr>
+                        <th style="text-align:center;vertical-align:middle;">Período</th>
+                        <th style="text-align:center;vertical-align:middle;">Arquivo</th>
+                        <th style="text-align:center;vertical-align:middle;">Data</th>
+                        <th style="text-align:center;vertical-align:middle;width:120px;">Download</th>
+                    </tr>
             </thead>
             <tbody>
                 @forelse($historico ?? [] as $item)
