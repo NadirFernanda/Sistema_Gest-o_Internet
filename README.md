@@ -1,24 +1,4 @@
-﻿## SGA-MR.TEXAS — Sistema de Gestão (README)
-
-SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
-
-Principais tecnologias
-- PHP ^8.2
-- Laravel ^12
-- Blade (views)
-- Composer
-- Node.js / npm (Vite)
-- Banco relacional (MySQL/Postgres/SQLite)
-
-Índice
-- Deploy e atualização em produção
-- Instalação e execução local
-- Perfis e permissões
-- Configuração de produção
-- Nginx (exemplo)
-- Comandos úteis
-
-## SGA-MR.TEXAS — Sistema de Gestão (README)
+﻿SGA-MR.TEXAS — Sistema de Gestão
 
 SGA-MR.TEXAS é um sistema de gestão de clientes, planos, cobranças, estoque de equipamentos e alertas, desenvolvido em Laravel 12 com Blade.
 
@@ -66,7 +46,10 @@ Obs.: abaixo há um exemplo sucinto de fluxo de atualização — adapte conform
 ### 2. Atualize o código e gere os assets (opção A: gerar no servidor; opção B: gerar local e subir `public/build`)
 
 ```bash
-git pull origin main
+git fetch --prune origin
+git checkout main
+git reset --hard origin/main
+
 # Se preferir gerar no servidor
 npm ci
 npm run build
@@ -77,23 +60,32 @@ npm run build
 ### 3. Atualize dependências PHP e execute migrações (quando necessário)
 
 ```bash
-composer install --no-dev --optimize-autoloader
+composer install --no-dev --no-interaction --optimize-autoloader
+# Execute migrações SOMENTE se necessário e com backup
 php artisan migrate --force
 ```
 
 ### 4. Limpe e regenere caches
 
 ```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 php artisan permission:cache-reset
 php artisan cache:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:clear
+php artisan view:cache
 ```
 
-### 5. Reinicie serviços se necessário
+### 5. Ajuste permissões e reinicie serviços
 
 ```bash
+# Ajuste dono/perm conforme o user do webserver (ex.: www-data)
+sudo chown -R www-data:www-data storage bootstrap/cache public/build
+sudo find storage -type d -exec chmod 775 {} \;
+sudo find bootstrap/cache -type d -exec chmod 775 {} \;
+sudo find public/build -type d -exec chmod 755 {} \;
+sudo find public/build -type f -exec chmod 644 {} \;
+
 sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx
 ```
@@ -141,7 +133,7 @@ composer run setup
 
 ---
 
-## Nota importante — Perfis e permissões
+- ## Nota importante — Perfis e permissões
 
 - **Planos (criar/editar/remover):** restritos exclusivamente a usuários com perfil **Administrador**.
 - **Gerente** e **Colaborador:** têm acesso às áreas de **Clientes** e **Cobranças**, porém NÃO podem criar/editar/remover **Planos** pela interface.
@@ -480,6 +472,7 @@ sudo systemctl reload nginx
 ```
 
 Pronto! O sistema estará atualizado e rodando em produção.
+
 ### 11. Reinicie serviços PHP-FPM e Nginx (se necessário)
 
 ```bash
