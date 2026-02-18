@@ -143,7 +143,7 @@
 /* Centraliza a tabela dentro do wrapper e força cabeçalhos com texto branco */
 .ficha-equip-table { display:flex; justify-content:center; }
 .ficha-equip-table table { margin: 0 auto; }
-.tabela-estoque-moderna thead th { background: #f7b500 !important; color: #000 !important; }
+.tabela-estoque-moderna thead th { background: #fffbe7 !important; color: #f7b500 !important; }
 /* Forçar título hero branco para paridade quando necessário */
 .clientes-hero .hero-titles h1 { color: #fff !important; }
 
