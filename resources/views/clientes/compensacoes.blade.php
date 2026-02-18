@@ -268,9 +268,9 @@
     padding: 6px 8px;
     font-size: 0.95em;
 }
-.tabela-estoque-moderna th,
-.tabela-estoque-moderna td {
-    padding: 8px 6px;
+    .tabela-estoque-moderna th {
+        background: #fffbe7;
+        color: #e0a800;
 }
 
 /* Responsive: hide Nº Série (4th column) on narrower viewports and tighten table */
@@ -295,7 +295,7 @@
 }
 .tabela-estoque-moderna th {
     background: #fffbe7;
-    color: #f7b500;
+    color: #e0a800;
     font-weight: bold;
     font-size: 1.09em;
     border-bottom: 2px solid #ffe6a0;

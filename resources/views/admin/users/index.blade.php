@@ -85,7 +85,7 @@
     /* Copied from estoque_equipamentos index to ensure identical table appearance */
     .tabela-estoque-moderna th {
         background: #fffbe7;
-        color: #f7b500;
+        color: #e0a800;
         font-weight: bold;
         font-size: 1.09em;
         border-bottom: 2px solid #ffe6a0;

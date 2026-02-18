@@ -38,7 +38,7 @@
     .clientes-toolbar .btn-search,
     .clientes-toolbar .btn-cta,
     .clientes-toolbar .btn-ghost { height:40px !important; min-width:140px !important; max-width:140px !important; width:140px !important; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
-    .tabela-estoque-moderna th { background: #fffbe7; color: #f7b500; font-weight: bold; font-size: 1.09em; border-bottom: 2px solid #ffe6a0; padding: 14px 12px; }
+    .tabela-estoque-moderna th { background: #fffbe7; color: #e0a800; font-weight: bold; font-size: 1.09em; border-bottom: 2px solid #ffe6a0; padding: 14px 12px; }
     .tabela-estoque-moderna td { background: #fff; color: #222; font-size: 1em; padding: 13px 12px; }
     .tabela-estoque-moderna { width:100%; min-width:640px; font-size:1.07em; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; }
     .btn-icon { padding:6px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; border:1px solid #e6e6e6; background:#fff; color:#222; cursor:pointer; transition:background 0.12s ease, color 0.12s ease, border-color 0.12s ease; }
