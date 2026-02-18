@@ -20,7 +20,7 @@
                 <a href="{{ route('admin.users.index') }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
             @endif
         </form>
-        <div style="display:flex;gap:8px;">
+        <div class="clientes-toolbar-actions">
             @can('users.create')
             <a href="{{ route('admin.users.create') }}" class="btn btn-cta">Criar usuário</a>
             @endcan
