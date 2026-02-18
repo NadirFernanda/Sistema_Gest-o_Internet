@@ -144,8 +144,8 @@
 .ficha-equip-table { display:flex; justify-content:center; }
 .ficha-equip-table table { margin: 0 auto; }
 .tabela-estoque-moderna thead th { background: #fffbe7 !important; color: #f7b500 !important; }
-/* Forçar título hero branco para paridade quando necessário */
-.clientes-hero .hero-titles h1 { color: #fff !important; }
+/* Forçar título hero preto para paridade quando necessário */
+.clientes-hero .hero-titles h1 { color: #000 !important; }
 
 
     
