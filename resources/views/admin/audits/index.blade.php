@@ -35,12 +35,12 @@
             min-width:0; /* allow form to shrink inside flex container */
         }
         /* primary search expands, others have proportional fixed sizes */
-        .clientes-toolbar .search-input { height:42px !important; padding:0 12px !important; border-radius:8px !important; border:2px solid #e6a248 !important; box-sizing:border-box; font-size:1rem; display:inline-flex; align-items:center; min-width:0; }
-        /* main free-text search should expand */
-        .clientes-toolbar input[name="busca"].search-input { flex:1 1 420px; min-width:240px; }
-        /* module and action controls keep fixed but proportional widths */
-        .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 220px; min-width:120px; max-width:260px; }
-        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 220px; min-width:120px; max-width:280px; }
+        .clientes-toolbar .search-input { height:38px !important; padding:6px 10px !important; border-radius:8px !important; border:2px solid #e6a248 !important; box-sizing:border-box; font-size:0.95rem; display:inline-flex; align-items:center; min-width:0; }
+        /* main free-text search should expand but stay compact to keep toolbar one-line */
+        .clientes-toolbar input[name="busca"].search-input { flex:1 1 260px; min-width:140px; }
+        /* module and action controls: smaller bases to avoid pushing the right-actions button */
+        .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 160px; min-width:90px; max-width:200px; }
+        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 160px; min-width:90px; max-width:200px; }
 
         /* Ensure wrapper divs and inputs can shrink to avoid wrapping to next line */
         .clientes-toolbar .search-form-inline > div { min-width:0; display:flex; align-items:center; }
