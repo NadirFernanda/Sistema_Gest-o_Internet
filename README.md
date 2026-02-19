@@ -192,7 +192,19 @@ php artisan relatorio:geral-semanal
 php artisan relatorio:geral-mensal
 ```
 
-Observação: o botão "Exportar Excel" na interface faz uma exportação manual do filtro atual; os relatórios automáticos são gerados pelo Scheduler e não aparecem como botões por padrão. Se desejar, posso adicionar botões de download na interface para os relatórios salvos em `storage/app/relatorios`.
+Observação: o botão "Exportar Excel" na interface faz uma exportação manual do filtro atual; os relatórios automáticos são gerados pelo Scheduler.
+
+Agora a interface também pode expor botões de download para os relatórios automáticos em **Relatórios Gerais** (`/relatorios-gerais`). A funcionalidade adicionada permite:
+
+- Baixar o arquivo mais recente gerado para cada período com um único clique (botões "Diário", "Semanal", "Mensal").
+- Navegar pelo histórico de arquivos gerados e baixar versões antigas diretamente da lista.
+
+Notas de segurança e acesso:
+
+- Os downloads exigem sessão autenticada. Se desejar restringir o acesso apenas a administradores, adicione a middleware de role/permission nas rotas `relatorios.gerais` e `relatorios.gerais.download`.
+- Os arquivos estão armazenados em `storage/app/relatorios` — em produção garanta que apenas usuários autorizados tenham acesso a essas rotas.
+
+Se quiser, posso centralizar os estilos dos botões em `resources/css/clientes.css` para manter consistência visual.
 
 ---
 
