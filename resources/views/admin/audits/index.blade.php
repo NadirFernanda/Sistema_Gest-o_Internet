@@ -14,23 +14,28 @@
 
         {{-- Toolbar padrão (pesquisar à esquerda, CTAs à direita) --}}
         <style>
-        .clientes-toolbar, .clientes-toolbar form.search-form-inline {
+        /* Toolbar layout: allow wrapping and smaller inputs to avoid horizontal scroll */
+        .clientes-toolbar {
             max-width:1100px;
             margin:18px auto;
             display:flex;
             gap:10px;
             align-items:center;
+            justify-content:space-between;
+            box-sizing:border-box;
+            padding:0 8px;
         }
         .clientes-toolbar form.search-form-inline {
-            flex:1;
+            flex:1 1 auto;
             display:flex;
             gap:8px;
             align-items:center;
+            flex-wrap:wrap; /* allow inputs to wrap to next line */
         }
         .clientes-toolbar .search-input {
             height:40px !important;
-            flex:1 !important;
-            min-width:320px !important;
+            flex:0 1 auto; /* don't force expansive min-width */
+            min-width:120px !important; /* much smaller min width */
             max-width:100%;
             padding:0 12px !important;
             border-radius:8px !important;
@@ -45,9 +50,9 @@
         .clientes-toolbar .btn-cta,
         .clientes-toolbar .btn-ghost {
             height:40px !important;
-            min-width:140px !important;
-            max-width:140px !important;
-            width:140px !important;
+            min-width:110px !important;
+            max-width:120px !important;
+            width:auto !important;
             display:inline-flex;
             align-items:center;
             justify-content:center;
@@ -56,6 +61,13 @@
             text-align:center;
             white-space:nowrap;
             box-sizing:border-box;
+        }
+
+        /* Make toolbar inputs stack nicely on narrow screens */
+        @media (max-width: 840px) {
+            .clientes-toolbar form.search-form-inline { gap:6px; }
+            .clientes-toolbar .search-input { min-width:100px !important; height:36px !important; }
+            .clientes-toolbar .btn, .clientes-toolbar .btn-search { min-width:100px !important; padding:6px 10px; }
         }
         </style>
         <div class="clientes-toolbar">
@@ -68,37 +80,17 @@
                     $renderActions = !empty($actions) && count($actions) <= 100;
                 @endphp
 
-                @if($renderModules)
-                    <select name="module" class="search-input" style="max-width:220px;padding:0 8px;">
-                        <option value="">Todos os módulos</option>
-                        @foreach($modules as $m)
-                            <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <div style="display:flex;gap:6px;align-items:center;">
-                        <input id="module-search" type="search" placeholder="Pesquisar módulos..." class="search-input" style="max-width:160px;padding:0 8px;" />
-                        <select id="module-select" name="module" class="search-input" style="max-width:220px;padding:0 8px;" data-selected="{{ request('module') }}">
-                            <option value="">Todos os módulos</option>
-                        </select>
-                    </div>
-                @endif
+                {{-- Unified module control: single input with datalist. If server provides small list, pre-populate; otherwise fetch via AJAX on input --}}
+                <div style="display:flex;gap:6px;align-items:center;position:relative;">
+                    <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" style="max-width:180px;padding:0 8px;" autocomplete="off" data-initial='@json($renderModules ? $modules : [])' />
+                    <div id="module-dropdown" class="module-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:240px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:180px;"></div>
+                </div>
 
-                @if($renderActions)
-                    <select name="action" class="search-input" style="max-width:160px;padding:0 8px;">
-                        <option value="">Todas as ações</option>
-                        @foreach($actions as $act)
-                            <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <div style="display:flex;gap:6px;align-items:center;">
-                        <input id="action-search" type="search" placeholder="Pesquisar ações..." class="search-input" style="max-width:120px;padding:0 8px;" />
-                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;" data-selected="{{ request('action') }}">
-                            <option value="">Todas as ações</option>
-                        </select>
-                    </div>
-                @endif
+                {{-- Unified action control: single input with custom dropdown/autocomplete --}}
+                <div style="display:flex;gap:6px;align-items:center;position:relative;">
+                    <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" style="max-width:140px;padding:0 8px;" autocomplete="off" data-initial='@json($renderActions ? $actions : [])' />
+                    <div id="action-dropdown" class="action-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:200px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:140px;"></div>
+                </div>
 
                 <button type="submit" class="btn btn-search">Pesquisar</button>
                 @if(request()->query())
@@ -154,7 +146,7 @@
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.10);
     padding: 38px 38px 38px 38px;
-    min-width: 350px;
+    min-width: 320px;
 }
 .estoque-cabecalho-moderna {
     display: flex;
@@ -238,7 +230,7 @@
 }
 .tabela-estoque-moderna {
     width: 100%;
-    min-width: 640px;
+    min-width: 520px;
     font-size: 1.07em;
     border-collapse: collapse;
     background: #fff;
@@ -310,6 +302,11 @@
 .btn-icon svg { width: 16px; height: 16px; }
 .btn-icon:hover { background: #f7b500; color: #fff; border-color: #f7b500; }
 .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
+/* module dropdown items */
+.module-item { font-size: 0.95em; }
+.module-item:hover { background:#f5f0d8; }
+.action-item { font-size: 0.95em; }
+.action-item:hover { background:#f5f0d8; }
 </style>
 @endsection
 @push('scripts')
@@ -349,24 +346,140 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var modSel = document.getElementById('module-select');
     var modSearch = document.getElementById('module-search');
-    if (modSel && modSearch){
-        var loadModules = function(q){ fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select', q); };
-        modSearch.addEventListener('input', debounce(function(e){ loadModules(e.target.value); }, 300));
-        // initial load if page had selected value
-        if (modSel.dataset.selected) loadModules('');
-    } else if (modSel){
-        // legacy: load on focus once
-        modSel.addEventListener('focus', function(){ fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select', ''); }, {once:true});
+    // New: unified autocomplete using datalist
+    var modInput = document.getElementById('module-autocomplete');
+    var moduleList = document.getElementById('module-list');
+    if (modInput){
+        var dropdown = document.getElementById('module-dropdown');
+        var activeIndex = -1;
+        var currentItems = [];
+
+        function renderDropdown(list){
+            currentItems = list || [];
+            activeIndex = -1;
+            if (!dropdown) return;
+            dropdown.innerHTML = '';
+            if (!currentItems.length) { dropdown.style.display = 'none'; return; }
+            currentItems.forEach(function(item, idx){
+                var el = document.createElement('div');
+                el.className = 'module-item';
+                el.dataset.index = idx;
+                el.dataset.value = item;
+                el.style.padding = '8px 10px';
+                el.style.cursor = 'pointer';
+                el.style.borderBottom = '1px solid #f3f3f3';
+                el.textContent = item;
+                el.addEventListener('mousedown', function(e){ // use mousedown to set before blur
+                    e.preventDefault();
+                    modInput.value = item;
+                    dropdown.style.display = 'none';
+                });
+                dropdown.appendChild(el);
+            });
+            dropdown.style.display = 'block';
+        }
+
+        function fetchModules(q){
+            var url = '{{ url('/admin/audit-logs/modules') }}' + (q ? ('?q=' + encodeURIComponent(q)) : '');
+            fetch(url, {credentials: 'same-origin'})
+                .then(function(r){ return r.json(); })
+                .then(function(list){ renderDropdown(list); })
+                .catch(function(){ /* ignore */ });
+        }
+
+        // if server provided initial list, render it
+        try{
+            var initial = JSON.parse(modInput.dataset.initial || '[]');
+            if (initial && initial.length) renderDropdown(initial.slice(0,100));
+        } catch(e) { /* ignore */ }
+
+        modInput.addEventListener('input', debounce(function(e){
+            var q = e.target.value || '';
+            if (!q) {
+                // show initial list if any
+                try{ var init = JSON.parse(modInput.dataset.initial || '[]'); if (init && init.length) return renderDropdown(init.slice(0,100)); }catch(_){}
+                dropdown.style.display = 'none';
+                return;
+            }
+            fetchModules(q);
+        }, 200));
+
+        modInput.addEventListener('keydown', function(e){
+            if (!dropdown || dropdown.style.display === 'none') return;
+            var items = dropdown.querySelectorAll('.module-item');
+            if (!items.length) return;
+            if (e.key === 'ArrowDown'){
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                items.forEach(function(it,i){ it.style.background = i === activeIndex ? '#f5f0d8' : ''; });
+                items[activeIndex].scrollIntoView({block:'nearest'});
+            } else if (e.key === 'ArrowUp'){
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                items.forEach(function(it,i){ it.style.background = i === activeIndex ? '#f5f0d8' : ''; });
+                items[activeIndex].scrollIntoView({block:'nearest'});
+            } else if (e.key === 'Enter'){
+                if (activeIndex >=0 && items[activeIndex]){
+                    e.preventDefault();
+                    modInput.value = items[activeIndex].dataset.value;
+                    dropdown.style.display = 'none';
+                }
+            } else if (e.key === 'Escape'){
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // close when clicking outside
+        document.addEventListener('click', function(ev){
+            if (!dropdown) return;
+            if (ev.target === modInput) return;
+            if (!dropdown.contains(ev.target)) dropdown.style.display = 'none';
+        });
     }
 
-    var actSel = document.getElementById('action-select');
-    var actSearch = document.getElementById('action-search');
-    if (actSel && actSearch){
-        var loadActions = function(q){ fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select', q); };
-        actSearch.addEventListener('input', debounce(function(e){ loadActions(e.target.value); }, 300));
-        if (actSel.dataset.selected) loadActions('');
-    } else if (actSel){
-        actSel.addEventListener('focus', function(){ fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select', ''); }, {once:true});
+    // Action autocompleter
+    var actInput = document.getElementById('action-autocomplete');
+    if (actInput){
+        var actDropdown = document.getElementById('action-dropdown');
+        var actActive = -1;
+        var actItems = [];
+
+        function renderActionDropdown(list){
+            actItems = list || [];
+            actActive = -1;
+            if (!actDropdown) return;
+            actDropdown.innerHTML = '';
+            if (!actItems.length) { actDropdown.style.display = 'none'; return; }
+            actItems.forEach(function(item, idx){
+                var el = document.createElement('div');
+                el.className = 'action-item';
+                el.dataset.index = idx;
+                el.dataset.value = item;
+                el.style.padding = '8px 10px';
+                el.style.cursor = 'pointer';
+                el.style.borderBottom = '1px solid #f3f3f3';
+                el.textContent = (item && item.length) ? (item) : item;
+                el.addEventListener('mousedown', function(e){ e.preventDefault(); actInput.value = item; actDropdown.style.display = 'none'; });
+                actDropdown.appendChild(el);
+            });
+            actDropdown.style.display = 'block';
+        }
+
+        function fetchActions(q){
+            var url = '{{ url('/admin/audit-logs/actions') }}' + (q ? ('?q=' + encodeURIComponent(q)) : '');
+            fetch(url, {credentials: 'same-origin'})
+                .then(function(r){ return r.json(); })
+                .then(function(list){ renderActionDropdown(list); })
+                .catch(function(){ /* ignore */ });
+        }
+
+        try{ var initialActs = JSON.parse(actInput.dataset.initial || '[]'); if (initialActs && initialActs.length) renderActionDropdown(initialActs.slice(0,100)); } catch(e){}
+
+        actInput.addEventListener('input', debounce(function(e){ var q = e.target.value || ''; if (!q){ try{ var ia = JSON.parse(actInput.dataset.initial || '[]'); if (ia && ia.length) return renderActionDropdown(ia.slice(0,100)); }catch(_){} actDropdown.style.display='none'; return; } fetchActions(q); }, 200));
+
+        actInput.addEventListener('keydown', function(e){ if (!actDropdown || actDropdown.style.display === 'none') return; var items = actDropdown.querySelectorAll('.action-item'); if (!items.length) return; if (e.key === 'ArrowDown'){ e.preventDefault(); actActive = Math.min(actActive + 1, items.length - 1); items.forEach(function(it,i){ it.style.background = i === actActive ? '#f5f0d8' : ''; }); items[actActive].scrollIntoView({block:'nearest'}); } else if (e.key === 'ArrowUp'){ e.preventDefault(); actActive = Math.max(actActive - 1, 0); items.forEach(function(it,i){ it.style.background = i === actActive ? '#f5f0d8' : ''; }); items[actActive].scrollIntoView({block:'nearest'}); } else if (e.key === 'Enter'){ if (actActive >=0 && items[actActive]){ e.preventDefault(); actInput.value = items[actActive].dataset.value; actDropdown.style.display='none'; } } else if (e.key === 'Escape'){ actDropdown.style.display='none'; } });
+
+        document.addEventListener('click', function(ev){ if (!actDropdown) return; if (ev.target === actInput) return; if (!actDropdown.contains(ev.target)) actDropdown.style.display = 'none'; });
     }
 });
 </script>
