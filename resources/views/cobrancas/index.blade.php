@@ -86,10 +86,11 @@
         display: flex;
         gap: 10px;
         align-items: center;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
+        /* permitir quebra de linha quando houver espaço suficiente */
+        flex-wrap: wrap;
+        /* esconder overflow por padrão; só permitir scroll em pontos de quebra muito pequenos */
+        overflow-x: hidden;
+        padding-bottom: 0;
     }
     .filtro-modern-cobranca input:focus,
     .filtro-modern-cobranca select:focus {
@@ -149,6 +150,16 @@
         .filtro-modern-cobranca .filtro-top-actions button {
             white-space: nowrap;
             flex: none;
+        }
+    }
+
+    /* telas muito pequenas: manter botões numa linha com scroll horizontal */
+    @media (max-width: 480px) {
+        .filtro-modern-cobranca .filtro-top-actions {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
         }
     }
     </style>
