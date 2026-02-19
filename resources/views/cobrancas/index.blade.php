@@ -31,8 +31,12 @@
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
+        /* limitar crescimento para evitar que campos ocupem toda a linha
+           e forcem o botão 'Painel' para a próxima linha */
+        flex: 0 0 200px;
         min-width: 120px;
-        flex: 1 1 140px;
+        max-width: 260px;
+        box-sizing: border-box;
     }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
@@ -50,6 +54,8 @@
         transition: border-color 0.2s, box-shadow 0.2s;
         outline: none;
         margin-bottom: 0;
+        width: 100%;
+        max-width: 100%;
     }
     .filtro-modern-cobranca input:focus,
     .filtro-modern-cobranca select:focus {
