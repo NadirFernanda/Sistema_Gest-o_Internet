@@ -50,6 +50,12 @@
         /* make search smaller to match Painel button */
         .clientes-toolbar .btn-search { height:42px !important; min-width:96px !important; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; box-sizing:border-box; }
 
+        /* Make toolbar visually match estoque_equipamentos layout */
+        .clientes-toolbar .search-form-inline { flex:1 1 auto; min-width:0; }
+        .clientes-toolbar .search-input { height:42px !important; padding:8px 12px !important; border-radius:8px !important; border:2px solid #e6a248 !important; background:#fff !important; }
+        .clientes-toolbar .btn-search { background:#f7b500 !important; color:#fff !important; border:none !important; padding:8px 14px !important; }
+        .clientes-toolbar .btn-ghost { background:#fff !important; color:#222 !important; border:1px solid #e6e6e6 !important; }
+
         /* Responsive: allow collapse into two rows on very small screens */
         @media (max-width: 720px) {
             .clientes-toolbar { padding:6px 8px; }
