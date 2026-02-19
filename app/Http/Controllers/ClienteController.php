@@ -246,9 +246,10 @@ class ClienteController extends Controller
      */
     public function edit($id)
     {
-        // Redirect to the cliente ficha with an anchor so the view's JS
-        // detects `#formEditarCliente` and opens the inline edit form.
-        return redirect()->to(route('clientes.show', $id) . '#formEditarCliente');
+        // Return a dedicated edit view for the cliente. This is
+        // cleaner than relying on redirect+hash and fragile JS.
+        $cliente = Cliente::findOrFail($id);
+        return view('clientes.edit', compact('cliente'));
     }
 
     /**
