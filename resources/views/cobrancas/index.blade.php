@@ -24,18 +24,17 @@
         box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         display: flex;
         flex-wrap: wrap;
-        gap: 12px 14px;
-        align-items: flex-end;
+        gap: 10px 12px;
+        align-items: center;
         justify-content: flex-start;
     }
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        /* limitar crescimento para evitar que campos ocupem toda a linha
-           e forcem o botão 'Painel' para a próxima linha */
-        flex: 0 0 200px;
-        min-width: 120px;
-        max-width: 260px;
+        /* reduzir ainda mais a largura para evitar quebra e sobreposição */
+        flex: 0 0 160px;
+        min-width: 110px;
+        max-width: 200px;
         box-sizing: border-box;
     }
     .filtro-modern-cobranca label {
@@ -56,6 +55,22 @@
         margin-bottom: 0;
         width: 100%;
         max-width: 100%;
+    }
+    /* garantir que a toolbar de ações não seja empurrada para nova linha
+       e tenha espaçamento consistente */
+    .filtro-modern-cobranca .filtro-top {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex: 0 0 auto;
+        width: auto !important;
+        margin-bottom: 8px !important;
+    }
+    .filtro-modern-cobranca .filtro-top-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
     }
     .filtro-modern-cobranca input:focus,
     .filtro-modern-cobranca select:focus {
