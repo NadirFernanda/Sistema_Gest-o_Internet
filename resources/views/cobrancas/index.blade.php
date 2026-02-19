@@ -31,10 +31,10 @@
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        /* diminuir para 140px base, permitindo mais campos na mesma linha */
-        flex: 0 0 140px;
-        min-width: 90px;
-        max-width: 180px;
+        /* força campos ainda mais compactos para evitar quebra */
+        flex: 0 0 120px !important;
+        min-width: 80px !important;
+        max-width: 160px !important;
         box-sizing: border-box;
     }
     .filtro-modern-cobranca label {
@@ -47,14 +47,20 @@
     .filtro-modern-cobranca select {
         border-radius: 8px;
         border: 1px solid #ccc;
-        padding: 6px 10px;
-        font-size: 0.95rem;
+        padding: 5px 8px !important;
+        font-size: 0.9rem !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         transition: border-color 0.2s, box-shadow 0.2s;
         outline: none;
         margin-bottom: 0;
         width: 100%;
         max-width: 100%;
+    }
+    /* forçar que selects e inputs não cresçam além do container do grupo */
+    .filtro-modern-cobranca .filtro-group input,
+    .filtro-modern-cobranca .filtro-group select {
+        max-width: 100% !important;
+        min-width: 0 !important;
     }
     /* garantir que a toolbar de ações não seja empurrada para nova linha
        e tenha espaçamento consistente */
