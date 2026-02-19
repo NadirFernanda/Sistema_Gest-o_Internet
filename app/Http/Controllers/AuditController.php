@@ -21,7 +21,7 @@ class AuditController extends Controller
             $driver = DB::getDriverName();
             $op = $driver === 'pgsql' ? 'ILIKE' : 'like';
 
-            $query->where(function ($q) use ($busca, $op) {
+            $query->where(function ($q) use ($busca, $op, $driver) {
                                 $q->where('actor_name', $op, "%{$busca}%")
                                     ->orWhere('resource_type', $op, "%{$busca}%")
                                     ->orWhere('resource_id', $op, "%{$busca}%");
