@@ -22,39 +22,42 @@ class AuditController extends Controller
             $op = $driver === 'pgsql' ? 'ILIKE' : 'like';
 
             $query->where(function ($q) use ($busca, $op, $driver) {
-                                $q->where('actor_name', $op, "%{$busca}%")
-                                    ->orWhere('resource_type', $op, "%{$busca}%")
-                                    ->orWhere('resource_id', $op, "%{$busca}%");
+                $started = false;
+                if (Schema::hasColumn('audit_logs', 'actor_name')) {
+                    $q->where('actor_name', $op, "%{$busca}%");
+                    $started = true;
+                }
+                if (Schema::hasColumn('audit_logs', 'resource_type')) {
+                    if (! $started) { $q->where('resource_type', $op, "%{$busca}%"); $started = true; }
+                    else { $q->orWhere('resource_type', $op, "%{$busca}%"); }
+                }
+                if (Schema::hasColumn('audit_logs', 'resource_id')) {
+                    if (! $started) { $q->where('resource_id', $op, "%{$busca}%"); $started = true; }
+                    else { $q->orWhere('resource_id', $op, "%{$busca}%"); }
+                }
 
-                                // Only search `action` and `module` when those columns exist (legacy schemas may lack them)
-                                if (Schema::hasColumn('audit_logs', 'action')) {
-                                        $q->orWhere('action', $op, "%{$busca}%");
-                                }
-                                if (Schema::hasColumn('audit_logs', 'module')) {
-                                        $q->orWhere('module', $op, "%{$busca}%");
-                                }
+                // Only search `action` and `module` when those columns exist (legacy schemas may lack them)
+                if (Schema::hasColumn('audit_logs', 'action')) {
+                    if (! $started) { $q->where('action', $op, "%{$busca}%"); $started = true; }
+                    else { $q->orWhere('action', $op, "%{$busca}%"); }
+                }
+                if (Schema::hasColumn('audit_logs', 'module')) {
+                    if (! $started) { $q->where('module', $op, "%{$busca}%"); $started = true; }
+                    else { $q->orWhere('module', $op, "%{$busca}%"); }
+                }
 
                 // Search JSON/text payload columns if present
                 if (Schema::hasColumn('audit_logs', 'payload_before')) {
-                    if ($driver === 'pgsql') {
-                        $q->orWhereRaw("CAST(payload_before AS text) ILIKE ?", ["%{$busca}%"]);
-                    } else {
-                        $q->orWhereRaw("CAST(payload_before AS CHAR) LIKE ?", ["%{$busca}%"]);
-                    }
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$busca}%"]); }
                 }
                 if (Schema::hasColumn('audit_logs', 'payload_after')) {
-                    if ($driver === 'pgsql') {
-                        $q->orWhereRaw("CAST(payload_after AS text) ILIKE ?", ["%{$busca}%"]);
-                    } else {
-                        $q->orWhereRaw("CAST(payload_after AS CHAR) LIKE ?", ["%{$busca}%"]);
-                    }
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$busca}%"]); }
                 }
                 if (Schema::hasColumn('audit_logs', 'meta')) {
-                    if ($driver === 'pgsql') {
-                        $q->orWhereRaw("CAST(meta AS text) ILIKE ?", ["%{$busca}%"]);
-                    } else {
-                        $q->orWhereRaw("CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]);
-                    }
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]); }
                 }
             });
         }
