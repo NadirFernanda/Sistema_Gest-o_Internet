@@ -110,7 +110,7 @@
                                 Compensar Dias
                             </button>
                             @can('clientes.edit')
-                                <button type="button" id="btnMostrarEditar" onclick="showClientEditForm(event)" class="btn btn-ghost" style="padding:10px 16px; border-radius:8px; font-weight:700; margin-left:6px;">Editar</button>
+                                {{-- Edit button removed: inline edit is available via the pencil icon on the list or via the dedicated edit page --}}
                             @endcan
                         </div>
                         <!-- Modal para compensar dias -->
