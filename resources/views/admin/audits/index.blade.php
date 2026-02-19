@@ -32,14 +32,18 @@
             gap:10px;
             align-items:center;
             flex-wrap:nowrap; /* keep everything on one line */
+            min-width:0; /* allow form to shrink inside flex container */
         }
         /* primary search expands, others have proportional fixed sizes */
-        .clientes-toolbar .search-input { height:42px !important; padding:0 12px !important; border-radius:8px !important; border:2px solid #e6a248 !important; box-sizing:border-box; font-size:1rem; display:inline-flex; align-items:center; }
+        .clientes-toolbar .search-input { height:42px !important; padding:0 12px !important; border-radius:8px !important; border:2px solid #e6a248 !important; box-sizing:border-box; font-size:1rem; display:inline-flex; align-items:center; min-width:0; }
         /* main free-text search should expand */
         .clientes-toolbar input[name="busca"].search-input { flex:1 1 420px; min-width:240px; }
         /* module and action controls keep fixed but proportional widths */
-        .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 220px; min-width:160px; max-width:260px; }
-        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 220px; min-width:160px; max-width:280px; }
+        .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 220px; min-width:120px; max-width:260px; }
+        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 220px; min-width:120px; max-width:280px; }
+
+        /* Ensure wrapper divs and inputs can shrink to avoid wrapping to next line */
+        .clientes-toolbar .search-form-inline > div { min-width:0; display:flex; align-items:center; }
         /* Force neutral select appearance (no blue accent) */
         .clientes-toolbar select.search-input { -webkit-appearance: none; appearance: none; background: #fff !important; color: #222 !important; border: 2px solid #e6a248 !important; box-shadow: none !important; outline: none !important; }
         .clientes-toolbar .btn, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost { height:42px !important; min-width:96px !important; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
