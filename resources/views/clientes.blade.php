@@ -110,7 +110,7 @@
                                 Compensar Dias
                             </button>
                             @can('clientes.edit')
-                                <button id="btnMostrarEditar" class="btn btn-ghost" style="padding:10px 16px; border-radius:8px; font-weight:700; margin-left:6px;">Editar</button>
+                                <button id="btnMostrarEditar" onclick="showClientEditForm(event)" class="btn btn-ghost" style="padding:10px 16px; border-radius:8px; font-weight:700; margin-left:6px;">Editar</button>
                             @endcan
                         </div>
                         <!-- Modal para compensar dias -->
@@ -644,6 +644,42 @@
                 openDeleteModal(id);
             });
         });
+
+        // Expose a robust global function to open/close the client edit form.
+        // This is called by the inline onclick on the Edit button to avoid cases
+        // where other JS listeners fail to attach.
+        window.showClientEditForm = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const formEditarClienteEl = document.getElementById('formEditarCliente');
+            const clienteDadosBlock = document.querySelector('.cliente-dados-moderna');
+            if (!formEditarClienteEl) return false;
+            // toggle visibility
+            if (formEditarClienteEl.style.display === 'none' || formEditarClienteEl.style.display === '') {
+                // populate from data-* attributes
+                const editBIEl = document.getElementById('editBI');
+                const editNomeEl = document.getElementById('editNome');
+                const editEmailEl = document.getElementById('editEmail');
+                const editContatoEl = document.getElementById('editContato');
+                if (editBIEl) editBIEl.value = formEditarClienteEl.dataset.bi || '';
+                if (editNomeEl) editNomeEl.value = formEditarClienteEl.dataset.nome || '';
+                if (editEmailEl) editEmailEl.value = formEditarClienteEl.dataset.email || '';
+                if (editContatoEl) editContatoEl.value = formEditarClienteEl.dataset.contato || '';
+                formEditarClienteEl.style.display = 'block';
+                if (clienteDadosBlock) clienteDadosBlock.style.display = 'none';
+                if (editNomeEl) editNomeEl.focus();
+                try { location.hash = 'formEditarCliente'; } catch (err) {}
+                return true;
+            }
+            // otherwise close
+            formEditarClienteEl.classList.add('closing');
+            setTimeout(() => {
+                formEditarClienteEl.style.display = 'none';
+                formEditarClienteEl.classList.remove('closing');
+                if (clienteDadosBlock) clienteDadosBlock.style.display = 'block';
+                if (history && history.replaceState) history.replaceState(null, null, window.location.pathname + window.location.search);
+            }, 220);
+            return true;
+        };
 </script>
 
 @endpush
