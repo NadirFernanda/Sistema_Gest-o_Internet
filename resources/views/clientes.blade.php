@@ -479,10 +479,17 @@
                     });
                 }
         }
-        // If page opened with hash, show the edit form automatically
-        if (location.hash === '#formEditarCliente') {
-            const formEditarClienteEl = document.getElementById('formEditarCliente');
-            if (formEditarClienteEl) {
+        // Robust auto-open when arriving with #formEditarCliente (retries + hashchange)
+        (function(){
+            const tryOpenEditFromHash = (attemptsLeft = 6) => {
+                if (location.hash !== '#formEditarCliente') return;
+                const formEditarClienteEl = document.getElementById('formEditarCliente');
+                if (!formEditarClienteEl) {
+                    if (attemptsLeft > 0) {
+                        setTimeout(() => tryOpenEditFromHash(attemptsLeft - 1), 120);
+                    }
+                    return;
+                }
                 // preencher campos antes de mostrar
                 const editBIEl = document.getElementById('editBI');
                 const editNomeEl = document.getElementById('editNome');
@@ -493,10 +500,17 @@
                 if (editEmailEl) editEmailEl.value = formEditarClienteEl.dataset.email || '';
                 if (editContatoEl) editContatoEl.value = formEditarClienteEl.dataset.contato || '';
                 formEditarClienteEl.style.display = 'block';
-                if (typeof clienteDados !== 'undefined' && clienteDados) clienteDados.style.display = 'none';
+                try { if (typeof clienteDados !== 'undefined' && clienteDados) clienteDados.style.display = 'none'; } catch(e) {}
                 if (editNomeEl) editNomeEl.focus();
-            }
-        }
+                // ensure the element is visible to the user
+                try { formEditarClienteEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
+            };
+
+            // initial attempt on load
+            tryOpenEditFromHash();
+            // respond to hash changes
+            window.addEventListener('hashchange', function(){ tryOpenEditFromHash(); });
+        })();
         const formEditarCliente = document.getElementById('formEditarCliente');
         if (formEditarCliente) {
             formEditarCliente.addEventListener('submit', function(e) {
