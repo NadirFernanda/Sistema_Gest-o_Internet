@@ -61,8 +61,47 @@
         <div class="clientes-toolbar">
             <form method="GET" action="{{ url()->current() }}" class="search-form-inline">
                 <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar auditoria por usuário, ação, módulo ou resumo..." class="search-input" />
+
+                {{-- Dynamic selects: if server provided lists are small, render them; otherwise we'll fetch via AJAX --}}
+                @php
+                    $renderModules = !empty($modules) && count($modules) <= 100;
+                    $renderActions = !empty($actions) && count($actions) <= 100;
+                @endphp
+
+                @if($renderModules)
+                    <select name="module" class="search-input" style="max-width:220px;padding:0 8px;">
+                        <option value="">Todos os módulos</option>
+                        @foreach($modules as $m)
+                            <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
+                        @endforeach
+                    </select>
+                @else
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <input id="module-search" type="search" placeholder="Pesquisar módulos..." class="search-input" style="max-width:160px;padding:0 8px;" />
+                        <select id="module-select" name="module" class="search-input" style="max-width:220px;padding:0 8px;" data-selected="{{ request('module') }}">
+                            <option value="">Todos os módulos</option>
+                        </select>
+                    </div>
+                @endif
+
+                @if($renderActions)
+                    <select name="action" class="search-input" style="max-width:160px;padding:0 8px;">
+                        <option value="">Todas as ações</option>
+                        @foreach($actions as $act)
+                            <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
+                        @endforeach
+                    </select>
+                @else
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <input id="action-search" type="search" placeholder="Pesquisar ações..." class="search-input" style="max-width:120px;padding:0 8px;" />
+                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;" data-selected="{{ request('action') }}">
+                            <option value="">Todas as ações</option>
+                        </select>
+                    </div>
+                @endif
+
                 <button type="submit" class="btn btn-search">Pesquisar</button>
-                @if(request('busca'))
+                @if(request()->query())
                     <a href="{{ url()->current() }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
                 @endif
             </form>
@@ -96,7 +135,7 @@
                             ({{ \App\Services\AuditService::translateRole($a->actor_role ?? $a->role) }})
                         </td>
                         <td style="text-align:center;vertical-align:middle;">{{ \App\Services\AuditService::translateAction($a->action) }}</td>
-                        <td style="text-align:center;vertical-align:middle;">{{ $a->module }}</td>
+                        <td style="text-align:center;vertical-align:middle;">{{ $a->module ?? class_basename($a->resource_type ?? $a->auditable_type) }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ class_basename($a->resource_type ?? $a->auditable_type) }}#{{ $a->resource_id ?? $a->auditable_id }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ \App\Services\AuditService::formatHumanReadable($a) }}</td>
                     </tr>
@@ -273,3 +312,62 @@
 .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 </style>
 @endsection
+@push('scripts')
+    <script>
+document.addEventListener('DOMContentLoaded', function(){
+    function fetchAndPopulate(url, selectId, q){
+        var sel = document.getElementById(selectId);
+        if (!sel) return;
+        var selected = sel.dataset.selected || '';
+        var fullUrl = url + (q ? ('?q=' + encodeURIComponent(q)) : '');
+        fetch(fullUrl, {credentials: 'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(list){
+                // clear existing options except first (placeholder)
+                while (sel.options.length > 1) sel.remove(1);
+                list.forEach(function(item){
+                    var opt = document.createElement('option');
+                    opt.value = item;
+                    opt.text = item;
+                    sel.appendChild(opt);
+                });
+                if (selected) sel.value = selected;
+                sel.dataset.loaded = '1';
+            })
+            .catch(function(){ /* ignore */ });
+    }
+
+    // simple debounce
+    function debounce(fn, delay){
+        var t;
+        return function(){
+            var args = arguments;
+            clearTimeout(t);
+            t = setTimeout(function(){ fn.apply(null, args); }, delay);
+        };
+    }
+
+    var modSel = document.getElementById('module-select');
+    var modSearch = document.getElementById('module-search');
+    if (modSel && modSearch){
+        var loadModules = function(q){ fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select', q); };
+        modSearch.addEventListener('input', debounce(function(e){ loadModules(e.target.value); }, 300));
+        // initial load if page had selected value
+        if (modSel.dataset.selected) loadModules('');
+    } else if (modSel){
+        // legacy: load on focus once
+        modSel.addEventListener('focus', function(){ fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select', ''); }, {once:true});
+    }
+
+    var actSel = document.getElementById('action-select');
+    var actSearch = document.getElementById('action-search');
+    if (actSel && actSearch){
+        var loadActions = function(q){ fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select', q); };
+        actSearch.addEventListener('input', debounce(function(e){ loadActions(e.target.value); }, 300));
+        if (actSel.dataset.selected) loadActions('');
+    } else if (actSel){
+        actSel.addEventListener('focus', function(){ fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select', ''); }, {once:true});
+    }
+});
+</script>
+@endpush

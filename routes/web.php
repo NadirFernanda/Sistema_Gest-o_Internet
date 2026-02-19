@@ -126,6 +126,14 @@ Route::middleware('auth')->group(function () {
         ->name('admin.audit.index')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
 
+    // JSON endpoints for dynamic filter lists
+    Route::get('/admin/audit-logs/modules', [\App\Http\Controllers\AuditController::class, 'modules'])
+        ->name('admin.audit.modules')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+    Route::get('/admin/audit-logs/actions', [\App\Http\Controllers\AuditController::class, 'actions'])
+        ->name('admin.audit.actions')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':audits.view');
+
 
     
     // Plan templates (catalog of reusable plans)

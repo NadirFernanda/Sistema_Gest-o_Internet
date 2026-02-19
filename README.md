@@ -29,17 +29,25 @@ Siga estes passos para atualizar a aplicação em um servidor de produção. Aju
 ```bash
 ssh usuario@SEU_SERVIDOR
 cd /var/www/sgmrtexas
+git reset --hard
+git pull origin main
+
+composer install --no-dev --optimize-autoloader
+
+npm ci
+npm run build
+
+php artisan migrate --force
+php artisan optimize
+
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
 ```
 
 Usuários de exemplo já criados na base (ambiente de teste):
 
 ```
-admin@angolawifi.ao
-colaborador@angolawifi.ao
-gerente@angolawifi.ao
-```
 
-Senha para todos: password
 
 Obs.: abaixo há um exemplo sucinto de fluxo de atualização — adapte conforme necessidade.
 
@@ -80,40 +88,19 @@ php artisan view:cache
 
 ```bash
 # Ajuste dono/perm conforme o user do webserver (ex.: www-data)
-sudo chown -R www-data:www-data storage bootstrap/cache public/build
-sudo find storage -type d -exec chmod 775 {} \;
-sudo find bootstrap/cache -type d -exec chmod 775 {} \;
-sudo find public/build -type d -exec chmod 755 {} \;
-sudo find public/build -type f -exec chmod 644 {} \;
 
-sudo systemctl restart php8.4-fpm
-sudo systemctl reload nginx
-```
 
 ---
 
 ## Instalação e execução local
 
-1. Clone e entre no projeto:
 
-```bash
-git clone <URL-DO-REPOSITORIO>
-cd PROJECTO
 ```
 
-2. Copie o `.env` e gere a chave da aplicação:
 
-```bash
-cp .env.example .env
-php artisan key:generate
 ```
 
-3. Instale dependências PHP e front-end:
 
-```bash
-composer install
-npm install
-npm run dev
 ```
 
 4. Execute migrações e inicie o servidor de desenvolvimento:
