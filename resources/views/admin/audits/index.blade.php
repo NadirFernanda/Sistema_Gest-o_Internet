@@ -39,10 +39,12 @@
         .clientes-toolbar input[name="busca"].search-input { flex:1 1 420px; min-width:240px; }
         /* module and action controls keep fixed but proportional widths */
         .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 220px; min-width:160px; max-width:260px; }
-        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 160px; min-width:120px; max-width:200px; }
+        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 220px; min-width:160px; max-width:280px; }
         /* Force neutral select appearance (no blue accent) */
         .clientes-toolbar select.search-input { -webkit-appearance: none; appearance: none; background: #fff !important; color: #222 !important; border: 2px solid #e6a248 !important; box-shadow: none !important; outline: none !important; }
-        .clientes-toolbar .btn, .clientes-toolbar .btn-search, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost { height:42px !important; min-width:110px !important; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
+        .clientes-toolbar .btn, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost { height:42px !important; min-width:96px !important; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
+        /* make search smaller to match Painel button */
+        .clientes-toolbar .btn-search { height:42px !important; min-width:96px !important; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; box-sizing:border-box; }
 
         /* Responsive: allow collapse into two rows on very small screens */
         @media (max-width: 720px) {
