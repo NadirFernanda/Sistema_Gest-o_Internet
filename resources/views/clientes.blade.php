@@ -488,13 +488,12 @@
                 const editNomeEl = document.getElementById('editNome');
                 const editEmailEl = document.getElementById('editEmail');
                 const editContatoEl = document.getElementById('editContato');
-                const formEditarClienteEl = document.getElementById('formEditarCliente');
                 if (editBIEl) editBIEl.value = formEditarClienteEl.dataset.bi || '';
                 if (editNomeEl) editNomeEl.value = formEditarClienteEl.dataset.nome || '';
                 if (editEmailEl) editEmailEl.value = formEditarClienteEl.dataset.email || '';
                 if (editContatoEl) editContatoEl.value = formEditarClienteEl.dataset.contato || '';
                 formEditarClienteEl.style.display = 'block';
-                if (clienteDados) clienteDados.style.display = 'none';
+                if (typeof clienteDados !== 'undefined' && clienteDados) clienteDados.style.display = 'none';
                 if (editNomeEl) editNomeEl.focus();
             }
         }
