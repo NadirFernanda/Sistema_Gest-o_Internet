@@ -14,72 +14,43 @@
 
         {{-- Toolbar padrão (pesquisar à esquerda, CTAs à direita) --}}
         <style>
-        /* Toolbar layout: allow wrapping and smaller inputs to avoid horizontal scroll */
+        /* Toolbar layout: single-row, proportional spacing */
         .clientes-toolbar {
             max-width:1100px;
             margin:18px auto;
             display:flex;
-            gap:10px;
+            gap:12px;
             align-items:center;
-            justify-content:flex-start; /* keep controls grouped and proportional */
+            justify-content:space-between;
             box-sizing:border-box;
             padding:0 8px;
         }
-        .clientes-toolbar .right-actions { margin-left:8px; display:flex; gap:8px; align-items:center; }
+        .clientes-toolbar .right-actions { margin-left:8px; display:flex; gap:8px; align-items:center; flex:0 0 auto; }
         .clientes-toolbar form.search-form-inline {
-            flex:0 1 600px; /* limit width so right-actions stay near the form */
+            flex:1 1 auto; /* take remaining space */
             display:flex;
-            gap:8px;
+            gap:10px;
             align-items:center;
-            flex-wrap:wrap; /* allow inputs to wrap to next line */
+            flex-wrap:nowrap; /* keep everything on one line */
         }
-        .clientes-toolbar .search-input {
-            height:40px !important;
-            flex:0 1 auto; /* don't force expansive min-width */
-            min-width:120px !important; /* much smaller min width */
-            max-width:100%;
-            padding:0 12px !important;
-            border-radius:8px !important;
-            border:2px solid #e6a248 !important;
-            box-sizing:border-box;
-            font-size:1rem;
-            display:inline-flex;
-            align-items:center;
-        }
+        /* primary search expands, others have proportional fixed sizes */
+        .clientes-toolbar .search-input { height:42px !important; padding:0 12px !important; border-radius:8px !important; border:2px solid #e6a248 !important; box-sizing:border-box; font-size:1rem; display:inline-flex; align-items:center; }
+        /* main free-text search should expand */
+        .clientes-toolbar input[name="busca"].search-input { flex:1 1 420px; min-width:240px; }
+        /* module and action controls keep fixed but proportional widths */
+        .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input { flex:0 0 220px; min-width:160px; max-width:260px; }
+        .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:0 0 160px; min-width:120px; max-width:200px; }
         /* Force neutral select appearance (no blue accent) */
-        .clientes-toolbar select.search-input {
-            -webkit-appearance: none;
-            appearance: none;
-            background: #fff !important;
-            color: #222 !important;
-            border: 2px solid #e6a248 !important;
-            box-shadow: none !important;
-            outline: none !important;
-            padding: 0 12px !important;
-        }
-        .clientes-toolbar .btn,
-        .clientes-toolbar .btn-search,
-        .clientes-toolbar .btn-cta,
-        .clientes-toolbar .btn-ghost {
-            height:40px !important;
-            min-width:110px !important;
-            max-width:120px !important;
-            width:auto !important;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            font-weight:700;
-            border-radius:8px;
-            text-align:center;
-            white-space:nowrap;
-            box-sizing:border-box;
-        }
+        .clientes-toolbar select.search-input { -webkit-appearance: none; appearance: none; background: #fff !important; color: #222 !important; border: 2px solid #e6a248 !important; box-shadow: none !important; outline: none !important; }
+        .clientes-toolbar .btn, .clientes-toolbar .btn-search, .clientes-toolbar .btn-cta, .clientes-toolbar .btn-ghost { height:42px !important; min-width:110px !important; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
 
-        /* Make toolbar inputs stack nicely on narrow screens */
-        @media (max-width: 840px) {
-            .clientes-toolbar form.search-form-inline { gap:6px; }
-            .clientes-toolbar .search-input { min-width:100px !important; height:36px !important; }
-            .clientes-toolbar .btn, .clientes-toolbar .btn-search { min-width:100px !important; padding:6px 10px; }
+        /* Responsive: allow collapse into two rows on very small screens */
+        @media (max-width: 720px) {
+            .clientes-toolbar { padding:6px 8px; }
+            .clientes-toolbar form.search-form-inline { flex-wrap:wrap; gap:8px; }
+            .clientes-toolbar input[name="busca"].search-input { flex:1 1 100%; }
+            .clientes-toolbar #module-select.search-input, .clientes-toolbar #module-autocomplete.search-input, .clientes-toolbar #action-select.search-input, .clientes-toolbar #action-autocomplete.search-input { flex:1 1 45%; }
+            .clientes-toolbar .right-actions { width:100%; justify-content:flex-end; margin-top:6px; }
         }
         </style>
         <div class="clientes-toolbar">
@@ -95,14 +66,14 @@
                 {{-- Module control: render native select when server provided small list, otherwise use autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderModules)
-                        <select id="module-select" name="module" class="search-input" style="max-width:200px;padding:0 8px;" data-loaded="1">
+                        <select id="module-select" name="module" class="search-input" data-loaded="1">
                             <option value="" {{ empty(request('module')) ? 'selected' : '' }}>Todos os módulos</option>
                             @foreach($modules as $m)
                                 <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
                             @endforeach
                         </select>
                     @else
-                        <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" style="max-width:180px;padding:0 8px;" autocomplete="off" data-initial='@json([])' />
+                        <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" autocomplete="off" data-initial='@json([])' />
                         <div id="module-dropdown" class="module-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:240px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:180px;"></div>
                     @endif
                 </div>
@@ -110,14 +81,14 @@
                 {{-- Action control: native select when small list, otherwise autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderActions)
-                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;" data-loaded="1">
+                        <select id="action-select" name="action" class="search-input" data-loaded="1">
                             <option value="" {{ empty(request('action')) ? 'selected' : '' }}>Todas as ações</option>
                             @foreach($actions as $act)
                                 <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
                             @endforeach
                         </select>
                     @else
-                        <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" style="max-width:140px;padding:0 8px;" autocomplete="off" data-initial='@json([])' />
+                        <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" autocomplete="off" data-initial='@json([])' />
                         <div id="action-dropdown" class="action-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:200px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:140px;"></div>
                     @endif
                 </div>
