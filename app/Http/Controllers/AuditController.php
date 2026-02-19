@@ -20,11 +20,17 @@ class AuditController extends Controller
             $op = $driver === 'pgsql' ? 'ILIKE' : 'like';
 
             $query->where(function ($q) use ($busca, $op) {
-                $q->where('actor_name', $op, "%{$busca}%")
-                  ->orWhere('action', $op, "%{$busca}%")
-                  ->orWhere('module', $op, "%{$busca}%")
-                  ->orWhere('resource_type', $op, "%{$busca}%")
-                  ->orWhere('resource_id', $op, "%{$busca}%");
+                                $q->where('actor_name', $op, "%{$busca}%")
+                                    ->orWhere('resource_type', $op, "%{$busca}%")
+                                    ->orWhere('resource_id', $op, "%{$busca}%");
+
+                                // Only search `action` and `module` when those columns exist (legacy schemas may lack them)
+                                if (Schema::hasColumn('audit_logs', 'action')) {
+                                        $q->orWhere('action', $op, "%{$busca}%");
+                                }
+                                if (Schema::hasColumn('audit_logs', 'module')) {
+                                        $q->orWhere('module', $op, "%{$busca}%");
+                                }
 
                 // Search JSON/text payload columns if present
                 if (Schema::hasColumn('audit_logs', 'payload_before')) {
@@ -54,10 +60,10 @@ class AuditController extends Controller
         if ($request->filled('user')) {
             $query->where('actor_name', 'like', '%'.$request->input('user').'%');
         }
-        if ($request->filled('module')) {
+        if ($request->filled('module') && Schema::hasColumn('audit_logs', 'module')) {
             $query->where('module', $request->input('module'));
         }
-        if ($request->filled('action')) {
+        if ($request->filled('action') && Schema::hasColumn('audit_logs', 'action')) {
             $query->where('action', $request->input('action'));
         }
         if ($request->filled('from')) {
