@@ -96,7 +96,7 @@
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderModules)
                         <select id="module-select" name="module" class="search-input" style="max-width:200px;padding:0 8px;" data-loaded="1">
-                            <option value="">Todos os módulos</option>
+                            <option value="" {{ empty(request('module')) ? 'selected' : '' }}>Todos os módulos</option>
                             @foreach($modules as $m)
                                 <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
                             @endforeach
@@ -111,7 +111,7 @@
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderActions)
                         <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;" data-loaded="1">
-                            <option value="">Todas as ações</option>
+                            <option value="" {{ empty(request('action')) ? 'selected' : '' }}>Todas as ações</option>
                             @foreach($actions as $act)
                                 <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
                             @endforeach
