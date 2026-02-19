@@ -25,9 +25,9 @@
             box-sizing:border-box;
             padding:0 8px;
         }
-        .clientes-toolbar .right-actions { margin-left:12px; display:flex; gap:8px; align-items:center; }
+        .clientes-toolbar .right-actions { margin-left:8px; display:flex; gap:8px; align-items:center; }
         .clientes-toolbar form.search-form-inline {
-            flex:1 1 780px; /* allow form to take reasonable width but avoid huge gaps */
+            flex:0 1 600px; /* limit width so right-actions stay near the form */
             display:flex;
             gap:8px;
             align-items:center;
@@ -45,6 +45,17 @@
             font-size:1rem;
             display:inline-flex;
             align-items:center;
+        }
+        /* Force neutral select appearance (no blue accent) */
+        .clientes-toolbar select.search-input {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #fff !important;
+            color: #222 !important;
+            border: 2px solid #e6a248 !important;
+            box-shadow: none !important;
+            outline: none !important;
+            padding: 0 12px !important;
         }
         .clientes-toolbar .btn,
         .clientes-toolbar .btn-search,
@@ -84,7 +95,7 @@
                 {{-- Module control: render native select when server provided small list, otherwise use autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderModules)
-                        <select id="module-select" name="module" class="search-input" style="max-width:200px;padding:0 8px;">
+                        <select id="module-select" name="module" class="search-input" style="max-width:200px;padding:0 8px;" data-loaded="1">
                             <option value="">Todos os módulos</option>
                             @foreach($modules as $m)
                                 <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
@@ -99,10 +110,10 @@
                 {{-- Action control: native select when small list, otherwise autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
                     @if($renderActions)
-                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;">
+                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;" data-loaded="1">
                             <option value="">Todas as ações</option>
                             @foreach($actions as $act)
-                                <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ $act }}</option>
+                                <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
                             @endforeach
                         </select>
                     @else
@@ -344,7 +355,12 @@ document.addEventListener('DOMContentLoaded', function(){
                 list.forEach(function(item){
                     var opt = document.createElement('option');
                     opt.value = item;
-                    opt.text = item;
+                    if (selectId === 'action-select'){
+                        var actionTranslations = { 'create':'Criar','created':'Criado','update':'Atualizar','updated':'Atualizado','delete':'Remover','deleted':'Removido','restore':'Restaurar','restored':'Restaurado','login':'Login','logout':'Logout','attach':'Associar','detach':'Desassociar' };
+                        opt.text = actionTranslations[item] || item;
+                    } else {
+                        opt.text = item;
+                    }
                     sel.appendChild(opt);
                 });
                 if (selected) sel.value = selected;
@@ -365,14 +381,29 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var modSel = document.getElementById('module-select');
     var modSearch = document.getElementById('module-search');
-    // If server did not pre-render options but a select exists, populate it via AJAX
-    if (modSel && (!modSel.dataset || !modSel.dataset.loaded)) {
+    // If server did not pre-render options or select has only placeholder, populate it via AJAX
+    if (modSel && (!modSel.dataset || !modSel.dataset.loaded || modSel.options.length <= 1)) {
         fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select');
     }
     var actSel = document.getElementById('action-select');
-    if (actSel && (!actSel.dataset || !actSel.dataset.loaded)) {
+    if (actSel && (!actSel.dataset || !actSel.dataset.loaded || actSel.options.length <= 1)) {
         fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select');
     }
+    // client-side translations for common actions (fallback when actions are loaded via AJAX)
+    var actionTranslations = {
+        'create': 'Criar',
+        'created': 'Criado',
+        'update': 'Atualizar',
+        'updated': 'Atualizado',
+        'delete': 'Remover',
+        'deleted': 'Removido',
+        'restore': 'Restaurar',
+        'restored': 'Restaurado',
+        'login': 'Login',
+        'logout': 'Logout',
+        'attach': 'Associar',
+        'detach': 'Desassociar'
+    };
     // New: unified autocomplete using datalist
     var modInput = document.getElementById('module-autocomplete');
     var moduleList = document.getElementById('module-list');
