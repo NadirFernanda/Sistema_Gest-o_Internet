@@ -12,6 +12,8 @@ class AuditController extends Controller
     public function index(Request $request)
     {
         $query = AuditLog::query()->orderBy('created_at', 'desc');
+        $driver = DB::getDriverName();
+        $op = $driver === 'pgsql' ? 'ILIKE' : 'like';
 
         // Global free-text search (view uses input name="busca")
         if ($request->filled('busca')) {
@@ -61,10 +63,16 @@ class AuditController extends Controller
             $query->where('actor_name', 'like', '%'.$request->input('user').'%');
         }
         if ($request->filled('module') && Schema::hasColumn('audit_logs', 'module')) {
-            $query->where('module', $request->input('module'));
+            $val = trim((string) $request->input('module'));
+            if ($val !== '') {
+                $query->where('module', $op, "%{$val}%");
+            }
         }
         if ($request->filled('action') && Schema::hasColumn('audit_logs', 'action')) {
-            $query->where('action', $request->input('action'));
+            $val = trim((string) $request->input('action'));
+            if ($val !== '') {
+                $query->where('action', $op, "%{$val}%");
+            }
         }
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->input('from'));
