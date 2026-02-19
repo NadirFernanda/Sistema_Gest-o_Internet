@@ -32,6 +32,7 @@ cd /var/www/sgmrtexas
 git reset --hard
 git pull origin main
 
+
 composer install --no-dev --optimize-autoloader
 
 npm ci
@@ -43,6 +44,12 @@ php artisan optimize
 sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx
 ```
+cd /var/www/sgmrtexas
+git reset --hard
+git pull origin main
+
+
+
 
 Usuários de exemplo já criados na base (ambiente de teste):
 
