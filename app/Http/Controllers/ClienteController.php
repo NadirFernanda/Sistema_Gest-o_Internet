@@ -240,6 +240,16 @@ class ClienteController extends Controller
     }
 
     /**
+     * Edit form for a cliente. Reuses the same `clientes` view (ficha)
+     * so the edit form (inline) can be displayed. Kept minimal to avoid
+     * duplicating presentation logic.
+     */
+    public function edit($id)
+    {
+        return $this->show($id);
+    }
+
+    /**
      * Exibe a ficha detalhada imprimível do cliente
      */
     public function ficha($id)
