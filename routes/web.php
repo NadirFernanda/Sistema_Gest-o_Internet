@@ -37,6 +37,10 @@ Route::middleware('auth')->group(function () {
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
     Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
     Route::get('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('clientes.show')->whereNumber('cliente');
+    Route::get('/clientes/{cliente}/edit', [\App\Http\Controllers\ClienteController::class, 'edit'])
+        ->name('clientes.edit')
+        ->whereNumber('cliente')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     // Corrige erro 500: rota para compensar dias
     Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteController::class, 'compensarDias'])->name('clientes.compensar_dias');
