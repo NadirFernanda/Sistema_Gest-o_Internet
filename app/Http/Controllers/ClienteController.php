@@ -677,6 +677,8 @@ class ClienteController extends Controller
     public function update(Request $request, $id)
     {
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            // Support legacy split BI fields and a simple single `bi` field used by the inline edit form
+            'bi' => 'sometimes|string|max:128',
             'bi_tipo' => 'sometimes|required_with:bi_numero|string|in:BI,NIF,Outro',
             'bi_numero' => 'sometimes|required_with:bi_tipo|string|max:64',
             'bi_tipo_outro' => 'nullable|string|max:64',
@@ -691,13 +693,19 @@ class ClienteController extends Controller
 
         $data = $validator->validated();
 
-        // If BI fields were provided, compose the stored `bi` value and ensure uniqueness
-        if (isset($data['bi_tipo']) && isset($data['bi_numero'])) {
+        // If the client sent a single `bi` field (inline edit), validate uniqueness and use it.
+        if (isset($data['bi'])) {
+            $biValue = trim($data['bi']);
+            $exists = Cliente::where('bi', $biValue)->where('id', '!=', $id)->exists();
+            if ($exists) {
+                return response()->json(['success' => false, 'errors' => ['bi' => ['Já existe um cliente cadastrado com este documento.']]], 422);
+            }
+            $data['bi'] = $biValue;
+        } elseif (isset($data['bi_tipo']) && isset($data['bi_numero'])) {
             $biValue = $data['bi_numero'];
             if ($data['bi_tipo'] === 'Outro' && !empty($data['bi_tipo_outro'])) {
                 $biValue = $data['bi_tipo_outro'] . ':' . $data['bi_numero'];
             }
-
             $exists = Cliente::where('bi', $biValue)->where('id', '!=', $id)->exists();
             if ($exists) {
                 return response()->json(['success' => false, 'errors' => ['bi_numero' => ['Já existe um cliente cadastrado com este documento.']]], 422);

@@ -109,6 +109,9 @@
                             <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
                                 Compensar Dias
                             </button>
+                            @can('clientes.edit')
+                                <button id="btnMostrarEditar" class="btn btn-ghost" style="padding:10px 16px; border-radius:8px; font-weight:700; margin-left:6px;">Editar</button>
+                            @endcan
                         </div>
                         <!-- Modal para compensar dias -->
                         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
@@ -153,8 +156,9 @@
                     <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
-                <form id="formEditarCliente" method="POST" class="form-editar-cliente-moderna" style="display:none;">
+                <form id="formEditarCliente" method="POST" action="{{ isset($cliente) ? route('clientes.update', $cliente->id) : '#' }}" class="form-editar-cliente-moderna" style="display:none;">
                     @csrf
+                    @method('PUT')
                     <div class="form-editar-grid">
                         <div class="form-editar-campo">
                             <label for="editBI"><strong>BI/NIF:</strong></label>
