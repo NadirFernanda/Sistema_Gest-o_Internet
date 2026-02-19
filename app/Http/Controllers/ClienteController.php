@@ -689,8 +689,8 @@ class ClienteController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Refactored update: validate, normalize, check uniqueness, update, and respond
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            // Support legacy split BI fields and a simple single `bi` field used by the inline edit form
             'bi' => 'sometimes|string|max:128',
             'bi_tipo' => 'sometimes|required_with:bi_numero|string|in:BI,NIF,Outro',
             'bi_numero' => 'sometimes|required_with:bi_tipo|string|max:64',
@@ -701,47 +701,54 @@ class ClienteController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()->messages()], 422);
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()->messages()], 422);
+            }
+            return redirect()->back()->withErrors($validator->errors())->withInput();
         }
 
         $data = $validator->validated();
 
-        // If the client sent a single `bi` field (inline edit), validate uniqueness and use it.
-        if (isset($data['bi'])) {
-            $biValue = trim($data['bi']);
-            $exists = Cliente::where('bi', $biValue)->where('id', '!=', $id)->exists();
-            if ($exists) {
-                return response()->json(['success' => false, 'errors' => ['bi' => ['Já existe um cliente cadastrado com este documento.']]], 422);
-            }
-            $data['bi'] = $biValue;
-        } elseif (isset($data['bi_tipo']) && isset($data['bi_numero'])) {
-            $biValue = $data['bi_numero'];
+        // Normalize BI value
+        $bi = null;
+        if (!empty($data['bi'])) {
+            $bi = trim($data['bi']);
+        } elseif (!empty($data['bi_tipo']) && !empty($data['bi_numero'])) {
+            $bi = $data['bi_numero'];
             if ($data['bi_tipo'] === 'Outro' && !empty($data['bi_tipo_outro'])) {
-                $biValue = $data['bi_tipo_outro'] . ':' . $data['bi_numero'];
+                $bi = $data['bi_tipo_outro'] . ':' . $data['bi_numero'];
             }
-            $exists = Cliente::where('bi', $biValue)->where('id', '!=', $id)->exists();
+        }
+
+        if ($bi) {
+            $exists = Cliente::where('bi', $bi)->where('id', '!=', $id)->exists();
             if ($exists) {
-                return response()->json(['success' => false, 'errors' => ['bi_numero' => ['Já existe um cliente cadastrado com este documento.']]], 422);
+                $errors = ['bi' => ['Já existe um cliente cadastrado com este documento.']];
+                if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->is('api/*')) {
+                    return response()->json(['success' => false, 'errors' => $errors], 422);
+                }
+                return redirect()->back()->withErrors($errors)->withInput();
             }
-            $data['bi'] = $biValue;
+            $data['bi'] = $bi;
         }
 
-        // Only keep the allowed updatable fields for update
-        $updatable = array_intersect_key($data, array_flip(['bi','nome','email','contato']));
+        $updatable = array_intersect_key($data, array_flip(['bi', 'nome', 'email', 'contato']));
 
-        $cliente = Cliente::findOrFail($id);
-        $cliente->update($updatable);
+        try {
+            $cliente = Cliente::findOrFail($id);
+            $cliente->update($updatable);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao editar cliente', ['id' => $id, 'error' => $e->getMessage()]);
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Erro inesperado ao editar cliente.'], 500);
+            }
+            return redirect()->back()->with('error', 'Erro inesperado ao editar cliente.')->withInput();
+        }
 
-        // If the request expects JSON (AJAX/fetch/API), return JSON with a friendly message.
         if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->is('api/*')) {
-            return response()->json([
-                'success' => true,
-                'message' => 'os dados do cliente foram editados com sucesso',
-                'cliente' => $cliente
-            ]);
+            return response()->json(['success' => true, 'message' => 'os dados do cliente foram editados com sucesso', 'cliente' => $cliente]);
         }
 
-        // For regular form submissions, redirect back to the cliente ficha with a flash message.
         return redirect()->route('clientes.show', $cliente->id)->with('success', 'os dados do cliente foram editados com sucesso');
     }
 
