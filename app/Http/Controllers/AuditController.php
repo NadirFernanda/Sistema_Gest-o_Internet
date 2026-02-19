@@ -69,15 +69,24 @@ class AuditController extends Controller
 
         $audits = $query->paginate(25)->withQueryString();
 
-        // Provide distinct lists for UI filters (module/action)
-        $modules = AuditLog::query()->whereNotNull('module')->distinct()->orderBy('module')->pluck('module')->toArray();
-        $actions = AuditLog::query()->whereNotNull('action')->distinct()->orderBy('action')->pluck('action')->toArray();
+        // Provide distinct lists for UI filters (module/action) when columns exist
+        $modules = [];
+        $actions = [];
+        if (Schema::hasColumn('audit_logs', 'module')) {
+            $modules = AuditLog::query()->whereNotNull('module')->distinct()->orderBy('module')->pluck('module')->toArray();
+        }
+        if (Schema::hasColumn('audit_logs', 'action')) {
+            $actions = AuditLog::query()->whereNotNull('action')->distinct()->orderBy('action')->pluck('action')->toArray();
+        }
 
         return view('admin.audits.index', compact('audits', 'modules', 'actions'));
     }
 
     public function modules(Request $request)
     {
+        if (! Schema::hasColumn('audit_logs', 'module')) {
+            return response()->json([]);
+        }
         $q = trim((string) $request->query('q', ''));
         $query = AuditLog::query()->whereNotNull('module');
         if ($q !== '') {
@@ -91,6 +100,9 @@ class AuditController extends Controller
 
     public function actions(Request $request)
     {
+        if (! Schema::hasColumn('audit_logs', 'action')) {
+            return response()->json([]);
+        }
         $q = trim((string) $request->query('q', ''));
         $query = AuditLog::query()->whereNotNull('action');
         if ($q !== '') {
