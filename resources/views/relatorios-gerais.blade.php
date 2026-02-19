@@ -13,38 +13,7 @@
         'stackLeft' => true,
     ])
 
-    <style>
-    /* Reuse toolbar styles from estoque to keep visual parity */
-    .clientes-toolbar, .clientes-toolbar form.search-form-inline {
-        max-width:1100px;
-        margin:18px auto;
-        display:flex;
-        gap:10px;
-        align-items:center;
-    }
-    .clientes-toolbar form.search-form-inline { flex:1; display:flex; gap:8px; align-items:center; }
-    .clientes-toolbar .search-input {
-        height:40px !important;
-        flex:1 !important;
-        min-width:320px !important;
-        max-width:100%;
-        padding:0 12px !important;
-        border-radius:8px !important;
-        border:2px solid #e6a248 !important;
-        box-sizing:border-box;
-        font-size:1rem;
-    }
-    .clientes-toolbar .btn,
-    .clientes-toolbar .btn-search,
-    .clientes-toolbar .btn-cta,
-    .clientes-toolbar .btn-ghost { height:40px !important; min-width:140px !important; max-width:140px !important; width:140px !important; display:inline-flex; align-items:center; justify-content:center; font-weight:700; border-radius:8px; text-align:center; white-space:nowrap; box-sizing:border-box; }
-    .tabela-estoque-moderna th { background: #fffbe7; color: #e0a800; font-weight: bold; font-size: 1.09em; border-bottom: 2px solid #ffe6a0; padding: 14px 12px; }
-    .tabela-estoque-moderna td { background: #fff; color: #222; font-size: 1em; padding: 13px 12px; }
-    .tabela-estoque-moderna { width:100%; min-width:640px; font-size:1.07em; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; }
-    .btn-icon { padding:6px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; border:1px solid #e6e6e6; background:#fff; color:#222; cursor:pointer; transition:background 0.12s ease, color 0.12s ease, border-color 0.12s ease; }
-    .btn-icon svg { width:16px; height:16px; }
-    .btn-icon:hover { background:#f7b500; color:#fff; border-color:#f7b500; }
-    </style>
+    <!-- Toolbar and table styles centralized in resources/css/clientes.css -->
 
     <div class="clientes-toolbar">
         <form method="GET" action="{{ route('relatorios.gerais') }}" class="search-form-inline">

@@ -12,6 +12,8 @@
         'stackLeft' => true,
     ])
 
+    <!-- Toolbar styles moved to resources/css/clientes.css -->
+
     <div class="clientes-toolbar">
         <form method="GET" action="{{ route('admin.users.index') }}" class="search-form-inline">
             <input type="search" name="q" value="{{ request('q') }}" placeholder="Pesquisar por nome ou e-mail..." class="search-input" />
