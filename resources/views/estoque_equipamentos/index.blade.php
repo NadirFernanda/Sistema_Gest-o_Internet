@@ -21,8 +21,9 @@
                 @endif
             </form>
             <div style="display:flex;gap:8px;">
-                <!-- Temporarily show the button without permission check -->
-                <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
+                @can('estoque.create')
+                    <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
+                @endcan
                 
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>

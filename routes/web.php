@@ -93,8 +93,12 @@ Route::middleware('auth')->group(function () {
 
 
     // Rotas de equipamentos
-    Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])->name('equipamentos.create');
-    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])->name('equipamentos.store')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':estoque.create');
+    Route::get('/clientes/{cliente}/equipamentos/create', [\App\Http\Controllers\EquipamentoController::class, 'create'])
+        ->name('equipamentos.create')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':estoque.create');
+    Route::post('/clientes/{cliente}/equipamentos', [\App\Http\Controllers\EquipamentoController::class, 'store'])
+        ->name('equipamentos.store')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':estoque.create');
     
     // Self-service password change
     Route::get('password/change', [PasswordController::class, 'edit'])->name('password.change');
