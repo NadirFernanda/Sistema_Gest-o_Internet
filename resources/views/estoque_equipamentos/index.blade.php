@@ -21,9 +21,7 @@
                 @endif
             </form>
             <div style="display:flex;gap:8px;">
-                @can('estoque.create')
-                    <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
-                @endcan
+                <a href="{{ route('estoque_equipamentos.create') }}" class="btn btn-cta">Cadastrar</a>
                 
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>

@@ -245,9 +245,7 @@
                 }
                 </style>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
-                @can('clientes.edit')
                 <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-secondary">Vincular Equipamento do Estoque</a>
-                @endcan
                 @php
                     $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
                     $hasVincs = (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count());
