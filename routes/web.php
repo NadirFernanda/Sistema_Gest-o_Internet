@@ -149,6 +149,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/plan-templates/list.json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson']);
     Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 
+    // Debug route: show total and active plano counts per template (only when APP_DEBUG=true)
+    Route::get('/debug/plan-template-counts', [\App\Http\Controllers\PlanTemplateController::class, 'debugCounts'])->name('debug.plan-template-counts');
+
     
     // Export routes removed per request
 });

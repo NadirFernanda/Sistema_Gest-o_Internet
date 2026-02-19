@@ -96,4 +96,30 @@ class PlanTemplateController extends Controller
         $list = PlanTemplate::orderBy('name')->get(['id','name','preco','ciclo','estado']);
         return response()->json($list);
     }
+
+    /**
+     * Debug endpoint: return per-template counts (total planos and active clientes).
+     * Only available when APP_DEBUG is true to avoid exposing in production.
+     */
+    public function debugCounts()
+    {
+        if (! config('app.debug')) {
+            abort(404);
+        }
+
+        $templates = PlanTemplate::orderBy('name')->get(['id','name','ciclo']);
+        $result = $templates->map(function ($t) {
+            $total = $t->planos()->count();
+            $active = $t->planos()->where('ativo', true)->count();
+            return [
+                'id' => $t->id,
+                'name' => $t->name,
+                'ciclo' => $t->ciclo,
+                'total_planos' => $total,
+                'active_clients_count' => $active,
+            ];
+        });
+
+        return response()->json($result);
+    }
 }
