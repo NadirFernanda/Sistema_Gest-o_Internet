@@ -23,7 +23,7 @@ class PermissionSeeder extends Seeder
             // Cobranças
             'cobrancas.view', 'cobrancas.create', 'cobrancas.edit', 'cobrancas.delete', 'cobrancas.export',
             // Estoque
-            'estoque.view', 'estoque.create', 'estoque.edit', 'estoque.delete',
+            'estoque.view', 'estoque.edit', 'estoque.delete',
             // Relatórios
             'relatorios.view',
         ];
