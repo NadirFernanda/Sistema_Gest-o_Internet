@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Preview: Toolbar Cobranças</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Arial;margin:24px;background:#f2f2f4}
+    .card{background:#fff;border-radius:16px;padding:28px;max-width:1200px;margin:0 auto;box-shadow:0 8px 32px rgba(0,0,0,0.08)}
+    .filtro-modern-cobranca{background:#f8f8f8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .filtro-top{display:flex;align-items:center;justify-content:flex-start;width:100%}
+    .filtro-top-actions{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+    .btn{padding:10px 18px;border-radius:10px;border:0;cursor:pointer}
+    .btn-primary{background:#f7b500;color:#fff}
+    .btn-secondary{background:#fff;border:1px solid #ddd}
+    .btn-ghost{background:transparent;border:1px solid transparent;color:#444}
+    .btn-cta{background:#f7b500;color:#fff}
+    .filtro-fields{display:flex;flex-wrap:wrap;gap:10px 12px;margin-top:6px}
+    .filtro-group{display:flex;flex-direction:column;flex:0 0 160px;min-width:120px}
+    .filtro-group label{font-weight:600;margin-bottom:6px}
+    .filtro-group input,.filtro-group select{padding:8px;border-radius:8px;border:1px solid #ccc}
+    @media(max-width:1000px){.filtro-group{flex:0 0 48%;max-width:48%}}
+    @media(max-width:700px){.filtro-fields{flex-direction:column}.btn{white-space:nowrap}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="color:#f7b500;margin:0 0 8px 0">Relatório de Cobranças</h2>
+    <div class="filtro-modern-cobranca">
+      <div class="filtro-top">
+        <div class="filtro-top-actions">
+          <button class="btn btn-primary">Filtrar</button>
+          <button class="btn btn-secondary">Limpar</button>
+          <button class="btn btn-ghost">Painel</button>
+          <button class="btn btn-cta">Cobrança</button>
+          <button class="btn btn-secondary">Exportar</button>
+        </div>
+      </div>
+      <div class="filtro-fields">
+        <div class="filtro-group">
+          <label>Cliente</label>
+          <input value="Nome do cliente" />
+        </div>
+        <div class="filtro-group">
+          <label>Descrição</label>
+          <input value="Descrição da cobrança" />
+        </div>
+        <div class="filtro-group">
+          <label>Status</label>
+          <select><option>Todos</option><option>Pendente</option><option>Pago</option></select>
+        </div>
+        <div class="filtro-group">
+          <label>Valor</label>
+          <input value="0,00" />
+        </div>
+        <div class="filtro-group">
+          <label>Data de Vencimento</label>
+          <input type="date" />
+        </div>
+        <div class="filtro-group">
+          <label>Data de Pagamento</label>
+          <input type="date" />
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

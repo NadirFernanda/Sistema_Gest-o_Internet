@@ -23,9 +23,9 @@
         margin-bottom: 24px;
         box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 10px 12px;
-        align-items: center;
+        align-items: stretch;
         justify-content: flex-start;
     }
     .filtro-modern-cobranca .filtro-group {
@@ -36,6 +36,15 @@
         min-width: 80px !important;
         max-width: 160px !important;
         box-sizing: border-box;
+    }
+
+    /* container que agrupa os campos de filtro em linha abaixo da toolbar */
+    .filtro-modern-cobranca .filtro-fields {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 12px;
+        align-items: center;
+        width: 100%;
     }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
@@ -69,14 +78,18 @@
         align-items: center !important;
         gap: 8px !important;
         flex: 0 0 auto;
-        width: auto !important;
+        width: 100% !important;
         margin-bottom: 8px !important;
+        justify-content: flex-start;
     }
     .filtro-modern-cobranca .filtro-top-actions {
         display: flex;
         gap: 10px;
         align-items: center;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
     }
     .filtro-modern-cobranca input:focus,
     .filtro-modern-cobranca select:focus {
@@ -107,6 +120,37 @@
             width: 100%;
         }
     }
+
+    /* intermediate breakpoint: two columns for filter fields */
+    @media (max-width: 1000px) and (min-width: 701px) {
+        .filtro-modern-cobranca .filtro-fields {
+            gap: 8px 10px;
+        }
+        .filtro-modern-cobranca .filtro-group {
+            flex: 0 0 48% !important;
+            max-width: 48% !important;
+        }
+        .filtro-modern-cobranca .filtro-top {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .filtro-modern-cobranca .filtro-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .filtro-modern-cobranca .filtro-group {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+        .filtro-modern-cobranca .filtro-top-actions a,
+        .filtro-modern-cobranca .filtro-top-actions button {
+            white-space: nowrap;
+            flex: none;
+        }
+    }
     </style>
     <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
         <div class="filtro-top" style="display:flex;align-items:center;width:100%;margin-bottom:12px;gap:12px;flex-wrap:nowrap;">
@@ -120,6 +164,7 @@
                 @endcan
             </div>
         </div>
+        <div class="filtro-fields">
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
             <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
@@ -148,6 +193,7 @@
         <div class="filtro-group">
             <label for="data_pagamento">Data de Pagamento</label>
             <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
+        </div>
         </div>
         <!-- ações de filtro agora ficam na toolbar acima (botão Filtrar submete o formulário via JS) -->
     </form>

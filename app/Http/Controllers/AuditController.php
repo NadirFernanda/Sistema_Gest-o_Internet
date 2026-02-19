@@ -59,6 +59,19 @@ class AuditController extends Controller
                     if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]); }
                     else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]); }
                 }
+
+                // Also match users whose name/email match the free-text search so
+                // audit rows that only store `actor_id` will still be returned.
+                $userIds = \App\Models\User::query()
+                    ->where('name', $op, "%{$busca}%")
+                    ->orWhere('email', $op, "%{$busca}%")
+                    ->limit(500)
+                    ->pluck('id')
+                    ->toArray();
+                if (! empty($userIds)) {
+                    if (! $started) { $q->whereIn('actor_id', $userIds); $started = true; }
+                    else { $q->orWhereIn('actor_id', $userIds); }
+                }
             });
         }
 
