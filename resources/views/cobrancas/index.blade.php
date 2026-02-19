@@ -31,10 +31,10 @@
     .filtro-modern-cobranca .filtro-group {
         display: flex;
         flex-direction: column;
-        /* reduzir ainda mais a largura para evitar quebra e sobreposição */
-        flex: 0 0 160px;
-        min-width: 110px;
-        max-width: 200px;
+        /* diminuir para 140px base, permitindo mais campos na mesma linha */
+        flex: 0 0 140px;
+        min-width: 90px;
+        max-width: 180px;
         box-sizing: border-box;
     }
     .filtro-modern-cobranca label {
@@ -47,8 +47,8 @@
     .filtro-modern-cobranca select {
         border-radius: 8px;
         border: 1px solid #ccc;
-        padding: 8px 12px;
-        font-size: 1rem;
+        padding: 6px 10px;
+        font-size: 0.95rem;
         box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         transition: border-color 0.2s, box-shadow 0.2s;
         outline: none;
