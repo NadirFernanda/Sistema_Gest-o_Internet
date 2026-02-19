@@ -63,7 +63,23 @@ class AuditController extends Controller
         }
 
         if ($request->filled('user')) {
-            $query->where('actor_name', 'like', '%'.$request->input('user').'%');
+            $val = trim((string) $request->input('user'));
+            if ($val !== '') {
+                // search both stored actor_name and users table (in case actor_name is not stored)
+                $query->where(function($q) use ($val, $op) {
+                    $q->where('actor_name', $op, "%{$val}%");
+                    // also match actor_id against users whose name or email matches
+                    $userIds = \App\Models\User::query()
+                        ->where('name', $op, "%{$val}%")
+                        ->orWhere('email', $op, "%{$val}%")
+                        ->limit(500)
+                        ->pluck('id')
+                        ->toArray();
+                    if (!empty($userIds)) {
+                        $q->orWhereIn('actor_id', $userIds);
+                    }
+                });
+            }
         }
         if ($request->filled('module') && Schema::hasColumn('audit_logs', 'module')) {
             $val = trim((string) $request->input('module'));
