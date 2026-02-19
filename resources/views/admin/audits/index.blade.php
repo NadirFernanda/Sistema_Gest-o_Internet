@@ -68,49 +68,12 @@
         <div class="clientes-toolbar">
             <form method="GET" action="{{ url()->current() }}" class="search-form-inline">
                 <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar auditoria por usuário, ação, módulo ou resumo..." class="search-input" />
-
-                {{-- Dynamic selects: if server provided lists are small, render them; otherwise we'll fetch via AJAX --}}
-                @php
-                    $renderModules = !empty($modules) && count($modules) <= 100;
-                    $renderActions = !empty($actions) && count($actions) <= 100;
-                @endphp
-
-                {{-- Module control: render native select when server provided small list, otherwise use autocompleter --}}
-                <div style="display:flex;gap:6px;align-items:center;position:relative;">
-                    @if($renderModules)
-                        <select id="module-select" name="module" class="search-input" data-loaded="1">
-                            <option value="" {{ empty(request('module')) ? 'selected' : '' }}>Todos os módulos</option>
-                            @foreach($modules as $m)
-                                <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
-                            @endforeach
-                        </select>
-                    @else
-                        <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" autocomplete="off" data-initial='@json([])' />
-                        <div id="module-dropdown" class="module-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:240px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:180px;"></div>
-                    @endif
-                </div>
-
-                {{-- Action control: native select when small list, otherwise autocompleter --}}
-                <div style="display:flex;gap:6px;align-items:center;position:relative;">
-                    @if($renderActions)
-                        <select id="action-select" name="action" class="search-input" data-loaded="1">
-                            <option value="" {{ empty(request('action')) ? 'selected' : '' }}>Todas as ações</option>
-                            @foreach($actions as $act)
-                                <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ \App\Services\AuditService::translateAction($act) }}</option>
-                            @endforeach
-                        </select>
-                    @else
-                        <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" autocomplete="off" data-initial='@json([])' />
-                        <div id="action-dropdown" class="action-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:200px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:140px;"></div>
-                    @endif
-                </div>
-
                 <button type="submit" class="btn btn-search">Pesquisar</button>
                 @if(request()->query())
                     <a href="{{ url()->current() }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
                 @endif
             </form>
-            <div class="right-actions">
+            <div style="display:flex;gap:8px;align-items:center;">
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
