@@ -387,6 +387,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                                 <span class="plan-cycle">${esc(p.ciclo||'')}</span>
                             </div>
                             <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
+                            ${ (p.template_active_clients_count !== undefined && p.template_active_clients_count !== null) ? (`<div style="margin-top:8px;color:#666;font-weight:600;">${esc(p.template_active_clients_count)} ${p.template_active_clients_count === 1 ? 'Cliente cadastrado' : 'Clientes cadastrados'}</div>`) : '' }
                             <div class="plan-actions">
                                      <a href="${p.web_show || ('/planos/' + p.id)}" class="btn-icon btn-ghost" title="Ver" aria-label="Ver Plano">
                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>

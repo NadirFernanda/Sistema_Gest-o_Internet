@@ -71,7 +71,7 @@ class PlanoController extends Controller
 
     public function index(Request $request)
     {
-        $query = Plano::with('cliente');
+        $query = Plano::with(['cliente', 'template']);
 
         if ($busca = $request->query('busca')) {
             $busca = trim($busca);
@@ -91,6 +91,20 @@ class PlanoController extends Controller
         $user = auth()->user();
         $payload = $planos->map(function ($p) use ($user) {
             $arr = $p->toArray();
+            // include template and active clients count for front-end cards
+            try {
+                if ($p->relationLoaded('template') && $p->template) {
+                    $arr['template'] = $p->template->toArray();
+                    // compute active clients count for this template (safe fallback)
+                    try {
+                        $arr['template_active_clients_count'] = $p->template->planos()->where('ativo', true)->count();
+                    } catch (\Exception $e) {
+                        $arr['template_active_clients_count'] = $p->template->planos()->count();
+                    }
+                }
+            } catch (\Exception $e) {
+                $arr['template_active_clients_count'] = null;
+            }
             try {
                 $arr['web_show'] = route('planos.show', ['plano' => $p->id]);
             } catch (\Exception $e) {
