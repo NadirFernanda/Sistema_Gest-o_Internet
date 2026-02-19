@@ -21,12 +21,13 @@
             display:flex;
             gap:10px;
             align-items:center;
-            justify-content:space-between;
+            justify-content:flex-start; /* keep controls grouped and proportional */
             box-sizing:border-box;
             padding:0 8px;
         }
+        .clientes-toolbar .right-actions { margin-left:12px; display:flex; gap:8px; align-items:center; }
         .clientes-toolbar form.search-form-inline {
-            flex:1 1 auto;
+            flex:1 1 780px; /* allow form to take reasonable width but avoid huge gaps */
             display:flex;
             gap:8px;
             align-items:center;
@@ -80,16 +81,34 @@
                     $renderActions = !empty($actions) && count($actions) <= 100;
                 @endphp
 
-                {{-- Unified module control: single input with datalist. If server provides small list, pre-populate; otherwise fetch via AJAX on input --}}
+                {{-- Module control: render native select when server provided small list, otherwise use autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
-                    <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" style="max-width:180px;padding:0 8px;" autocomplete="off" data-initial='@json($renderModules ? $modules : [])' />
-                    <div id="module-dropdown" class="module-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:240px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:180px;"></div>
+                    @if($renderModules)
+                        <select id="module-select" name="module" class="search-input" style="max-width:200px;padding:0 8px;">
+                            <option value="">Todos os módulos</option>
+                            @foreach($modules as $m)
+                                <option value="{{ $m }}" {{ request('module') == $m ? 'selected' : '' }}>{{ $m }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input id="module-autocomplete" name="module" type="search" value="{{ request('module') }}" placeholder="Todos os módulos / pesquisar..." class="search-input" style="max-width:180px;padding:0 8px;" autocomplete="off" data-initial='@json([])' />
+                        <div id="module-dropdown" class="module-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:240px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:180px;"></div>
+                    @endif
                 </div>
 
-                {{-- Unified action control: single input with custom dropdown/autocomplete --}}
+                {{-- Action control: native select when small list, otherwise autocompleter --}}
                 <div style="display:flex;gap:6px;align-items:center;position:relative;">
-                    <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" style="max-width:140px;padding:0 8px;" autocomplete="off" data-initial='@json($renderActions ? $actions : [])' />
-                    <div id="action-dropdown" class="action-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:200px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:140px;"></div>
+                    @if($renderActions)
+                        <select id="action-select" name="action" class="search-input" style="max-width:160px;padding:0 8px;">
+                            <option value="">Todas as ações</option>
+                            @foreach($actions as $act)
+                                <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ $act }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input id="action-autocomplete" name="action" type="search" value="{{ request('action') }}" placeholder="Todas as ações / pesquisar..." class="search-input" style="max-width:140px;padding:0 8px;" autocomplete="off" data-initial='@json([])' />
+                        <div id="action-dropdown" class="action-dropdown" style="display:none;position:absolute;left:0;top:44px;z-index:60;max-height:200px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);min-width:140px;"></div>
+                    @endif
                 </div>
 
                 <button type="submit" class="btn btn-search">Pesquisar</button>
@@ -97,7 +116,7 @@
                     <a href="{{ url()->current() }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
                 @endif
             </form>
-            <div style="display:flex;gap:8px;">
+            <div class="right-actions">
                 <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
@@ -346,6 +365,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var modSel = document.getElementById('module-select');
     var modSearch = document.getElementById('module-search');
+    // If server did not pre-render options but a select exists, populate it via AJAX
+    if (modSel && (!modSel.dataset || !modSel.dataset.loaded)) {
+        fetchAndPopulate('{{ url('/admin/audit-logs/modules') }}', 'module-select');
+    }
+    var actSel = document.getElementById('action-select');
+    if (actSel && (!actSel.dataset || !actSel.dataset.loaded)) {
+        fetchAndPopulate('{{ url('/admin/audit-logs/actions') }}', 'action-select');
+    }
     // New: unified autocomplete using datalist
     var modInput = document.getElementById('module-autocomplete');
     var moduleList = document.getElementById('module-list');
