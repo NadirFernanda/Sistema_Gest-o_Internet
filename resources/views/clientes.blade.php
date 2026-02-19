@@ -156,7 +156,12 @@
                     <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
-                <form id="formEditarCliente" method="POST" action="{{ isset($cliente) ? route('clientes.update', $cliente->id) : '#' }}" class="form-editar-cliente-moderna" style="display:none;">
+                    <form id="formEditarCliente" method="POST" action="{{ isset($cliente) ? route('clientes.update', $cliente->id) : '#' }}" class="form-editar-cliente-moderna" style="display:none;"
+                        data-id="{{ $cliente->id ?? '' }}"
+                        data-bi="{{ $cliente->bi ?? '' }}"
+                        data-nome="{{ $cliente->nome ?? '' }}"
+                        data-email="{{ $cliente->email ?? '' }}"
+                        data-contato="{{ $cliente->contato ?? '' }}">
                     @csrf
                     @method('PUT')
                     <div class="form-editar-grid">
@@ -452,10 +457,10 @@
                     const editNomeEl = document.getElementById('editNome');
                     const editEmailEl = document.getElementById('editEmail');
                     const editContatoEl = document.getElementById('editContato');
-                    if (editBIEl) editBIEl.value = @json($cliente->bi ?? '');
-                    if (editNomeEl) editNomeEl.value = @json($cliente->nome ?? '');
-                    if (editEmailEl) editEmailEl.value = @json($cliente->email ?? '');
-                    if (editContatoEl) editContatoEl.value = @json($cliente->contato ?? '');
+                    if (editBIEl) editBIEl.value = formEditarClienteEl.dataset.bi || '';
+                    if (editNomeEl) editNomeEl.value = formEditarClienteEl.dataset.nome || '';
+                    if (editEmailEl) editEmailEl.value = formEditarClienteEl.dataset.email || '';
+                    if (editContatoEl) editContatoEl.value = formEditarClienteEl.dataset.contato || '';
                     formEditarClienteEl.style.display = 'block';
                     if (clienteDados) clienteDados.style.display = 'none';
                     if (editNomeEl) editNomeEl.focus();
@@ -483,10 +488,11 @@
                 const editNomeEl = document.getElementById('editNome');
                 const editEmailEl = document.getElementById('editEmail');
                 const editContatoEl = document.getElementById('editContato');
-                if (editBIEl) editBIEl.value = @json($cliente->bi ?? '');
-                if (editNomeEl) editNomeEl.value = @json($cliente->nome ?? '');
-                if (editEmailEl) editEmailEl.value = @json($cliente->email ?? '');
-                if (editContatoEl) editContatoEl.value = @json($cliente->contato ?? '');
+                const formEditarClienteEl = document.getElementById('formEditarCliente');
+                if (editBIEl) editBIEl.value = formEditarClienteEl.dataset.bi || '';
+                if (editNomeEl) editNomeEl.value = formEditarClienteEl.dataset.nome || '';
+                if (editEmailEl) editEmailEl.value = formEditarClienteEl.dataset.email || '';
+                if (editContatoEl) editContatoEl.value = formEditarClienteEl.dataset.contato || '';
                 formEditarClienteEl.style.display = 'block';
                 if (clienteDados) clienteDados.style.display = 'none';
                 if (editNomeEl) editNomeEl.focus();
@@ -501,7 +507,7 @@
                 const email = document.getElementById('editEmail').value;
                 const contato = document.getElementById('editContato').value;
                 const token = document.querySelector('input[name="_token"]').value;
-                const clienteId = @json($cliente->id);
+                const clienteId = document.getElementById('formEditarCliente').dataset.id || null;
                 const msgSpan = document.getElementById('msgAtualizaCliente');
                 msgSpan.textContent = '';
                 fetch(`/clientes/${clienteId}`, {
