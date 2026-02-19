@@ -25,6 +25,7 @@
           <th>Nome</th>
           <th>Preço</th>
           <th>Ciclo (dias)</th>
+          <th>Clientes ativos</th>
           <th>Estado</th>
           <th></th>
         </tr>
@@ -35,6 +36,7 @@
             <td>{{ $t->name }}</td>
             <td>{{ $t->preco ? 'Kz ' . number_format($t->preco, 2, ',', '.') : '-' }}</td>
             <td>{{ $t->ciclo ?? '-' }}</td>
+            <td style="white-space:nowrap">{{ $t->active_clients_count ?? 0 }} {{ ($t->active_clients_count ?? 0) === 1 ? 'Cliente' : 'Clientes' }} cadastrados</td>
             <td>{{ $t->estado ?? '-' }}</td>
             <td style="text-align:right">
               @if($t->id)

@@ -18,7 +18,11 @@ class PlanTemplateController extends Controller
     }
     public function index()
     {
-        $templates = PlanTemplate::orderBy('name')->get();
+        // Load templates with a count of active clientes (planos.ativo = true)
+        $templates = PlanTemplate::withCount(['planos as active_clients_count' => function ($q) {
+            $q->where('ativo', true);
+        }])->orderBy('name')->get();
+
         return view('plan_templates.index', compact('templates'));
     }
 
