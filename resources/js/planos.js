@@ -384,7 +384,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                             <div class="plan-title">${esc(p.nome||p.name||'')}</div>
                             <div class="plan-meta">
                                 <span class="plan-price">${esc(preco)}</span>
-                                <span class="plan-cycle">${esc(p.ciclo||'')}</span>
+                                <span class="plan-cycle">${esc((p.ciclo !== undefined && p.ciclo !== null && p.ciclo !== '') ? p.ciclo : (p.template && (p.template.ciclo !== undefined && p.template.ciclo !== null && p.template.ciclo !== '') ? p.template.ciclo : ''))}</span>
                             </div>
                             <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
                             ${ (p.template_active_clients_count !== undefined && p.template_active_clients_count !== null) ? (`<div style="margin-top:8px;color:#666;font-weight:600;">${esc(p.template_active_clients_count)} ${p.template_active_clients_count === 1 ? 'Cliente cadastrado' : 'Clientes cadastrados'}</div>`) : '' }
