@@ -33,33 +33,11 @@ class PlanoController extends Controller
             $validated['template_id'] = $template->id;
 
             \Log::info('PlanoController@store - Dados validados', ['validated' => $validated, 'template_used' => $template ? $template->id : null]);
-            // prevent duplicate active plan name for the same client
-            try {
-                $exists = Plano::where('cliente_id', $validated['cliente_id'])
-                    ->where('nome', $validated['nome'])
-                    ->where('ativo', true)
-                    ->exists();
-            } catch (\Exception $e) {
-                // if the 'ativo' column doesn't exist or another DB issue, fallback to safer check
-                $exists = Plano::where('cliente_id', $validated['cliente_id'])
-                    ->where('nome', $validated['nome'])
-                    ->exists();
-            }
-            if ($exists) {
-                \Log::warning('PlanoController@store - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
-                $clienteNome = null;
-                try {
-                    $cliente = \App\Models\Cliente::find($validated['cliente_id']);
-                    $clienteNome = $cliente?->nome;
-                } catch (\Exception $e) {
-                    $clienteNome = null;
-                }
-                $msg = 'Esse plano já foi cadastrado para o cliente' . ($clienteNome ? (': ' . $clienteNome) : '.');
-                if (! $request->wantsJson()) {
-                    return back()->with('error', $msg)->withInput();
-                }
-                return response()->json(['success' => false, 'message' => $msg], 409);
-            }
+            // Allow multiple contracts of the same plan for a client.
+            // Previously the code prevented creating a plano with the same name
+            // for a client when an active one existed. For cases where a client
+            // may contract the same plan more than once (e.g. separate services
+            // or renewals), we no longer block creation here.
 
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
@@ -226,29 +204,9 @@ class PlanoController extends Controller
             $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
             $validated['ciclo'] = $template->ciclo;
             $validated['template_id'] = $template->id;
-            // prevent duplicate when submitting from web form
-            try {
-                $exists = Plano::where('cliente_id', $validated['cliente_id'])
-                    ->where('nome', $validated['nome'])
-                    ->where('ativo', true)
-                    ->exists();
-            } catch (\Exception $e) {
-                $exists = Plano::where('cliente_id', $validated['cliente_id'])
-                    ->where('nome', $validated['nome'])
-                    ->exists();
-            }
-            if ($exists) {
-                \Log::warning('PlanoController@storeWeb - Plano duplicado detectado', ['cliente_id' => $validated['cliente_id'], 'nome' => $validated['nome']]);
-                $clienteNome = null;
-                try {
-                    $cliente = \App\Models\Cliente::find($validated['cliente_id']);
-                    $clienteNome = $cliente?->nome;
-                } catch (\Exception $e) {
-                    $clienteNome = null;
-                }
-                $msg = 'Esse plano já foi cadastrado para o cliente' . ($clienteNome ? (': ' . $clienteNome) : '.');
-                return back()->with('error', $msg)->withInput();
-            }
+            // Allow multiple contracts of the same plan via web form as well.
+            // Removing the duplicate-blocking logic to permit multiple active
+            // entries when required by business logic.
 
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
