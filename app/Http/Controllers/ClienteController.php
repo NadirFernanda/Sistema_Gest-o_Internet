@@ -732,7 +732,17 @@ class ClienteController extends Controller
         $cliente = Cliente::findOrFail($id);
         $cliente->update($updatable);
 
-        return response()->json(['success' => true, 'cliente' => $cliente]);
+        // If the request expects JSON (AJAX/fetch/API), return JSON with a friendly message.
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'os dados do cliente foram editados com sucesso',
+                'cliente' => $cliente
+            ]);
+        }
+
+        // For regular form submissions, redirect back to the cliente ficha with a flash message.
+        return redirect()->route('clientes.show', $cliente->id)->with('success', 'os dados do cliente foram editados com sucesso');
     }
 
     public function destroy(Request $request, $id)
