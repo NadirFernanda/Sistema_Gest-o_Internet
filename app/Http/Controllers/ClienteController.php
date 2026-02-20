@@ -162,8 +162,9 @@ class ClienteController extends Controller
 
         // Be tolerant to different spellings/casing of the "estado" field
         // (some records use "Activo" while others use "Ativo").
+        // Accept any state containing 'ativ' or 'activ' (covers 'Ativo', 'Activo', etc.)
         $planosRaw = \App\Models\Plano::with('cliente')
-            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN ('ativo','activo')")
+            ->whereRaw("(LOWER(TRIM(COALESCE(estado, ''))) LIKE ? OR LOWER(TRIM(COALESCE(estado, ''))) LIKE ?)", ['%ativ%','%activ%'])
             ->get();
 
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
