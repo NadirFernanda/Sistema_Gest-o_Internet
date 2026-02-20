@@ -208,20 +208,19 @@ class ClienteController extends Controller
             }
 
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
+            // Shape the alert to match the frontend expectation (main.js)
             return [
-                'plano_id' => $plano->id,
-                'cliente_id' => $plano->cliente?->id,
-                'cliente_nome' => $plano->cliente?->nome,
-                'data_termino' => $dataTermino->toDateString(),
-                'dias_restantes' => $diasRestantes,
+                'id' => $plano->id,
+                'nome' => $plano->cliente?->nome,
+                'plano' => $plano->nome ?? $plano->descricao ?? '',
+                'contato' => $plano->cliente?->contato ?? $plano->cliente?->telefone ?? '',
+                'dataTermino' => $dataTermino->toDateString(),
+                'diasRestantes' => $diasRestantes,
             ];
         })->values();
 
-        return response()->json([
-            'success' => true,
-            'alertas' => $alertas,
-            'total' => $planos->count()
-        ]);
+        // Return an array directly so the frontend `main.js` can consume it
+        return response()->json($alertas);
     }
 
     /**
