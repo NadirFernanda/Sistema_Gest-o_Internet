@@ -15,6 +15,8 @@
                     @endforeach
                 </select>
                 <input name="ciclo" value="{{ old('ciclo', $plano->ciclo) }}" placeholder="Ciclo (dias)" />
+                <input type="date" name="data_ativacao" value="{{ old('data_ativacao', $plano->data_ativacao ? \Carbon\Carbon::parse($plano->data_ativacao)->format('Y-m-d') : '') }}" placeholder="Data de ativação" />
+                <input name="estado" value="{{ old('estado', $plano->estado) }}" placeholder="Estado (Ativo/Inativo)" />
             </div>
             <div style="margin-top:8px;">
                 <textarea name="descricao" style="width:100%">{{ old('descricao', $plano->descricao) }}</textarea>
