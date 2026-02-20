@@ -160,8 +160,10 @@ class ClienteController extends Controller
         $dias = $request->input('dias', 5);
         $hoje = now()->startOfDay();
 
+        // Be tolerant to different spellings/casing of the "estado" field
+        // (some records use "Activo" while others use "Ativo").
         $planosRaw = \App\Models\Plano::with('cliente')
-            ->where('estado', 'Ativo')
+            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN ('ativo','activo')")
             ->get();
 
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
