@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CorrigirPlanosSemCliente::class,
         \App\Console\Commands\DispararAlertasVencimento::class,
         \App\Console\Commands\GerarFichaPdf::class,
+        \App\Console\Commands\RelatorioGeralCommand::class,
         \App\Console\Commands\TestDomPdf::class,
         \App\Console\Commands\TestFicha::class,
         \App\Console\Commands\MigratePlansToTemplates::class,
@@ -22,6 +23,10 @@ class Kernel extends ConsoleKernel
     {
         // Dispara alertas de vencimento duas vezes ao dia (ex.: 09:00 e 18:00)
         $schedule->command('alertas:disparar')->twiceDaily(9, 18);
+        // Gera relatórios gerais automaticamente
+        $schedule->command('relatorio:geral --period=daily')->dailyAt('00:05');
+        $schedule->command('relatorio:geral --period=weekly')->weeklyOn(1, '00:10');
+        $schedule->command('relatorio:geral --period=monthly')->monthlyOn(1, '00:15');
         // Scheduled tasks for general reports have been removed (legacy audit reports)
     }
 
