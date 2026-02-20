@@ -57,6 +57,16 @@ class DispararAlertasVencimento extends Command
         $sent = 0;
         $failed = 0;
         Log::info('alertas:disparar - iniciando dispatch', ['dias' => $dias, 'candidates' => $planos->count()]);
+        // Ensure dispatch log exists (best-effort)
+        try {
+            $logDir = storage_path('logs');
+            if (!is_dir($logDir)) { mkdir($logDir, 0755, true); }
+            $startLine = '[' . now()->toDateTimeString() . '] iniciar dispatch dias=' . $dias . " candidates=" . $planos->count() . "\n";
+            @file_put_contents($logDir . '/alerts-dispatch.log', $startLine, FILE_APPEND | LOCK_EX);
+        } catch (\Throwable $_) {
+            // ignore any filesystem problems here
+        }
+
         foreach ($planos as $plano) {
             try {
                 if (!empty($plano->proxima_renovacao)) {
@@ -72,21 +82,38 @@ class DispararAlertasVencimento extends Command
                 continue;
             }
             if ($plano->cliente) {
+                $cliente = $plano->cliente;
+                // Send mail (primary channel) and count attempts separately; if one channel fails, continue
                 try {
-                    $plano->cliente->notify(new \App\Notifications\ClienteVencimentoAlert($plano->cliente, $plano, $diasRestantes));
-                    $plano->cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($plano->cliente, $plano, $diasRestantes));
+                    $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
                     $sent++;
-                    $this->info('Alerta enviado para: ' . ($plano->cliente->email ?? '-') . ' / ' . ($plano->cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                    Log::info('alertas:disparar - sucesso', ['plano_id' => $plano->id, 'cliente_id' => $plano->cliente->id ?? null, 'email' => $plano->cliente->email ?? null, 'contato' => $plano->cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
-                } catch (\Exception $e) {
+                    $this->info('E-mail enviado para: ' . ($cliente->email ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                    Log::info('alertas:disparar - mail enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes]);
+                } catch (\Throwable $e) {
                     $failed++;
-                    $this->error('Falha ao enviar alerta para plano ID ' . $plano->id . ': ' . $e->getMessage());
-                    Log::error('alertas:disparar - falha ao enviar', ['plano_id' => $plano->id, 'err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-                    try {
-                        $line = '[' . now()->toDateTimeString() . '] Falha plano ' . $plano->id . ' - ' . $e->getMessage() . "\n";
-                        file_put_contents(storage_path('logs/alerts-dispatch.log'), $line, FILE_APPEND | LOCK_EX);
-                    } catch (\Throwable $_) {
-                        // ignore
+                    $this->error('Falha ao enviar e-mail para plano ID ' . $plano->id . ': ' . $e->getMessage());
+                    Log::error('alertas:disparar - falha mail', ['plano_id' => $plano->id, 'err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                    try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha mail plano ' . $plano->id . ' - ' . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                }
+
+                // Attempt WhatsApp separately; if the driver is missing, log a warning and continue
+                try {
+                    $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
+                    $sent++;
+                    $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                    Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                } catch (\Throwable $e) {
+                    // Detect unsupported driver error and treat it as non-fatal
+                    $msg = $e->getMessage();
+                    if ($e instanceof \InvalidArgumentException || stripos($msg, 'Driver [whatsapp]') !== false || (stripos($msg, 'whatsapp') !== false && stripos($msg, 'not supported') !== false)) {
+                        $this->warn('Canal WhatsApp não suportado no ambiente - pulando envio WhatsApp para plano ID ' . $plano->id);
+                        Log::warning('alertas:disparar - whatsapp driver ausente', ['plano_id' => $plano->id, 'err' => $msg]);
+                        try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp ausente plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                    } else {
+                        $failed++;
+                        $this->error('Falha ao enviar WhatsApp para plano ID ' . $plano->id . ': ' . $msg);
+                        Log::error('alertas:disparar - falha whatsapp', ['plano_id' => $plano->id, 'err' => $msg, 'trace' => $e->getTraceAsString()]);
+                        try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha whatsapp plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
                     }
                 }
             }
