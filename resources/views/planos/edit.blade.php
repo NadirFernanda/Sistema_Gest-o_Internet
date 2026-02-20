@@ -16,7 +16,16 @@
                 </select>
                 <input name="ciclo" value="{{ old('ciclo', $plano->ciclo) }}" placeholder="Ciclo (dias)" />
                 <input type="date" name="data_ativacao" value="{{ old('data_ativacao', $plano->data_ativacao ? \Carbon\Carbon::parse($plano->data_ativacao)->format('Y-m-d') : '') }}" placeholder="Data de ativação" />
-                <input name="estado" value="{{ old('estado', $plano->estado) }}" placeholder="Estado (Ativo/Inativo)" />
+                <select name="estado" class="select" aria-label="Estado do plano">
+                    <option value="">Escolha o estado</option>
+                    @php $st = old('estado', $plano->estado); @endphp
+                    <option value="Ativo" {{ $st === 'Ativo' ? 'selected' : '' }}>Ativo</option>
+                    <option value="Em aviso" {{ $st === 'Em aviso' ? 'selected' : '' }}>Em aviso</option>
+                    <option value="Suspenso" {{ $st === 'Suspenso' ? 'selected' : '' }}>Suspenso</option>
+                    <option value="Cancelado" {{ $st === 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                    <option value="Site" {{ $st === 'Site' ? 'selected' : '' }}>Site</option>
+                    <option value="Agente Autorizado" {{ $st === 'Agente Autorizado' ? 'selected' : '' }}>Agente Autorizado</option>
+                </select>
             </div>
             <div style="margin-top:8px;">
                 <textarea name="descricao" style="width:100%">{{ old('descricao', $plano->descricao) }}</textarea>
