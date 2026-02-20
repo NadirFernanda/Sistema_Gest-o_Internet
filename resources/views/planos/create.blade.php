@@ -6,15 +6,10 @@
 
 @section('content')
     <div class="planos-container">
-        @include('layouts.partials.clientes-hero', [
-            'title' => 'Gestão de Planos — Cadastrar',
-            'subtitle' => ''
-        ])
-
-        {{-- Restaurado: botão Voltar e formulário; toolbar removida por pedido do usuário --}}
-        <div style="position:relative; max-width:1100px; margin:12px auto 0;">
+        {{-- Página sem header: formulário isolado --}}
+        <div style="max-width:1100px; margin:12px auto 0; text-align:center;">
             <a href="{{ route('planos.index') }}" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar"
-               style="display:inline-flex; margin:0 auto 12px; position:relative; left:50%; transform:translateX(-50%); width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px;">
+               style="display:inline-flex; margin:0 auto 12px; width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
