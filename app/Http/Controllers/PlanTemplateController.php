@@ -93,7 +93,19 @@ class PlanTemplateController extends Controller
     // list all templates as JSON (lightweight)
     public function listJson()
     {
-        $list = PlanTemplate::orderBy('name')->get(['id','name','preco','ciclo','estado']);
+        $list = PlanTemplate::withCount(['planos as template_active_clients_count' => function ($q) {
+            $q->where('ativo', true);
+        }])->orderBy('name')->get(['id','name','preco','ciclo','estado']);
+
+        // ensure numeric counts are present (0 when none)
+        $list->transform(function ($t) {
+            $arr = $t->toArray();
+            if (! isset($arr['template_active_clients_count'])) {
+                $arr['template_active_clients_count'] = 0;
+            }
+            return $arr;
+        });
+
         return response()->json($list);
     }
 
