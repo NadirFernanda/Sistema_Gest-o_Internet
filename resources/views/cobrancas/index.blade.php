@@ -86,10 +86,10 @@ side the filter box -->
             <div class="filtro-top-actions" style="display:flex;gap:12px;align-items:center;">
                 <button type="button" id="filtrar-btn" class="btn btn-primary filtro-btn">Filtrar</button>
                 <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
                 @can('cobrancas.create')
                     <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
                 @endcan
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
             </div>
         </div>
 
