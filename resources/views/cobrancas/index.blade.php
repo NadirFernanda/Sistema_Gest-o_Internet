@@ -327,5 +327,3 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 </div>
 @endsection
-
-@endsection
