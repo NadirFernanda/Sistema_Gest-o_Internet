@@ -35,6 +35,7 @@
             <thead>
                 <tr>
                     <th style="text-align:center;vertical-align:middle;">Marca</th>
+                    <th style="text-align:center;vertical-align:middle;">Imagem</th>
                     <th style="text-align:center;vertical-align:middle;">Descrição</th>
                     <th style="text-align:center;vertical-align:middle;">Modelo</th>
                     <th style="text-align:center;vertical-align:middle;">Nº Série</th>
@@ -46,6 +47,13 @@
                 @forelse($equipamentos as $equipamento)
                     <tr>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->nome }}</td>
+                        <td style="text-align:center;vertical-align:middle;">
+                            @if($equipamento->imagem)
+                                <img src="{{ asset('storage/' . $equipamento->imagem) }}" alt="Imagem" class="thumb-img" />
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo }}</td>
                         <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie }}</td>
@@ -75,7 +83,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6">Nenhum equipamento cadastrado no estoque.</td></tr>
+                    <tr><td colspan="7">Nenhum equipamento cadastrado no estoque.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -223,6 +231,13 @@
     color: #222;
     font-size: 1em;
     padding: 13px 12px;
+}
+.tabela-estoque-moderna .thumb-img {
+    max-width: 100px;
+    max-height: 70px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: inline-block;
 }
 .tabela-estoque-moderna tr {
     border-bottom: 1px solid #f3e6b0;
