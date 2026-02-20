@@ -28,25 +28,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
 
-                    // Use the same styled table wrapper as the cobranças/plano listing
-                    let html = `<div class="tabela-cobrancas-moderna" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:18px 18px 8px 18px;margin-top:18px;overflow-x:auto;">` +
-                        `<table class="tabela-planos" style="width:100%;min-width:700px;font-size:1.01em;background:#fff;border-radius:8px;overflow:hidden;">` +
+                    // Use the same styled table wrapper and classes as Estoque de Equipamentos
+                    let html = `<div class="estoque-tabela-moderna">` +
+                        `<table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;min-width:640px;font-size:1.07em;">` +
                         `<thead>` +
                         `<tr>` +
-                        `<th style="text-align:center;"><input type="checkbox" id="selecionarTodosAlertas"></th>` +
-                        `<th>Cliente</th><th>Plano</th><th>Contacto</th><th>Termina em</th><th>Data de Término</th>` +
+                        `<th style="text-align:center;vertical-align:middle;"><input type="checkbox" id="selecionarTodosAlertas"></th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Cliente</th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Imagem</th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Plano</th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Contacto</th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Termina em</th>` +
+                        `<th style="text-align:center;vertical-align:middle;">Data de Término</th>` +
+                        /* Removida a coluna de ações para alertas (não necessária) */
                         `</tr>` +
                         `</thead><tbody>`;
 
                     alertas.forEach(a => {
                         let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
+                        // Alerts do not have images; keep cell for visual parity with estoque table
+                        const imgCell = a.imagem ? `<img src="${a.imagem}" class="thumb-img" alt="Imagem"/>` : '-';
+                        // Action: link to client ficha when id present
+                        const actionLink = a.id ? `<a href="/clientes/${a.id}" class="btn-icon" title="Ver cliente" aria-label="Ver cliente">🔍</a>` : '';
                         html += `<tr data-plano-id="${a.id}"${destaque}>` +
-                            `<td style="text-align:center;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}"></td>` +
-                            `<td><span style="font-weight:500;">${a.nome}</span></td>` +
-                            `<td>${a.plano}</td>` +
-                            `<td>${a.contato}</td>` +
-                            `<td><b>${a.diasRestantes} dias</b></td>` +
-                            `<td>${a.dataTermino}</td>` +
+                            `<td style="text-align:center;vertical-align:middle;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}"></td>` +
+                            `<td style="text-align:center;vertical-align:middle;"><span style="font-weight:500;">${a.nome}</span></td>` +
+                            `<td style="text-align:center;vertical-align:middle;">${imgCell}</td>` +
+                            `<td style="text-align:center;vertical-align:middle;">${a.plano}</td>` +
+                            `<td style="text-align:center;vertical-align:middle;">${a.contato}</td>` +
+                            `<td style="text-align:center;vertical-align:middle;"><b>${a.diasRestantes} dias</b></td>` +
+                            `<td style="text-align:center;vertical-align:middle;">${a.dataTermino}</td>` +
                             `</tr>`;
                     });
 
