@@ -3,11 +3,9 @@
 
 @section('content')
 <div class="container" style="max-width: 600px; margin: 40px auto;">
-    @if(isset($cobranca))
-        <div style="width:100%; display:flex; justify-content:flex-start; margin-bottom:12px;">
-            <a href="{{ route('cobrancas.index') }}" class="btn btn-ghost" title="Voltar" aria-label="Voltar">Voltar</a>
-        </div>
-    @endif
+    <div style="width:100%; display:flex; justify-content:flex-start; margin-bottom:12px;">
+        <a href="{{ route('cobrancas.index') }}" class="btn btn-ghost" title="Voltar" aria-label="Voltar">Voltar</a>
+    </div>
     <h2>{{ isset($cobranca) ? 'Editar Cobrança' : 'Cadastrar Cobrança' }}</h2>
     <style>
         /* estilo do formulário (btn-back-circle removido) */
