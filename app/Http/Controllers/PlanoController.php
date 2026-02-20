@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\Plano;
 use App\Models\PlanTemplate;
 
@@ -128,6 +129,23 @@ class PlanoController extends Controller
             } catch (\Exception $e) {
                 $arr['can_edit'] = false;
                 $arr['can_delete'] = false;
+            }
+
+            // Compute days remaining (diasRestantes) for front-end cards.
+            try {
+                $termino = null;
+                if (!empty($p->proxima_renovacao)) {
+                    $termino = Carbon::parse($p->proxima_renovacao)->startOfDay();
+                } elseif (!empty($p->data_ativacao) && !empty($p->ciclo)) {
+                    $termino = Carbon::parse($p->data_ativacao)->startOfDay()->addDays((int)$p->ciclo - 1);
+                }
+                if ($termino) {
+                    $arr['diasRestantes'] = Carbon::now()->startOfDay()->diffInDays($termino, false);
+                } else {
+                    $arr['diasRestantes'] = null;
+                }
+            } catch (\Exception $e) {
+                $arr['diasRestantes'] = null;
             }
 
             return $arr;

@@ -380,6 +380,19 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 const cliente = p.cliente && (p.cliente.nome || p.cliente.name) ? (p.cliente.nome || p.cliente.name) : '-';
                 const preco = p.preco ? ('Kz ' + Number(p.preco).toLocaleString('pt-AO', {minimumFractionDigits:2, maximumFractionDigits:2})) : '';
                 const estadoClass = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) ? 'ativo' : 'inativo';
+
+                // days remaining (diasRestantes) provided by server; render a small badge
+                const dias = (p.diasRestantes !== undefined && p.diasRestantes !== null) ? Number(p.diasRestantes) : null;
+                let vencHtml = '';
+                try {
+                    if (dias !== null) {
+                        if (dias > 1) vencHtml = `<div class="plan-remaining"><span class="badge">${esc(dias)} dias para vencer</span></div>`;
+                        else if (dias === 1) vencHtml = `<div class="plan-remaining"><span class="badge">1 dia para vencer</span></div>`;
+                        else if (dias === 0) vencHtml = `<div class="plan-remaining"><span class="badge">Vence hoje</span></div>`;
+                        else vencHtml = `<div class="plan-remaining"><span class="badge badge-danger">Vencido ${esc(Math.abs(dias))} dia(s)</span></div>`;
+                    }
+                } catch (_){ vencHtml = ''; }
+
                 html += `
                         <article class="plan-card" data-id="${p.id}">
                             <div class="plan-title">${esc(p.nome||p.name||'')}</div>
@@ -387,8 +400,9 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                                 <span class="plan-price">${esc(preco)}</span>
                                 <span class="plan-cycle">${esc((p.ciclo !== undefined && p.ciclo !== null && p.ciclo !== '') ? p.ciclo : (p.template && (p.template.ciclo !== undefined && p.template.ciclo !== null && p.template.ciclo !== '') ? p.template.ciclo : ''))}</span>
                             </div>
+                            ${vencHtml}
                             <div class="muted" style="color:#444">${esc(p.description || p.descricao || '')}</div>
-            
+
                             <div class="plan-actions">
                                      <a href="${p.web_show || ('/planos/' + p.id)}" class="btn-icon btn-ghost" title="Ver" aria-label="Ver Plano">
                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
