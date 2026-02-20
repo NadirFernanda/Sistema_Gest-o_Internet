@@ -141,14 +141,14 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
 
             function renderList(list){
                 if(!list.length){ listContainer.innerHTML = '<div class="muted" style="padding:8px 0">Nenhum modelo cadastrado.</div>'; return; }
-                let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="text-align:center">Clientes</th><th style="width:170px"></th></tr></thead><tbody>';
+                let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="text-align:center; width:120px">Clientes</th><th style="width:170px"></th></tr></thead><tbody>';
                                 list.forEach(t => {
                                         html += `<tr data-id="${t.id}">` +
                                                         `<td>${escapeHtml(t.name)}</td>` +
                                                         `<td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td>` +
                                                         `<td>${t.ciclo||''}</td>` +
                                                         `<td>${t.estado||''}</td>` +
-                                                        `<td style="text-align:center">${(t.template_active_clients_count !== undefined && t.template_active_clients_count !== null) ? escapeHtml(String(t.template_active_clients_count)) : ''}</td>` +
+                                                        `<td style="text-align:center">${(t.template_active_clients_count !== undefined && t.template_active_clients_count !== null) ? (Number(t.template_active_clients_count) === 1 ? '1 Cliente' : (escapeHtml(String(t.template_active_clients_count)) + ' Clientes')) : ''}</td>` +
                                                         `<td style="text-align:right">` +
                                                             `<div class="template-actions">` +
                                                                 `<button class="editBtn btn-icon btn-warning" data-id="${t.id}" title="Editar" aria-label="Editar Plano">` +
