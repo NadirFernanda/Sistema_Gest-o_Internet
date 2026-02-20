@@ -56,7 +56,7 @@
         </a>
     </div>
     <h2 style="text-align:center;">Cadastrar Equipamento no Estoque</h2>
-    <form action="{{ route('estoque_equipamentos.store') }}" method="POST" class="form-modern">
+    <form action="{{ route('estoque_equipamentos.store') }}" method="POST" class="form-modern" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
             <label for="nome">Nome <span class="text-danger">*</span></label>
@@ -91,6 +91,13 @@
             <input type="number" id="quantidade" name="quantidade" min="1" value="{{ old('quantidade', 1) }}">
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade') }}</div>
+            @endif
+        </div>
+        <div class="form-group">
+            <label for="imagem">Imagem (opcional)</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*">
+            @if ($errors->has('imagem'))
+                <div class="text-danger small">{{ $errors->first('imagem') }}</div>
             @endif
         </div>
         <button type="submit" class="btn btn-primary">Cadastrar</button>

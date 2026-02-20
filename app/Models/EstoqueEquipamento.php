@@ -15,5 +15,6 @@ class EstoqueEquipamento extends Model
         'modelo',
         'numero_serie',
         'quantidade',
+        'imagem',
     ];
 }

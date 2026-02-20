@@ -26,7 +26,7 @@
 <div class="container" style="max-width: 500px; margin: 40px auto;">
     {{-- back button removed from header area --}}
     <h2 style="text-align:center;">Editar Equipamento</h2>
-    <form action="{{ route('estoque_equipamentos.update', $equipamento->id) }}" method="POST" class="form-modern">
+    <form action="{{ route('estoque_equipamentos.update', $equipamento->id) }}" method="POST" class="form-modern" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="form-group">
@@ -62,6 +62,18 @@
             <input type="number" id="quantidade" name="quantidade" min="1" value="{{ old('quantidade', $equipamento->quantidade) }}">
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade') }}</div>
+            @endif
+        </div>
+        <div class="form-group">
+            <label for="imagem">Imagem (opcional)</label>
+            @if($equipamento->imagem)
+                <div style="margin-bottom:8px;">
+                    <img src="{{ asset('storage/' . $equipamento->imagem) }}" alt="Imagem do equipamento" style="max-width:120px;max-height:90px;border-radius:6px;display:block;" />
+                </div>
+            @endif
+            <input type="file" id="imagem" name="imagem" accept="image/*">
+            @if ($errors->has('imagem'))
+                <div class="text-danger small">{{ $errors->first('imagem') }}</div>
             @endif
         </div>
         <button type="submit" class="btn btn-primary">Salvar alterações</button>
