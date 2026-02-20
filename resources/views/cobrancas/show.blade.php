@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('content')
@@ -6,10 +7,10 @@
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title">{{ $cobranca->descricao }}</h5>
-            <p><strong>Cliente:</strong> {{ $cobranca->cliente->nome ?? '-' }}</p>
-            <p><strong>Valor:</strong> Kz {{ number_format($cobranca->valor, 2, ',', '.') }}</p>
-            <p><strong>Vencimento:</strong> {{ $cobranca->data_vencimento ? \Carbon\Carbon::parse($cobranca->data_vencimento)->format('d/m/Y') : 'Sem data' }}</p>
-            <p><strong>Pagamento:</strong> {{ $cobranca->data_pagamento ?? '-' }}</p>
+            <p><strong>Cliente:</strong> {{ $cobranca->cliente_nome }}</p>
+            <p><strong>Valor:</strong> Kz {{ $cobranca->valor_formatado }}</p>
+            <p><strong>Vencimento:</strong> {{ $cobranca->data_vencimento_formatada }}</p>
+            <p><strong>Pagamento:</strong> {{ $cobranca->data_pagamento_formatada }}</p>
             <p><strong>Status:</strong>
                 @if($cobranca->status === 'pago')
                     <span class="badge bg-success">Pago</span>
@@ -22,6 +23,5 @@
         </div>
     </div>
     <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-primary mt-3" target="_blank">Gerar Comprovante PDF</a>
-    {{-- back button removed from header area --}}
 </div>
 @endsection

@@ -96,7 +96,6 @@ class CobrancaController extends Controller
     public function index(Request $request)
     {
         $query = Cobranca::with('cliente');
-        $debug = [];
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function($q) use ($request) {
                 $q->where('nome', 'ilike', '%' . $request->cliente . '%');
@@ -163,12 +162,8 @@ class CobrancaController extends Controller
             $debug['data_pagamento_end'] = $pagFim->toDateTimeString();
             $query->whereBetween('data_pagamento', [$pagInicio, $pagFim]);
         }
-        $sql = $query->toSql();
-        $bindings = $query->getBindings();
-        $debug['sql'] = $sql;
-        $debug['bindings'] = $bindings;
         $cobrancas = $query->orderByDesc('created_at')->paginate(15)->appends($request->all());
-        return view('cobrancas.index', compact('cobrancas', 'debug'));
+        return view('cobrancas.index', compact('cobrancas'));
     }
 
     public function show($id)
@@ -178,14 +173,14 @@ class CobrancaController extends Controller
     }
     public function create()
     {
-        $clientes = \App\Models\Cliente::orderBy('nome')->get();
+        $clientes = \App\Models\Cliente::orderBy('nome')->select('id','nome')->get();
         return view('cobrancas.create', compact('clientes'));
     }
 
     public function edit($id)
     {
         $cobranca = Cobranca::findOrFail($id);
-        $clientes = Cliente::orderBy('nome')->get();
+        $clientes = Cliente::orderBy('nome')->select('id','nome')->get();
         return view('cobrancas.create', compact('cobranca', 'clientes'));
     }
 
