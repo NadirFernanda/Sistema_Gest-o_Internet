@@ -11,6 +11,9 @@ use App\Models\ClienteEquipamento;
 use App\Models\Cobranca;
 use App\Models\User;
 use App\Observers\ModelAuditObserver;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Channels\WhatsAppChannel;
+use App\Services\WhatsAppService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,5 +41,10 @@ class AppServiceProvider extends ServiceProvider
         ClienteEquipamento::observe(new ModelAuditObserver());
         Cobranca::observe(new ModelAuditObserver());
         User::observe(new ModelAuditObserver());
+
+        // Register a simple 'whatsapp' notification channel so Notification::send() works
+        Notification::extend('whatsapp', function ($app) {
+            return new WhatsAppChannel($app->make(WhatsAppService::class));
+        });
     }
 }
