@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Plano;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class DispararAlertasVencimento extends Command
 {
@@ -48,8 +49,14 @@ class DispararAlertasVencimento extends Command
         });
         if ($planos->isEmpty()) {
             $this->info('Nenhum plano a vencer nos próximos ' . $dias . ' dias.');
+            Log::info('alertas:disparar - nenhum plano encontrado', ['dias' => $dias]);
             return 0;
         }
+
+        $start = microtime(true);
+        $sent = 0;
+        $failed = 0;
+        Log::info('alertas:disparar - iniciando dispatch', ['dias' => $dias, 'candidates' => $planos->count()]);
         foreach ($planos as $plano) {
             try {
                 if (!empty($plano->proxima_renovacao)) {
@@ -65,12 +72,33 @@ class DispararAlertasVencimento extends Command
                 continue;
             }
             if ($plano->cliente) {
-                $plano->cliente->notify(new \App\Notifications\ClienteVencimentoAlert($plano->cliente, $plano, $diasRestantes));
-                $plano->cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($plano->cliente, $plano, $diasRestantes));
-                $this->info('Alerta enviado para: ' . $plano->cliente->email . ' / ' . $plano->cliente->contato . ' (diasRestantes: ' . $diasRestantes . ')');
+                try {
+                    $plano->cliente->notify(new \App\Notifications\ClienteVencimentoAlert($plano->cliente, $plano, $diasRestantes));
+                    $plano->cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($plano->cliente, $plano, $diasRestantes));
+                    $sent++;
+                    $this->info('Alerta enviado para: ' . ($plano->cliente->email ?? '-') . ' / ' . ($plano->cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                    Log::info('alertas:disparar - sucesso', ['plano_id' => $plano->id, 'cliente_id' => $plano->cliente->id ?? null, 'email' => $plano->cliente->email ?? null, 'contato' => $plano->cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                } catch (\Exception $e) {
+                    $failed++;
+                    $this->error('Falha ao enviar alerta para plano ID ' . $plano->id . ': ' . $e->getMessage());
+                    Log::error('alertas:disparar - falha ao enviar', ['plano_id' => $plano->id, 'err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                    try {
+                        $line = '[' . now()->toDateTimeString() . '] Falha plano ' . $plano->id . ' - ' . $e->getMessage() . "\n";
+                        file_put_contents(storage_path('logs/alerts-dispatch.log'), $line, FILE_APPEND | LOCK_EX);
+                    } catch (\Throwable $_) {
+                        // ignore
+                    }
+                }
             }
         }
-        $this->info('Alertas disparados com sucesso!');
+        $duration = round(microtime(true) - $start, 2);
+        $this->info("Alertas disparados: sucesso={$sent}, falhas={$failed}, tempo={$duration}s");
+        Log::info('alertas:disparar - finalizado', ['sent' => $sent, 'failed' => $failed, 'duration_s' => $duration]);
+        try {
+            $summaryLine = '[' . now()->toDateTimeString() . "] sent={$sent} failed={$failed} duration_s={$duration}\n";
+            file_put_contents(storage_path('logs/alerts-dispatch.log'), $summaryLine, FILE_APPEND | LOCK_EX);
+        } catch (\Throwable $_) {}
+
         return 0;
     }
 }
