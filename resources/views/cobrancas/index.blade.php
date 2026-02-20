@@ -81,6 +81,10 @@ side the filter box -->
         }
     }
     </style>
+    <div style="width:100%; display:flex; justify-content:flex-start; margin-bottom:12px;">
+        <a href="javascript:history.back()" class="btn btn-ghost" title="Voltar" aria-label="Voltar">Voltar</a>
+    </div>
+
     <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
         <div class="filtro-top" style="display:flex;align-items:center;width:100%;margin-bottom:12px;gap:12px;flex-wrap:nowrap;">
             <div class="filtro-top-actions" style="display:flex;gap:12px;align-items:center;">
