@@ -12,7 +12,15 @@
         'stackLeft' => true,
     ])
 
-    <div style="margin-top:8px;"> <!-- back button removed -->
+    <div style="margin-top:8px;"> 
+        <div style="position:relative; max-width:720px; margin:0 auto 12px;">
+            <a href="{{ route('admin.users.index') }}" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar"
+               style="display:inline-flex; margin:0 auto; position:relative; left:50%; transform:translateX(-50%); width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </a>
+        </div>
     </div>
 
     @if(session('status'))
