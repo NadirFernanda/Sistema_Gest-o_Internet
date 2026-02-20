@@ -81,49 +81,55 @@ side the filter box -->
         }
     }
     </style>
-    <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-mod
-ern-cobranca filtro-moderna-extra">                                                     <div class="filtro-top" style="display:flex;align-items:center;width:100
-%;margin-bottom:12px;gap:12px;flex-wrap:nowrap;">                                           <div class="filtro-top-actions" style="display:flex;gap:12px;align-i
-tems:center;">                                                                                  <button type="button" id="filtrar-btn" class="btn btn-primary fi
-ltro-btn">Filtrar</button>                                                                      <a href="{{ route('cobrancas.index') }}" class="btn btn-secondar
-y filtro-btn">Limpar</a>                                                        
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel<
-/a>                                                                                             @can('cobrancas.create')
-                <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Co
-brança</a>                                                                                      @endcan
+    <form method="GET" action="{{ route('cobrancas.index') }}" class="filtro-modern-cobranca filtro-moderna-extra">
+        <div class="filtro-top" style="display:flex;align-items:center;width:100%;margin-bottom:12px;gap:12px;flex-wrap:nowrap;">
+            <div class="filtro-top-actions" style="display:flex;gap:12px;align-items:center;">
+                <button type="button" id="filtrar-btn" class="btn btn-primary filtro-btn">Filtrar</button>
+                <a href="{{ route('cobrancas.index') }}" class="btn btn-secondary filtro-btn">Limpar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
+                @can('cobrancas.create')
+                    <a href="{{ route('cobrancas.create') }}" class="btn btn-cta">Cobrança</a>
+                @endcan
             </div>
         </div>
+
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
-            <input type="text" name="cliente" id="cliente" value="{{ request('cl
-iente') }}" placeholder="Nome do cliente">                                              </div>
+            <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
+        </div>
+
         <div class="filtro-group">
             <label for="descricao">Descrição</label>
-            <input type="text" name="descricao" id="descricao" value="{{ request
-('descricao') }}" placeholder="Descrição da cobrança">                                  </div>
+            <input type="text" name="descricao" id="descricao" value="{{ request('descricao') }}" placeholder="Descrição da cobrança">
+        </div>
+
         <div class="filtro-group">
             <label for="status">Status</label>
-            <select name="status" id="status" class="select" data-placeholder="F
-iltrar por status...">                                                                          <option value="">Todos</option>
-                <option value="pendente" {{ request('status') == 'pendente' ? 's
-elected' : '' }}>Pendente</option>                                                              <option value="pago" {{ request('status') == 'pago' ? 'selected'
- : '' }}>Pago</option>                                                                          <option value="atrasado" {{ request('status') == 'atrasado' ? 's
-elected' : '' }}>Atrasado</option>                                                          </select>
+            <select name="status" id="status" class="select" data-placeholder="Filtrar por status...">
+                <option value="">Todos</option>
+                <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                <option value="pago" {{ request('status') == 'pago' ? 'selected' : '' }}>Pago</option>
+                <option value="atrasado" {{ request('status') == 'atrasado' ? 'selected' : '' }}>Atrasado</option>
+            </select>
         </div>
+
         <div class="filtro-group">
             <label for="valor">Valor</label>
-            <input type="number" step="0.01" name="valor" id="valor" value="{{ r
-equest('valor') }}" placeholder="Valor exato">                                          </div>
+            <input type="number" step="0.01" name="valor" id="valor" value="{{ request('valor') }}" placeholder="Valor exato">
+        </div>
+
         <div class="filtro-group">
             <label for="data_vencimento">Data de Vencimento</label>
-            <input type="date" name="data_vencimento" id="data_vencimento" value
-="{{ request('data_vencimento') }}" placeholder="yyyy-mm-dd">                           </div>
+            <input type="date" name="data_vencimento" id="data_vencimento" value="{{ request('data_vencimento') }}" placeholder="yyyy-mm-dd">
+        </div>
+
         <div class="filtro-group">
             <label for="data_pagamento">Data de Pagamento</label>
-            <input type="date" name="data_pagamento" id="data_pagamento" value="
-{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">                              </div>
-        <!-- ações de filtro agora ficam na toolbar acima (botão Filtrar submete
- o formulário via JS) -->                                                           </form>
+            <input type="date" name="data_pagamento" id="data_pagamento" value="{{ request('data_pagamento') }}" placeholder="yyyy-mm-dd">
+        </div>
+
+        <!-- ações de filtro agora ficam na toolbar acima (botão Filtrar submete o formulário via JS) -->
+    </form>
     <div class="tabela-cobrancas-moderna">
     <table class="table table-bordered table-striped mt-4">
     <style>
