@@ -47,8 +47,14 @@ class RelatorioGeralCommand extends Command
             $clientes = Cliente::whereBetween('created_at', [$start, $end])->get();
             $planos = Plano::whereBetween('created_at', [$start, $end])->get();
             $equipamentos = Equipamento::whereBetween('created_at', [$start, $end])->get();
-            // Alert model may have different name; try Alert or \\App\\Models\\Alerta
-            $alertas = class_exists('\App\\Models\\Alerta') ? \App\\Models\\Alerta::whereBetween('created_at', [$start, $end])->get() : collect();
+            // Alert model may have different name; try App\Models\Alerta or App\Models\Alert
+            if (class_exists(\App\Models\Alerta::class)) {
+                $alertas = \App\Models\Alerta::whereBetween('created_at', [$start, $end])->get();
+            } elseif (class_exists(\App\Models\Alert::class)) {
+                $alertas = \App\Models\Alert::whereBetween('created_at', [$start, $end])->get();
+            } else {
+                $alertas = collect();
+            }
 
             $export = new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas);
 
