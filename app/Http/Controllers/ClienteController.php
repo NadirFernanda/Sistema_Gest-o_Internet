@@ -161,23 +161,52 @@ class ClienteController extends Controller
         $hoje = now()->startOfDay();
 
         // Be tolerant to different spellings/casing of the "estado" field
-        // (some records use "Activo" while others use "Ativo").
-        // Accept any state containing 'ativ' or 'activ' (covers 'Ativo', 'Activo', etc.)
+        // and also accept empty/null estado as active.
         $planosRaw = \App\Models\Plano::with('cliente')
-            ->whereRaw("(LOWER(TRIM(COALESCE(estado, ''))) LIKE ? OR LOWER(TRIM(COALESCE(estado, ''))) LIKE ?)", ['%ativ%','%activ%'])
+            ->where(function($q){
+                $q->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%ativ%'])
+                  ->orWhereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%activ%'])
+                  ->orWhereRaw("COALESCE(estado, '') = ''");
+            })
             ->get();
 
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
-            if (!$plano->data_ativacao || !$plano->ciclo) {
+            // determine data_termino: prefer proxima_renovacao when present
+            try {
+                if (!empty($plano->proxima_renovacao)) {
+                    $dataTermino = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
+                } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
+                    $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
+                    if ($cicloInt <= 0) {
+                        $cicloInt = (int)$plano->ciclo;
+                    }
+                    $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
+                } else {
+                    return false;
+                }
+            } catch (\Exception $e) {
                 return false;
             }
-            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1)->startOfDay();
+
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
             return $diasRestantes >= 0 && $diasRestantes <= $dias;
         });
 
         $alertas = $planos->map(function ($plano) use ($hoje) {
-            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays((int)$plano->ciclo - 1)->startOfDay();
+            try {
+                if (!empty($plano->proxima_renovacao)) {
+                    $dataTermino = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
+                } else {
+                    $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
+                    if ($cicloInt <= 0) {
+                        $cicloInt = (int)$plano->ciclo;
+                    }
+                    $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
+                }
+            } catch (\Exception $e) {
+                $dataTermino = $hoje;
+            }
+
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
             return [
                 'plano_id' => $plano->id,
