@@ -10,6 +10,7 @@ use App\Models\Cliente;
 use App\Models\Plano;
 use App\Models\Equipamento;
 use App\Models\Alert;
+use App\Models\Alerta;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
@@ -36,7 +37,6 @@ class RelatorioGeralCommand extends Command
             $filename = "relatorio_geral_mensal_{$label}.xlsx";
         } else {
             // daily
-            use App\Models\Alerta;
             $start = $now->copy()->subDay();
             $end = $now->copy();
             $label = $now->format('Y_m_d_His');
@@ -48,11 +48,11 @@ class RelatorioGeralCommand extends Command
             $clientes = Cliente::whereBetween('created_at', [$start, $end])->get();
             $planos = Plano::whereBetween('created_at', [$start, $end])->get();
             $equipamentos = Equipamento::whereBetween('created_at', [$start, $end])->get();
-            // Alert model may have different name; try App\Models\Alerta or App\Models\Alert
-            if (class_exists(\App\Models\Alerta::class)) {
-                $alertas = \App\Models\Alerta::whereBetween('created_at', [$start, $end])->get();
-            } elseif (class_exists(\App\Models\Alert::class)) {
-                $alertas = \App\Models\Alert::whereBetween('created_at', [$start, $end])->get();
+
+            if (class_exists(Alerta::class)) {
+                $alertas = Alerta::whereBetween('created_at', [$start, $end])->get();
+            } elseif (class_exists(Alert::class)) {
+                $alertas = Alert::whereBetween('created_at', [$start, $end])->get();
             } else {
                 $alertas = collect();
             }
@@ -66,11 +66,9 @@ class RelatorioGeralCommand extends Command
         } catch (\Exception $e) {
             Log::error('Erro gerando relatório geral: ' . $e->getMessage());
             $this->error('Erro ao gerar relatório: ' . $e->getMessage());
-                        // Alert model may have different name; try App\Models\Alerta or App\Models\Alert
-                        if (class_exists(Alerta::class)) {
-                            $alertas = Alerta::whereBetween('created_at', [$start, $end])->get();
-                        } elseif (class_exists(Alert::class)) {
-                            $alertas = Alert::whereBetween('created_at', [$start, $end])->get();
-                        } else {
-                            $alertas = collect();
-                        }
+            return 1;
+        }
+
+        return 0;
+    }
+}
