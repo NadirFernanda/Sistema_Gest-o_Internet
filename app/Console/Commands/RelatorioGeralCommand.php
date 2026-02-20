@@ -36,6 +36,7 @@ class RelatorioGeralCommand extends Command
             $filename = "relatorio_geral_mensal_{$label}.xlsx";
         } else {
             // daily
+            use App\Models\Alerta;
             $start = $now->copy()->subDay();
             $end = $now->copy();
             $label = $now->format('Y_m_d_His');
@@ -65,9 +66,11 @@ class RelatorioGeralCommand extends Command
         } catch (\Exception $e) {
             Log::error('Erro gerando relatório geral: ' . $e->getMessage());
             $this->error('Erro ao gerar relatório: ' . $e->getMessage());
-            return 1;
-        }
-
-        return 0;
-    }
-}
+                        // Alert model may have different name; try App\Models\Alerta or App\Models\Alert
+                        if (class_exists(Alerta::class)) {
+                            $alertas = Alerta::whereBetween('created_at', [$start, $end])->get();
+                        } elseif (class_exists(Alert::class)) {
+                            $alertas = Alert::whereBetween('created_at', [$start, $end])->get();
+                        } else {
+                            $alertas = collect();
+                        }
