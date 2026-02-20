@@ -26,6 +26,9 @@ Siga estes passos para atualizar a aplicação em um servidor de produção. Aju
 
 ### 1. Acesse o servidor e entre na pasta do sistema
 
+Usuários admin@angolawifi.ao, colaborador@angolawifi.ao e gerente@angolawifi.ao já existem na tabela users.
+Senha para todos: password
+
 ```bash
 ssh usuario@SEU_SERVIDOR
 cd /var/www/sgmrtexas

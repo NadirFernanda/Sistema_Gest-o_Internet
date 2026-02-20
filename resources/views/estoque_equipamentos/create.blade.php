@@ -46,7 +46,15 @@
     }
 </style>
 <div class="container" style="max-width: 500px; margin: 40px auto;">
-    {{-- back button removed from header area --}}
+    {{-- botão-ícone 'Voltar' centralizado acima do formulário --}}
+    <div style="position:relative; max-width:500px; margin:0 auto 12px;">
+        <a href="{{ route('estoque_equipamentos.index') }}" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar"
+           style="display:inline-flex; margin:0 auto; position:relative; left:50%; transform:translateX(-50%); width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </a>
+    </div>
     <h2 style="text-align:center;">Cadastrar Equipamento no Estoque</h2>
     <form action="{{ route('estoque_equipamentos.store') }}" method="POST" class="form-modern">
         @csrf
