@@ -3,7 +3,9 @@
 @section('content')
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     
-    <a href="{{ url('/clientes') }}" class="btn btn-outline-secondary" style="margin-bottom:10px;">&larr; Voltar</a>
+    <a href="{{ url('/clientes') }}" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar" style="margin-bottom:10px;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </a>
     <h2>Vincular Equipamento ao Cliente</h2>
     <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
 <form action="{{ route('cliente_equipamento.store', $cliente->id) }}" method="POST" style="margin-top: 20px;">
