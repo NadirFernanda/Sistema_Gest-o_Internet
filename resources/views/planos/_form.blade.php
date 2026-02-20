@@ -86,6 +86,8 @@
                 <option value="Em aviso" {{ old('estado') == 'Em aviso' ? 'selected' : '' }}>Em aviso</option>
                 <option value="Suspenso" {{ old('estado') == 'Suspenso' ? 'selected' : '' }}>Suspenso</option>
                 <option value="Cancelado" {{ old('estado') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                <option value="Site" {{ old('estado') == 'Site' ? 'selected' : '' }}>Site</option>
+                <option value="Agente Autorizado" {{ old('estado') == 'Agente Autorizado' ? 'selected' : '' }}>Agente Autorizado</option>
             </select>
         </div>
 

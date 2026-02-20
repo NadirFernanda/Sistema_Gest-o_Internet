@@ -202,7 +202,17 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                             <input name="preco" placeholder="Preço" value="${escapeAttr(data.preco||'')}" style="width:140px;padding:8px;border:1px solid #ccc;border-radius:6px;" />
                         </div>
                         <div style="margin-top:8px;"><input name="ciclo" placeholder="Ciclo (dias)" value="${escapeAttr(data.ciclo||'')}" style="width:160px;padding:8px;border:1px solid #ccc;border-radius:6px;" /></div>
-                        <div style="margin-top:8px;"><input name="estado" placeholder="Estado" value="${escapeAttr(data.estado||'')}" style="padding:8px;border:1px solid #ccc;border-radius:6px;" /></div>
+                        <div style="margin-top:8px;">
+                            <select name="estado" style="padding:8px;border:1px solid #ccc;border-radius:6px;width:100%;">
+                                <option value="">Escolha o estado</option>
+                                <option value="Ativo" ${data.estado == 'Ativo' ? 'selected' : ''}>Ativo</option>
+                                <option value="Em aviso" ${data.estado == 'Em aviso' ? 'selected' : ''}>Em aviso</option>
+                                <option value="Suspenso" ${data.estado == 'Suspenso' ? 'selected' : ''}>Suspenso</option>
+                                <option value="Cancelado" ${data.estado == 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+                                <option value="Site" ${data.estado == 'Site' ? 'selected' : ''}>Site</option>
+                                <option value="Agente Autorizado" ${data.estado == 'Agente Autorizado' ? 'selected' : ''}>Agente Autorizado</option>
+                            </select>
+                        </div>
                         <div style="margin-top:8px;"><textarea name="description" placeholder="Descrição" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;">${escapeAttr(data.description||'')}</textarea></div>
                         <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
                             <button type="button" id="cancelTemplateForm" class="small-btn btn btn-secondary">Cancelar</button>
