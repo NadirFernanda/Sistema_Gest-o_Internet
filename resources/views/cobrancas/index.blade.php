@@ -105,7 +105,7 @@ side the filter box -->
 
         <div class="filtro-group">
             <label for="status">Status</label>
-            <select name="status" id="status" class="select" data-placeholder="Filtrar por status...">
+            <select name="status" id="status" class="select" data-no-choices data-placeholder="Filtrar por status...">
                 <option value="">Todos</option>
                 <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
                 <option value="pago" {{ request('status') == 'pago' ? 'selected' : '' }}>Pago</option>
