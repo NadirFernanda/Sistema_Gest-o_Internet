@@ -3,7 +3,7 @@
 @section('content')
 <div class="container" style="max-width: 900px; margin: 40px auto;">
     
-    {{-- back button removed from header area to comply with header rules --}}
+    <a href="{{ route('clientes.index') }}" class="btn btn-outline-secondary" style="margin-bottom:10px;">&larr; Voltar</a>
     <h2>Vincular Equipamento ao Cliente</h2>
     <div style="margin-bottom: 10px;"><strong>BI do Cliente:</strong> {{ $cliente->bi ?? '-' }}<br><strong>Nome:</strong> {{ $cliente->nome }}</div>
 <form action="{{ route('cliente_equipamento.store', $cliente->id) }}" method="POST" style="margin-top: 20px;">
