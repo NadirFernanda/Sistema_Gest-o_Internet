@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RelatorioController extends Controller
 {
@@ -50,9 +51,21 @@ class RelatorioController extends Controller
      */
     public function download(Request $request, string $period, $file = null)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
+        // Authentication is enforced by route middleware; do not redirect here
+        // because a redirect can cause the browser to save an HTML login page
+        // with a .xlsx extension. If the route is reached without auth, return
+        // a 403/404 instead.
+
+        // Temporary diagnostic log to help identify corrupt downloads.
+        Log::info('relatorios.download.called', [
+            'url' => $request->fullUrl(),
+            'period' => $period,
+            'requested_file' => $file,
+            'auth' => Auth::check(),
+            'user_id' => Auth::id(),
+            'ip' => $request->ip(),
+            'ua' => $request->header('User-Agent'),
+        ]);
 
         $allowed = ['diario', 'semanal', 'mensal'];
         if (!in_array($period, $allowed, true)) {
@@ -63,9 +76,13 @@ class RelatorioController extends Controller
             $basename = basename($file);
             $path = 'relatorios/' . $basename;
             if (!Storage::exists($path)) {
-                return back()->with('error', 'Arquivo de relatório não encontrado: ' . $basename);
+                Log::warning('relatorios.download.missing_file', ['path' => $path]);
+                abort(404, 'Arquivo de relatório não encontrado: ' . $basename);
             }
-            return Storage::download($path);
+            Log::info('relatorios.download.serving', ['path' => $path, 'basename' => $basename, 'size' => Storage::size($path)]);
+            $full = Storage::path($path);
+            $headers = ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            return response()->download($full, $basename, $headers);
         }
 
         // otherwise find the latest file matching the requested period
@@ -98,7 +115,8 @@ class RelatorioController extends Controller
         }
 
         if (empty($matches)) {
-            return back()->with('error', 'Nenhum relatório disponível para o período: ' . $period);
+            Log::warning('relatorios.download.no_matches', ['period' => $period]);
+            abort(404, 'Nenhum relatório disponível para o período: ' . $period);
         }
 
         // sort by last modified desc
@@ -109,9 +127,14 @@ class RelatorioController extends Controller
         $path = $matches[0];
 
         if (!Storage::exists($path)) {
-            return back()->with('error', 'Arquivo de relatório não encontrado.');
+            Log::warning('relatorios.download.path_missing_after_match', ['path' => $path]);
+            abort(404, 'Arquivo de relatório não encontrado.');
         }
 
-        return Storage::download($path);
+        $basename = basename($path);
+        Log::info('relatorios.download.serving_final', ['path' => $path, 'basename' => $basename, 'size' => Storage::size($path)]);
+        $full = Storage::path($path);
+        $headers = ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        return response()->download($full, $basename, $headers);
     }
 }
