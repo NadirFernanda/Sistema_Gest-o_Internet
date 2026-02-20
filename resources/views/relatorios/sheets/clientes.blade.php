@@ -17,7 +17,7 @@
             <td>{{ $cliente->bi }}</td>
             <td>{{ $cliente->contato }}</td>
             <td>{{ $cliente->email }}</td>
-            <td>{{ $cliente->status ?? '-' }}</td>
+            <td>{{ $cliente->estado ?? '-' }}</td>
         </tr>
         @endforeach
     </tbody>
