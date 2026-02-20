@@ -27,18 +27,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         lista.innerHTML = '<p>Nenhum alerta ativo no momento.</p>';
                         return;
                     }
-                    let html = '<table class="tabela-alertas"><thead><tr>' +
-                        '<th style="text-align:center;"><input type="checkbox" id="selecionarTodosAlertas"></th>' +
-                        '<th>Cliente</th><th>Plano</th><th>Contacto</th><th>Termina em</th><th>Data de Término</th></tr></thead><tbody>';
+
+                    // Use the same styled table wrapper as the cobranças/plano listing
+                    let html = `<div class="tabela-cobrancas-moderna" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:18px 18px 8px 18px;margin-top:18px;overflow-x:auto;">` +
+                        `<table class="tabela-planos" style="width:100%;min-width:700px;font-size:1.01em;background:#fff;border-radius:8px;overflow:hidden;">` +
+                        `<thead>` +
+                        `<tr>` +
+                        `<th style="text-align:center;"><input type="checkbox" id="selecionarTodosAlertas"></th>` +
+                        `<th>Cliente</th><th>Plano</th><th>Contacto</th><th>Termina em</th><th>Data de Término</th>` +
+                        `</tr>` +
+                        `</thead><tbody>`;
+
                     alertas.forEach(a => {
                         let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
                         html += `<tr data-plano-id="${a.id}"${destaque}>` +
                             `<td style="text-align:center;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}"></td>` +
-                            `<td>${a.nome}</td><td>${a.plano}</td><td>${a.contato}</td>` +
-                            `<td><b>${a.diasRestantes} dias</b></td><td>${a.dataTermino}</td>` +
+                            `<td><span style="font-weight:500;">${a.nome}</span></td>` +
+                            `<td>${a.plano}</td>` +
+                            `<td>${a.contato}</td>` +
+                            `<td><b>${a.diasRestantes} dias</b></td>` +
+                            `<td>${a.dataTermino}</td>` +
                             `</tr>`;
                     });
-                    html += '</tbody></table>';
+
+                    html += '</tbody></table></div>';
                     lista.innerHTML = html;
 
                     const chkTodos = document.getElementById('selecionarTodosAlertas');
