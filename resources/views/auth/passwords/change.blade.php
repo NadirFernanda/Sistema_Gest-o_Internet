@@ -16,6 +16,7 @@
   display:flex;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
   padding:2rem;
 }
 .change-card{width:100%;max-width:720px;}
