@@ -87,9 +87,14 @@ class AuditController extends Controller
                     ->limit(500)
                     ->pluck('id')
                     ->toArray();
-                if (! empty($userIds) && Schema::hasColumn('audit_logs', 'actor_id')) {
-                    if (! $started) { $q->whereIn('actor_id', $userIds); $started = true; }
-                    else { $q->orWhereIn('actor_id', $userIds); }
+                if (! empty($userIds)) {
+                    $cols = [];
+                    if (Schema::hasColumn('audit_logs', 'actor_id')) { $cols[] = 'actor_id'; }
+                    if (Schema::hasColumn('audit_logs', 'user_id')) { $cols[] = 'user_id'; }
+                    foreach ($cols as $c) {
+                        if (! $started) { $q->whereIn($c, $userIds); $started = true; }
+                        else { $q->orWhereIn($c, $userIds); }
+                    }
                 }
             });
         }
@@ -112,9 +117,14 @@ class AuditController extends Controller
                         ->limit(500)
                         ->pluck('id')
                         ->toArray();
-                    if (!empty($userIds) && Schema::hasColumn('audit_logs', 'actor_id')) {
-                        if (! $started) { $q->whereIn('actor_id', $userIds); $started = true; }
-                        else { $q->orWhereIn('actor_id', $userIds); }
+                    if (!empty($userIds)) {
+                        $cols = [];
+                        if (Schema::hasColumn('audit_logs', 'actor_id')) { $cols[] = 'actor_id'; }
+                        if (Schema::hasColumn('audit_logs', 'user_id')) { $cols[] = 'user_id'; }
+                        foreach ($cols as $c) {
+                            if (! $started) { $q->whereIn($c, $userIds); $started = true; }
+                            else { $q->orWhereIn($c, $userIds); }
+                        }
                     }
 
                     // Fallback: search inside JSON/text columns for the user's name
