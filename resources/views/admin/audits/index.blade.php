@@ -68,8 +68,6 @@
         <div class="clientes-toolbar">
             <form method="GET" action="{{ url()->current() }}" class="search-form-inline">
                 <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar auditoria por usuário, ação, módulo ou resumo..." class="search-input" />
-                <input type="search" name="resource" value="{{ request('resource') }}" placeholder="Recurso (tipo/id)" class="search-input" style="flex:0 0 180px;" />
-                <input type="search" name="summary" value="{{ request('summary') }}" placeholder="Resumo / mensagem" class="search-input" style="flex:0 0 220px;" />
                 <button type="submit" class="btn btn-search">Pesquisar</button>
                 @if(request()->query())
                     <a href="{{ url()->current() }}" class="btn btn-ghost" style="margin-left:6px;">Limpar</a>
