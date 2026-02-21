@@ -52,3 +52,16 @@
 @media (max-width:900px){ #planosLista .action-buttons{ flex-direction:row; } #planosLista .action-buttons .btn{ min-width:96px; } }
 
 #templatesModal .modal-header { position: sticky; top: 0; z-index: 22; background: #fff; padding-bottom:8px; border-bottom:1px solid #f6f6f6; }
+
+/* Summary card (single) and per-template item hover effects */
+.plan-stats-single { max-width:1100px; margin:6px auto 0; }
+.plan-stat-card-single { background:#fffbe7; padding:16px; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,0.06); border:2px solid transparent; transition: box-shadow .18s cubic-bezier(.4,1,.7,1), transform .18s cubic-bezier(.4,1,.7,1), border-color .18s; }
+.plan-stat-card-single:hover { box-shadow: 0 12px 32px rgba(247,181,0,0.16), 0 2px 8px rgba(17,24,39,0.06); border-color: #f7b500; transform: translateY(-6px); }
+
+.plan-stat-card-single .tpl-item { background:#fff; padding:12px; border-radius:8px; border:1px solid rgba(231,214,137,0.35); display:flex; flex-direction:column; transition: box-shadow .18s cubic-bezier(.4,1,.7,1), transform .18s cubic-bezier(.4,1,.7,1), border-color .18s; cursor:default; }
+.plan-stat-card-single .tpl-item:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 10px 24px rgba(0,0,0,0.08); border-color: rgba(224,162,2,0.08); cursor:pointer; }
+.plan-stat-card-single .tpl-item .tpl-item-title { font-weight:700; color:#f7b500; }
+.plan-stat-card-single .tpl-item .tpl-item-count { font-size:1.4rem; font-weight:800; margin-top:6px; color:#111; }
+.plan-stat-card-single .tpl-item .tpl-item-sub { font-size:0.9rem; color:#666; }
+
+@media (max-width:900px){ .plan-stat-card-single .tpl-item { padding:10px; } }

@@ -80,10 +80,10 @@
                 <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
                     @isset($templates)
                         @foreach($templates as $tpl)
-                            <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid rgba(231,214,137,0.4);display:flex;flex-direction:column;">
-                                <div style="font-weight:700;color:#f7b500;">{{ $tpl->name }}</div>
-                                <div style="font-size:1.4rem;font-weight:800;margin-top:6px;">{{ $tpl->clients_count ?? 0 }}</div>
-                                <div style="font-size:0.9rem;color:#666;">clientes</div>
+                            <div class="tpl-item" style="background:#fff;padding:10px;border-radius:8px;border:1px solid rgba(231,214,137,0.4);display:flex;flex-direction:column;">
+                                <div class="tpl-item-title" style="font-weight:700;color:#f7b500;">{{ $tpl->name }}</div>
+                                <div class="tpl-item-count" style="font-size:1.4rem;font-weight:800;margin-top:6px;">{{ $tpl->clients_count ?? 0 }}</div>
+                                <div class="tpl-item-sub" style="font-size:0.9rem;color:#666;">clientes</div>
                             </div>
                         @endforeach
                     @else
