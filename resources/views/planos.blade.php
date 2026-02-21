@@ -24,6 +24,12 @@
           #planosLista .plan-card .plan-meta > .plan-cycle { display:inline-flex !important; align-items:center !important; line-height:1 !important; margin:0 8px 0 0 !important; padding:0 !important; }
           /* hide any remaining status badges inside cards (status shown in details only) */
           #planosLista .plan-card .status-badge { display:none !important; visibility:hidden !important; }
+          /* Card layout for plan cards: ensure client name fits and description truncates */
+          #planosLista .plan-card { background:#fff; padding:12px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.04); min-width:200px; max-width:340px; flex:1 1 220px; display:flex; flex-direction:column; justify-content:space-between; }
+          #planosLista .plan-card .plan-title { font-weight:800; font-size:1.06rem; color:#222; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+          #planosLista .plan-card .plan-client { color:#666; font-size:0.95rem; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+          #planosLista .plan-card .muted { margin-top:8px; color:#444; flex:1 1 auto; overflow:hidden; max-height:3.6em; display:block; }
+          #planosLista .plan-card .plan-actions { margin-top:12px; display:flex; gap:8px; align-items:center; }
     </style>
 @endpush
 

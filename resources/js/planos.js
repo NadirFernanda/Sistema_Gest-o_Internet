@@ -406,6 +406,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 html += `
                         <article class="plan-card" data-id="${p.id}">
                             <div class="plan-title">${esc(p.nome||p.name||'')}</div>
+                            <div class="plan-client" style="font-size:0.95rem;color:#333;margin-top:6px;font-weight:600">${esc(cliente)}</div>
                             <div class="plan-meta">
                                 <span class="plan-price">${esc(preco)}</span>
                                 <span class="plan-cycle">${esc((p.ciclo !== undefined && p.ciclo !== null && p.ciclo !== '') ? p.ciclo : (p.template && (p.template.ciclo !== undefined && p.template.ciclo !== null && p.template.ciclo !== '') ? p.template.ciclo : ''))}</span>
