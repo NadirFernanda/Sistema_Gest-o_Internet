@@ -68,7 +68,7 @@ class AuditController extends Controller
                     ->limit(500)
                     ->pluck('id')
                     ->toArray();
-                if (! empty($userIds)) {
+                if (! empty($userIds) && Schema::hasColumn('audit_logs', 'actor_id')) {
                     if (! $started) { $q->whereIn('actor_id', $userIds); $started = true; }
                     else { $q->orWhereIn('actor_id', $userIds); }
                 }
@@ -88,7 +88,7 @@ class AuditController extends Controller
                         ->limit(500)
                         ->pluck('id')
                         ->toArray();
-                    if (!empty($userIds)) {
+                    if (!empty($userIds) && Schema::hasColumn('audit_logs', 'actor_id')) {
                         $q->orWhereIn('actor_id', $userIds);
                     }
                 });
