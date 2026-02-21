@@ -61,6 +61,24 @@ class AuditController extends Controller
                     else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$busca}%"]); }
                 }
 
+                // Support legacy column names for payloads (before/after, old_values/new_values)
+                if (Schema::hasColumn('audit_logs', 'before')) {
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(before AS text) ILIKE ?" : "CAST(before AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(before AS text) ILIKE ?" : "CAST(before AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                }
+                if (Schema::hasColumn('audit_logs', 'after')) {
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(after AS text) ILIKE ?" : "CAST(after AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(after AS text) ILIKE ?" : "CAST(after AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                }
+                if (Schema::hasColumn('audit_logs', 'old_values')) {
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(old_values AS text) ILIKE ?" : "CAST(old_values AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(old_values AS text) ILIKE ?" : "CAST(old_values AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                }
+                if (Schema::hasColumn('audit_logs', 'new_values')) {
+                    if (! $started) { $started = true; $q->whereRaw($driver === 'pgsql' ? "CAST(new_values AS text) ILIKE ?" : "CAST(new_values AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                    else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(new_values AS text) ILIKE ?" : "CAST(new_values AS CHAR) LIKE ?", ["%{$busca}%"]); }
+                }
+
                 // Also match users whose name/email match the free-text search so
                 // audit rows that only store `actor_id` will still be returned.
                 $userIds = \App\Models\User::query()
@@ -80,8 +98,13 @@ class AuditController extends Controller
             $val = trim((string) $request->input('user'));
             if ($val !== '') {
                 // search both stored actor_name and users table (in case actor_name is not stored)
-                $query->where(function($q) use ($val, $op) {
-                    $q->where('actor_name', $op, "%{$val}%");
+                $query->where(function($q) use ($val, $op, $driver) {
+                    $started = false;
+                    if (Schema::hasColumn('audit_logs', 'actor_name')) {
+                        $q->whereRaw('LOWER(actor_name) LIKE LOWER(?)', ["%{$val}%"]);
+                        $started = true;
+                    }
+
                     // also match actor_id against users whose name or email matches
                     $userIds = \App\Models\User::query()
                         ->where('name', $op, "%{$val}%")
@@ -90,7 +113,22 @@ class AuditController extends Controller
                         ->pluck('id')
                         ->toArray();
                     if (!empty($userIds) && Schema::hasColumn('audit_logs', 'actor_id')) {
-                        $q->orWhereIn('actor_id', $userIds);
+                        if (! $started) { $q->whereIn('actor_id', $userIds); $started = true; }
+                        else { $q->orWhereIn('actor_id', $userIds); }
+                    }
+
+                    // Fallback: search inside JSON/text columns for the user's name
+                    if (Schema::hasColumn('audit_logs', 'payload_before')) {
+                        if (! $started) { $q->whereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$val}%"]); $started = true; }
+                        else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    }
+                    if (Schema::hasColumn('audit_logs', 'payload_after')) {
+                        if (! $started) { $q->whereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$val}%"]); $started = true; }
+                        else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    }
+                    if (Schema::hasColumn('audit_logs', 'meta')) {
+                        if (! $started) { $q->whereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$val}%"]); $started = true; }
+                        else { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$val}%"]); }
                     }
                 });
             }
