@@ -70,17 +70,27 @@
             </div>
         </div>
 
-        <!-- Cards dinâmicos: mostra a quantidade de clientes por template de plano -->
-        <div class="plan-stats" style="max-width:1100px;margin:6px auto 0;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;">
-            @isset($templates)
-                @foreach($templates as $tpl)
-                    <div class="plan-stat-card" style="background:#fffbe7;padding:12px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,0.06);min-width:180px;">
-                        <div style="font-weight:800;color:#f7b500;font-size:0.98rem;">{{ $tpl->name }}</div>
-                        <div style="font-size:1.4rem;margin-top:6px;font-weight:700;">{{ $tpl->clients_count ?? 0 }}</div>
-                        <div style="font-size:0.85rem;color:#666;margin-top:4px;">clientes</div>
-                    </div>
-                @endforeach
-            @endisset
+        <!-- Card único: resumo com todos os planos e suas contagens de clientes -->
+        <div class="plan-stats-single" style="max-width:1100px;margin:6px auto 0;">
+            <div class="plan-stat-card-single" style="background:#fffbe7;padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <strong style="font-size:1.05rem;color:#333;">Resumo de Clientes por Plano</strong>
+                    <span style="color:#666;font-size:0.95rem;">Templates: {{ isset($templates) ? $templates->count() : 0 }}</span>
+                </div>
+                <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+                    @isset($templates)
+                        @foreach($templates as $tpl)
+                            <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid rgba(231,214,137,0.4);display:flex;flex-direction:column;">
+                                <div style="font-weight:700;color:#f7b500;">{{ $tpl->name }}</div>
+                                <div style="font-size:1.4rem;font-weight:800;margin-top:6px;">{{ $tpl->clients_count ?? 0 }}</div>
+                                <div style="font-size:0.9rem;color:#666;">clientes</div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div style="color:#666">Nenhum template de plano encontrado.</div>
+                    @endisset
+                </div>
+            </div>
         </div>
 
         <div class="planos-lista" id="planosLista">
