@@ -224,6 +224,25 @@ class ClienteController extends Controller
     }
 
     /**
+     * Endpoint HTTP para disparar alertas de vencimento (wrap do comando artisan).
+     * POST /api/alertas/disparar
+     */
+    public function dispararAlertas(Request $request)
+    {
+        try {
+            $dias = (int) $request->input('dias', 5);
+            // Execute the same logic as the scheduled command
+            \Artisan::call('alertas:disparar', ['--dias' => $dias]);
+            $output = \Artisan::output();
+            \Log::info('API dispararAlertas called', ['dias' => $dias, 'output' => substr($output,0,1000)]);
+            return response()->json(['success' => true, 'message' => 'Dispatch iniciado', 'output' => $output]);
+        } catch (\Throwable $e) {
+            \Log::error('API dispararAlertas error', ['err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Erro ao disparar alertas', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Método utilitário para testar envio de alerta de vencimento por e-mail para um cliente.
      * Exemplo de uso no Tinker:
      *   App\Http\Controllers\ClienteController::enviarAlertaEmailTeste(1, 3)
