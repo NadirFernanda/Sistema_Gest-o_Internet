@@ -160,7 +160,18 @@ class PlanoController extends Controller
     public function webIndex(Request $request)
     {
         $clientes = \App\Models\Cliente::orderBy('nome')->get();
-        return view('planos', compact('clientes'));
+        // Load plan templates and compute number of distinct clients per template
+        $templates = PlanTemplate::orderBy('name')->get();
+        foreach ($templates as $t) {
+            try {
+                $t->clients_count = $t->planos()->whereNotNull('cliente_id')->distinct('cliente_id')->count('cliente_id');
+            } catch (\Exception $e) {
+                // fallback to simple count in case distinct/count combination fails on some DB drivers
+                $t->clients_count = $t->planos()->whereNotNull('cliente_id')->count();
+            }
+        }
+
+        return view('planos', compact('clientes', 'templates'));
     }
 
     /**

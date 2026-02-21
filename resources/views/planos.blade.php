@@ -70,6 +70,19 @@
             </div>
         </div>
 
+        <!-- Cards dinâmicos: mostra a quantidade de clientes por template de plano -->
+        <div class="plan-stats" style="max-width:1100px;margin:6px auto 0;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;">
+            @isset($templates)
+                @foreach($templates as $tpl)
+                    <div class="plan-stat-card" style="background:#fffbe7;padding:12px 16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,0.06);min-width:180px;">
+                        <div style="font-weight:800;color:#f7b500;font-size:0.98rem;">{{ $tpl->name }}</div>
+                        <div style="font-size:1.4rem;margin-top:6px;font-weight:700;">{{ $tpl->clients_count ?? 0 }}</div>
+                        <div style="font-size:0.85rem;color:#666;margin-top:4px;">clientes</div>
+                    </div>
+                @endforeach
+            @endisset
+        </div>
+
         <div class="planos-lista" id="planosLista">
             <p>Nenhum plano cadastrado ainda.</p>
         </div>
