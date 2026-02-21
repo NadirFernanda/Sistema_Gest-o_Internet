@@ -24,7 +24,8 @@ class AuditController extends Controller
             $query->where(function ($q) use ($busca, $op, $driver) {
                 $started = false;
                 if (Schema::hasColumn('audit_logs', 'actor_name')) {
-                    $q->where('actor_name', $op, "%{$busca}%");
+                    // Use a portable case-insensitive match that works across DB drivers.
+                    $q->whereRaw('LOWER(actor_name) LIKE LOWER(?)', ["%{$busca}%"]);
                     $started = true;
                 }
                 if (Schema::hasColumn('audit_logs', 'resource_type')) {
