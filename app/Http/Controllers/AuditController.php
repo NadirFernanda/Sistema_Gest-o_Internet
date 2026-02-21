@@ -155,6 +155,53 @@ class AuditController extends Controller
                 $query->where('action', $op, "%{$val}%");
             }
         }
+        // Allow searching by resource (type/id or combined)
+        if ($request->filled('resource')) {
+            $val = trim((string) $request->input('resource'));
+            if ($val !== '') {
+                $driver = DB::getDriverName();
+                $query->where(function($q) use ($val, $op, $driver) {
+                    if (Schema::hasColumn('audit_logs', 'resource_type')) {
+                        $q->where('resource_type', $op, "%{$val}%");
+                    }
+                    if (Schema::hasColumn('audit_logs', 'resource_id')) {
+                        $q->orWhere('resource_id', $op, "%{$val}%");
+                    }
+                    if (Schema::hasColumn('audit_logs', 'resource_type') && Schema::hasColumn('audit_logs', 'resource_id')) {
+                        $concat = $driver === 'pgsql'
+                            ? "(resource_type || ' ' || resource_id) ILIKE ?"
+                            : "CONCAT(resource_type,' ',resource_id) LIKE ?";
+                        $q->orWhereRaw($concat, ["%{$val}%"]);
+                    }
+
+                    // also search payloads/meta for resource identifiers
+                    if (Schema::hasColumn('audit_logs', 'payload_before')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'payload_after')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'meta')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$val}%"]); }
+                });
+            }
+        }
+
+        // Allow searching by summary (human-readable message contained in payloads/meta/action/module)
+        if ($request->filled('summary')) {
+            $val = trim((string) $request->input('summary'));
+            if ($val !== '') {
+                $driver = DB::getDriverName();
+                $query->where(function($q) use ($val, $op, $driver) {
+                    if (Schema::hasColumn('audit_logs', 'action')) { $q->where('action', $op, "%{$val}%"); }
+                    if (Schema::hasColumn('audit_logs', 'module')) { $q->orWhere('module', $op, "%{$val}%"); }
+                    if (Schema::hasColumn('audit_logs', 'actor_name')) { $q->orWhereRaw('LOWER(actor_name) LIKE LOWER(?)', ["%{$val}%"]); }
+
+                    if (Schema::hasColumn('audit_logs', 'payload_before')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_before AS text) ILIKE ?" : "CAST(payload_before AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'payload_after')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(payload_after AS text) ILIKE ?" : "CAST(payload_after AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'meta')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(meta AS text) ILIKE ?" : "CAST(meta AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'before')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(before AS text) ILIKE ?" : "CAST(before AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'after')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(after AS text) ILIKE ?" : "CAST(after AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'old_values')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(old_values AS text) ILIKE ?" : "CAST(old_values AS CHAR) LIKE ?", ["%{$val}%"]); }
+                    if (Schema::hasColumn('audit_logs', 'new_values')) { $q->orWhereRaw($driver === 'pgsql' ? "CAST(new_values AS text) ILIKE ?" : "CAST(new_values AS CHAR) LIKE ?", ["%{$val}%"]); }
+                });
+            }
+        }
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->input('from'));
         }
