@@ -99,6 +99,17 @@ return [
 
     'key' => env('APP_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Audit HMAC Key
+    |--------------------------------------------------------------------------
+    |
+    | Read the AUDIT_HMAC_KEY from environment so cached config and queue
+    | workers can access the audit key when computing HMACs for audit logs.
+    |
+    */
+    'audit_key' => env('AUDIT_HMAC_KEY'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
