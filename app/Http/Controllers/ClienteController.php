@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\Models\Cliente;
 use App\Models\User;
@@ -232,8 +233,8 @@ class ClienteController extends Controller
         try {
             $dias = (int) $request->input('dias', 5);
             // Execute the same logic as the scheduled command
-            \Artisan::call('alertas:disparar', ['--dias' => $dias]);
-            $output = \Artisan::output();
+            Artisan::call('alertas:disparar', ['--dias' => $dias]);
+            $output = Artisan::output();
             \Log::info('API dispararAlertas called', ['dias' => $dias, 'output' => substr($output,0,1000)]);
             return response()->json(['success' => true, 'message' => 'Dispatch iniciado', 'output' => $output]);
         } catch (\Throwable $e) {
