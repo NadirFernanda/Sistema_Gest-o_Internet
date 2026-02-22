@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use App\Models\Plano;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Mail\Events\MessageSent;
 
 class DispararAlertasVencimento extends Command
 {
@@ -16,6 +18,18 @@ class DispararAlertasVencimento extends Command
     {
         $dias = (int) $this->option('dias');
         $hoje = Carbon::today(); // apenas a data, sem hora
+        // Warn if mailer is set to 'log' (common in dev) to avoid silent non-delivery
+        try {
+            $mailer = config('mail.default');
+            if ($mailer === 'log') {
+                $this->warn('Atenção: MAIL_MAILER está configurado como `log` — e-mails serão gravados apenas no log e não serão entregues.');
+                Log::warning('alertas:disparar - mailer configurado como log (não entrega)', ['dias' => $dias]);
+                try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Mailer=log - alertas não serão entregues via SMTP
+', FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+            }
+        } catch (\Throwable $_) {
+            // ignore config read errors
+        }
         // Be tolerant to casing/spacing of 'estado' and accept empty/null as active
         $planosRaw = Plano::with('cliente')
             ->where(function($q){
@@ -67,6 +81,52 @@ class DispararAlertasVencimento extends Command
             // ignore any filesystem problems here
         }
 
+        // Temporary listener to capture provider metadata (Message-ID, headers) for successful sends
+        $sentMailInfo = [];
+        try {
+            Event::listen(MessageSent::class, function ($event) use (&$sentMailInfo) {
+                try {
+                    $msg = $event->message;
+                    $info = ['to' => null, 'message_id' => null, 'headers' => null];
+                    // Try Symfony/Mime Email methods
+                    if (is_object($msg)) {
+                        if (method_exists($msg, 'getTo')) {
+                            $info['to'] = $msg->getTo();
+                        } elseif (method_exists($msg, 'getHeaders')) {
+                            try {
+                                $headers = $msg->getHeaders();
+                                if (method_exists($headers, 'all')) {
+                                    $info['headers'] = $headers->all();
+                                } else {
+                                    $info['headers'] = (string) $headers;
+                                }
+                                if (method_exists($headers, 'get')) {
+                                    $mh = $headers->get('message-id');
+                                    if ($mh) { $info['message_id'] = (string) $mh; }
+                                }
+                            } catch (\Throwable $_) {
+                                // ignore
+                            }
+                        }
+                        if (method_exists($msg, 'getMessageId')) {
+                            $info['message_id'] = $msg->getMessageId();
+                        } elseif (method_exists($msg, 'getId')) {
+                            $info['message_id'] = $msg->getId();
+                        }
+                        // Fallback: toString
+                        if (empty($info['headers']) && method_exists($msg, 'toString')) {
+                            $info['headers'] = substr($msg->toString(), 0, 2000);
+                        }
+                    }
+                    $sentMailInfo[] = $info;
+                } catch (\Throwable $e) {
+                    Log::warning('MessageSent listener error', ['err' => $e->getMessage()]);
+                }
+            });
+        } catch (\Throwable $_) {
+            // ignore event binding problems
+        }
+
         foreach ($planos as $plano) {
             try {
                 if (!empty($plano->proxima_renovacao)) {
@@ -87,13 +147,67 @@ class DispararAlertasVencimento extends Command
                 try {
                     $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
                     $sent++;
+                    // Try to attach provider metadata from the MessageSent listener
+                    $providerMeta = null;
+                    try {
+                        if (!empty($sentMailInfo)) {
+                            // find last entry or the one matching recipient
+                            $last = end($sentMailInfo);
+                            $providerMeta = $last;
+                        }
+                    } catch (\Throwable $_) { $providerMeta = null; }
+
                     $this->info('E-mail enviado para: ' . ($cliente->email ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                    Log::info('alertas:disparar - mail enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes]);
+                    $logContext = ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes];
+                    if ($providerMeta) { $logContext['provider_meta'] = $providerMeta; }
+                    Log::info('alertas:disparar - mail enviado', $logContext);
                 } catch (\Throwable $e) {
                     $failed++;
                     $this->error('Falha ao enviar e-mail para plano ID ' . $plano->id . ': ' . $e->getMessage());
-                    Log::error('alertas:disparar - falha mail', ['plano_id' => $plano->id, 'err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-                    try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha mail plano ' . $plano->id . ' - ' . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+
+                    // Try to extract provider response (Guzzle, Mailgun, Postmark, etc.) when available
+                    $providerResponse = null;
+                    try {
+                        if (method_exists($e, 'getResponse')) {
+                            $resp = $e->getResponse();
+                            if ($resp) {
+                                if (is_string($resp)) {
+                                    $providerResponse = $resp;
+                                } elseif (is_object($resp) && method_exists($resp, 'getBody')) {
+                                    $providerResponse = (string) $resp->getBody();
+                                }
+                            }
+                        }
+                        if (empty($providerResponse) && method_exists($e, 'hasResponse') && $e->hasResponse()) {
+                            $resp = $e->getResponse();
+                            if ($resp && method_exists($resp, 'getBody')) {
+                                $providerResponse = (string) $resp->getBody();
+                            }
+                        }
+                        if (empty($providerResponse) && isset($e->response)) {
+                            $resp = $e->response;
+                            if (is_string($resp)) {
+                                $providerResponse = $resp;
+                            } elseif (is_object($resp) && method_exists($resp, 'getBody')) {
+                                $providerResponse = (string) $resp->getBody();
+                            }
+                        }
+                    } catch (\Throwable $_) {
+                        $providerResponse = null;
+                    }
+
+                    $logContext = ['plano_id' => $plano->id, 'err' => $e->getMessage(), 'trace' => $e->getTraceAsString()];
+                    if ($providerResponse) {
+                        $logContext['provider_response'] = substr($providerResponse, 0, 2000);
+                    }
+                    Log::error('alertas:disparar - falha mail', $logContext);
+
+                    try {
+                        $line = '[' . now()->toDateTimeString() . '] Falha mail plano ' . $plano->id . ' - ' . $e->getMessage();
+                        if ($providerResponse) { $line .= ' | provider_response=' . preg_replace('/\s+/', ' ', substr($providerResponse,0,2000)); }
+                        $line .= "\n";
+                        @file_put_contents(storage_path('logs/alerts-dispatch.log'), $line, FILE_APPEND | LOCK_EX);
+                    } catch (\Throwable $_) {}
                 }
 
                 // Attempt WhatsApp separately; if the driver is missing, log a warning and continue

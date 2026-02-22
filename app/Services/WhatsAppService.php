@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 class WhatsAppService
 {
@@ -35,7 +37,7 @@ class WhatsAppService
         // Suporta driver Twilio (recomendado para POC) ou integrações HTTP (UltraMsg/Z-API)
         if ($this->driver === 'twilio') {
             if (!$this->twilioSid || !$this->twilioToken || !$this->twilioFrom) {
-                return false;
+                throw new InvalidArgumentException('Twilio credentials missing (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM)');
             }
             $url = "https://api.twilio.com/2010-04-01/Accounts/{$this->twilioSid}/Messages.json";
             $response = Http::withBasicAuth($this->twilioSid, $this->twilioToken)
@@ -45,17 +47,25 @@ class WhatsAppService
                     'To' => 'whatsapp:' . $numero,
                     'Body' => $mensagem,
                 ]);
+
             if ($response->successful()) {
                 return $response->json();
             }
-            return false;
+
+            $body = $response->body();
+            Log::error('WhatsAppService Twilio send failed', ['status' => $response->status(), 'body' => $body, 'to' => $numero]);
+            throw new \RuntimeException('Twilio WhatsApp send failed: ' . $response->status() . ' ' . substr($body,0,1000));
         }
 
         // Exemplo UltraMsg / HTTP padrão
+        if (empty($this->apiUrl) || empty($this->token)) {
+            throw new InvalidArgumentException('WhatsApp HTTP driver requires WHATSAPP_API_URL and WHATSAPP_API_TOKEN');
+        }
+
         $response = Http::withHeaders([
             'X-API-KEY' => $this->token,
             'Content-Type' => 'application/json',
-        ])->post($this->apiUrl . '/messages/chat', [
+        ])->post(rtrim($this->apiUrl, '/') . '/messages/chat', [
             'to' => $numero,
             'message' => $mensagem,
         ]);
@@ -63,6 +73,9 @@ class WhatsAppService
         if ($response->successful()) {
             return $response->json();
         }
-        return false;
+
+        $body = $response->body();
+        Log::error('WhatsAppService HTTP send failed', ['status' => $response->status(), 'body' => $body, 'to' => $numero]);
+        throw new \RuntimeException('WhatsApp HTTP send failed: ' . $response->status() . ' ' . substr($body,0,1000));
     }
 }
