@@ -215,6 +215,7 @@ class ClienteController extends Controller
                 'nome' => $plano->cliente?->nome,
                 'plano' => $plano->nome ?? $plano->descricao ?? '',
                 'contato' => $plano->cliente?->contato ?? $plano->cliente?->telefone ?? '',
+                'email' => $plano->cliente?->email ?? '',
                 'dataTermino' => $dataTermino->toDateString(),
                 'diasRestantes' => $diasRestantes,
             ];

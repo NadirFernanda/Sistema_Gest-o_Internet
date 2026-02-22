@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
                         // No image column for alerts; keep row minimal
                         html += `<tr data-plano-id="${a.id}"${destaque}>` +
-                            `<td style="text-align:center;vertical-align:middle;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}"></td>` +
+                            `<td style="text-align:center;vertical-align:middle;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}" data-email="${a.email}"></td>` +
                             `<td style="text-align:center;vertical-align:middle;"><span style="font-weight:500;">${a.nome}</span></td>` +
                             
                             `<td style="text-align:center;vertical-align:middle;">${a.plano}</td>` +

@@ -61,21 +61,32 @@
                         const destinatarios = selecionadosElems.map(cb => {
                             const nome = cb.dataset.nome || '';
                             const contato = cb.dataset.contato || '';
-                            return contato ? `${nome} (${contato})` : nome;
-                        }).filter(txt => txt.trim() !== '');
+                            const email = cb.dataset.email || '';
+                            return { nome, contato, email };
+                        }).filter(o => (o.contato || o.email || o.nome));
 
                         if (out.includes('whatsapp enviado')) {
                             // backend did send WhatsApp messages
                             if (destinatarios.length === 1) {
-                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp de ${destinatarios[0]}.`);
+                                const d = destinatarios[0];
+                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp de ${d.nome} (${d.contato || d.email}).`);
                             } else if (destinatarios.length > 1) {
-                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp dos seguintes clientes: ${destinatarios.join(', ')}.`);
+                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp dos seguintes clientes: ${destinatarios.map(d => d.nome + ' (' + (d.contato || d.email) + ')').join(', ')}.`);
                             } else {
                                 alert('Alertas de vencimento foram enviados com sucesso para o WhatsApp dos clientes selecionados.');
                             }
                         } else if (out.includes('whatsapp skipped') || out.includes('whatsapp desativado') || out.includes('whatsapp ausente')) {
-                            // WhatsApp skipped — likely email-only
-                            alert('Alertas enviados com sucesso (e-mail). WhatsApp foi pulado por configuração.');
+                            // WhatsApp skipped — show email recipients instead
+                            if (destinatarios.length === 1) {
+                                const d = destinatarios[0];
+                                const emailTxt = d.email || d.contato || d.nome;
+                                alert(`Alertas enviados com sucesso por e-mail para: ${emailTxt}.`);
+                            } else if (destinatarios.length > 1) {
+                                const list = destinatarios.map(d => d.email || d.contato || d.nome).filter(x => x).join(', ');
+                                alert(`Alertas enviados com sucesso por e-mail para: ${list}.`);
+                            } else {
+                                alert('Alertas enviados com sucesso (e-mail).');
+                            }
                         } else {
                             // Generic success when backend didn't explicitly report WhatsApp
                             alert('Alertas enviados com sucesso.');
