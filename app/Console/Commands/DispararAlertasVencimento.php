@@ -210,25 +210,32 @@ class DispararAlertasVencimento extends Command
                     } catch (\Throwable $_) {}
                 }
 
-                // Attempt WhatsApp separately; if the driver is missing, log a warning and continue
-                try {
-                    $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
-                    $sent++;
-                    $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                    Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
-                } catch (\Throwable $e) {
-                    // Detect unsupported driver error and treat it as non-fatal
-                    $msg = $e->getMessage();
-                    if ($e instanceof \InvalidArgumentException || stripos($msg, 'Driver [whatsapp]') !== false || (stripos($msg, 'whatsapp') !== false && stripos($msg, 'not supported') !== false)) {
-                        $this->warn('Canal WhatsApp não suportado no ambiente - pulando envio WhatsApp para plano ID ' . $plano->id);
-                        Log::warning('alertas:disparar - whatsapp driver ausente', ['plano_id' => $plano->id, 'err' => $msg]);
-                        try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp ausente plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
-                    } else {
-                        $failed++;
-                        $this->error('Falha ao enviar WhatsApp para plano ID ' . $plano->id . ': ' . $msg);
-                        Log::error('alertas:disparar - falha whatsapp', ['plano_id' => $plano->id, 'err' => $msg, 'trace' => $e->getTraceAsString()]);
-                        try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha whatsapp plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                // WhatsApp: only attempt if explicitly enabled via env ENABLE_WHATSAPP=true
+                if (env('ENABLE_WHATSAPP', false)) {
+                    try {
+                        $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
+                        $sent++;
+                        $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                        Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                    } catch (\Throwable $e) {
+                        // Detect unsupported driver error and treat it as non-fatal
+                        $msg = $e->getMessage();
+                        if ($e instanceof \InvalidArgumentException || stripos($msg, 'Driver [whatsapp]') !== false || (stripos($msg, 'whatsapp') !== false && stripos($msg, 'not supported') !== false)) {
+                            $this->warn('Canal WhatsApp não suportado no ambiente - pulando envio WhatsApp para plano ID ' . $plano->id);
+                            Log::warning('alertas:disparar - whatsapp driver ausente', ['plano_id' => $plano->id, 'err' => $msg]);
+                            try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp ausente plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                        } else {
+                            $failed++;
+                            $this->error('Falha ao enviar WhatsApp para plano ID ' . $plano->id . ': ' . $msg);
+                            Log::error('alertas:disparar - falha whatsapp', ['plano_id' => $plano->id, 'err' => $msg, 'trace' => $e->getTraceAsString()]);
+                            try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha whatsapp plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                        }
                     }
+                } else {
+                    // WhatsApp disabled intentionally
+                    $this->info('WhatsApp desativado por configuração; pulando envio para plano ID ' . $plano->id);
+                    Log::info('alertas:disparar - whatsapp skipped by config', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null]);
+                    try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp skipped plano ' . $plano->id . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
                 }
             }
         }
