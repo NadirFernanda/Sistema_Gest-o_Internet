@@ -55,6 +55,8 @@
 
                     const data = await res.json();
                     if (data && data.success) {
+                        // Attempt to detect whether the backend reported WhatsApp activity in the artisan output.
+                        const out = (data.output || '').toLowerCase();
                         const selecionadosElems = Array.from(document.querySelectorAll('#alertasLista .chk-alerta:checked'));
                         const destinatarios = selecionadosElems.map(cb => {
                             const nome = cb.dataset.nome || '';
@@ -62,12 +64,21 @@
                             return contato ? `${nome} (${contato})` : nome;
                         }).filter(txt => txt.trim() !== '');
 
-                        if (destinatarios.length === 1) {
-                            alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp de ${destinatarios[0]}.`);
-                        } else if (destinatarios.length > 1) {
-                            alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp dos seguintes clientes: ${destinatarios.join(', ')}.`);
+                        if (out.includes('whatsapp enviado')) {
+                            // backend did send WhatsApp messages
+                            if (destinatarios.length === 1) {
+                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp de ${destinatarios[0]}.`);
+                            } else if (destinatarios.length > 1) {
+                                alert(`Alertas de vencimento foram enviados com sucesso para o WhatsApp dos seguintes clientes: ${destinatarios.join(', ')}.`);
+                            } else {
+                                alert('Alertas de vencimento foram enviados com sucesso para o WhatsApp dos clientes selecionados.');
+                            }
+                        } else if (out.includes('whatsapp skipped') || out.includes('whatsapp desativado') || out.includes('whatsapp ausente')) {
+                            // WhatsApp skipped — likely email-only
+                            alert('Alertas enviados com sucesso (e-mail). WhatsApp foi pulado por configuração.');
                         } else {
-                            alert('Alertas de vencimento foram enviados com sucesso para o WhatsApp dos clientes selecionados.');
+                            // Generic success when backend didn't explicitly report WhatsApp
+                            alert('Alertas enviados com sucesso.');
                         }
                     } else {
                         alert('Erro ao disparar alertas.');
