@@ -30,10 +30,11 @@ class ClienteVencimentoAlert extends Notification
     {
         return (new MailMessage)
             ->subject('Aviso de Vencimento de Serviço')
-            ->greeting('Olá, ' . $this->cliente->nome . '!')
-            ->line('Seu serviço/plano "' . $this->plano->nome . '" irá vencer em ' . $this->diasRestantes . ' dia(s).')
-            ->line('Data de término: ' . ($this->plano->data_ativacao ? date('d/m/Y', strtotime($this->plano->data_ativacao . ' + ' . $this->plano->ciclo . ' days')) : ''))
-            ->line('Por favor, entre em contato para renovação ou dúvidas.')
+            ->mailer('smtp')
+            ->greeting('Prezado(a) ' . $this->cliente->nome . ',')
+            ->line('Informamos que o seu serviço/plano "' . $this->plano->nome . '" irá vencer em ' . $this->diasRestantes . ' dia(s).')
+            ->line('📅 Data de término: ' . ($this->plano->data_ativacao ? date('d/m/Y', strtotime($this->plano->data_ativacao . ' + ' . $this->plano->ciclo . ' days')) : ''))
+            ->line('Solicitamos, por gentileza, que entre em contacto connosco para proceder à renovação ou para esclarecer qualquer dúvida.')
             ->salutation('Atenciosamente, Equipe LuandaWiFi');
     }
 }

@@ -29,9 +29,11 @@ class ClienteVencimentoWhatsApp extends Notification
     public function toWhatsApp($notifiable)
     {
         $numero = $this->cliente->contato;
-        $mensagem = "Olá, {$this->cliente->nome}! Seu serviço/plano '{$this->plano->nome}' irá vencer em {$this->diasRestantes} dia(s). Data de término: " .
+        $mensagem = "Prezado(a) {$this->cliente->nome},\n\n" .
+            "Informamos que o seu serviço/plano \"{$this->plano->nome}\" irá vencer em {$this->diasRestantes} dia(s).\n\n" .
+            "📅 Data de término: " .
             ($this->plano->data_ativacao ? date('d/m/Y', strtotime($this->plano->data_ativacao . ' + ' . $this->plano->ciclo . ' days')) : '') .
-            ". Por favor, entre em contato para renovação ou dúvidas. Equipe LuandaWiFi.";
+            "\n\nSolicitamos, por gentileza, que entre em contacto connosco para proceder à renovação ou para esclarecer qualquer dúvida.\n\nAtenciosamente,\nEquipe LuandaWiFi";
         $service = new WhatsAppService();
         return $service->enviarMensagem($numero, $mensagem);
     }

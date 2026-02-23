@@ -29,11 +29,10 @@ class ClienteVencimentoEmail extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Aviso de Vencimento de Plano')
-            ->greeting('Olá, ' . $notifiable->nome)
-            ->line('Seu plano "' . $this->plano->nome . '" está prestes a vencer!')
-            ->line('Faltam ' . $this->diasRestantes . ' dias para o término do serviço.')
-            ->line('Data de término: ' . ($this->plano->data_ativacao ? date('d/m/Y', strtotime($this->plano->data_ativacao . ' +'.$this->plano->ciclo.' days')) : '-'))
-            ->line('Por favor, entre em contato para renovação ou mais informações.')
-            ->salutation('Atenciosamente, SGA - Mr. Texas');
+            ->greeting('Prezado(a) ' . $notifiable->nome . ',')
+            ->line('Informamos que o seu serviço/plano "' . $this->plano->nome . '" irá vencer em ' . $this->diasRestantes . ' dia(s).')
+            ->line('📅 Data de término: ' . ($this->plano->data_ativacao ? date('d/m/Y', strtotime($this->plano->data_ativacao . ' +'.$this->plano->ciclo.' days')) : '-'))
+            ->line('Solicitamos, por gentileza, que entre em contacto connosco para proceder à renovação ou para esclarecer qualquer dúvida.')
+            ->salutation('Atenciosamente, Equipe LuandaWiFi');
     }
 }
