@@ -21,8 +21,8 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        // Dispara alertas de vencimento duas vezes ao dia (ex.: 09:00 e 18:00)
-        $schedule->command('alertas:disparar')->twiceDaily(9, 18);
+        // Dispara alertas de vencimento duas vezes ao dia (13:00 e 18:00)
+        $schedule->command('alertas:disparar')->twiceDaily(13, 18);
         // Gera relatórios gerais automaticamente
         $schedule->command('relatorio:geral --period=daily')->dailyAt('00:05');
         $schedule->command('relatorio:geral --period=weekly')->weeklyOn(1, '00:10');
