@@ -28,6 +28,15 @@ class RelatorioGeralCommand extends Command
     public function handle()
     {
         $period = $this->option('period') ?? 'daily';
+        $map = [
+            'daily' => 'diario',
+            'weekly' => 'semanal',
+            'monthly' => 'mensal',
+            'diario' => 'diario',
+            'semanal' => 'semanal',
+            'mensal' => 'mensal',
+        ];
+        $token = $map[strtolower($period)] ?? $period;
 
         $now = Carbon::now();
         if ($period === 'weekly') {
@@ -68,7 +77,7 @@ class RelatorioGeralCommand extends Command
             $users = User::whereBetween('created_at', [$start, $end])->get();
 
             $meta = [
-                'period' => $period,
+                'period' => $token,
                 'filename' => $filename,
                 'generated_at' => Carbon::now()->toDateTimeString(),
                 'counts' => [
@@ -92,7 +101,7 @@ class RelatorioGeralCommand extends Command
             // persistir metadados em banco para UI confiável
             try {
                 \App\Models\Relatorio::create([
-                    'period' => $period,
+                    'period' => $token,
                     'filename' => $filename,
                     'generated_at' => Carbon::now(),
                     'counts' => [
@@ -131,7 +140,7 @@ class RelatorioGeralCommand extends Command
                     ],
                 ];
 
-                Storage::disk('local')->put('relatorios/last_run_' . $period . '.json', json_encode($meta));
+                Storage::disk('local')->put('relatorios/last_run_' . $token . '.json', json_encode($meta));
             } catch (\Exception $ex) {
                 Log::warning('Não foi possível gravar last_run para relatório: ' . $ex->getMessage());
             }
