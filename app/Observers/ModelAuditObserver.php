@@ -37,16 +37,31 @@ class ModelAuditObserver
 
     public function created($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'created'));
+        $this->pushAudit($this->buildPayload($model, 'created'));
     }
 
     public function updated($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'updated'));
+        $this->pushAudit($this->buildPayload($model, 'updated'));
     }
 
     public function deleted($model): void
     {
-        WriteAuditLogJob::dispatch($this->buildPayload($model, 'deleted'));
+        $this->pushAudit($this->buildPayload($model, 'deleted'));
+    }
+
+    protected function pushAudit(array $payload): void
+    {
+        // If queue driver is sync or operator explicitly requests sync processing
+        // via AUDIT_FORCE_SYNC, execute synchronously to avoid lost audits when
+        // a worker isn't running. Otherwise dispatch to the queue normally.
+        $forceSync = env('AUDIT_FORCE_SYNC', false);
+        $queueDefault = config('queue.default');
+        if ($forceSync || $queueDefault === 'sync') {
+            WriteAuditLogJob::dispatchSync($payload);
+            return;
+        }
+
+        WriteAuditLogJob::dispatch($payload);
     }
 }
