@@ -10,6 +10,10 @@ use App\Models\Cliente;
 use App\Models\Plano;
 use App\Models\Equipamento;
 use App\Models\Alert;
+use App\Models\ClienteEquipamento;
+use App\Models\EstoqueEquipamento;
+use App\Models\PlanTemplate;
+use App\Models\User;
 use App\Models\Alerta;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -57,7 +61,16 @@ class RelatorioGeralCommand extends Command
                 $alertas = collect();
             }
 
-            $export = new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas);
+            $clienteEquipamentos = ClienteEquipamento::whereBetween('created_at', [$start, $end])->get();
+            $estoque = EstoqueEquipamento::whereBetween('created_at', [$start, $end])->get();
+            $planTemplates = PlanTemplate::whereBetween('created_at', [$start, $end])->get();
+            $users = User::whereBetween('created_at', [$start, $end])->get();
+
+            $export = (new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas))
+                ->withClienteEquipamentos($clienteEquipamentos)
+                ->withEstoque($estoque)
+                ->withPlanTemplates($planTemplates)
+                ->withUsers($users);
 
             Excel::store($export, 'relatorios/' . $filename, 'local');
 
