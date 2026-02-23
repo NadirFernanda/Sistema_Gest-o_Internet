@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -21,6 +22,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        Log::info('Console Kernel::schedule() invoked to register scheduled tasks');
         // Dispara alertas de vencimento duas vezes ao dia (13:00 e 18:00)
         $schedule->command('alertas:disparar')->twiceDaily(13, 18);
         // Gera relatórios gerais automaticamente
