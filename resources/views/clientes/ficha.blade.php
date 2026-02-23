@@ -55,8 +55,11 @@
                 Histórico de Compensações
             </a>
             <!-- Botão único: Compensar Dias -->
-            <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:200px; font-weight:700;">
+            <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:160px; font-weight:700; margin-right:8px;">
                 Compensar Dias
+            </button>
+            <button id="adicionar-janela-btn" class="btn btn-primary" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:220px; font-weight:700;">
+                Adicionar Janela (auto)
             </button>
         </div>
 
@@ -72,6 +75,35 @@
                     <button type="button" id="fechar-modal-compensar" class="btn btn-ghost" style="margin-left:10px;">Cancelar</button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar janela automática -->
+    <div id="modal-adicionar-janela" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:24px 20px;border-radius:12px;max-width:520px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
+            <h5 style="margin-bottom:12px;">Adicionar Janela automática</h5>
+            <p style="margin:0 0 12px 0;color:#444;">Selecione o plano que deseja estender. Se não escolher, será usado o plano ativo mais recente.</p>
+            <form id="form-adicionar-janela" method="POST" action="{{ route('clientes.adicionar_janela', $cliente->id) }}">
+                @csrf
+                <div style="max-height:220px;overflow:auto;margin-bottom:12px;">
+                    @foreach($cliente->planos ?? [] as $pl)
+                        <label style="display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;border:1px solid #f0f0f0;margin-bottom:6px;">
+                            <input type="radio" name="plano_id" value="{{ $pl->id }}">
+                            <div style="flex:1;">
+                                <div style="font-weight:700;">{{ $pl->nome }}</div>
+                                <div class="muted">Ativação: {{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : '—' }} • Ciclo: {{ $pl->ciclo ?? '—' }} dias • Próx: {{ $pl->proxima_renovacao ?? '—' }}</div>
+                            </div>
+                        </label>
+                    @endforeach
+                    @if(empty($cliente->planos) || $cliente->planos->isEmpty())
+                        <p class="p-2 muted">Nenhum plano encontrado para este cliente.</p>
+                    @endif
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                    <button type="submit" class="btn btn-primary">Adicionar Janela</button>
+                    <button type="button" id="fechar-modal-janela" class="btn btn-ghost">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -245,6 +277,16 @@ document.addEventListener('DOMContentLoaded', function(){
         btnCompensar.onclick = () => { modal.style.display = 'flex'; document.getElementById('dias_compensados').focus(); };
         fechar.onclick = () => { modal.style.display = 'none'; };
         modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+    }
+
+    // Modal logic for Adicionar Janela
+    const btnJanela = document.getElementById('adicionar-janela-btn');
+    const modalJanela = document.getElementById('modal-adicionar-janela');
+    const fecharJanela = document.getElementById('fechar-modal-janela');
+    if (btnJanela && modalJanela && fecharJanela) {
+        btnJanela.onclick = () => { modalJanela.style.display = 'flex'; };
+        fecharJanela.onclick = () => { modalJanela.style.display = 'none'; };
+        modalJanela.onclick = (e) => { if (e.target === modalJanela) modalJanela.style.display = 'none'; };
     }
 });
 </script>

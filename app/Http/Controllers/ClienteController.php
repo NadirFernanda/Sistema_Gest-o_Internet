@@ -100,6 +100,80 @@ class ClienteController extends Controller
 
         return back()->with('success', "Compensados {$request->dias_compensados} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
     }
+
+    /**
+     * Adiciona automaticamente uma janela (extensão) utilizando o ciclo do plano.
+     * Se houver mais de um plano, aceita `plano_id` no POST; caso contrário seleciona
+     * o plano ativo mais recente (mesma lógica de compensarDias).
+     * POST /clientes/{cliente}/adicionar-janela
+     */
+    public function adicionarJanela(Request $request, $cliente)
+    {
+        $cliente = Cliente::findOrFail($cliente);
+
+        $plano = null;
+        if ($request->filled('plano_id')) {
+            $plano = \App\Models\Plano::where('id', $request->input('plano_id'))->where('cliente_id', $cliente->id)->first();
+        }
+
+        if (! $plano) {
+            $plano = $cliente->planos()
+                ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) = ?", ['ativo'])
+                ->where(function($q) {
+                    $q->where('ativo', true)->orWhereNull('ativo');
+                })
+                ->orderByDesc('data_ativacao')
+                ->first();
+        }
+
+        if (! $plano) {
+            return back()->with('error', 'Nenhum plano encontrado para adicionar janela.');
+        }
+
+        // determina dias a adicionar a partir do campo `ciclo` (fallback para 30)
+        $dias = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo));
+        if ($dias <= 0) {
+            $dias = 30;
+        }
+
+        $hoje = Carbon::today();
+        try {
+            if (!empty($plano->proxima_renovacao)) {
+                $currentNext = Carbon::parse($plano->proxima_renovacao);
+            } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
+                $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
+                if ($cicloInt <= 0) { $cicloInt = (int)$plano->ciclo; }
+                $currentNext = Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1);
+            } else {
+                $currentNext = $hoje;
+            }
+        } catch (\Exception $e) {
+            $currentNext = $hoje;
+        }
+
+        $anterior = $currentNext->toDateString();
+        $novo = $currentNext->copy()->addDays($dias)->toDateString();
+
+        $plano->proxima_renovacao = $novo;
+        $plano->save();
+
+        // registra em compensacoes para histórico (reusa tabela existente)
+        try {
+            \DB::table('compensacoes')->insert([
+                'plano_id' => $plano->id,
+                'user_id' => auth()->id() ?? null,
+                'dias_compensados' => $dias,
+                'anterior' => $anterior,
+                'novo' => $novo,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('adicionarJanela: falha ao gravar compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);
+        }
+
+        return back()->with('success', "Janela adicionada: +{$dias} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
+    }
     /**
      * Exibe o histórico de compensações de dias para os planos do cliente
      * GET /clientes/{cliente}/compensacoes
