@@ -19,6 +19,37 @@ class RelatorioController extends Controller
         // Preferir metadados no BD para mostrar histórico confiável
         $relatorios = Relatorio::orderBy('generated_at', 'desc')->limit(200)->get();
         $historico = [];
+        if ($relatorios->isEmpty()) {
+            // fallback: listar arquivos do storage quando BD vazio (compatibilidade)
+            $files = Storage::files('relatorios');
+            foreach ($files as $file) {
+                $basename = basename($file);
+                $period = null;
+                $lower = strtolower($basename);
+                if (str_contains($lower, 'relatorio_geral_diario') || str_contains($lower, 'diario') || str_contains($lower, 'ultimas_')) {
+                    $period = 'diario';
+                } elseif (str_contains($lower, 'relatorio_geral_semanal') || str_contains($lower, 'semanal')) {
+                    $period = 'semanal';
+                } elseif (str_contains($lower, 'relatorio_geral_mensal') || str_contains($lower, 'mensal')) {
+                    $period = 'mensal';
+                }
+                if ($period) {
+                    $ts = Storage::lastModified($file);
+                    $historico[] = [
+                        'period' => $period,
+                        'name' => $basename,
+                        'url' => route('relatorios.gerais.download', ['period' => $period, 'file' => $basename]),
+                        'date' => date('d/m/Y H:i', $ts),
+                        'timestamp' => $ts,
+                    ];
+                }
+            }
+            usort($historico, function ($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
+            return view('relatorios-gerais', compact('historico'));
+        }
+
         foreach ($relatorios as $r) {
             $historico[] = [
                 'period' => $r->period,
@@ -68,17 +99,36 @@ class RelatorioController extends Controller
             'ua' => $request->header('User-Agent'),
         ]);
 
-        $allowed = ['diario', 'semanal', 'mensal'];
-        if (!in_array($period, $allowed, true)) {
+        // normalize period values (accept English and Portuguese)
+        $map = [
+            'daily' => 'diario', 'weekly' => 'semanal', 'monthly' => 'mensal',
+            'diario' => 'diario', 'semanal' => 'semanal', 'mensal' => 'mensal',
+        ];
+        $periodLower = strtolower($period);
+        if (!isset($map[$periodLower])) {
             abort(404);
         }
+        $period = $map[$periodLower];
         // If a specific filename was requested (from histórico), serve it directly
         if ($file) {
             $basename = basename($file);
             $path = 'relatorios/' . $basename;
             if (!Storage::exists($path)) {
-                Log::warning('relatorios.download.missing_file', ['path' => $path]);
-                abort(404, 'Arquivo de relatório não encontrado: ' . $basename);
+                // fallback: procurar por arquivos que contenham o basename e servir o mais recente
+                $candidates = array_filter(Storage::files('relatorios'), function ($f) use ($basename) {
+                    return str_contains(strtolower(basename($f)), strtolower($basename));
+                });
+                if (!empty($candidates)) {
+                    usort($candidates, function ($a, $b) {
+                        return Storage::lastModified($b) <=> Storage::lastModified($a);
+                    });
+                    $path = $candidates[0];
+                    $basename = basename($path);
+                    Log::warning('relatorios.download.fallback_used', ['requested' => $file, 'served' => $basename]);
+                } else {
+                    Log::warning('relatorios.download.missing_file', ['path' => $path]);
+                    abort(404, 'Arquivo de relatório não encontrado: ' . $basename);
+                }
             }
             Log::info('relatorios.download.serving', ['path' => $path, 'basename' => $basename, 'size' => Storage::size($path)]);
             $full = Storage::path($path);
