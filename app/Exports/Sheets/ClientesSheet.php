@@ -21,7 +21,7 @@ class ClientesSheet implements FromView, WithTitle, WithEvents
         return 'Clientes';
     }
 
-    public static function registerEvents(): array
+    public function registerEvents(): array
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
