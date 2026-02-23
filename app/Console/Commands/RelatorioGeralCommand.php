@@ -67,7 +67,21 @@ class RelatorioGeralCommand extends Command
             $planTemplates = PlanTemplate::whereBetween('created_at', [$start, $end])->get();
             $users = User::whereBetween('created_at', [$start, $end])->get();
 
-            $export = (new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas))
+            $meta = [
+                'period' => $period,
+                'filename' => $filename,
+                'generated_at' => Carbon::now()->toDateTimeString(),
+                'counts' => [
+                    'cobrancas' => $cobrancas->count(),
+                    'clientes' => $clientes->count(),
+                    'planos' => $planos->count(),
+                    'equipamentos' => $equipamentos->count(),
+                    'alertas' => $alertas->count(),
+                ],
+                'note' => "Relatório gerado automaticamente em {$now->toDateTimeString()}. Este arquivo é somente leitura.",
+            ];
+
+            $export = (new RelatorioMultiAbaExport($cobrancas, $clientes, $planos, $equipamentos, $alertas, $meta))
                 ->withClienteEquipamentos($clienteEquipamentos)
                 ->withEstoque($estoque)
                 ->withPlanTemplates($planTemplates)

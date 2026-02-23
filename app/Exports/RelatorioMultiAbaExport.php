@@ -11,19 +11,22 @@ class RelatorioMultiAbaExport implements WithMultipleSheets
     protected $planos;
     protected $equipamentos;
     protected $alertas;
+    protected $meta;
 
-    public function __construct($cobrancas, $clientes, $planos, $equipamentos, $alertas)
+    public function __construct($cobrancas, $clientes, $planos, $equipamentos, $alertas, $meta = [])
     {
         $this->cobrancas = $cobrancas;
         $this->clientes = $clientes;
         $this->planos = $planos;
         $this->equipamentos = $equipamentos;
         $this->alertas = $alertas;
+        $this->meta = $meta;
     }
 
     public function sheets(): array
     {
         return [
+            new \App\Exports\Sheets\ObservacoesSheet($this->meta),
             new \App\Exports\Sheets\CobrancasSheet($this->cobrancas),
             new \App\Exports\Sheets\ClientesSheet($this->clientes),
             new \App\Exports\Sheets\PlanosSheet($this->planos),

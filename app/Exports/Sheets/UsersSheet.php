@@ -4,8 +4,10 @@ namespace App\Exports\Sheets;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class UsersSheet implements FromCollection, WithHeadings, WithTitle
+class UsersSheet implements FromCollection, WithHeadings, WithTitle, WithEvents
 {
     protected $rows;
     public function __construct($rows) { $this->rows = $rows; }
@@ -19,4 +21,17 @@ class UsersSheet implements FromCollection, WithHeadings, WithTitle
         return array_keys($this->rows->first()->toArray());
     }
     public function title(): string { return 'Usuários'; }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $workbook = $sheet->getParent();
+                foreach ($workbook->getAllSheets() as $ws) {
+                    $ws->getProtection()->setSheet(true);
+                }
+            },
+        ];
+    }
 }
