@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use App\Models\Relatorio;
+use Illuminate\Support\Facades\Artisan;
 
 class RelatorioController extends Controller
 {
@@ -14,37 +17,36 @@ class RelatorioController extends Controller
      */
     public function geral()
     {
-        $files = \Storage::files('relatorios');
+        // Preferir metadados no BD para mostrar histórico confiável
+        $relatorios = Relatorio::orderBy('generated_at', 'desc')->limit(200)->get();
         $historico = [];
-        foreach ($files as $file) {
-            $basename = basename($file);
-            $period = null;
-            $lower = strtolower($basename);
-            // trate nomes com padrão esperado (mais específicos)
-            if (str_contains($lower, 'relatorio_geral_diario') || str_contains($lower, 'diario') || str_contains($lower, 'ultimas_')) {
-                $period = 'diario';
-            } elseif (str_contains($lower, 'relatorio_geral_semanal') || str_contains($lower, 'semanal')) {
-                $period = 'semanal';
-            } elseif (str_contains($lower, 'relatorio_geral_mensal') || str_contains($lower, 'mensal')) {
-                $period = 'mensal';
-            }
-            if ($period) {
-                $ts = \Storage::lastModified($file);
-                $historico[] = [
-                    'period' => $period,
-                    'name' => $basename,
-                    // link direto para o ficheiro histórico específico
-                    'url' => route('relatorios.gerais.download', ['period' => $period, 'file' => $basename]),
-                    'date' => date('d/m/Y H:i', $ts),
-                    'timestamp' => $ts,
-                ];
-            }
+        foreach ($relatorios as $r) {
+            $historico[] = [
+                'period' => $r->period,
+                'name' => $r->filename,
+                'url' => route('relatorios.gerais.download', ['period' => $r->period, 'file' => $r->filename]),
+                'date' => $r->generated_at ? $r->generated_at->format('d/m/Y H:i') : '-',
+                'timestamp' => $r->generated_at ? $r->generated_at->getTimestamp() : 0,
+            ];
         }
-        // Ordenar por timestamp desc (garante ordem cronológica correta)
-        usort($historico, function ($a, $b) {
-            return $b['timestamp'] <=> $a['timestamp'];
-        });
+
         return view('relatorios-gerais', compact('historico'));
+    }
+
+    /**
+     * Dispara a geração do relatório agora (invocado pela UI).
+     */
+    public function gerarAgora(Request $request)
+    {
+        if (!Auth::check()) abort(403);
+        // usar Artisan para executar o comando de forma síncrona
+        try {
+            Artisan::call('relatorio:geral --period=daily');
+            return redirect()->route('relatorios.gerais')->with('status', 'Geração iniciada. Verifique o histórico em alguns instantes.');
+        } catch (\Exception $ex) {
+            Log::error('Erro gerando relatório via UI: ' . $ex->getMessage());
+            return redirect()->route('relatorios.gerais')->with('error', 'Erro ao iniciar geração do relatório: ' . $ex->getMessage());
+        }
     }
     /**
      * Download the latest report file for the given period (diario|semanal|mensal).

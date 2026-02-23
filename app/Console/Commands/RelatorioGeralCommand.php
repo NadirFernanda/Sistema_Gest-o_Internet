@@ -89,6 +89,26 @@ class RelatorioGeralCommand extends Command
 
             Excel::store($export, 'relatorios/' . $filename, 'local');
 
+            // persistir metadados em banco para UI confiável
+            try {
+                \App\Models\Relatorio::create([
+                    'period' => $period,
+                    'filename' => $filename,
+                    'generated_at' => Carbon::now(),
+                    'counts' => [
+                        'cobrancas' => $cobrancas->count(),
+                        'clientes' => $clientes->count(),
+                        'planos' => $planos->count(),
+                        'equipamentos' => $equipamentos->count(),
+                        'alertas' => $alertas->count(),
+                    ],
+                    'note' => 'Gerado automaticamente via comando relatorio:geral',
+                    'status' => 'completed',
+                ]);
+            } catch (\Exception $ex) {
+                Log::warning('Não foi possível gravar metadados do relatório no BD: ' . $ex->getMessage());
+            }
+
             Log::info("Relatorio gerado: {$filename}");
             $this->info("Relatório salvo: storage/app/relatorios/{$filename}");
 

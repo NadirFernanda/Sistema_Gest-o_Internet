@@ -62,6 +62,9 @@ Route::middleware('auth')->group(function () {
     // Download dos relatórios automáticos (aceita nome de ficheiro opcional para histórico)
     Route::get('/relatorios-gerais/download/{period}/{file?}', [\App\Http\Controllers\RelatorioController::class, 'download'])
         ->name('relatorios.gerais.download');
+    // Geração manual via UI
+    Route::post('/relatorios-gerais/gerar', [\App\Http\Controllers\RelatorioController::class, 'gerarAgora'])
+        ->name('relatorios.gerais.gerar');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
