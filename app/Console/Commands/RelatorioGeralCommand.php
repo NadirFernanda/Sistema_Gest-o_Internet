@@ -16,6 +16,7 @@ use App\Models\PlanTemplate;
 use App\Models\User;
 use App\Models\Alerta;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class RelatorioGeralCommand extends Command
@@ -76,6 +77,30 @@ class RelatorioGeralCommand extends Command
 
             Log::info("Relatorio gerado: {$filename}");
             $this->info("Relatório salvo: storage/app/relatorios/{$filename}");
+
+            // gravar marcador com meta-informação para o UI/operadores verificarem últimas execuções
+            try {
+                $meta = [
+                    'period' => $period,
+                    'filename' => $filename,
+                    'generated_at' => Carbon::now()->toDateTimeString(),
+                    'counts' => [
+                        'cobrancas' => $cobrancas->count(),
+                        'clientes' => $clientes->count(),
+                        'planos' => $planos->count(),
+                        'equipamentos' => $equipamentos->count(),
+                        'alertas' => $alertas->count(),
+                        'cliente_equipamentos' => $clienteEquipamentos->count(),
+                        'estoque' => $estoque->count(),
+                        'plan_templates' => $planTemplates->count(),
+                        'users' => $users->count(),
+                    ],
+                ];
+
+                Storage::disk('local')->put('relatorios/last_run_' . $period . '.json', json_encode($meta));
+            } catch (\Exception $ex) {
+                Log::warning('Não foi possível gravar last_run para relatório: ' . $ex->getMessage());
+            }
         } catch (\Exception $e) {
             Log::error('Erro gerando relatório geral: ' . $e->getMessage());
             $this->error('Erro ao gerar relatório: ' . $e->getMessage());

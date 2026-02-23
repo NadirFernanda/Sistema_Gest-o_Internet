@@ -25,10 +25,24 @@ class Kernel extends ConsoleKernel
         Log::info('Console Kernel::schedule() invoked to register scheduled tasks');
         // Dispara alertas de vencimento duas vezes ao dia (13:00 e 18:00)
         $schedule->command('alertas:disparar')->twiceDaily(13, 18);
-        // Gera relatórios gerais automaticamente
-        $schedule->command('relatorio:geral --period=daily')->dailyAt('00:05');
-        $schedule->command('relatorio:geral --period=weekly')->weeklyOn(1, '00:10');
-        $schedule->command('relatorio:geral --period=monthly')->monthlyOn(1, '00:15');
+        // Gera relatórios gerais automaticamente (tornar robusto: timezone, sem overlap, em background)
+        $schedule->command('relatorio:geral --period=daily')
+            ->dailyAt('00:05')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        $schedule->command('relatorio:geral --period=weekly')
+            ->weeklyOn(1, '00:10')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        $schedule->command('relatorio:geral --period=monthly')
+            ->monthlyOn(1, '00:15')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
         // Scheduled tasks for general reports have been removed (legacy audit reports)
     }
 
