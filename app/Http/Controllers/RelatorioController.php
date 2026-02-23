@@ -22,23 +22,24 @@ class RelatorioController extends Controller
         if ($relatorios->isEmpty()) {
             // fallback: listar arquivos do storage quando BD vazio (compatibilidade)
             $files = Storage::files('relatorios');
+            $labels = ['diario' => 'Diário', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
             foreach ($files as $file) {
                 $basename = basename($file);
-                $period = null;
+                $token = null;
                 $lower = strtolower($basename);
                 if (str_contains($lower, 'relatorio_geral_diario') || str_contains($lower, 'diario') || str_contains($lower, 'ultimas_')) {
-                    $period = 'diario';
+                    $token = 'diario';
                 } elseif (str_contains($lower, 'relatorio_geral_semanal') || str_contains($lower, 'semanal')) {
-                    $period = 'semanal';
+                    $token = 'semanal';
                 } elseif (str_contains($lower, 'relatorio_geral_mensal') || str_contains($lower, 'mensal')) {
-                    $period = 'mensal';
+                    $token = 'mensal';
                 }
-                if ($period) {
+                if ($token) {
                     $ts = Storage::lastModified($file);
                     $historico[] = [
-                        'period' => $period,
+                        'period' => $labels[$token] ?? ucfirst($token),
                         'name' => $basename,
-                        'url' => route('relatorios.gerais.download', ['period' => $period, 'file' => $basename]),
+                        'url' => route('relatorios.gerais.download', ['period' => $token, 'file' => $basename]),
                         'date' => date('d/m/Y H:i', $ts),
                         'timestamp' => $ts,
                     ];
@@ -50,11 +51,17 @@ class RelatorioController extends Controller
             return view('relatorios-gerais', compact('historico'));
         }
 
+        $labels = ['diario' => 'Diário', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
         foreach ($relatorios as $r) {
+            $raw = strtolower((string) $r->period);
+            // normalize possible English values persisted in older records
+            $map = ['daily' => 'diario', 'weekly' => 'semanal', 'monthly' => 'mensal',
+                    'diario' => 'diario', 'semanal' => 'semanal', 'mensal' => 'mensal'];
+            $token = $map[$raw] ?? $raw;
             $historico[] = [
-                'period' => $r->period,
+                'period' => $labels[$token] ?? ucfirst($token),
                 'name' => $r->filename,
-                'url' => route('relatorios.gerais.download', ['period' => $r->period, 'file' => $r->filename]),
+                'url' => route('relatorios.gerais.download', ['period' => $token, 'file' => $r->filename]),
                 'date' => $r->generated_at ? $r->generated_at->format('d/m/Y H:i') : '-',
                 'timestamp' => $r->generated_at ? $r->generated_at->getTimestamp() : 0,
             ];
