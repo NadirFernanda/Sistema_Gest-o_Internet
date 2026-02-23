@@ -22,7 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Ensure the framework Schedule is resolved from the Console Kernel when requested
+        $this->app->singleton(\Illuminate\Console\Scheduling\Schedule::class, function ($app) {
+            return $app->make(\App\Console\Kernel::class)->resolveConsoleSchedule();
+        });
     }
 
     /**
