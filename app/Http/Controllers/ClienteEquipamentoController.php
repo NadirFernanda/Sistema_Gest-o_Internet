@@ -19,6 +19,7 @@ class ClienteEquipamentoController extends Controller
 
     public function store(Request $request, $clienteId)
     {
+        \Log::info('cliente_equipamento.request.store', ['cliente_id' => $clienteId, 'payload' => $request->all()]);
         $request->validate([
             'estoque_equipamento_id' => [
                 'required',
@@ -80,6 +81,7 @@ class ClienteEquipamentoController extends Controller
 
     public function update(Request $request, $clienteId, $vinculoId)
     {
+        \Log::info('cliente_equipamento.request.update', ['cliente_id' => $clienteId, 'vinculo_id' => $vinculoId, 'payload' => $request->all()]);
         $request->validate([
             'estoque_equipamento_id' => [
                 'required',
