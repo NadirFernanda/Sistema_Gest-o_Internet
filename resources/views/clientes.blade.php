@@ -311,6 +311,7 @@
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Marca</th>
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Descrição</th>
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Modelo</th>
+                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Forma de Ligação</th>
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Nº Série</th>
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Morada</th>
                                     <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:bold;font-size:1.09em;border-bottom:2px solid #ffe6a0;padding:14px 12px;">Ponto de Referência</th>
@@ -325,6 +326,7 @@
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->marca ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->descricao ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->modelo ?? '-' }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">-</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->numero_serie ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->morada ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $equipamento->ponto_referencia ?? '-' }}</td>
@@ -341,6 +343,7 @@
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->marca ?? $est->nome ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ $v->forma_ligacao ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $v->morada ?? '-' }}</td>
                                             <td style="text-align:center;vertical-align:middle;">{{ $v->ponto_referencia ?? '-' }}</td>
