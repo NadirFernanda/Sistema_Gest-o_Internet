@@ -52,16 +52,14 @@ class ModelAuditObserver
 
     protected function pushAudit(array $payload): void
     {
-        // If queue driver is sync or operator explicitly requests sync processing
-        // via AUDIT_FORCE_SYNC, execute synchronously to avoid lost audits when
-        // a worker isn't running. Otherwise dispatch to the queue normally.
-        $forceSync = env('AUDIT_FORCE_SYNC', false);
-        $queueDefault = config('queue.default');
-        if ($forceSync || $queueDefault === 'sync') {
-            WriteAuditLogJob::dispatchSync($payload);
-            return;
+        // Dispatch the audit job after DB commit to avoid running it inside
+        // the current transaction (which could cause the outer transaction
+        // to rollback if the job throws). Using afterCommit ensures the job
+        // is queued/executed only once the DB transaction succeeds.
+        try {
+            WriteAuditLogJob::dispatch($payload)->afterCommit();
+        } catch (\Throwable $e) {
+            logger()->error('audit.dispatch_failed', ['error' => $e->getMessage(), 'payload' => $payload]);
         }
-
-        WriteAuditLogJob::dispatch($payload);
     }
 }
