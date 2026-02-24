@@ -157,7 +157,7 @@ class ClienteEquipamentoController extends Controller
 
             \Log::info('cliente_equipamento.update.before', ['id' => $vinculo->id, 'forma_ligacao_before' => $vinculo->forma_ligacao, 'request_forma' => $request->forma_ligacao]);
 
-            $vinculo->update([
+            $updated = $vinculo->update([
                 'estoque_equipamento_id' => $newEstoqueId,
                 'quantidade' => $newQty,
                 'morada' => $request->morada,
@@ -165,7 +165,22 @@ class ClienteEquipamentoController extends Controller
                 'forma_ligacao' => $request->forma_ligacao,
             ]);
 
-            \Log::info('cliente_equipamento.update.after', ['id' => $vinculo->id, 'forma_ligacao_after' => $vinculo->forma_ligacao]);
+            \Log::info('cliente_equipamento.update.result', [
+                'id' => $vinculo->id,
+                'updated_return' => $updated,
+                'getChanges' => $vinculo->getChanges(),
+                'getDirty' => $vinculo->getDirty(),
+                'attributes' => $vinculo->getAttributes(),
+            ]);
+
+            // Refresh from DB to confirm persisted state
+            try {
+                $vinculo->refresh();
+            } catch (\Exception $e) {
+                \Log::warning('cliente_equipamento.update.refresh_failed', ['id' => $vinculo->id, 'error' => $e->getMessage()]);
+            }
+
+            \Log::info('cliente_equipamento.update.after', ['id' => $vinculo->id, 'forma_ligacao_after' => $vinculo->forma_ligacao, 'attributes_after_refresh' => $vinculo->getAttributes()]);
         });
 
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Vínculo atualizado com sucesso!');
