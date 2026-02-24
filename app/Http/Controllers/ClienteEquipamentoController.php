@@ -168,7 +168,8 @@ class ClienteEquipamentoController extends Controller
 
             \Log::info('cliente_equipamento.update.before', ['id' => $vinculo->id, 'forma_ligacao_before' => $vinculo->forma_ligacao, 'request_forma' => $request->forma_ligacao]);
 
-            $updated = $vinculo->update([
+            // Apply incoming data using fill() so we can inspect getDirty() before saving
+            $vinculo->fill([
                 'estoque_equipamento_id' => $newEstoqueId,
                 'quantidade' => $newQty,
                 'morada' => $request->morada,
@@ -176,9 +177,17 @@ class ClienteEquipamentoController extends Controller
                 'forma_ligacao' => $request->forma_ligacao,
             ]);
 
+            \Log::info('cliente_equipamento.update.after_fill', [
+                'id' => $vinculo->id,
+                'attributes_after_fill' => $vinculo->getAttributes(),
+                'getDirty_after_fill' => $vinculo->getDirty(),
+            ]);
+
+            $saved = $vinculo->save();
+
             \Log::info('cliente_equipamento.update.result', [
                 'id' => $vinculo->id,
-                'updated_return' => $updated,
+                'save_return' => $saved,
                 'getChanges' => $vinculo->getChanges(),
                 'getDirty' => $vinculo->getDirty(),
                 'attributes' => $vinculo->getAttributes(),
