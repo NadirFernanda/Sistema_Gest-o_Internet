@@ -80,12 +80,36 @@ class PlanoController extends Controller
             // Use LOWER(... ) LIKE ? to provide case-insensitive search that
             // works across different database engines (Postgres, MySQL, SQLite).
             $buscaParam = mb_strtolower($busca);
+
             $query->where(function ($q) use ($buscaParam) {
                 $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"])
-                    ->orWhereRaw('LOWER(descricao) LIKE ?', ["%{$buscaParam}%"]);
-            })->orWhereHas('cliente', function ($q) use ($buscaParam) {
-                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]);
+                    ->orWhereRaw('LOWER(descricao) LIKE ?', ["%{$buscaParam}%"])
+                    ->orWhereRaw('LOWER(estado) LIKE ?', ["%{$buscaParam}%"]);
             });
+
+            // Search related template fields
+            $query->orWhereHas('template', function ($q) use ($buscaParam) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$buscaParam}%"]) 
+                  ->orWhereRaw('LOWER(COALESCE(description, '''')) LIKE ?', ["%{$buscaParam}%"]);
+            });
+
+            // Search related cliente fields (name and bi)
+            $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
+                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]) 
+                  ->orWhereRaw('LOWER(COALESCE(bi, '''')) LIKE ?', ["%{$buscaParam}%"]);
+            });
+
+            // If numeric search, also try matching ciclo or preco (exact match)
+            if (is_numeric($busca)) {
+                if (filter_var($busca, FILTER_VALIDATE_INT) !== false) {
+                    $query->orWhere('ciclo', (int)$busca);
+                }
+                // try matching preco as float
+                $floatVal = (float) str_replace(',', '.', $busca);
+                if ($floatVal > 0) {
+                    $query->orWhere('preco', $floatVal);
+                }
+            }
         }
 
         $planos = $query->get();
