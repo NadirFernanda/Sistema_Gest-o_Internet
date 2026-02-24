@@ -24,12 +24,45 @@ class WriteAuditLogJob implements ShouldQueue
 
     public function handle(): void
     {
+        logger()->info('audit.job.start', [
+            'resource_type' => $this->data['resource_type'] ?? $this->data['auditable_type'] ?? null,
+            'resource_id' => $this->data['resource_id'] ?? $this->data['auditable_id'] ?? null,
+            'action' => $this->data['action'] ?? null,
+            'has_payload_before' => array_key_exists('payload_before', $this->data) || array_key_exists('payload_before', $this->data),
+            'has_payload_after' => array_key_exists('payload_after', $this->data) || array_key_exists('new_values', $this->data),
+        ]);
+
+        // If this audit concerns ClienteEquipamento, log the incoming payloads for inspection
+        if (stripos($this->data['resource_type'] ?? ($this->data['auditable_type'] ?? ''), 'ClienteEquipamento') !== false
+            || stripos($this->data['resource_type'] ?? ($this->data['auditable_type'] ?? ''), 'cliente_equipamento') !== false) {
+            logger()->info('audit.job.cliente_equipamento.payloads', [
+                'payload_before' => $this->data['payload_before'] ?? $this->data['old_values'] ?? null,
+                'payload_after' => $this->data['payload_after'] ?? $this->data['new_values'] ?? null,
+                'raw' => $this->data,
+            ]);
+            // Try to load the current DB row, if resource_id present
+            $id = $this->data['resource_id'] ?? $this->data['auditable_id'] ?? null;
+            if (!empty($id)) {
+                try {
+                    $current = \App\Models\ClienteEquipamento::find($id);
+                    logger()->info('audit.job.cliente_equipamento.current_row', [
+                        'id' => $id,
+                        'attributes' => $current?->getAttributes() ?? null,
+                    ]);
+                } catch (\Throwable $e) {
+                    logger()->warning('audit.job.cliente_equipamento.load_failed', ['id' => $id, 'error' => $e->getMessage()]);
+                }
+            }
+        }
+
         $key = config('app.audit_key') ?? env('AUDIT_HMAC_KEY');
         if (empty($key)) {
             // Fallback: write to logs and abort
             logger()->warning('AUDIT_HMAC_KEY not configured — skipping audit write.', $this->data);
             return;
         }
+
+        logger()->info('audit.job.before_transaction', ['resource' => $this->data['resource_type'] ?? ($this->data['auditable_type'] ?? null), 'resource_id' => $this->data['resource_id'] ?? ($this->data['auditable_id'] ?? null)]);
 
         DB::transaction(function () use ($key) {
             // prefer chain_index if the column exists, otherwise fall back to id
@@ -139,7 +172,11 @@ class WriteAuditLogJob implements ShouldQueue
                 }
             }
 
-            AuditLog::create($attributes);
+            logger()->info('audit.job.will_create_auditrow', ['attributes_preview' => array_intersect_key($attributes, array_flip(['actor_id','action','resource_type','resource_id','hmac','chain_index']))]);
+
+            $created = AuditLog::create($attributes);
+
+            logger()->info('audit.job.created', ['id' => $created?->id ?? null, 'chain_index' => $created?->chain_index ?? null, 'resource_type' => $attributes['resource_type'] ?? null, 'resource_id' => $attributes['resource_id'] ?? null]);
         });
     }
 }
