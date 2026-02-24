@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Plano;
 use App\Models\PlanTemplate;
+use Illuminate\Support\Facades\DB;
 
 class PlanoController extends Controller
 {
@@ -76,11 +77,14 @@ class PlanoController extends Controller
 
         if ($busca = $request->query('busca')) {
             $busca = trim($busca);
-            $query->where(function ($q) use ($busca) {
-                $q->where('nome', 'ILIKE', "%{$busca}%")
-                    ->orWhere('descricao', 'ILIKE', "%{$busca}%");
-            })->orWhereHas('cliente', function ($q) use ($busca) {
-                $q->where('nome', 'ILIKE', "%{$busca}%");
+            // Use LOWER(... ) LIKE ? to provide case-insensitive search that
+            // works across different database engines (Postgres, MySQL, SQLite).
+            $buscaParam = mb_strtolower($busca);
+            $query->where(function ($q) use ($buscaParam) {
+                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"])
+                    ->orWhereRaw('LOWER(descricao) LIKE ?', ["%{$buscaParam}%"]);
+            })->orWhereHas('cliente', function ($q) use ($buscaParam) {
+                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]);
             });
         }
 
