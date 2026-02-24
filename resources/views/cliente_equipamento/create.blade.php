@@ -39,6 +39,11 @@
                 background-color: #f7b500 !important;
                 color: #111827 !important;
             }
+            /* Keep 'Forma de Ligação' column visible even on small screens */
+            .show-forma { display: table-cell !important; }
+            @media (max-width: 900px) {
+                .show-forma { display: table-cell !important; }
+            }
         </style>
         @csrf
         <div class="form-group-custom">
@@ -127,6 +132,7 @@
                 <tr>
                     <th>Nome</th>
                     <th>Modelo</th>
+                    <th class="show-forma">Forma de Ligação</th>
                     <th>Morada</th>
                     <th>Ponto de Referência</th>
                     <th>Quantidade</th>
@@ -138,6 +144,7 @@
                     <tr>
                         <td>{{ $v->equipamento->nome }}</td>
                         <td>{{ $v->equipamento->modelo }}</td>
+                        <td class="show-forma">{{ $v->forma_ligacao ?? '-' }}</td>
                         <td>{{ $v->morada }}</td>
                         <td>{{ $v->ponto_referencia }}</td>
                         <td>{{ $v->quantidade ?? 1 }}</td>
