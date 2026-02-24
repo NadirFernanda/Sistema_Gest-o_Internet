@@ -42,12 +42,12 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('cliente')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
-    // Corrige erro 500: rota para compensar dias
-    Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteController::class, 'compensarDias'])->name('clientes.compensar_dias');
+    // Corrige erro 500: rota para compensar dias (handler moved to dedicated controller)
+    Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteCompensacaoController::class, 'store'])->name('clientes.compensar_dias');
     // Adicionar janela automática: extende a próxima renovação pelo ciclo do plano
     Route::post('/clientes/{cliente}/adicionar-janela', [\App\Http\Controllers\ClienteController::class, 'adicionarJanela'])->name('clientes.adicionar_janela');
     // Histórico de compensações de dias (por cliente)
-    Route::get('/clientes/{cliente}/compensacoes', [\App\Http\Controllers\ClienteController::class, 'compensacoes'])->name('clientes.compensacoes');
+    Route::get('/clientes/{cliente}/compensacoes', [\App\Http\Controllers\ClienteCompensacaoController::class, 'index'])->name('clientes.compensacoes');
     // Exportar histórico de compensações (Excel)
     Route::get('/clientes/{cliente}/compensacoes/export', [\App\Http\Controllers\ClienteController::class, 'exportCompensacoes'])->name('clientes.compensacoes.export')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.export');
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');

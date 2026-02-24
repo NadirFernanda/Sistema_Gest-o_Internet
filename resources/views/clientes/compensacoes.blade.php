@@ -266,4 +266,37 @@
 .btn-icon:hover { background: #f7b500; color: #fff; border-color: #f7b500; }
 .btn-icon.btn-danger:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 </style>
+@extends('layouts.app')
+
+@section('content')
+<div class="container" style="max-width:900px;margin:24px auto;">
+    <h2>Histórico de Compensações — {{ $cliente->nome }}</h2>
+    <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-ghost" style="margin-bottom:12px;">Voltar</a>
+    @if($compensacoes->isEmpty())
+        <p>Nenhuma compensação registada para este cliente.</p>
+    @else
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Usuário</th>
+                    <th>Dias</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($compensacoes as $c)
+                <tr>
+                    <td>{{ $c->created_at->format('Y-m-d H:i') }}</td>
+                    <td>{{ optional($c->user)->name ?? 'Sistema' }}</td>
+                    <td>{{ $c->dias }}</td>
+                    <td>{{ $c->motivo ?? '-' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+</div>
+
 @endsection
+
