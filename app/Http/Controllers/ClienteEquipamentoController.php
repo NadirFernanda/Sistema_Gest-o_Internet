@@ -32,6 +32,7 @@ class ClienteEquipamentoController extends Controller
             'quantidade' => 'required|integer|min:1',
             'morada' => 'required|string|max:255',
             'ponto_referencia' => 'required|string|max:255',
+            'forma_ligacao' => 'required|string|in:Ponto a Ponto,Multiponto,Fibra,V-Sat',
         ]);
         // check estoque availability
         $estoque = EstoqueEquipamento::find($request->estoque_equipamento_id);
@@ -58,6 +59,7 @@ class ClienteEquipamentoController extends Controller
                 'quantidade' => $request->quantidade,
                 'morada' => $request->morada,
                 'ponto_referencia' => $request->ponto_referencia,
+                'forma_ligacao' => $request->forma_ligacao,
             ]);
 
             // decrement stock
@@ -94,6 +96,7 @@ class ClienteEquipamentoController extends Controller
             'quantidade' => 'required|integer|min:1',
             'morada' => 'required|string|max:255',
             'ponto_referencia' => 'required|string|max:255',
+            'forma_ligacao' => 'required|string|in:Ponto a Ponto,Multiponto,Fibra,V-Sat',
         ]);
         $vinculo = ClienteEquipamento::findOrFail($vinculoId);
 
@@ -152,12 +155,17 @@ class ClienteEquipamentoController extends Controller
                 $newEst->save();
             }
 
+            \Log::info('cliente_equipamento.update.before', ['id' => $vinculo->id, 'forma_ligacao_before' => $vinculo->forma_ligacao, 'request_forma' => $request->forma_ligacao]);
+
             $vinculo->update([
                 'estoque_equipamento_id' => $newEstoqueId,
                 'quantidade' => $newQty,
                 'morada' => $request->morada,
                 'ponto_referencia' => $request->ponto_referencia,
+                'forma_ligacao' => $request->forma_ligacao,
             ]);
+
+            \Log::info('cliente_equipamento.update.after', ['id' => $vinculo->id, 'forma_ligacao_after' => $vinculo->forma_ligacao]);
         });
 
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Vínculo atualizado com sucesso!');
