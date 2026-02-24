@@ -82,6 +82,15 @@ class ClienteEquipamentoController extends Controller
     public function update(Request $request, $clienteId, $vinculoId)
     {
         \Log::info('cliente_equipamento.request.update', ['cliente_id' => $clienteId, 'vinculo_id' => $vinculoId, 'payload' => $request->all()]);
+
+        // Log all SQL queries for this request to diagnose why update isn't persisting
+        \DB::listen(function ($query) {
+            try {
+                \Log::info('sql.query', ['sql' => $query->sql, 'bindings' => $query->bindings, 'time' => $query->time]);
+            } catch (\Throwable $e) {
+                // ignore logging failures
+            }
+        });
         $request->validate([
             'estoque_equipamento_id' => [
                 'required',
