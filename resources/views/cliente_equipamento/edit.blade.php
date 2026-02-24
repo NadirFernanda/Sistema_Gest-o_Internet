@@ -41,6 +41,19 @@
                 <div class="text-danger small">{{ $errors->first('ponto_referencia', 'Informe o ponto de referência.') }}</div>
             @endif
         </div>
+        <div class="form-group-custom">
+            <label for="forma_ligacao" class="form-label">Forma de Ligação</label>
+            <select id="forma_ligacao" name="forma_ligacao" class="form-control" required>
+                <option value="">-- Escolha forma de ligação --</option>
+                <option value="Ponto a Ponto" {{ old('forma_ligacao', $vinculo->forma_ligacao) == 'Ponto a Ponto' ? 'selected' : '' }}>Ponto a Ponto</option>
+                <option value="Multiponto" {{ old('forma_ligacao', $vinculo->forma_ligacao) == 'Multiponto' ? 'selected' : '' }}>Multiponto</option>
+                <option value="Fibra" {{ old('forma_ligacao', $vinculo->forma_ligacao) == 'Fibra' ? 'selected' : '' }}>Fibra</option>
+                <option value="V-Sat" {{ old('forma_ligacao', $vinculo->forma_ligacao) == 'V-Sat' ? 'selected' : '' }}>V-Sat</option>
+            </select>
+            @if ($errors->has('forma_ligacao'))
+                <div class="text-danger small">{{ $errors->first('forma_ligacao') }}</div>
+            @endif
+        </div>
         <button type="submit" class="btn btn-primary">Salvar Alterações</button>
     </form>
 </div>
@@ -48,6 +61,8 @@
 
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- jQuery must load before Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
