@@ -91,7 +91,17 @@
                             <input type="radio" name="plano_id" value="{{ $pl->id }}">
                             <div style="flex:1;">
                                 <div style="font-weight:700;">{{ $pl->nome }}</div>
-                                <div class="muted">Ativação: {{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : '—' }} • Ciclo: {{ $pl->ciclo ?? '—' }} dias • Próx: {{ $pl->proxima_renovacao ?? '—' }}</div>
+                                @php
+                                    $proximaDisplay = '—';
+                                    if (!empty($pl->proxima_renovacao)) {
+                                        $proximaDisplay = \Carbon\Carbon::parse($pl->proxima_renovacao)->format('d/m/Y');
+                                    } elseif (!empty($pl->data_ativacao) && !empty($pl->ciclo)) {
+                                        $cicloInt = intval(preg_replace('/\D/', '', (string) $pl->ciclo));
+                                        if ($cicloInt <= 0) { $cicloInt = (int) $pl->ciclo ?: 30; }
+                                        $proximaDisplay = \Carbon\Carbon::parse($pl->data_ativacao)->addDays($cicloInt - 1)->format('d/m/Y');
+                                    }
+                                @endphp
+                                <div class="muted">Ativação: {{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : '—' }} • Ciclo: {{ $pl->ciclo ?? '—' }} dias • Próx: {{ $proximaDisplay }}</div>
                             </div>
                         </label>
                     @endforeach
