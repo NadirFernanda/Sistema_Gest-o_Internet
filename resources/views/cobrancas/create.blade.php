@@ -4,12 +4,7 @@
 @section('content')
 <div class="container" style="max-width: 600px; margin: 40px auto;">
     <div style="text-align:center; max-width:800px; margin:12px auto 0;">
-        <a href="{{ route('cobrancas.index') }}" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar"
-           style="display:inline-flex; margin:0 0 12px; width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-        </a>
+        <a href="{{ route('cobrancas.index') }}" class="btn btn-ghost" title="Voltar" aria-label="Voltar" style="display:inline-block; margin:0 0 12px;">Voltar</a>
     </div>
     <h2>{{ isset($cobranca) ? 'Editar Cobrança' : 'Cadastrar Cobrança' }}</h2>
     <style>

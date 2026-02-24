@@ -26,12 +26,7 @@
 
 <div class="change-password-wrapper">
   <div class="back-button-wrapper" style="text-align:center; margin-bottom:12px;">
-    <a href="javascript:history.back()" class="btn-icon btn-ghost" title="Voltar" aria-label="Voltar"
-       style="display:inline-flex; margin:0 auto; width:44px; height:44px; align-items:center; justify-content:center; border-radius:8px; background:#f7b500; color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.08);">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-            <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-    </a>
+    <a href="javascript:history.back()" class="btn" title="Voltar" aria-label="Voltar" style="display:inline-flex; margin:0 auto; padding:10px 14px; border-radius:8px; background:#f7b500; color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.08);">Voltar</a>
   </div>
   <div class="change-card">
     <div class="change-card-header" style="text-align:center;">
