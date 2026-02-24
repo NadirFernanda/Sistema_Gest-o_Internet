@@ -88,16 +88,16 @@ class PlanoController extends Controller
             });
 
             // Search related template fields
-            $query->orWhereHas('template', function ($q) use ($buscaParam) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$buscaParam}%"]) 
-                  ->orWhereRaw('LOWER(COALESCE(description, '''')) LIKE ?', ["%{$buscaParam}%"]);
-            });
+                        $query->orWhereHas('template', function ($q) use ($buscaParam) {
+                                $q->whereRaw('LOWER(name) LIKE ?', ["%{$buscaParam}%"]) 
+                                    ->orWhereRaw("LOWER(COALESCE(description, '')) LIKE ?", ["%{$buscaParam}%"]);
+                        });
 
             // Search related cliente fields (name and bi)
-            $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
-                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]) 
-                  ->orWhereRaw('LOWER(COALESCE(bi, '''')) LIKE ?', ["%{$buscaParam}%"]);
-            });
+                        $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
+                                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]) 
+                                    ->orWhereRaw("LOWER(COALESCE(bi, '')) LIKE ?", ["%{$buscaParam}%"]);
+                        });
 
             // If numeric search, also try matching ciclo or preco (exact match)
             if (is_numeric($busca)) {
