@@ -90,7 +90,7 @@
             @endif
         </div>
         <div class="form-actions" style="margin-top:16px; display:flex; gap:8px; align-items:center;">
-            <button type="submit" class="btn btn-primary">Vou vincular</button>
+            <button type="submit" class="btn btn-primary">Vincular</button>
             <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Cancelar</a>
         </div>
     <!-- moved JS to scripts stack so it runs after jQuery/Select2 load -->
