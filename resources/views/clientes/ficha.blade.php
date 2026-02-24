@@ -59,7 +59,7 @@
                 Compensar Dias
             </button>
             <button id="adicionar-janela-btn" class="btn btn-primary" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:220px; font-weight:700;">
-                Adicionar Janela (auto)
+                Adicionar Janela
             </button>
         </div>
 

@@ -111,7 +111,7 @@
                             </button>
                             <!-- Botão: Adicionar Janela (restaurado) -->
                             <button id="adicionar-janela-btn" class="btn btn-primary" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:220px; font-weight:700; margin-left:8px;">
-                                Adicionar Janela (auto)
+                                Adicionar Janela
                             </button>
                             @can('clientes.edit')
                                 {{-- Edit button removed: inline edit is available via the pencil icon on the list or via the dedicated edit page --}}
