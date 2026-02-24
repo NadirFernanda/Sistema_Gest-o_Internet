@@ -89,6 +89,19 @@
                 <div class="text-danger small">{{ $errors->first('ponto_referencia', 'Informe o ponto de referência.') }}</div>
             @endif
         </div>
+        <div class="form-group-custom">
+            <label for="forma_ligacao" class="form-label">Forma de Ligação <span class="required-asterisk">*</span></label>
+            <select id="forma_ligacao" name="forma_ligacao" class="form-control" required>
+                <option value="">-- Escolha forma de ligação --</option>
+                <option value="Ponto a Ponto" {{ old('forma_ligacao') == 'Ponto a Ponto' ? 'selected' : '' }}>Ponto a Ponto</option>
+                <option value="Multiponto" {{ old('forma_ligacao') == 'Multiponto' ? 'selected' : '' }}>Multiponto</option>
+                <option value="Fibra" {{ old('forma_ligacao') == 'Fibra' ? 'selected' : '' }}>Fibra</option>
+                <option value="V-Sat" {{ old('forma_ligacao') == 'V-Sat' ? 'selected' : '' }}>V-Sat</option>
+            </select>
+            @if ($errors->has('forma_ligacao'))
+                <div class="text-danger small">{{ $errors->first('forma_ligacao') }}</div>
+            @endif
+        </div>
         <div class="form-actions" style="margin-top:16px; display:flex; gap:8px; align-items:center;">
             <button type="submit" class="btn btn-primary">Vincular</button>
             <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-secondary">Cancelar</a>
