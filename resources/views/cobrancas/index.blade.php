@@ -48,14 +48,17 @@ side the filter box -->
 
     /* Make the cliente select visually match other inputs */
     .filtro-modern-cobranca .filtro-cliente .select {
-        border-radius: 8px;
+        border-radius: 10px;
         border: 1px solid #e6e6e6;
-        padding: 8px 12px;
+        padding: 12px 14px;
         font-size: 1rem;
         background: #fff;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
         -webkit-appearance: none;
         appearance: none;
+        height: auto;
+        line-height: 1.2;
+        color: #222;
     }
 
     .filtro-modern-cobranca .filtro-cliente .select:focus {
