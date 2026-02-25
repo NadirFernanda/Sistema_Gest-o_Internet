@@ -17,6 +17,7 @@ class ClienteEquipamento extends Model
         'morada',
         'ponto_referencia',
         'quantidade',
+        'forma_ligacao',
     ];
 
     public function cliente()
