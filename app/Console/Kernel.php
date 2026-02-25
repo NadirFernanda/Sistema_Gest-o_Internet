@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MigratePlansToTemplates::class,
         \App\Console\Commands\ResetAdminPassword::class,
         \App\Console\Commands\AuditBackfillCommand::class,
+        \App\Console\Commands\EnviarNotificacaoDevolucao::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -25,6 +26,12 @@ class Kernel extends ConsoleKernel
         Log::info('Console Kernel::schedule() invoked to register scheduled tasks');
         // Dispara alertas de vencimento duas vezes ao dia (13:00 e 18:00)
         $schedule->command('alertas:disparar')->twiceDaily(13, 18);
+        // Envia avisos de devolução diariamente para cobranças vencidas há mais de 30 dias
+        $schedule->command('notificacao:devolucao')
+            ->dailyAt('09:00')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
         // Gera relatórios gerais automaticamente (tornar robusto: timezone, sem overlap, em background)
         $schedule->command('relatorio:geral --period=daily')
             ->dailyAt('00:05')
