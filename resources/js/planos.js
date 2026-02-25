@@ -403,8 +403,21 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                     }
                 } catch (_){ vencHtml = ''; }
 
+                // decide a classe de status para o card com base em dias restantes
+                let statusClass = '';
+                try {
+                    if ((p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) && dias !== null) {
+                        if (dias <= 0) statusClass = 'status-expired';
+                        else if (dias <= 5) statusClass = 'status-red';
+                        else if (dias <= 10) statusClass = 'status-yellow';
+                        else statusClass = 'status-green';
+                    } else if (dias !== null && dias < 0) {
+                        statusClass = 'status-expired';
+                    }
+                } catch (_) { statusClass = ''; }
+
                 html += `
-                        <article class="plan-card" data-id="${p.id}">
+                        <article class="plan-card ${statusClass}" data-id="${p.id}">
                             <div class="plan-title">${esc(p.nome||p.name||'')}</div>
                             <div class="plan-client" style="font-size:0.95rem;color:#333;margin-top:6px;font-weight:600">${esc(cliente)}</div>
                             <div class="plan-meta">

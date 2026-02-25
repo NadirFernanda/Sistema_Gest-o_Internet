@@ -228,6 +228,35 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 /* Hide status in the card itself (status shown only in details view) */
 #planosLista .plan-card .status-badge { display:none !important; }
 
+/* Status color indicators for plan cards (ensure production CSS applies colors) */
+.plan-card.status-red,
+.plan-status-row.status-red {
+  border-left: 6px solid #e05a4f; /* vermelho suave */
+  background: linear-gradient(180deg, #fff6f6, #fff9f9);
+}
+.plan-card.status-yellow,
+.plan-status-row.status-yellow {
+  border-left: 6px solid #f1c453; /* amarelo */
+  background: linear-gradient(180deg, #fffaf0, #fffdf6);
+}
+.plan-card.status-green,
+.plan-status-row.status-green {
+  border-left: 6px solid #3bb273; /* verde */
+  background: linear-gradient(180deg, #f3fff6, #f8fff9);
+}
+.plan-card.status-expired,
+.plan-status-row.status-expired {
+  border-left: 6px solid #b0b0b0; /* cinza para vencidos */
+  background: linear-gradient(180deg, #fbfbfb, #f7f7f7);
+  color: #6b6b6b;
+}
+
+/* table row helpers */
+tr.plan-status-row.status-red td { background: linear-gradient(180deg,#fff6f6,#fff9f9); }
+tr.plan-status-row.status-yellow td { background: linear-gradient(180deg,#fffaf0,#fffdf6); }
+tr.plan-status-row.status-green td { background: linear-gradient(180deg,#f3fff6,#f8fff9); }
+tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbfb,#f7f7f7); color:#666; }
+
 /* Toolbar: flexible layout matching provided model */
 .toolbar-flex, .clientes-toolbar, .planos-toolbar, .equipamentos-toolbar, .alertas-toolbar{ display:flex; gap:8px; align-items:center; width:100%; max-width:1100px; margin:18px auto; }
 .toolbar-flex .search-input, .clientes-toolbar .busca-planos-input, .planos-toolbar .search-input { flex:1 1 auto; min-width:140px; padding:10px 14px; border-radius:10px; border:2px solid #e67e00; background:#fff; color:var(--gray-900); box-shadow:none; font-size:0.95rem; }
