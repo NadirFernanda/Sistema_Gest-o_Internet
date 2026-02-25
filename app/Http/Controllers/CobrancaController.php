@@ -7,7 +7,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Cobranca;
 use App\Models\Cliente;
-use App\Models\Equipamento;
+use App\Models\EstoqueEquipamento;
+use App\Models\ClienteEquipamento;
 use Illuminate\Http\Request;
 use App\Exports\CobrancasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -35,11 +36,15 @@ class CobrancaController extends Controller
         if ($request->filled('descricao')) {
             $query->where('descricao', 'ilike', '%' . $request->descricao . '%');
         }
-        // Allow filtering by equipamento: find equipamento's cliente and filter cobrancas for that cliente
+        // Allow filtering by equipamento: find cliente(s) that have this estoque_equipamento and filter cobrancas by those clientes
         if ($request->filled('equipamento')) {
-            $equip = Equipamento::find($request->equipamento);
-            if ($equip) {
-                $query->where('cliente_id', $equip->cliente_id);
+            $equipId = $request->equipamento;
+            $clienteIds = ClienteEquipamento::where('estoque_equipamento_id', $equipId)->pluck('cliente_id')->unique()->toArray();
+            if (!empty($clienteIds)) {
+                $query->whereIn('cliente_id', $clienteIds);
+            } else {
+                // if no clients have this equipamento, return no results
+                $query->whereRaw('1 = 0');
             }
         }
         if ($request->filled('valor')) {
@@ -103,7 +108,7 @@ class CobrancaController extends Controller
         $query = Cobranca::with('cliente');
         // lista de clientes e equipamentos para preencher os filtros
         $clientes = \App\Models\Cliente::orderBy('nome')->select('nome')->get();
-        $equipamentos = Equipamento::orderBy('nome')->select('id','nome','cliente_id')->get();
+        $equipamentos = EstoqueEquipamento::orderBy('nome')->select('id','nome')->get();
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function($q) use ($request) {
                 $q->where('nome', 'ilike', '%' . $request->cliente . '%');
@@ -113,9 +118,12 @@ class CobrancaController extends Controller
             $query->where('descricao', 'ilike', '%' . $request->descricao . '%');
         }
         if ($request->filled('equipamento')) {
-            $equip = Equipamento::find($request->equipamento);
-            if ($equip) {
-                $query->where('cliente_id', $equip->cliente_id);
+            $equipId = $request->equipamento;
+            $clienteIds = ClienteEquipamento::where('estoque_equipamento_id', $equipId)->pluck('cliente_id')->unique()->toArray();
+            if (!empty($clienteIds)) {
+                $query->whereIn('cliente_id', $clienteIds);
+            } else {
+                $query->whereRaw('1 = 0');
             }
         }
         if ($request->filled('valor')) {
