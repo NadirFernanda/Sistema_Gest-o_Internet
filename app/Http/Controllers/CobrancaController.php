@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Cobranca;
 use App\Models\Cliente;
+use App\Models\Equipamento;
 use Illuminate\Http\Request;
 use App\Exports\CobrancasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -34,8 +35,12 @@ class CobrancaController extends Controller
         if ($request->filled('descricao')) {
             $query->where('descricao', 'ilike', '%' . $request->descricao . '%');
         }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // Allow filtering by equipamento: find equipamento's cliente and filter cobrancas for that cliente
+        if ($request->filled('equipamento')) {
+            $equip = Equipamento::find($request->equipamento);
+            if ($equip) {
+                $query->where('cliente_id', $equip->cliente_id);
+            }
         }
         if ($request->filled('valor')) {
             $query->where('valor', $request->valor);
@@ -96,8 +101,9 @@ class CobrancaController extends Controller
     public function index(Request $request)
     {
         $query = Cobranca::with('cliente');
-        // lista de clientes para preencher o filtro como select
+        // lista de clientes e equipamentos para preencher os filtros
         $clientes = \App\Models\Cliente::orderBy('nome')->select('nome')->get();
+        $equipamentos = Equipamento::orderBy('nome')->select('id','nome','cliente_id')->get();
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function($q) use ($request) {
                 $q->where('nome', 'ilike', '%' . $request->cliente . '%');
@@ -106,8 +112,11 @@ class CobrancaController extends Controller
         if ($request->filled('descricao')) {
             $query->where('descricao', 'ilike', '%' . $request->descricao . '%');
         }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        if ($request->filled('equipamento')) {
+            $equip = Equipamento::find($request->equipamento);
+            if ($equip) {
+                $query->where('cliente_id', $equip->cliente_id);
+            }
         }
         if ($request->filled('valor')) {
             $query->where('valor', $request->valor);
@@ -165,7 +174,7 @@ class CobrancaController extends Controller
             $query->whereBetween('data_pagamento', [$pagInicio, $pagFim]);
         }
         $cobrancas = $query->orderByDesc('created_at')->paginate(15)->appends($request->all());
-        return view('cobrancas.index', compact('cobrancas', 'clientes'));
+        return view('cobrancas.index', compact('cobrancas', 'clientes', 'equipamentos'));
     }
 
     public function show($id)

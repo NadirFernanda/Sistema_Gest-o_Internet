@@ -141,12 +141,12 @@ side the filter box -->
         </div>
 
         <div class="filtro-group">
-            <label for="status">Status</label>
-            <select name="status" id="status" class="select" data-no-choices data-placeholder="Filtrar por status...">
+            <label for="equipamento">Equipamento</label>
+            <select name="equipamento" id="equipamento" class="select" data-no-choices data-placeholder="Filtrar por equipamento...">
                 <option value="">Todos</option>
-                <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
-                <option value="pago" {{ request('status') == 'pago' ? 'selected' : '' }}>Pago</option>
-                <option value="atrasado" {{ request('status') == 'atrasado' ? 'selected' : '' }}>Atrasado</option>
+                @foreach($equipamentos ?? [] as $e)
+                    <option value="{{ $e->id }}" {{ request('equipamento') == $e->id ? 'selected' : '' }}>{{ $e->nome }}</option>
+                @endforeach
             </select>
         </div>
 
