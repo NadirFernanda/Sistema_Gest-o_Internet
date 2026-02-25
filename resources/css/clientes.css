@@ -15,7 +15,7 @@
   justify-content: center !important;
   background: #f7b500 !important;
   color: #fff !important;
-  padding: 4px 8px !important;
+  padding: 4px 8px !important ;
   border-radius: 6px !important;
   text-decoration: none !important;
   font-weight: 600 !important;
@@ -375,6 +375,46 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
     color: #e0a800;
 }
 
+  /* Ensure custom JS-driven selects inside the cobrança filter match native select styles */
+  .filtro-modern-cobranca .custom-select-wrapper { width: 100%; }
+  .filtro-modern-cobranca .custom-select {
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+    padding: 10px 12px;
+    font-size: 1rem;
+    background: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    -webkit-appearance: none;
+    appearance: none;
+    color: #222;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .filtro-modern-cobranca .custom-select.open {
+    box-shadow: 0 6px 24px rgba(247,181,0,0.12);
+    border-color: #f7b500;
+  }
+  .filtro-modern-cobranca .custom-select .selected {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .filtro-modern-cobranca .custom-select-options {
+    top: calc(100% + 6px);
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 6px 24px rgba(17,24,39,0.06);
+  }
+  .filtro-modern-cobranca .custom-select-option {
+    padding: 10px 12px;
+  }
+  .filtro-modern-cobranca .custom-select-option:hover,
+  .filtro-modern-cobranca .custom-select-option.active {
+    background: #f7b500;
+    color: #fff;
+  }
 /* Responsive: hide Nº Série (4th column) on narrower viewports and tighten table */
 @media (max-width: 900px) {
   .tabela-estoque-moderna {
