@@ -179,10 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         let clienteNome = (p.cliente && p.cliente.nome) ? p.cliente.nome : '-';
                         let ativacao = p.data_ativacao ? new Date(p.data_ativacao) : null;
                         let vencimento = '-';
+                        let diasLeft = null;
                         if (ativacao && p.ciclo) {
                             let v = new Date(ativacao);
                             v.setDate(v.getDate() + parseInt(p.ciclo));
                             vencimento = v.toLocaleDateString();
+                            // calcular dias restantes (inteiro, arredondando para cima)
+                            const now = new Date();
+                            const diffMs = v.setHours(0,0,0,0) - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                            diasLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
                         }
                         // Status badge
                         let estado = (p.estado || '-');
@@ -196,7 +201,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         const editBtn = (p.can_edit ? `<button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>` : `<button class="btn-editar-plano btn-no-perm" data-action="edit" data-id="${p.id}">Editar</button>`);
                         const delBtn = (p.can_delete ? `<button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>` : `<button class="btn-remover-plano btn-no-perm" data-action="delete" data-id="${p.id}">Remover</button>`);
 
-                        html += `<tr>
+                        // decide a classe de destaque apenas para planos activos
+                        let rowClass = '';
+                        if ((p.estado || '').toLowerCase() === 'ativo' && diasLeft !== null) {
+                            if (diasLeft <= 0) rowClass = 'plan-status-row status-expired';
+                            else if (diasLeft <= 5) rowClass = 'plan-status-row status-red';
+                            else if (diasLeft <= 10) rowClass = 'plan-status-row status-yellow';
+                            else rowClass = 'plan-status-row status-green';
+                        } else if (diasLeft !== null && diasLeft < 0) {
+                            rowClass = 'plan-status-row status-expired';
+                        }
+
+                        html += `<tr class="${rowClass}">
                             <td><span style="font-weight:500;">${clienteNome}</span></td>
                             <td>${p.nome}</td>
                             <td>${p.descricao}</td>

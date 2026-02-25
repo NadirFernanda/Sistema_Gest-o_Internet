@@ -206,6 +206,35 @@
 .plan-actions { margin-top:auto; display:flex; gap:8px; justify-content:flex-end; }
 .plan-actions .btn { min-width:110px; }
 
+/* Status color indicators for plans (used on planos list/cards) */
+.plan-card.status-red,
+.plan-status-row.status-red {
+  border-left: 6px solid #e05a4f; /* vermelho suave */
+  background: linear-gradient(180deg, #fff6f6, #fff9f9);
+}
+.plan-card.status-yellow,
+.plan-status-row.status-yellow {
+  border-left: 6px solid #f1c453; /* amarelo */
+  background: linear-gradient(180deg, #fffaf0, #fffdf6);
+}
+.plan-card.status-green,
+.plan-status-row.status-green {
+  border-left: 6px solid #3bb273; /* verde */
+  background: linear-gradient(180deg, #f3fff6, #f8fff9);
+}
+.plan-card.status-expired,
+.plan-status-row.status-expired {
+  border-left: 6px solid #b0b0b0; /* cinza para vencidos */
+  background: linear-gradient(180deg, #fbfbfb, #f7f7f7);
+  color: #6b6b6b;
+}
+
+/* Table-friendly row variants (when planos are rendered as a table) */
+tr.plan-status-row.status-red td { background: linear-gradient(180deg,#fff6f6,#fff9f9); }
+tr.plan-status-row.status-yellow td { background: linear-gradient(180deg,#fffaf0,#fffdf6); }
+tr.plan-status-row.status-green td { background: linear-gradient(180deg,#f3fff6,#f8fff9); }
+tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbfb,#f7f7f7); color:#666; }
+
 /* Hero CTA sizing (keep compact, avoid huge full-width pills) */
 .hero-ctas { display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
 .hero-ctas .btn-cta {
