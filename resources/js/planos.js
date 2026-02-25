@@ -404,13 +404,27 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 } catch (_){ vencHtml = ''; }
 
                 // decide a classe de status para o card com base em dias restantes
+                // NOTE: preferimos usar `diasRestantes` como fonte da verdade — alguns planos
+                // não têm `estado` consistente na API, o que fazia alguns cards não receberem
+                // a cor correta mesmo tendo X dias restantes.
                 let statusClass = '';
                 try {
-                    if ((p.estado && p.estado.toLowerCase && p.estado.toLowerCase().includes('ativo')) && dias !== null) {
-                        if (dias <= 0) statusClass = 'status-expired';
-                        else if (dias <= 5) statusClass = 'status-red';
-                        else if (dias <= 10) statusClass = 'status-yellow';
-                        else statusClass = 'status-green';
+                    const estadoLower = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase()) || '';
+                    if (dias !== null) {
+                        if (dias <= 0) {
+                            statusClass = 'status-expired';
+                        } else {
+                            // Não aplicar cor para estados explicitamente cancelados/suspensos
+                            if (estadoLower.includes('suspenso') || estadoLower.includes('cancel')) {
+                                statusClass = 'status-expired';
+                            } else if (dias <= 5) {
+                                statusClass = 'status-red';
+                            } else if (dias <= 10) {
+                                statusClass = 'status-yellow';
+                            } else {
+                                statusClass = 'status-green';
+                            }
+                        }
                     } else if (dias !== null && dias < 0) {
                         statusClass = 'status-expired';
                     }
