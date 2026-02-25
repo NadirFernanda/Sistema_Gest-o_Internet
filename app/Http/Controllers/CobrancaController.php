@@ -96,6 +96,8 @@ class CobrancaController extends Controller
     public function index(Request $request)
     {
         $query = Cobranca::with('cliente');
+        // lista de clientes para preencher o filtro como select
+        $clientes = \App\Models\Cliente::orderBy('nome')->select('nome')->get();
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function($q) use ($request) {
                 $q->where('nome', 'ilike', '%' . $request->cliente . '%');
@@ -163,7 +165,7 @@ class CobrancaController extends Controller
             $query->whereBetween('data_pagamento', [$pagInicio, $pagFim]);
         }
         $cobrancas = $query->orderByDesc('created_at')->paginate(15)->appends($request->all());
-        return view('cobrancas.index', compact('cobrancas'));
+        return view('cobrancas.index', compact('cobrancas', 'clientes'));
     }
 
     public function show($id)

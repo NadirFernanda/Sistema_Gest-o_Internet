@@ -95,7 +95,12 @@ side the filter box -->
 
         <div class="filtro-group">
             <label for="cliente">Cliente</label>
-            <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
+            <select name="cliente" id="cliente" class="select">
+                <option value="">Todos</option>
+                @foreach($clientes ?? [] as $c)
+                    <option value="{{ $c->nome }}" {{ request('cliente') == $c->nome ? 'selected' : '' }}>{{ $c->nome }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div class="filtro-group">
