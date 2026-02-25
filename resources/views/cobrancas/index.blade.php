@@ -34,6 +34,17 @@ side the filter box -->
         min-width: 120px;
         flex: 1 1 140px;
     }
+
+    /* Make the cliente filter wider and avoid wrapping long names */
+    .filtro-modern-cobranca .filtro-cliente {
+        flex: 2 1 260px;
+        min-width: 220px;
+    }
+
+    .filtro-modern-cobranca select,
+    .filtro-modern-cobranca select option {
+        white-space: nowrap;
+    }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
         color: #222;
@@ -93,7 +104,7 @@ side the filter box -->
             </div>
         </div>
 
-        <div class="filtro-group">
+        <div class="filtro-group filtro-cliente">
             <label for="cliente">Cliente</label>
             <select name="cliente" id="cliente" class="select">
                 <option value="">Todos</option>
