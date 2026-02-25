@@ -45,6 +45,24 @@ side the filter box -->
     .filtro-modern-cobranca select option {
         white-space: nowrap;
     }
+
+    /* Make the cliente select visually match other inputs */
+    .filtro-modern-cobranca .filtro-cliente .select {
+        border-radius: 8px;
+        border: 1px solid #e6e6e6;
+        padding: 8px 12px;
+        font-size: 1rem;
+        background: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .filtro-modern-cobranca .filtro-cliente .select:focus {
+        outline: none;
+        border-color: #f7b500;
+        box-shadow: 0 6px 24px rgba(247,181,0,0.12);
+    }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
         color: #222;
