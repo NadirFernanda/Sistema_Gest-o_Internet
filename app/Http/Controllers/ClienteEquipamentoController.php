@@ -14,6 +14,16 @@ class ClienteEquipamentoController extends Controller
         $cliente = Cliente::findOrFail($clienteId);
         $equipamentos = EstoqueEquipamento::all();
         $vinculados = ClienteEquipamento::where('cliente_id', $clienteId)->with('equipamento')->get();
+        // Debug: log the linked equipments shown on the create page to help diagnose stale/incorrect values
+        try {
+            \Log::info('cliente_equipamento.create.vinculados', [
+                'cliente_id' => $clienteId,
+                'count' => $vinculados->count(),
+                'items' => $vinculados->map(function($v){ return ['id' => $v->id, 'forma_ligacao' => $v->forma_ligacao ?? null, 'updated_at' => $v->updated_at ?? null]; })->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            // ignore logging errors
+        }
         return view('cliente_equipamento.create', compact('cliente', 'equipamentos', 'vinculados'));
     }
 
