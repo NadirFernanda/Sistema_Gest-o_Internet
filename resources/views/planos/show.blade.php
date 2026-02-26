@@ -108,7 +108,13 @@
                             —
                         @endif
                     </div>
-                    <div style="margin-top:8px;"><a href="{{ route('clientes.cobrancas', $plano->cliente_id) }}" class="btn btn-ghost">Ver cobranças deste cliente</a></div>
+                    <div style="margin-top:8px;">
+                        @if($cliente)
+                            <a href="{{ route('cobrancas.index', ['cliente' => $cliente->nome]) }}" class="btn btn-ghost">Ver cobranças deste cliente</a>
+                        @else
+                            <a class="btn btn-ghost disabled">Ver cobranças deste cliente</a>
+                        @endif
+                    </div>
                 </div>
             </div>
 
