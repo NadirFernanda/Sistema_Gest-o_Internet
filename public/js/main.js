@@ -212,24 +212,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         const editBtn = (p.can_edit ? `<button class="btn-editar-plano" data-i="${i}" data-id="${p.id}" style="margin-bottom:4px;">Editar</button>` : `<button class="btn-editar-plano btn-no-perm" data-action="edit" data-id="${p.id}">Editar</button>`);
                         const delBtn = (p.can_delete ? `<button class="btn-remover-plano" data-i="${i}" data-id="${p.id}">Remover</button>` : `<button class="btn-remover-plano btn-no-perm" data-action="delete" data-id="${p.id}">Remover</button>`);
 
-                        // decide a classe de destaque com as faixas pedidas:
+                        // decide a classe de destaque: make >=10 days green
                         // dias < 0 => expirado (cinza)
                         // 0-5 => vermelho
-                        // 6-10 => amarelo
-                        // 11-30 => verde
-                        // >30 => sem destaque
+                        // 6-9 => amarelo
+                        // >=10 => verde
                         let rowClass = '';
                         if (diasLeft !== null) {
                             if (diasLeft < 0) {
                                 rowClass = 'plan-status-row status-expired';
                             } else if (diasLeft <= 5) {
                                 rowClass = 'plan-status-row status-red';
-                            } else if (diasLeft <= 10) {
+                            } else if (diasLeft <= 9) {
                                 rowClass = 'plan-status-row status-yellow';
-                            } else if (diasLeft <= 30) {
-                                rowClass = 'plan-status-row status-green';
                             } else {
-                                rowClass = '';
+                                rowClass = 'plan-status-row status-green';
                             }
                         }
 

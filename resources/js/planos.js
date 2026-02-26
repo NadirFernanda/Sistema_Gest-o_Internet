@@ -424,22 +424,19 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 let statusClass = '';
                 try {
                     if (dias !== null) {
-                        // aplicar faixas conforme especificado pelo usuário:
+                        // apply stripes so that plans with 10 or more days show green
                         // dias < 0 => expirado (cinza)
                         // 0-5 => vermelho
-                        // 6-10 => amarelo
-                        // 11-30 => verde
-                        // >30 => sem destaque
+                        // 6-9 => amarelo
+                        // >=10 => verde
                         if (dias < 0) {
                             statusClass = 'status-expired';
                         } else if (dias <= 5) {
                             statusClass = 'status-red';
-                        } else if (dias <= 10) {
+                        } else if (dias <= 9) {
                             statusClass = 'status-yellow';
-                        } else if (dias <= 30) {
-                            statusClass = 'status-green';
                         } else {
-                            statusClass = '';
+                            statusClass = 'status-green';
                         }
                     }
                 } catch (_) { statusClass = ''; }
