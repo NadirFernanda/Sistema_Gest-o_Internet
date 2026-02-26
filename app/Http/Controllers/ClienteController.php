@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\Models\Cliente;
 use App\Models\User;
+use App\Models\Cobranca;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CompensacoesExport;
@@ -172,24 +173,25 @@ class ClienteController extends Controller
             \Log::warning('adicionarJanela: falha ao gravar compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);
         }
 
-        // Enviar automaticamente comprovativo de pagamento ao cliente (usar valor do plano quando existir)
+        // Criar e persistir uma cobrança (status pago) e enviar comprovativo ao cliente
         try {
             if ($cliente && filter_var($cliente->email ?? '', FILTER_VALIDATE_EMAIL)) {
-                // Criar um objeto Cobranca em memória (não persistido) para reutilizar a view/notification existente
-                $cobranca = new \App\Models\Cobranca();
-                // id pode ser um identificador único para anexar ao PDF
-                $cobranca->id = 'janela-' . time();
-                $cobranca->cliente = $cliente;
-                $cobranca->descricao = "Janela adicionada (+{$dias} dias)";
-                $cobranca->valor = $plano->preco ?? 0;
-                $cobranca->data_vencimento = now()->toDateString();
-                $cobranca->data_pagamento = now()->toDateString();
-                $cobranca->status = 'pago';
+                $cobranca = Cobranca::create([
+                    'cliente_id' => $cliente->id,
+                    'descricao' => "Janela adicionada (+{$dias} dias)",
+                    'valor' => $plano->preco ?? 0,
+                    'data_vencimento' => now()->toDateString(),
+                    'data_pagamento' => now()->toDateString(),
+                    'status' => 'pago',
+                ]);
+
+                // garantir relacionamento para a view/notification
+                $cobranca->load('cliente');
 
                 $cliente->notify(new \App\Notifications\ComprovantePagamentoEmail($cobranca));
             }
         } catch (\Exception $e) {
-            \Log::warning('adicionarJanela: falha ao enviar comprovativo', ['err' => $e->getMessage(), 'cliente_id' => $cliente->id ?? null]);
+            \Log::warning('adicionarJanela: falha ao criar/enviar comprovativo', ['err' => $e->getMessage(), 'cliente_id' => $cliente->id ?? null]);
         }
 
         return back()->with('success', "Janela adicionada: +{$dias} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
