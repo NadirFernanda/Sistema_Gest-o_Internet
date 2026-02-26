@@ -409,7 +409,6 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 // a cor correta mesmo tendo X dias restantes.
                 let statusClass = '';
                 try {
-                    const estadoLower = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase()) || '';
                     if (dias !== null) {
                         // aplicar faixas conforme especificado pelo usuário:
                         // dias < 0 => expirado (cinza)
@@ -419,19 +418,14 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                         // >30 => sem destaque
                         if (dias < 0) {
                             statusClass = 'status-expired';
+                        } else if (dias <= 5) {
+                            statusClass = 'status-red';
+                        } else if (dias <= 10) {
+                            statusClass = 'status-yellow';
+                        } else if (dias <= 30) {
+                            statusClass = 'status-green';
                         } else {
-                            // Não aplicar cor de aviso se o estado for suspenso/cancelado
-                            if (estadoLower.includes('suspenso') || estadoLower.includes('cancel')) {
-                                statusClass = 'status-expired';
-                            } else if (dias <= 5) {
-                                statusClass = 'status-red';
-                            } else if (dias <= 10) {
-                                statusClass = 'status-yellow';
-                            } else if (dias <= 30) {
-                                statusClass = 'status-green';
-                            } else {
-                                statusClass = '';
-                            }
+                            statusClass = '';
                         }
                     }
                 } catch (_) { statusClass = ''; }
