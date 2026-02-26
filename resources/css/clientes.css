@@ -41,6 +41,16 @@
 .ficha-btn-edit{ background:#ffd066; color:#111; }
 .ficha-btn-danger{ background:#ff6b6b; color:#fff; }
 
+/* Toolbar for plano detail view (compensações) */
+.plano-toolbar { display:flex; gap:10px; flex-direction:row; justify-content:flex-end; align-items:center; margin-bottom:12px; }
+.plano-toolbar .btn { padding:10px 16px; border-radius:8px; font-weight:700; text-decoration:none; }
+.plano-toolbar .btn.btn-warning, .plano-toolbar .btn.btn-primary { padding:12px 22px; font-size:1.05rem; }
+.plano-toolbar .btn.btn-outline-secondary { padding:10px 18px; border-radius:8px; }
+@media (max-width:700px) {
+  .plano-toolbar { flex-direction:column; gap:8px; align-items:stretch; }
+  .plano-toolbar .btn { width:100%; text-align:center; }
+}
+
 @media (max-width:600px){
   .ficha-actions{ width:100%; justify-content:center; margin-top:8px; flex-wrap:wrap }
   .ficha-card{ padding:16px }

@@ -10,7 +10,7 @@
         </div>
 
         {{-- Ações de Compensação / Janela (migradas da ficha do cliente) --}}
-        <div class="no-print" style="display:flex;gap:10px;flex-direction:row;justify-content:flex-end;align-items:center;margin-bottom:12px;">
+        <div class="plano-toolbar no-print" style="display:flex;gap:10px;flex-direction:row;justify-content:flex-end;align-items:center;margin-bottom:12px;">
             <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}" class="btn btn-outline-secondary" style="padding:10px 18px; border-radius:8px; font-weight:700;">
                 Histórico de Compensações
             </a>
