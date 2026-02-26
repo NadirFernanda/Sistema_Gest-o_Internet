@@ -172,6 +172,26 @@ class ClienteController extends Controller
             \Log::warning('adicionarJanela: falha ao gravar compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);
         }
 
+        // Enviar automaticamente comprovativo de pagamento ao cliente (usar valor do plano quando existir)
+        try {
+            if ($cliente && filter_var($cliente->email ?? '', FILTER_VALIDATE_EMAIL)) {
+                // Criar um objeto Cobranca em memória (não persistido) para reutilizar a view/notification existente
+                $cobranca = new \App\Models\Cobranca();
+                // id pode ser um identificador único para anexar ao PDF
+                $cobranca->id = 'janela-' . time();
+                $cobranca->cliente = $cliente;
+                $cobranca->descricao = "Janela adicionada (+{$dias} dias)";
+                $cobranca->valor = $plano->preco ?? 0;
+                $cobranca->data_vencimento = now()->toDateString();
+                $cobranca->data_pagamento = now()->toDateString();
+                $cobranca->status = 'pago';
+
+                $cliente->notify(new \App\Notifications\ComprovantePagamentoEmail($cobranca));
+            }
+        } catch (\Exception $e) {
+            \Log::warning('adicionarJanela: falha ao enviar comprovativo', ['err' => $e->getMessage(), 'cliente_id' => $cliente->id ?? null]);
+        }
+
         return back()->with('success', "Janela adicionada: +{$dias} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
     }
     /**
