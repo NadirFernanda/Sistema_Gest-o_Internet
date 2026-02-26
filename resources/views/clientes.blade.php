@@ -206,7 +206,7 @@
                 }
                 </style>
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
-                    <div style="display:flex;gap:8px;align-items:center;">
+                    <div style="display:flex;gap:8px;align-items:center;justify-content:center;width:100%;">
                     <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-cta">Vincular Equipamento do Estoque</a>
                         <form action="{{ route('cliente.solicitar_devolucao', $cliente->id) }}" method="POST" style="display:inline-block;margin:0;">
                             @csrf
