@@ -208,13 +208,11 @@
                 <h3 style="margin-top:24px;">Equipamentos Instalados</h3>
                     <div style="display:flex;gap:8px;align-items:center;">
                     <a href="{{ route('cliente_equipamento.create', $cliente->id) }}" class="btn btn-cta">Vincular Equipamento do Estoque</a>
-                    @can('clientes.devolucao')
                         <form action="{{ route('cliente.solicitar_devolucao', $cliente->id) }}" method="POST" style="display:inline-block;margin:0;">
                             @csrf
                             <input type="hidden" name="prazo_dias" value="7">
                             <button type="submit" class="btn btn-cta" onclick="return confirm('Confirmar solicitação de devolução para todos os equipamentos emprestados deste cliente?')">Solicitar Devolução</button>
                         </form>
-                    @endcan
                 </div>
                 @php
                     $hasEquip = (isset($cliente->equipamentos) && $cliente->equipamentos->count());
