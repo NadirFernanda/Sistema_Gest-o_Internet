@@ -159,6 +159,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         lista.innerHTML = '<p>Nenhum plano cadastrado ainda.</p>';
                         return;
                     }
+                    // Ordenar alfabeticamente pelo nome do plano como fallback
+                    try {
+                        planos.sort((a, b) => {
+                            const na = (a.nome || a.name || '').toString().normalize('NFD').toLowerCase();
+                            const nb = (b.nome || b.name || '').toString().normalize('NFD').toLowerCase();
+                            return na.localeCompare(nb, 'pt', { sensitivity: 'base' });
+                        });
+                    } catch (_) { }
                     let html = `<div class="tabela-cobrancas-moderna" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:18px 18px 8px 18px;margin-top:18px;overflow-x:auto;">
                         <table class="tabela-planos" style="width:100%;min-width:700px;font-size:1.01em;background:#fff;border-radius:8px;overflow:hidden;">
                         <thead>

@@ -384,6 +384,14 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 lista.innerHTML = `<div style="padding:24px;text-align:center;color:#666"><p style="margin:0 0 8px 0">Nenhum plano encontrado.</p><a href="${window.planosConfig.planosCreateRoute||'/planos/create'}" class="btn btn-cta">Cadastrar Primeiro Plano</a></div>`;
                 return;
             }
+            // Ordenar alfabeticamente pelo nome do plano (fallback no frontend)
+            try {
+                plans.sort((a, b) => {
+                    const na = (a.nome || a.name || '').toString().normalize('NFD').toLowerCase();
+                    const nb = (b.nome || b.name || '').toString().normalize('NFD').toLowerCase();
+                    return na.localeCompare(nb, 'pt', { sensitivity: 'base' });
+                });
+            } catch (_) { /* se sort falhar, seguimos com a ordem original */ }
             function esc(s){ if(s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
             let html = '<div class="plan-grid">';
             plans.forEach(p => {

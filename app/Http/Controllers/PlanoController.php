@@ -112,6 +112,8 @@ class PlanoController extends Controller
             }
         }
 
+        // Ordena por nome do plano em ordem alfabética para consistência
+        $query->orderBy('nome');
         $planos = $query->get();
         \Log::info('Planos retornados', ['total' => $planos->count()]);
 
