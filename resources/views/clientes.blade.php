@@ -267,6 +267,21 @@
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
                                                     </button>
                                                 </form>
+                                                @if(isset($v->status) && $v->status === 'devolucao_solicitada')
+                                                    <span class="badge" style="background:#f59e0b;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Devolução solicitada</span>
+                                                    @can('clientes.devolucao')
+                                                        <form action="{{ route('cliente_equipamento.registrar_devolucao', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                                            @csrf
+                                                            <button type="submit" class="btn-icon btn-success" title="Registrar devolução" aria-label="Registrar devolução" onclick="return confirm('Registrar devolução recebida para este equipamento?')">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                                                            </button>
+                                                        </form>
+                                                    @endcan
+                                                @else
+                                                    @if(isset($v->status) && $v->status === 'emprestado')
+                                                        <span class="badge" style="background:#06b6d4;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Emprestado</span>
+                                                    @endif
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

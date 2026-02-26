@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\ClienteEquipamento;
 use App\Models\EstoqueEquipamento;
+use App\Models\AuditLog;
+use App\Jobs\WriteAuditLogJob;
+use App\Notifications\ClienteDevolucaoEquipamentoEmail;
+use App\Notifications\ClienteDevolucaoEquipamentoWhatsApp;
 use Illuminate\Http\Request;
 
 class ClienteEquipamentoController extends Controller
@@ -14,6 +18,22 @@ class ClienteEquipamentoController extends Controller
         $cliente = Cliente::findOrFail($clienteId);
         $equipamentos = EstoqueEquipamento::all();
         $vinculados = ClienteEquipamento::where('cliente_id', $clienteId)->with('equipamento')->get();
+        // load recent audit logs related to these vinculos
+        $auditsGrouped = collect([]);
+        try {
+            $ids = $vinculados->pluck('id')->filter()->values()->all();
+            if (!empty($ids)) {
+                $audits = AuditLog::whereIn('resource_id', $ids)
+                    ->where(function($q){
+                        $q->whereRaw("LOWER(COALESCE(resource_type, auditable_type, '')) LIKE '%clienteequipamento%'");
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                $auditsGrouped = $audits->groupBy(function($a){ return $a->resource_id ?? $a->auditable_id ?? null; });
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Falha ao carregar audit logs para cliente_equipamento.create: ' . $e->getMessage());
+        }
         // Debug: log the linked equipments shown on the create page to help diagnose stale/incorrect values
         try {
             \Log::info('cliente_equipamento.create.vinculados', [
@@ -24,7 +44,7 @@ class ClienteEquipamentoController extends Controller
         } catch (\Throwable $e) {
             // ignore logging errors
         }
-        return view('cliente_equipamento.create', compact('cliente', 'equipamentos', 'vinculados'));
+        return view('cliente_equipamento.create', compact('cliente', 'equipamentos', 'vinculados', 'auditsGrouped'));
     }
 
     public function store(Request $request, $clienteId)
@@ -231,6 +251,78 @@ class ClienteEquipamentoController extends Controller
         });
 
         return redirect()->route('cliente_equipamento.create', $clienteId)->with('success', 'Vínculo removido com sucesso!');
+    }
+
+    public function solicitarDevolucao(Request $request, $clienteId)
+    {
+        $cliente = Cliente::findOrFail($clienteId);
+        $prazoDias = (int) ($request->input('prazo_dias', 7));
+        $motivo = $request->input('motivo', 'Solicitação manual pelo admin');
+
+        $vinculos = ClienteEquipamento::where('cliente_id', $clienteId)
+            ->where('status', ClienteEquipamento::STATUS_EMPRESTADO)
+            ->get();
+
+        foreach ($vinculos as $v) {
+            $before = $v->toArray();
+            $v->update([
+                'status' => ClienteEquipamento::STATUS_DEVOLUCAO_SOLICITADA,
+                'devolucao_solicitada_at' => now(),
+                'devolucao_prazo' => now()->addDays($prazoDias)->toDateString(),
+                'motivo_requisicao' => $motivo,
+            ]);
+
+            WriteAuditLogJob::dispatch([
+                'resource_type' => 'ClienteEquipamento',
+                'resource_id' => $v->id,
+                'action' => 'solicitacao_devolucao_manual',
+                'payload_before' => $before,
+                'payload_after' => $v->toArray(),
+                'actor_name' => auth()->user()->name ?? 'admin',
+                'module' => 'cliente_equipamento',
+            ]);
+        }
+
+        // Notify client
+        try {
+            $cliente->notify(new ClienteDevolucaoEquipamentoEmail($cliente));
+            $cliente->notify(new ClienteDevolucaoEquipamentoWhatsApp($cliente));
+        } catch (\Throwable $e) {
+            \Log::error('Erro ao notificar cliente na solicitacao manual de devolucao: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'Solicitação de devolução criada e cliente notificado.');
+    }
+
+    public function registrarDevolucao(Request $request, $clienteId, $vinculoId)
+    {
+        $vinculo = ClienteEquipamento::findOrFail($vinculoId);
+
+        \DB::transaction(function() use ($vinculo) {
+            // lock estoque row and restore quantity
+            $estoque = EstoqueEquipamento::where('id', $vinculo->estoque_equipamento_id)->lockForUpdate()->first();
+            $before = $vinculo->toArray();
+            if ($estoque) {
+                $estoque->quantidade = ($estoque->quantidade ?? 0) + (int)($vinculo->quantidade ?? 0);
+                $estoque->save();
+            }
+
+            $vinculo->update([
+                'status' => ClienteEquipamento::STATUS_DEVOLVIDO,
+            ]);
+
+            WriteAuditLogJob::dispatch([
+                'resource_type' => 'ClienteEquipamento',
+                'resource_id' => $vinculo->id,
+                'action' => 'registrar_devolucao',
+                'payload_before' => $before,
+                'payload_after' => $vinculo->toArray(),
+                'actor_name' => auth()->user()->name ?? 'admin',
+                'module' => 'cliente_equipamento',
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Devolução registrada e estoque atualizado.');
     }
 }
         

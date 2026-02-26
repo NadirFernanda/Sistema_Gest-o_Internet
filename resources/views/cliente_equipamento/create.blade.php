@@ -157,11 +157,59 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
                                 </button>
                             </form>
+                            @if(isset($v->status) && $v->status === 'devolucao_solicitada')
+                                <span class="badge" style="background:#f59e0b;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Devolução solicitada</span>
+                                @can('clientes.devolucao')
+                                    <form action="{{ route('cliente_equipamento.registrar_devolucao', [$cliente->id, $v->id]) }}" method="POST" style="display:inline-block; margin-left:6px;">
+                                        @csrf
+                                        <button type="submit" class="btn-icon btn-success" title="Registrar devolução" aria-label="Registrar devolução" onclick="return confirm('Registrar devolução recebida para este equipamento?')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                                        </button>
+                                    </form>
+                                @endcan
+                            @else
+                                @if(isset($v->status) && $v->status === 'emprestado')
+                                    <span class="badge" style="background:#06b6d4;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Emprestado</span>
+                                @endif
+                            @endif
+
+                            <button type="button" class="btn-icon btn-secondary" onclick="var el=document.getElementById('audit-{{ $v->id }}'); if(el){ if(el.style.display==='none'){ el.style.display='table-row'; } else { el.style.display='none'; } }" title="Histórico" aria-label="Histórico" style="margin-left:6px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l3 8 4-16 3 8h4"/></svg>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="audit-{{ $v->id }}" style="display:none;">
+                        <td colspan="7" style="background:#f9fafb;padding:8px 12px;">
+                            <strong>Histórico de ações (últimos 5):</strong>
+                            <ul style="margin-top:8px;">
+                                @foreach(($auditsGrouped[$v->id] ?? collect())->take(5) as $a)
+                                    <li style="margin-bottom:6px;font-size:0.95rem;color:#374151;">
+                                        <span style="font-weight:700;">{{ $a->action ?? $a->auditable_type ?? 'ação' }}</span>
+                                        &nbsp;—&nbsp; <span style="color:#6b7280;">{{ $a->actor_name ?? $a->role ?? 'system' }}</span>
+                                        &nbsp;(<span style="color:#9ca3af;">{{ optional($a->created_at)->format('Y-m-d H:i') }}</span>)
+                                        @if(!empty($a->payload_after) || !empty($a->new_values))
+                                            <div style="margin-top:4px;color:#374151;font-size:0.9rem;">{{ Str::limit(json_encode($a->payload_after ?? $a->new_values ?? []), 300) }}</div>
+                                        @endif
+                                    </li>
+                                @endforeach
+                                @if(empty($auditsGrouped[$v->id]) || $auditsGrouped[$v->id]->isEmpty())
+                                    <li style="color:#6b7280;">Nenhum histórico disponível para este vínculo.</li>
+                                @endif
+                            </ul>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        <div style="margin-top:12px;">
+            @can('clientes.devolucao')
+                <form action="{{ route('cliente.solicitar_devolucao', $cliente->id) }}" method="POST" style="display:inline-block;">
+                    @csrf
+                    <input type="hidden" name="prazo_dias" value="7">
+                    <button type="submit" class="btn btn-warning" onclick="return confirm('Confirmar solicitação de devolução para todos os equipamentos emprestados deste cliente?')">Solicitar Devolução (todos)</button>
+                </form>
+            @endcan
+        </div>
     @else
         <p>Nenhum equipamento vinculado a este cliente.</p>
     @endif

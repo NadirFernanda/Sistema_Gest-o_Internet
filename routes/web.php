@@ -188,6 +188,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{cliente}/vincular-equipamento/{vinculo}/editar', [\App\Http\Controllers\ClienteEquipamentoController::class, 'edit'])->name('cliente_equipamento.edit');
     Route::put('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'update'])->name('cliente_equipamento.update');
     Route::delete('/clientes/{cliente}/vincular-equipamento/{vinculo}', [\App\Http\Controllers\ClienteEquipamentoController::class, 'destroy'])->name('cliente_equipamento.destroy');
+    // Manual request to mark all client's equipamentos for return and notify client
+    Route::post('/clientes/{cliente}/solicitar-devolucao', [\App\Http\Controllers\ClienteEquipamentoController::class, 'solicitarDevolucao'])
+        ->name('cliente.solicitar_devolucao')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.devolucao');
+
+    // Register a received return for a specific vinculo (restore stock and mark devolvido)
+    Route::post('/clientes/{cliente}/vincular-equipamento/{vinculo}/registrar-devolucao', [\App\Http\Controllers\ClienteEquipamentoController::class, 'registrarDevolucao'])
+        ->name('cliente_equipamento.registrar_devolucao')
+        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.devolucao');
 });
 
 // Dev helper routes removed. For local testing use the `diagnose:stock` command and feature branches.

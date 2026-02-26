@@ -13,17 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('compensacoes', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('cliente_id')->index();
-            $table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->integer('dias')->unsigned();
-            $table->string('motivo')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('compensacoes')) {
+            Schema::create('compensacoes', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('cliente_id')->index();
+                $table->unsignedBigInteger('user_id')->nullable()->index();
+                $table->integer('dias')->unsigned();
+                $table->string('motivo')->nullable();
+                $table->timestamps();
 
-            $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-        });
+                $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade');
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            });
+        }
     }
 
     /**
