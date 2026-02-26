@@ -5,9 +5,9 @@
         <!-- Top action buttons (visíveis) -->
         <div class="plano-top-actions" style="margin-bottom:18px;">
             @if($plano->cliente_id)
-                <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}" class="plano-top-btn">Histórico de Compensações</a>
+                <button type="button" onclick="location.href='{{ route('clientes.compensacoes', $plano->cliente_id) }}'" class="plano-top-btn">Histórico de Compensações</button>
             @else
-                <span class="plano-top-btn disabled">Histórico de Compensações</span>
+                <button type="button" class="plano-top-btn disabled" disabled>Histórico de Compensações</button>
             @endif
             <button id="compensar-dias-btn" class="plano-top-btn">Compensar Dias</button>
             <button id="adicionar-janela-btn" class="plano-top-btn">Adicionar Janela</button>
