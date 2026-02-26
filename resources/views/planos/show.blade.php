@@ -23,6 +23,110 @@
         </div>
 
         <p>{{ $plano->descricao }}</p>
+
+        @php
+            use App\Models\Cobranca;
+            use App\Models\Compensacao;
+            $cliente = $plano->cliente ?? null;
+            $ultimaJanela = $plano->janelas->last() ?? null;
+            $now = \Carbon\Carbon::now();
+            $proxima = $plano->proxima_renovacao ? \Carbon\Carbon::parse($plano->proxima_renovacao) : null;
+            if ($proxima) {
+                $diasRestantes = $proxima->isFuture() ? $now->diffInDays($proxima) : -1 * $proxima->diffInDays($now);
+            } else {
+                $diasRestantes = null;
+            }
+            $ultimoPagamento = null;
+            if ($cliente) {
+                $ultimoPagamento = $cliente->cobrancas()->where('plano_id', $plano->id)->orderBy('created_at', 'desc')->first();
+                $compCount = Compensacao::where('cliente_id', $cliente->id)->count();
+                $equipamentos = $cliente->equipamentos()->limit(5)->get();
+            } else {
+                $compCount = 0;
+                $equipamentos = collect();
+            }
+        @endphp
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;">
+            <div style="flex:1;min-width:260px;">
+                <h4 style="margin:0 0 8px 0">Resumo</h4>
+                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
+                    <div><strong>Cliente:</strong>
+                        @if($cliente)
+                            <a href="{{ route('clientes.show', $cliente->id) }}">{{ $cliente->nome }}</a>
+                        @else
+                            —
+                        @endif
+                    </div>
+                    <div><strong>Plano:</strong> {{ $plano->nome }}</div>
+                    <div><strong>Preço:</strong> {{ $plano->preco ? 'Kz '.number_format($plano->preco,2,',','.') : '—' }}</div>
+                    <div><strong>Ciclo:</strong> {{ $plano->ciclo ?? '—' }} dias</div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:260px;">
+                <h4 style="margin:0 0 8px 0">Status & Datas</h4>
+                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fff;">
+                    <div><strong>Ativação:</strong> {{ $plano->data_ativacao ? \Carbon\Carbon::parse($plano->data_ativacao)->format('d/m/Y') : '—' }}</div>
+                    <div><strong>Próx. Renovação:</strong> {{ $proxima ? $proxima->format('d/m/Y') : '—' }}</div>
+                    <div><strong>Dias restantes:</strong>
+                        @if(is_null($diasRestantes)) —
+                        @else
+                            @if($diasRestantes < 0)
+                                Expirado {{ abs($diasRestantes) }} dia(s)
+                            @else
+                                {{ $diasRestantes }} dia(s)
+                            @endif
+                        @endif
+                    </div>
+                    <div><strong>Estado:</strong> <span style="font-weight:700">{{ $plano->estado ?? '—' }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        @if($ultimaJanela)
+            <div style="margin:12px 0;padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
+                <h4 style="margin:0 0 8px 0;font-size:1rem;">Última janela adicionada</h4>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.95rem;color:#222;">
+                    <div><strong>Descrição:</strong> {{ $ultimaJanela->descricao ?? $ultimaJanela->observacoes ?? '—' }}</div>
+                    <div><strong>Início:</strong> {{ $ultimaJanela->inicio ?? $ultimaJanela->start ?? '—' }}</div>
+                    <div><strong>Fim:</strong> {{ $ultimaJanela->fim ?? $ultimaJanela->end ?? '—' }}</div>
+                    <div><strong>Criada em:</strong> {{ $ultimaJanela->created_at ?? '—' }}</div>
+                </div>
+            </div>
+        @endif
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;">
+            <div style="flex:1;min-width:300px;">
+                <h4 style="margin:0 0 8px 0">Faturamento</h4>
+                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fff;">
+                    <div><strong>Último pagamento:</strong>
+                        @if($ultimoPagamento)
+                            {{ $ultimoPagamento->valor ? 'Kz '.number_format($ultimoPagamento->valor,2,',','.') : '—' }} • {{ \Carbon\Carbon::parse($ultimoPagamento->created_at)->format('d/m/Y') }}
+                        @else
+                            —
+                        @endif
+                    </div>
+                    <div style="margin-top:8px;"><a href="{{ route('clientes.cobrancas', $plano->cliente_id) }}" class="btn btn-ghost">Ver cobranças deste cliente</a></div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:300px;">
+                <h4 style="margin:0 0 8px 0">Relações</h4>
+                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
+                    <div><strong>Compensações:</strong> {{ $compCount }} — <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}">ver histórico</a></div>
+                    <div style="margin-top:8px;"><strong>Equipamentos ({!! $equipamentos->count() !!}):</strong>
+                        <ul style="margin:6px 0 0 16px;padding:0;">
+                            @forelse($equipamentos as $eq)
+                                <li>{{ $eq->nome ?? ($eq->descricao ?? '—') }}</li>
+                            @empty
+                                <li class="muted">Nenhum equipamento associado</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div style="margin-top:12px;display:flex;gap:8px;">
             @can('planos.edit')
             <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
