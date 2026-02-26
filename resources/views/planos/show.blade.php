@@ -115,21 +115,18 @@
                 </div>
             </div>
         </div>
-        {{-- Action buttons: Histórico / Compensar / Adicionar Janela (moved below data) --}}
-        <div style="margin-top:18px;display:flex;gap:12px;">
-            <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Histórico de Compensações</button>
-            <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Compensar Dias</button>
-            <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Adicionar Janela</button>
-        </div>
-
-        <div style="margin-top:18px;display:flex;gap:12px;">
-            <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-cta" style="flex:1;padding:14px 0;border-radius:10px;font-weight:700;text-align:center;">Editar</a>
-            <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="flex:1;display:inline-block;">
+        {{-- Action buttons: stack vertically for six actions to align cleanly --}}
+        <div class="plano-vertical-actions" style="margin-top:18px;">
+            <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="plano-top-btn">Histórico de Compensações</button>
+            <button id="compensar-dias-btn" class="plano-top-btn">Compensar Dias</button>
+            <button id="adicionar-janela-btn" class="plano-top-btn">Adicionar Janela</button>
+            <a href="{{ route('planos.edit', $plano->id) }}" class="plano-top-btn">Editar</a>
+            <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;">
                 @csrf
                 @method('DELETE')
-                <button class="btn btn-cta" style="width:100%;padding:14px 0;border-radius:10px;font-weight:700;">Apagar</button>
+                <button type="submit" class="plano-top-btn" style="width:100%;">Apagar</button>
             </form>
-            <a href="{{ route('planos.index') }}" class="btn btn-cta" style="flex:1;padding:14px 0;border-radius:10px;font-weight:700;text-align:center;">Voltar</a>
+            <a href="{{ route('planos.index') }}" class="plano-top-btn">Voltar</a>
         </div>
 
         <!-- Modal para compensar dias -->
