@@ -28,7 +28,7 @@
             use App\Models\Cobranca;
             use App\Models\Compensacao;
             $cliente = $plano->cliente ?? null;
-            $ultimaJanela = $plano->janelas->last() ?? null;
+            $ultimaJanela = optional($plano->janelas)->last();
             $now = \Carbon\Carbon::now();
             $proxima = $plano->proxima_renovacao ? \Carbon\Carbon::parse($plano->proxima_renovacao) : null;
             if ($proxima) {
