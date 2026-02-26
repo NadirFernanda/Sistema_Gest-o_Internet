@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Solicitação de Devolução do Equipamento</title>
+    <title>Comprovativo de Pagamento</title>
     <style>
         /* Use DejaVu Sans to ensure accented characters render correctly in PDF */
         body { font-family: 'DejaVu Sans', DejaVuSans, Arial, sans-serif; margin: 40px; background: #fffbe7; }
@@ -19,7 +19,7 @@
         <div style="text-align:center;margin-bottom:16px;">
             <img src="{{ public_path('img/logo2.jpeg') }}" alt="Logotipo" style="max-width:140px;max-height:80px;">
         </div>
-        <h2>Solicitação de Devolução do Equipamento</h2>
+        <h2>Comprovativo de Pagamento</h2>
         <div class="info"><span class="label">Cliente:</span> {{ $cobranca->cliente->nome ?? '-' }}</div>
         <div class="info"><span class="label">BI:</span> {{ $cobranca->cliente->bi ?? '-' }}</div>
         <div class="info"><span class="label">Email:</span> {{ $cobranca->cliente->email ?? '-' }}</div>

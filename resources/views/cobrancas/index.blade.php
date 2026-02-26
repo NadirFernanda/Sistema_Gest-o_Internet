@@ -34,38 +34,6 @@ side the filter box -->
         min-width: 120px;
         flex: 1 1 140px;
     }
-
-    /* Make the cliente filter wider and avoid wrapping long names */
-    .filtro-modern-cobranca .filtro-cliente {
-        flex: 2 1 260px;
-        min-width: 220px;
-    }
-
-    .filtro-modern-cobranca select,
-    .filtro-modern-cobranca select option {
-        white-space: nowrap;
-    }
-
-    /* Make the cliente select visually match other inputs */
-    .filtro-modern-cobranca .filtro-cliente .select {
-        border-radius: 10px;
-        border: 1px solid #e6e6e6;
-        padding: 12px 14px;
-        font-size: 1rem;
-        background: #fff;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-        -webkit-appearance: none;
-        appearance: none;
-        height: auto;
-        line-height: 1.2;
-        color: #222;
-    }
-
-    .filtro-modern-cobranca .filtro-cliente .select:focus {
-        outline: none;
-        border-color: #f7b500;
-        box-shadow: 0 6px 24px rgba(247,181,0,0.12);
-    }
     .filtro-modern-cobranca label {
         font-size: 0.97rem;
         color: #222;
@@ -125,14 +93,9 @@ side the filter box -->
             </div>
         </div>
 
-        <div class="filtro-group filtro-cliente">
+        <div class="filtro-group">
             <label for="cliente">Cliente</label>
-            <select name="cliente" id="cliente" class="select">
-                <option value="">Todos</option>
-                @foreach($clientes ?? [] as $c)
-                    <option value="{{ $c->nome }}" {{ request('cliente') == $c->nome ? 'selected' : '' }}>{{ $c->nome }}</option>
-                @endforeach
-            </select>
+            <input type="text" name="cliente" id="cliente" value="{{ request('cliente') }}" placeholder="Nome do cliente">
         </div>
 
         <div class="filtro-group">
@@ -141,12 +104,12 @@ side the filter box -->
         </div>
 
         <div class="filtro-group">
-            <label for="equipamento">Equipamento</label>
-            <select name="equipamento" id="equipamento" class="select" data-no-choices data-placeholder="Filtrar por equipamento...">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="select" data-no-choices data-placeholder="Filtrar por status...">
                 <option value="">Todos</option>
-                @foreach($equipamentos ?? [] as $e)
-                    <option value="{{ $e->id }}" {{ request('equipamento') == $e->id ? 'selected' : '' }}>{{ $e->nome }}</option>
-                @endforeach
+                <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                <option value="pago" {{ request('status') == 'pago' ? 'selected' : '' }}>Pago</option>
+                <option value="atrasado" {{ request('status') == 'atrasado' ? 'selected' : '' }}>Atrasado</option>
             </select>
         </div>
 
