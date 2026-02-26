@@ -277,21 +277,26 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 }
 
 /* Top action buttons on plano details (large yellow pills) */
-.plano-top-actions { display:flex; gap:14px; align-items:center; }
+.plano-top-actions { display:flex; gap:14px; align-items:stretch; }
 .plano-top-actions .plano-top-btn {
-  flex: 1 1 auto;
+  /* equal widths: make all children share available space regardless of content */
+  flex: 1 1 0%;
+  min-width: 0;
+  box-sizing: border-box;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
   background: #f7b500;
   color: #fff;
   padding: 12px 22px;
+  height: 48px;
   border-radius: 10px;
   font-weight: 700;
   text-decoration: none;
   border: none;
   box-shadow: 0 8px 20px rgba(247,181,0,0.18);
   cursor: pointer;
+  line-height: 1;
 }
 .plano-top-actions .plano-top-btn.disabled { opacity: 0.6; pointer-events: none; }
 .plano-top-actions .plano-top-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(247,181,0,0.22); }
