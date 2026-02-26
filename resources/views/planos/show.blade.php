@@ -38,7 +38,8 @@
             }
             $ultimoPagamento = null;
             if ($cliente) {
-                $ultimoPagamento = $cliente->cobrancas()->where('plano_id', $plano->id)->orderBy('created_at', 'desc')->first();
+                // Note: `cobrancas` table doesn't have a `plano_id` column — use last cobrança for cliente
+                $ultimoPagamento = $cliente->cobrancas()->orderBy('created_at', 'desc')->first();
                 $compCount = Compensacao::where('cliente_id', $cliente->id)->count();
                 $equipamentos = $cliente->equipamentos()->limit(5)->get();
             } else {
