@@ -284,7 +284,7 @@
                                                         </form>
                                                 @else
                                                     @if(isset($v->status) && $v->status === 'emprestado')
-                                                        <span class="badge" style="background:#06b6d4;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Emprestado</span>
+                                                        <span class="badge" style="background:#f7b500;color:#fff;margin-left:8px;padding:6px 8px;border-radius:6px;font-weight:700;">Emprestado</span>
                                                     @endif
                                                 @endif
                                             </td>
