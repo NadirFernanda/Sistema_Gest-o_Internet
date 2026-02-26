@@ -411,22 +411,28 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 try {
                     const estadoLower = (p.estado && p.estado.toLowerCase && p.estado.toLowerCase()) || '';
                     if (dias !== null) {
-                        if (dias <= 0) {
+                        // aplicar faixas conforme especificado pelo usuário:
+                        // dias < 0 => expirado (cinza)
+                        // 0-5 => vermelho
+                        // 6-10 => amarelo
+                        // 11-30 => verde
+                        // >30 => sem destaque
+                        if (dias < 0) {
                             statusClass = 'status-expired';
                         } else {
-                            // Não aplicar cor para estados explicitamente cancelados/suspensos
+                            // Não aplicar cor de aviso se o estado for suspenso/cancelado
                             if (estadoLower.includes('suspenso') || estadoLower.includes('cancel')) {
                                 statusClass = 'status-expired';
                             } else if (dias <= 5) {
                                 statusClass = 'status-red';
                             } else if (dias <= 10) {
                                 statusClass = 'status-yellow';
-                            } else {
+                            } else if (dias <= 30) {
                                 statusClass = 'status-green';
+                            } else {
+                                statusClass = '';
                             }
                         }
-                    } else if (dias !== null && dias < 0) {
-                        statusClass = 'status-expired';
                     }
                 } catch (_) { statusClass = ''; }
 
