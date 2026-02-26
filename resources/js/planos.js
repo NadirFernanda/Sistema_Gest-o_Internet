@@ -387,8 +387,14 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             // Ordenar alfabeticamente pelo nome do plano (fallback no frontend)
             try {
                 plans.sort((a, b) => {
-                    const na = (a.nome || a.name || '').toString().normalize('NFD').toLowerCase();
-                    const nb = (b.nome || b.name || '').toString().normalize('NFD').toLowerCase();
+                    const getName = (p) => {
+                        try {
+                            if (p && p.cliente) return (p.cliente.nome || p.cliente.name || '').toString().normalize('NFD').toLowerCase();
+                        } catch (_) {}
+                        return '';
+                    };
+                    const na = getName(a);
+                    const nb = getName(b);
                     return na.localeCompare(nb, 'pt', { sensitivity: 'base' });
                 });
             } catch (_) { /* se sort falhar, seguimos com a ordem original */ }

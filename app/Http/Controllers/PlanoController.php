@@ -112,9 +112,14 @@ class PlanoController extends Controller
             }
         }
 
-        // Ordena por nome do plano em ordem alfabética para consistência
-        $query->orderBy('nome');
-        $planos = $query->get();
+          // Ordena por nome do cliente em ordem alfabética para consistência
+          // usamos leftJoin para garantir planos sem cliente também apareçam
+            // Faz left join com a tabela de clientes e ordena por clientes.nome
+            $query->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
+                  ->select('planos.*')
+                  ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))");
+
+          $planos = $query->get();
         \Log::info('Planos retornados', ['total' => $planos->count()]);
 
         // Attach canonical web URLs to each plano and permission flags so front-end

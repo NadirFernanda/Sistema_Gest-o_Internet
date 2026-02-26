@@ -162,8 +162,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Ordenar alfabeticamente pelo nome do plano como fallback
                     try {
                         planos.sort((a, b) => {
-                            const na = (a.nome || a.name || '').toString().normalize('NFD').toLowerCase();
-                            const nb = (b.nome || b.name || '').toString().normalize('NFD').toLowerCase();
+                            const getName = (p) => {
+                                try { return (p.cliente && (p.cliente.nome || p.cliente.name)) ? (p.cliente.nome || p.cliente.name).toString().normalize('NFD').toLowerCase() : ''; } catch(_) { return ''; }
+                            };
+                            const na = getName(a);
+                            const nb = getName(b);
                             return na.localeCompare(nb, 'pt', { sensitivity: 'base' });
                         });
                     } catch (_) { }
