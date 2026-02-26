@@ -180,7 +180,7 @@ class ClienteController extends Controller
                     'cliente_id' => $cliente->id,
                     'descricao' => "Janela adicionada (+{$dias} dias)",
                     'valor' => $plano->preco ?? 0,
-                    'data_vencimento' => now()->toDateString(),
+                    'data_vencimento' => $novo,
                     'data_pagamento' => now()->toDateString(),
                     'status' => 'pago',
                 ]);
