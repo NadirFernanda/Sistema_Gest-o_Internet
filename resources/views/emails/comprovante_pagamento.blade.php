@@ -11,8 +11,8 @@
         </div>
         <h2 style="color:#222;text-align:center;margin-bottom:24px;">Olá, <span style="color:#f7b500;">{{ $nomeCliente }}</span>!</h2>
         <p style="font-size:1.05em;color:#333;text-align:center;margin-bottom:24px;">
-            Este contacto refere-se a uma <strong>Solicitação de Devolução do Equipamento</strong> associada à sua cobrança.
-            Caso necessite de esclarecimentos, por favor contacte o suporte Angola_WiFi.
+            Em anexo segue o <strong>comprovativo de pagamento</strong> relativo à sua cobrança.
+            Obrigado por usar os serviços Angola_WiFi. Em caso de dúvidas, contacte o suporte.
         </p>
         <div style="text-align:center;margin-top:32px;color:#888;font-size:0.95em;">
             <strong>AgolaWifi</strong> &copy; {{ date('Y') }}<br>

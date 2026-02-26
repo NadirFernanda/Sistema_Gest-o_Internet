@@ -23,7 +23,7 @@ class ComprovantePagamentoEmail extends Notification
 
     public function toMail($notifiable)
     {
-        $fileName = 'solicitacao_devolucao_equipamento_' . $this->cobranca->id . '.pdf';
+        $fileName = 'comprovativo_pagamento_' . $this->cobranca->id . '.pdf';
         $nomeCliente = $this->cobranca->cliente->nome ?? 'Cliente';
         if (!mb_detect_encoding($nomeCliente, 'UTF-8', true)) {
             $nomeCliente = mb_convert_encoding($nomeCliente, 'UTF-8');
@@ -31,7 +31,7 @@ class ComprovantePagamentoEmail extends Notification
         $pdf = Pdf::loadView('cobrancas.comprovante', ['cobranca' => $this->cobranca]);
         $logoUrl = asset('img/logo.jpeg');
         return (new MailMessage)
-            ->subject('Solicitação de Devolução do Equipamento')
+            ->subject('Comprovativo de Pagamento')
             ->view('emails.comprovante_pagamento', [
                 'nomeCliente' => $nomeCliente,
                 'logoUrl' => $logoUrl,
