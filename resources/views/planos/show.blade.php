@@ -1,135 +1,46 @@
 @extends('layouts.app')
 
 @section('content')
-    <div style="max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;">
-        {{-- Top buttons removed from here and moved below data panels per UX request --}}
-
-        <p style="margin-top:0;margin-bottom:18px;">{{ $plano->descricao }}</p>
-
+    <div style="max-width:980px;margin:18px auto;padding:8px 18px;background:#fff;border-radius:10px;">
         @php
             use App\Models\Cobranca;
             use App\Models\Compensacao;
             $cliente = $plano->cliente ?? null;
-            $ultimaJanela = optional($plano->janelas)->last();
-            $now = \Carbon\Carbon::now();
-            $proxima = $plano->proxima_renovacao ? \Carbon\Carbon::parse($plano->proxima_renovacao) : null;
-            if ($proxima) {
-                $diasRestantes = $proxima->isFuture() ? $now->diffInDays($proxima) : -1 * $proxima->diffInDays($now);
-            } else {
-                $diasRestantes = null;
-            }
-            $ultimoPagamento = null;
-            if ($cliente) {
-                // Note: `cobrancas` table doesn't have a `plano_id` column — use last cobrança for cliente
-                $ultimoPagamento = $cliente->cobrancas()->orderBy('created_at', 'desc')->first();
-                $compCount = Compensacao::where('cliente_id', $cliente->id)->count();
-                $equipamentos = $cliente->equipamentos()->limit(5)->get();
-            } else {
-                $compCount = 0;
-                $equipamentos = collect();
-            }
+            $compCount = $cliente ? Compensacao::where('cliente_id', $cliente->id)->count() : 0;
         @endphp
 
-        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;">
-            <div style="flex:1;min-width:260px;">
-                <h4 style="margin:0 0 8px 0">Resumo</h4>
-                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
-                    <div><strong>Cliente:</strong>
-                        @if($cliente)
-                            <a href="{{ route('clientes.show', $cliente->id) }}">{{ $cliente->nome }}</a>
-                        @else
-                            —
-                        @endif
-                    </div>
-                    <div><strong>Plano:</strong> {{ $plano->nome }}</div>
-                    <!-- Preço e ciclo ocultados nesta vista por motivo de privacidade -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:320px;">
+                <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                    <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
+                    <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
                 </div>
-            </div>
+                <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
 
-            <div style="flex:1;min-width:260px;">
-                <h4 style="margin:0 0 8px 0">Status & Datas</h4>
-                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fff;">
-                    <div><strong>Ativação:</strong> {{ $plano->data_ativacao ? \Carbon\Carbon::parse($plano->data_ativacao)->format('d/m/Y') : '—' }}</div>
-                    <div><strong>Próx. Renovação:</strong> {{ $proxima ? $proxima->format('d/m/Y') : '—' }}</div>
-                    <div><strong>Dias restantes:</strong>
-                        @if(is_null($diasRestantes)) —
-                        @else
-                            @if($diasRestantes < 0)
-                                Expirado {{ abs($diasRestantes) }} dia(s)
-                            @else
-                                {{ $diasRestantes }} dia(s)
-                            @endif
-                        @endif
-                    </div>
-                    <div><strong>Estado:</strong> <span style="font-weight:700">{{ $plano->estado ?? '—' }}</span></div>
+                <div class="plano-top-actions" style="display:flex;gap:12px;align-items:stretch;">
+                    <a href="{{ route('planos.edit', $plano->id) }}" class="plano-top-btn btn btn-warning" style="flex:1;text-align:center;padding:14px 0;border-radius:10px;">Editar</a>
+                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button class="plano-top-btn btn btn-warning" style="padding:14px 18px;border-radius:10px;margin-left:6px;">Apagar</button>
+                    </form>
+                    <a href="{{ route('planos.index') }}" class="plano-top-btn btn btn-warning" style="flex:1;text-align:center;padding:14px 0;border-radius:10px;">Voltar</a>
                 </div>
-            </div>
-        </div>
 
-        @if($ultimaJanela)
-            <div style="margin:12px 0;padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
-                <h4 style="margin:0 0 8px 0;font-size:1rem;">Última janela adicionada</h4>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.95rem;color:#222;">
-                    <div><strong>Descrição:</strong> {{ $ultimaJanela->descricao ?? $ultimaJanela->observacoes ?? '—' }}</div>
-                    <div><strong>Início:</strong> {{ $ultimaJanela->inicio ?? $ultimaJanela->start ?? '—' }}</div>
-                    <div><strong>Fim:</strong> {{ $ultimaJanela->fim ?? $ultimaJanela->end ?? '—' }}</div>
-                    <div><strong>Criada em:</strong> {{ $ultimaJanela->created_at ?? '—' }}</div>
-                </div>
-            </div>
-        @endif
-
-        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;">
-            <div style="flex:1;min-width:300px;">
-                <h4 style="margin:0 0 8px 0">Faturamento</h4>
-                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fff;">
-                    <div><strong>Último pagamento:</strong>
-                        @if($ultimoPagamento)
-                            {{ $ultimoPagamento->valor ? 'Kz '.number_format($ultimoPagamento->valor,2,',','.') : '—' }} • {{ \Carbon\Carbon::parse($ultimoPagamento->created_at)->format('d/m/Y') }}
-                        @else
-                            —
-                        @endif
-                    </div>
-                    <div style="margin-top:8px;">
-                        @if($cliente)
-                            <a href="{{ route('cobrancas.index', ['cliente' => $cliente->nome]) }}" class="btn btn-ghost">Ver cobranças deste cliente</a>
-                        @else
-                            <a class="btn btn-ghost disabled">Ver cobranças deste cliente</a>
-                        @endif
+                <div style="margin-top:18px;background:#fff6df;padding:14px;border-radius:10px;">
+                    <div style="display:flex;gap:12px;">
+                        <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Histórico de Compensações</button>
+                        <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Compensar Dias</button>
+                        <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Adicionar Janela</button>
                     </div>
                 </div>
             </div>
 
-            <div style="flex:1;min-width:300px;">
-                <h4 style="margin:0 0 8px 0">Relações</h4>
-                <div style="padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa;">
-                    <div><strong>Compensações:</strong> {{ $compCount }} — <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}">ver histórico</a></div>
-                    <div style="margin-top:8px;"><strong>Equipamentos ({!! $equipamentos->count() !!}):</strong>
-                        <ul style="margin:6px 0 0 16px;padding:0;">
-                            @forelse($equipamentos as $eq)
-                                <li>{{ $eq->nome ?? ($eq->descricao ?? '—') }}</li>
-                            @empty
-                                <li class="muted">Nenhum equipamento associado</li>
-                            @endforelse
-                        </ul>
-                    </div>
-                </div>
+            <div style="min-width:160px;text-align:right;">
+                <div style="color:#666;margin-bottom:6px;">Status:</div>
+                <div style="font-weight:800;font-size:1.05rem;">{{ $plano->estado ?? '—' }}</div>
             </div>
-        </div>
-        {{-- Action buttons: Histórico / Compensar / Adicionar Janela (moved below data) --}}
-        <div style="margin-top:18px;display:flex;gap:12px;">
-            <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Histórico de Compensações</button>
-            <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Compensar Dias</button>
-            <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Adicionar Janela</button>
-        </div>
-
-        <div style="margin-top:18px;display:flex;gap:12px;">
-            <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-cta" style="flex:1;padding:14px 0;border-radius:10px;font-weight:700;text-align:center;">Editar</a>
-            <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="flex:1;display:inline-block;">
-                @csrf
-                @method('DELETE')
-                <button class="btn btn-cta" style="width:100%;padding:14px 0;border-radius:10px;font-weight:700;">Apagar</button>
-            </form>
-            <a href="{{ route('planos.index') }}" class="btn btn-cta" style="flex:1;padding:14px 0;border-radius:10px;font-weight:700;text-align:center;">Voltar</a>
         </div>
 
         <!-- Modal para compensar dias -->
