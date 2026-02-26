@@ -2,12 +2,7 @@
 
 @section('content')
     <div style="max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;">
-        <!-- Top action buttons (match expected pill layout) -->
-        <div class="plano-top-actions" style="margin-bottom:18px;display:flex;gap:12px;">
-            <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Histórico de Compensações</button>
-            <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Compensar Dias</button>
-            <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Adicionar Janela</button>
-        </div>
+        {{-- Top buttons removed from here and moved below data panels per UX request --}}
 
         <p style="margin-top:0;margin-bottom:18px;">{{ $plano->descricao }}</p>
 
@@ -120,6 +115,13 @@
                 </div>
             </div>
         </div>
+        {{-- Action buttons: Histórico / Compensar / Adicionar Janela (moved below data) --}}
+        <div style="margin-top:18px;display:flex;gap:12px;">
+            <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Histórico de Compensações</button>
+            <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Compensar Dias</button>
+            <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;">Adicionar Janela</button>
+        </div>
+
         <div style="margin-top:18px;display:flex;gap:12px;">
             <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-cta" style="flex:1;padding:14px 0;border-radius:10px;font-weight:700;text-align:center;">Editar</a>
             <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="flex:1;display:inline-block;">
