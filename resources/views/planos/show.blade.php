@@ -2,27 +2,18 @@
 
 @section('content')
     <div style="max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;">
-        <h2 style="margin-top:0">Plano: {{ $plano->nome }}</h2>
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
-            <div style="font-weight:700;font-size:1.15rem;color:#111">{{ $plano->preco ? 'Kz '.number_format($plano->preco,2,',','.') : '-' }}</div>
-            <div style="background:#f0f0f0;padding:6px 10px;border-radius:20px">{{ $plano->ciclo }} dias</div>
-            <div style="margin-left:auto">Status: <strong>{{ $plano->estado }}</strong></div>
+        <!-- Top action buttons (visíveis) -->
+        <div class="plano-top-actions" style="margin-bottom:18px;">
+            @if($plano->cliente_id)
+                <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}" class="plano-top-btn">Histórico de Compensações</a>
+            @else
+                <span class="plano-top-btn disabled">Histórico de Compensações</span>
+            @endif
+            <button id="compensar-dias-btn" class="plano-top-btn">Compensar Dias</button>
+            <button id="adicionar-janela-btn" class="plano-top-btn">Adicionar Janela</button>
         </div>
 
-        {{-- Ações de Compensação / Janela (migradas da ficha do cliente) --}}
-        <div class="plano-toolbar no-print" style="display:flex;gap:10px;flex-direction:row;justify-content:flex-end;align-items:center;margin-bottom:12px;">
-            <a href="{{ route('clientes.compensacoes', $plano->cliente_id) }}" class="btn btn-outline-secondary" style="padding:10px 18px; border-radius:8px; font-weight:700;">
-                Histórico de Compensações
-            </a>
-            <button id="compensar-dias-btn" class="btn btn-warning" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:160px; font-weight:700; margin-right:8px;">
-                Compensar Dias
-            </button>
-            <button id="adicionar-janela-btn" class="btn btn-primary" style="padding:12px 22px; font-size:1.05rem; border-radius:8px; min-width:220px; font-weight:700;">
-                Adicionar Janela
-            </button>
-        </div>
-
-        <p>{{ $plano->descricao }}</p>
+        <p style="margin-top:0;margin-bottom:18px;">{{ $plano->descricao }}</p>
 
         @php
             use App\Models\Cobranca;
@@ -60,8 +51,7 @@
                         @endif
                     </div>
                     <div><strong>Plano:</strong> {{ $plano->nome }}</div>
-                    <div><strong>Preço:</strong> {{ $plano->preco ? 'Kz '.number_format($plano->preco,2,',','.') : '—' }}</div>
-                    <div><strong>Ciclo:</strong> {{ $plano->ciclo ?? '—' }} dias</div>
+                    <!-- Preço e ciclo ocultados nesta vista por motivo de privacidade -->
                 </div>
             </div>
 
