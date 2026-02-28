@@ -64,8 +64,8 @@
 
         <div class="planos-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
             <form class="search-form-inline" method="GET" action="{{ route('planos.index') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
-                <input type="search" name="q" id="buscaPlanos" class="search-input" placeholder="Pesquise por plano ou cliente..." aria-label="Pesquisar planos" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
-                <button type="submit" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+                <input type="search" name="busca" id="buscaPlanos" value="{{ request('busca') }}" class="search-input" placeholder="Pesquise por plano ou cliente..." aria-label="Pesquisar planos" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #e6a248;" />
+                <button type="button" id="btnBuscarPlanos" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
                 <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
