@@ -763,8 +763,8 @@ class ClienteController extends Controller
                 'bi_numero' => 'required|string|max:64',
                 'bi_tipo_outro' => 'nullable|string|max:64',
                 'nome' => 'required|string|max:255',
-                'email' => 'required|email|unique:clientes,email',
-                'contato' => 'required|string|max:20|unique:clientes,contato',
+                'email' => 'required|email',
+                'contato' => 'required|string|max:20',
             ], [
                 'bi_tipo.required' => 'Por favor selecione o tipo de documento.',
                 'bi_numero.required' => 'Por favor preencha o número do BI/NIF.',
@@ -844,8 +844,8 @@ class ClienteController extends Controller
             'bi_numero' => 'sometimes|required_with:bi_tipo|string|max:64',
             'bi_tipo_outro' => 'nullable|string|max:64',
             'nome' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|email|unique:clientes,email,' . $id,
-            'contato' => 'sometimes|required|string|max:20|unique:clientes,contato,' . $id,
+            'email' => 'sometimes|email',
+            'contato' => 'sometimes|required|string|max:20',
         ]);
 
         if ($validator->fails()) {
