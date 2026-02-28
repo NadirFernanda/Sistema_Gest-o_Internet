@@ -88,17 +88,38 @@ class PlanoController extends Controller
                     ->orWhereRaw('LOWER(planos.estado) LIKE ?', ["%{$buscaParam}%"]);
             });
 
-            // Search related template fields
-                        $query->orWhereHas('template', function ($q) use ($buscaParam) {
-                                $q->whereRaw('LOWER(name) LIKE ?', ["%{$buscaParam}%"]) 
-                                    ->orWhereRaw("LOWER(COALESCE(description, '')) LIKE ?", ["%{$buscaParam}%"]);
-                        });
+            // Search related template and cliente fields (and support accent-insensitive search on PG if available)
+            $useUnaccent = false;
+            if ($driver === 'pgsql' || str_contains($driver, 'pgsql')) {
+                try {
+                    $has = DB::select("select extname from pg_extension where extname = 'unaccent'");
+                    $useUnaccent = !empty($has);
+                } catch (\Exception $e) {
+                    $useUnaccent = false;
+                }
+            }
 
-            // Search related cliente fields (name and bi)
-                        $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
-                                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]) 
-                                    ->orWhereRaw("LOWER(COALESCE(bi, '')) LIKE ?", ["%{$buscaParam}%"]);
-                        });
+            if ($useUnaccent) {
+                $query->orWhereHas('template', function ($q) use ($buscaParam) {
+                    $q->whereRaw("unaccent(lower(name)) LIKE unaccent(lower(?))", ["%{$buscaParam}%"]) 
+                      ->orWhereRaw("unaccent(lower(COALESCE(description, ''))) LIKE unaccent(lower(?))", ["%{$buscaParam}%"]);
+                });
+
+                $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
+                    $q->whereRaw("unaccent(lower(nome)) LIKE unaccent(lower(?))", ["%{$buscaParam}%"]) 
+                      ->orWhereRaw("unaccent(lower(COALESCE(bi, ''))) LIKE unaccent(lower(?))", ["%{$buscaParam}%"]);
+                });
+            } else {
+                $query->orWhereHas('template', function ($q) use ($buscaParam) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ["%{$buscaParam}%"]) 
+                      ->orWhereRaw("LOWER(COALESCE(description, '')) LIKE ?", ["%{$buscaParam}%"]);
+                });
+
+                $query->orWhereHas('cliente', function ($q) use ($buscaParam) {
+                    $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"]) 
+                      ->orWhereRaw("LOWER(COALESCE(bi, '')) LIKE ?", ["%{$buscaParam}%"]);
+                });
+            }
 
             // Also try matching numeric fields using LIKE so partial matches
             // (this favors user-friendly searches rather than exact numeric match).
