@@ -131,7 +131,8 @@ class PlanoController extends Controller
 
             // Log final SQL + bindings for debugging in production environments
             try {
-                \Log::debug('PlanoController@index - SQL query', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
+                // Log at INFO so it appears in production logs where DEBUG may be filtered
+                \Log::info('PlanoController@index - SQL query', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
             } catch (\Exception $e) {
                 // Non-fatal: if toSql()/getBindings() fail for the current builder state, continue
                 \Log::warning('PlanoController@index - Falha ao obter SQL para debug', ['error' => $e->getMessage()]);
