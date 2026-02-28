@@ -83,9 +83,9 @@ class PlanoController extends Controller
             $buscaParam = mb_strtolower($busca);
 
             $query->where(function ($q) use ($buscaParam) {
-                $q->whereRaw('LOWER(nome) LIKE ?', ["%{$buscaParam}%"])
-                    ->orWhereRaw('LOWER(descricao) LIKE ?', ["%{$buscaParam}%"])
-                    ->orWhereRaw('LOWER(estado) LIKE ?', ["%{$buscaParam}%"]);
+                $q->whereRaw('LOWER(planos.nome) LIKE ?', ["%{$buscaParam}%"])
+                    ->orWhereRaw('LOWER(planos.descricao) LIKE ?', ["%{$buscaParam}%"])
+                    ->orWhereRaw('LOWER(planos.estado) LIKE ?', ["%{$buscaParam}%"]);
             });
 
             // Search related template fields
@@ -110,12 +110,12 @@ class PlanoController extends Controller
             }
 
             if ($driver === 'pgsql' || str_contains($driver, 'pgsql')) {
-                $precoCast = 'CAST(preco AS TEXT)';
-                $cicloCast = 'CAST(ciclo AS TEXT)';
+                $precoCast = 'CAST(planos.preco AS TEXT)';
+                $cicloCast = 'CAST(planos.ciclo AS TEXT)';
             } else {
                 // MySQL, MariaDB and others: CAST to CHAR
-                $precoCast = 'CAST(preco AS CHAR)';
-                $cicloCast = 'CAST(ciclo AS CHAR)';
+                $precoCast = 'CAST(planos.preco AS CHAR)';
+                $cicloCast = 'CAST(planos.ciclo AS CHAR)';
             }
 
             $query->orWhereRaw("LOWER({$precoCast}) LIKE ?", ["%{$buscaParam}%"])
