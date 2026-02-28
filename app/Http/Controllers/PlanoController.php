@@ -88,6 +88,13 @@ class PlanoController extends Controller
                     ->orWhereRaw('LOWER(planos.estado) LIKE ?', ["%{$buscaParam}%"]);
             });
 
+            // Determine DB driver early so it can be used for unaccent detection
+            try {
+                $driver = DB::getDriverName();
+            } catch (\Exception $e) {
+                $driver = config('database.default');
+            }
+
             // Search related template and cliente fields (and support accent-insensitive search on PG if available)
             $useUnaccent = false;
             if ($driver === 'pgsql' || str_contains($driver, 'pgsql')) {
@@ -124,12 +131,6 @@ class PlanoController extends Controller
             // Also try matching numeric fields using LIKE so partial matches
             // (this favors user-friendly searches rather than exact numeric match).
             // Use DB driver-aware CAST because different DBs use different syntax.
-            try {
-                $driver = DB::getDriverName();
-            } catch (\Exception $e) {
-                $driver = config('database.default');
-            }
-
             if ($driver === 'pgsql' || str_contains($driver, 'pgsql')) {
                 $precoCast = 'CAST(planos.preco AS TEXT)';
                 $cicloCast = 'CAST(planos.ciclo AS TEXT)';
