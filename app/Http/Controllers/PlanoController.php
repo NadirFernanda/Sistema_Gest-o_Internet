@@ -129,6 +129,14 @@ class PlanoController extends Controller
                   ->select('planos.*')
                   ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))");
 
+            // Log final SQL + bindings for debugging in production environments
+            try {
+                \Log::debug('PlanoController@index - SQL query', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
+            } catch (\Exception $e) {
+                // Non-fatal: if toSql()/getBindings() fail for the current builder state, continue
+                \Log::warning('PlanoController@index - Falha ao obter SQL para debug', ['error' => $e->getMessage()]);
+            }
+
             $planos = $query->get();
             \Log::info('Planos retornados', ['total' => $planos->count()]);
 
