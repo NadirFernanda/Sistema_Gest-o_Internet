@@ -99,17 +99,26 @@ class PlanoController extends Controller
                                     ->orWhereRaw("LOWER(COALESCE(bi, '')) LIKE ?", ["%{$buscaParam}%"]);
                         });
 
-            // If numeric search, also try matching ciclo or preco (exact match)
-            if (is_numeric($busca)) {
-                if (filter_var($busca, FILTER_VALIDATE_INT) !== false) {
-                    $query->orWhere('ciclo', (int)$busca);
-                }
-                // try matching preco as float
-                $floatVal = (float) str_replace(',', '.', $busca);
-                if ($floatVal > 0) {
-                    $query->orWhere('preco', $floatVal);
-                }
+            // Also try matching numeric fields using LIKE so partial matches
+            // (this favors user-friendly searches rather than exact numeric match).
+            // Use DB driver-aware CAST because different DBs use different syntax.
+            try {
+                $driver = DB::getDriverName();
+            } catch (\Exception $e) {
+                $driver = config('database.default');
             }
+
+            if ($driver === 'pgsql' || str_contains($driver, 'pgsql')) {
+                $precoCast = 'CAST(preco AS TEXT)';
+                $cicloCast = 'CAST(ciclo AS TEXT)';
+            } else {
+                // MySQL, MariaDB and others: CAST to CHAR
+                $precoCast = 'CAST(preco AS CHAR)';
+                $cicloCast = 'CAST(ciclo AS CHAR)';
+            }
+
+            $query->orWhereRaw("LOWER({$precoCast}) LIKE ?", ["%{$buscaParam}%"])
+                  ->orWhereRaw("LOWER({$cicloCast}) LIKE ?", ["%{$buscaParam}%"]);
         }
 
           // Ordena por nome do cliente em ordem alfabética para consistência
