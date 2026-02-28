@@ -73,9 +73,10 @@ class PlanoController extends Controller
 
     public function index(Request $request)
     {
-        $query = Plano::with(['cliente', 'template']);
+        try {
+            $query = Plano::with(['cliente', 'template']);
 
-        if ($busca = $request->query('busca')) {
+            if ($busca = $request->query('busca')) {
             $busca = trim($busca);
             // Use LOWER(... ) LIKE ? to provide case-insensitive search that
             // works across different database engines (Postgres, MySQL, SQLite).
@@ -128,8 +129,8 @@ class PlanoController extends Controller
                   ->select('planos.*')
                   ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))");
 
-          $planos = $query->get();
-        \Log::info('Planos retornados', ['total' => $planos->count()]);
+            $planos = $query->get();
+            \Log::info('Planos retornados', ['total' => $planos->count()]);
 
         // Attach canonical web URLs to each plano and permission flags so front-end
         // can safely decide which actions to render per-plan.
@@ -195,7 +196,18 @@ class PlanoController extends Controller
             return $arr;
         });
 
-        return response()->json($payload);
+            return response()->json($payload);
+        } catch (\Exception $e) {
+            \Log::error('PlanoController@index - Erro ao buscar planos', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            if (! $request->wantsJson()) {
+                return back()->with('error', 'Erro ao buscar planos: ' . $e->getMessage());
+            }
+            return response()->json(['success' => false, 'message' => 'Erro ao buscar planos', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
