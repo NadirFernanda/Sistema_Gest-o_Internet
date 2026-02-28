@@ -7,19 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            // Drop unique indexes if they exist
-            try {
-                $table->dropUnique(['email']);
-            } catch (\Exception $e) {
-                // ignore if index doesn't exist
-            }
-            try {
-                $table->dropUnique(['contato']);
-            } catch (\Exception $e) {
-                // ignore if index doesn't exist
-            }
-        });
+        // Use raw SQL with IF EXISTS to be idempotent on PostgreSQL
+        // This avoids migration failures when the named constraints are already absent.
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE clientes DROP CONSTRAINT IF EXISTS clientes_email_unique');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE clientes DROP CONSTRAINT IF EXISTS clientes_contato_unique');
     }
 
     public function down(): void
