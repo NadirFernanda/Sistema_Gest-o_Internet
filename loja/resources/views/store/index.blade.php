@@ -6,11 +6,11 @@
     <div class="container">
       <div class="hero-carousel" aria-roledescription="carousel">
       <div class="carousel-track">
-        <div class="carousel-slide" style="background-image: url('/img/foto.jpg');"></div>
+        <div class="carousel-slide hero-1"></div>
 
-        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1506765515384-028b60a970df?w=1800&auto=format&q=60');"></div>
+        <div class="carousel-slide hero-2"></div>
 
-        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=1800&auto=format&q=60');"></div>
+        <div class="carousel-slide hero-3"></div>
       </div>
 
       <!-- overlay cards (positioned relative to hero-carousel, outside the track to avoid clipping) -->
@@ -134,7 +134,7 @@
           <div class="plan-card plan-card--individual plan-card--{{ $plan['id'] }}">
             @if (!empty($plan['image']))
               <div class="plan-thumb">
-                <img src="{{ $plan['image'] }}" alt="{{ $plan['name'] }}">
+                <img src="{{ $plan['image'] }}" alt="{{ $plan['name'] }}" loading="lazy">
               </div>
             @endif
             <h3>{{ $plan['name'] }}</h3>
