@@ -58,7 +58,6 @@
         "is-fullwidth-code-point": "^3.0.0",
         "jiti": "^2.6.1",
         "lightningcss": "^1.31.1",
-        "lightningcss-win32-x64-msvc": "^1.31.1",
         "magic-string": "^0.30.21",
         "math-intrinsics": "^1.1.0",
         "mime-db": "^1.52.0",
