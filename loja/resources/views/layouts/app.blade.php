@@ -29,10 +29,18 @@
     </main>
     @include('partials.footer')
     <script>
-      // Marca o HTML como pronto para mostrar o conteúdo quando JS/CSS estiverem carregados
-      window.addEventListener('load', function () {
-        document.documentElement.classList.add('js-ready');
-      });
+      // Marca o HTML como pronto assim que o DOM estiver carregado (não espera todas as imagens do carrossel)
+      (function () {
+        function markReady() {
+          document.documentElement.classList.add('js-ready');
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          markReady();
+        } else {
+          document.addEventListener('DOMContentLoaded', markReady);
+        }
+      })();
     </script>
   </body>
 </html>
