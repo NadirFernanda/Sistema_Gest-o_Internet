@@ -142,8 +142,8 @@ class ClienteController extends Controller
             if (!empty($plano->proxima_renovacao)) {
                 $currentNext = Carbon::parse($plano->proxima_renovacao);
             } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
-                $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
-                if ($cicloInt <= 0) { $cicloInt = (int)$plano->ciclo; }
+                $cicloInt = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo));
+                if ($cicloInt <= 0) { $cicloInt = (int) $plano->ciclo; }
                 $currentNext = Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1);
             } else {
                 $currentNext = $hoje;
@@ -152,8 +152,18 @@ class ClienteController extends Controller
             $currentNext = $hoje;
         }
 
+        // Regra de negócio:
+        // - Pagamento pontual: se o plano ainda estiver dentro da janela (hoje <= data de término),
+        //   a nova janela começa do último dia de término (currentNext).
+        // - Pagamento tardio: se o pagamento ocorrer após o plano/janela expirar (hoje > data de término),
+        //   a nova janela começa a partir da data de ativação/pagamento (hoje).
+        $base = $currentNext;
+        if ($hoje->gt($currentNext)) {
+            $base = $hoje;
+        }
+
         $anterior = $currentNext->toDateString();
-        $novo = $currentNext->copy()->addDays($dias)->toDateString();
+        $novo = $base->copy()->addDays($dias)->toDateString();
 
         $plano->proxima_renovacao = $novo;
         $plano->save();

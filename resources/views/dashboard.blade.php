@@ -29,6 +29,15 @@
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
 
+            @php
+                $lojaAdminToken = config('services.sg.admin_token');
+                $lojaBaseUrl = rtrim(config('services.sg.loja_url', env('LOJA_URL', 'http://127.0.0.1:8001')), '/');
+                $lojaAdminUrl = $lojaAdminToken
+                    ? $lojaBaseUrl.'/admin?token='.urlencode($lojaAdminToken)
+                    : $lojaBaseUrl.'/admin';
+            @endphp
+            <a href="{{ $lojaAdminUrl }}" class="btn" target="_blank" rel="noopener">Loja</a>
+
             <div class="dropdown" style="display:block;position:relative;width:100%;">
                 <button class="btn" id="relatoriosBtn" type="button" style="width:100%;">Relatórios ▼</button>
                 <div id="relatoriosMenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #ccc;z-index:10;min-width:180px;box-shadow:0 2px 8px rgba(0,0,0,0.08);width:100%;">
