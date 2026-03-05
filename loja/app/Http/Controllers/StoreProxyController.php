@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use GuzzleHttp\Client;
+
+class StoreProxyController extends Controller
+{
+    protected function getToken(): ?string
+    {
+        $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
+        $tokenPath = env('SG_OAUTH_TOKEN_PATH', '/api/oauth/token');
+        $clientId = env('SG_CLIENT_ID');
+        $clientSecret = env('SG_CLIENT_SECRET');
+
+        if (! $sg || ! $clientId || ! $clientSecret) return null;
+
+        $http = new Client(['base_uri' => $sg]);
+        try {
+            $res = $http->post($tokenPath, [
+                'form_params' => [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                ],
+                'http_errors' => false,
+                'timeout' => 8,
+            ]);
+            $body = json_decode((string) $res->getBody(), true);
+            return $body['access_token'] ?? null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function plans(Request $request)
+    {
+        // Comunicação real com o sistema de gestão (API principal em PROJECTO)
+        // A API de planos do sistema expõe /api/planos (PlanoController@index).
+        // Aqui fazemos apenas um proxy HTTP, sem simulações nem mocks.
+
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
+        $http = new Client(['base_uri' => $sg]);
+
+        try {
+            $res = $http->get('/api/planos', [
+                'query' => $request->query(),
+                'http_errors' => false,
+                'timeout' => 8,
+            ]);
+
+            return response($res->getBody(), $res->getStatusCode())
+                ->header('Content-Type', $res->getHeaderLine('Content-Type') ?: 'application/json');
+        } catch (\Exception $e) {
+            // Em caso de falha na comunicação, devolve erro explícito (sem esconder o problema)
+            return response()->json([
+                'success' => false,
+                'error' => 'sg_unreachable',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
+    public function sendOrder(Request $request)
+    {
+        $token = $this->getToken();
+        if (! $token) return response()->json(['error' => 'no_token'], 500);
+
+        $payload = $request->all();
+        $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
+        $http = new Client(['base_uri' => $sg]);
+        $res = $http->post('/api/orders/sync', [
+            'headers' => [
+                'Authorization' => "Bearer $token",
+                'Accept' => 'application/json',
+            ],
+            'json' => $payload,
+            'http_errors' => false,
+        ]);
+        return response($res->getBody(), $res->getStatusCode())->header('Content-Type', $res->getHeaderLine('Content-Type'));
+    }
+}
