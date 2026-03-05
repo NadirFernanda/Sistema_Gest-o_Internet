@@ -59,68 +59,6 @@
       </div>
     </div>
   </section>
-  <script>
-    (function(){
-      var carousel = document.querySelector('.hero-carousel');
-      if (!carousel) return;
-      var track = carousel.querySelector('.carousel-track');
-      var slides = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-slide'));
-      var cards = Array.prototype.slice.call(carousel.querySelectorAll('.hero-cards .slide-card'));
-      // no arrow controls; use indicators and swipe
-      var indicators = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-indicators button'));
-      var index = 0;
-      var slideCount = slides.length;
-      var interval = null;
-
-      function goTo(i){
-        index = (i + slideCount) % slideCount;
-        var x = -(index * 100);
-        track.style.transform = 'translateX(' + x + '%)';
-        indicators.forEach(function(btn){ btn.classList.remove('active'); });
-        if (indicators[index]) indicators[index].classList.add('active');
-        // manage overlay cards visibility
-        if (cards && cards.length) {
-          cards.forEach(function(c){ c.classList.remove('visible'); });
-          if (cards[index]) cards[index].classList.add('visible');
-        }
-      }
-
-      function nextSlide(){ goTo(index + 1); }
-      function prevSlide(){ goTo(index - 1); }
-
-      indicators.forEach(function(btn){
-        btn.addEventListener('click', function(){ var i = Number(btn.getAttribute('data-index')||0); goTo(i); restart(); });
-      });
-
-      // touch / swipe support
-      var touchStartX = null;
-      carousel.addEventListener('touchstart', function(e){
-        touchStartX = e.touches && e.touches[0] ? e.touches[0].clientX : null;
-      }, { passive: true });
-      carousel.addEventListener('touchend', function(e){
-        if (touchStartX === null) return;
-        var touchEndX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : null;
-        if (touchEndX === null) return;
-        var dx = touchEndX - touchStartX;
-        if (Math.abs(dx) > 40) {
-          if (dx < 0) { nextSlide(); } else { prevSlide(); }
-          restart();
-        }
-        touchStartX = null;
-      });
-
-      function start(){ interval = setInterval(nextSlide, 5000); }
-      function stop(){ if (interval) { clearInterval(interval); interval = null; } }
-      function restart(){ stop(); start(); }
-
-      carousel.addEventListener('mouseenter', stop);
-      carousel.addEventListener('mouseleave', start);
-
-      // init
-      goTo(0);
-      start();
-    })();
-  </script>
   
   
 
@@ -170,50 +108,5 @@
       </div>
     </div>
   </section>
-
-  <script>
-    (function(){
-      var container = document.getElementById('family-business-plans');
-      if (!container) return;
-
-      function renderPlan(plan){
-        var el = document.createElement('div');
-        el.className = 'plan-card';
-        var price = plan.preco || plan.price || plan.amount || '';
-        var priceHtml = price ? ('<div class="price'> + (price) + '</div>') : '';
-        el.innerHTML = '<h3>' + (plan.name || 'Plano') + '</h3>' +
-                       '<div class="price">' + (price ? (price + ' <small>AOA</small>') : '') + '</div>' +
-                       '<p class="desc">' + (plan.description || plan.desc || '') + '</p>' +
-                       '<div class="plan-actions">' +
-                         '<a class="btn-primary" href="/store/checkout/' + (plan.id || '') + '">Comprar</a>' +
-                         '<a class="btn-ghost" href="/planos/' + (plan.id || '') + '">Detalhes</a>' +
-                       '</div>';
-        return el;
-      }
-
-      function normalizeCategory(cat){
-        if (!cat) return '';
-        return String(cat).toLowerCase();
-      }
-
-      fetch('/sg/plans', { credentials: 'same-origin' })
-        .then(function(r){ return r.json(); })
-        .then(function(json){
-          var data = json.data || json || [];
-          var allowed = ['familiares','familia','empresariais','empresarial'];
-          var plans = data.filter(function(p){
-            var cat = '';
-            try { cat = normalizeCategory((p.metadata && p.metadata.category) || p.category || ''); } catch(e) { cat = '' }
-            return allowed.indexOf(cat) !== -1;
-          });
-          container.innerHTML = '';
-          if (!plans.length) {
-            var empty = document.createElement('div'); empty.className = 'plan-card empty'; empty.innerHTML = '<p>Nenhum plano encontrado.</p>'; container.appendChild(empty); return;
-          }
-          plans.forEach(function(p){ container.appendChild(renderPlan(p)); });
-        })
-        .catch(function(){ container.innerHTML = '<div class="plan-card empty"><p>Erro ao carregar planos.</p></div>'; });
-    })();
-  </script>
 
 
