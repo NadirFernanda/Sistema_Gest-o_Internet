@@ -1,61 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-  {{-- Hero (improved; uses fallback styles if Tailwind not available) --}}
-  <section class="mb-8">
+  {{-- Hero simples temporário (carrossel desativado) --}}
+  <section class="planos-section">
     <div class="container">
-      <div class="hero-carousel" aria-roledescription="carousel">
-      <div class="carousel-track">
-        <div class="carousel-slide hero-1"></div>
-
-        <div class="carousel-slide hero-2"></div>
-
-        <div class="carousel-slide hero-3"></div>
-      </div>
-
-      <!-- overlay cards (positioned relative to hero-carousel, outside the track to avoid clipping) -->
-      <div class="hero-cards" aria-hidden="false">
-        <div class="slide-card" data-index="0">
-          <div class="container">
-            <h1>Internet Residencial — até 100 Mbps</h1>
-            <p>Planos para famílias, streaming e gaming sem interrupções. Velocidades reais e preços claros.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap">
-              <a href="#planos" class="btn-primary">Ver Planos</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Saiba Mais</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="slide-card" data-index="1">
-          <div class="container">
-            <h1>Internet Empresarial — conexões estáveis</h1>
-            <p>Soluções dedicadas para empresas com SLA e suporte técnico prioritário. Escalável e segura.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap">
-              <a href="#planos" class="btn-primary">Ver Soluções</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Contactar Vendas</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="slide-card" data-index="2">
-          <div class="container">
-            <h1>Instalação Rápida & Suporte Local</h1>
-            <p>Agende instalação em 24–48h e conte com assistência técnica local sempre que precisar.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap">
-              <a href="#planos" class="btn-primary">Agendar Instalação</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Fale Connosco</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- arrows removed per preference; swipe and indicators handle navigation -->
-
-      <div class="carousel-indicators" role="tablist">
-        <button data-index="0" aria-label="Slide 1" class="active"></button>
-        <button data-index="1" aria-label="Slide 2"></button>
-        <button data-index="2" aria-label="Slide 3"></button>
-      </div>
+      <h1>Internet rápida, simples e perto de si</h1>
+      <p class="lead">Escolha um dos nossos planos individuais, familiares ou empresariais e comece a navegar em poucos minutos.</p>
+      <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap">
+        <a href="#planos" class="btn-primary">Ver Planos Individuais</a>
+        <a href="#planos-familia-empresarial" class="btn-primary" style="background:var(--success)">Planos Família & Empresa</a>
       </div>
     </div>
   </section>
