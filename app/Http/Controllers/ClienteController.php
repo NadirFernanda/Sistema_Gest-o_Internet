@@ -296,7 +296,8 @@ class ClienteController extends Controller
             }
 
             $diasRestantes = $hoje->diffInDays($dataTermino, false);
-            return $diasRestantes >= 0 && $diasRestantes <= $dias;
+            // Incluir planos vencidos (diasRestantes < 0) e planos que vencem em até $dias dias
+            return $diasRestantes <= $dias;
         });
 
         $alertas = $planos->map(function ($plano) use ($hoje) {
