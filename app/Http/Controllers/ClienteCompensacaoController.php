@@ -34,13 +34,13 @@ class ClienteCompensacaoController extends Controller
             return redirect()->back()->with('error', 'Usuário não autenticado.');
         }
 
-        // determine role-based monthly limit
+        // determine role-based monthly limit (matching seeded role names)
         $limit = 0; // 0 means no ability unless role matches
-        if ($user->hasRole('administrador')) {
-            $limit = null; // unlimited
-        } elseif ($user->hasRole('gerente')) {
+        if ($user->hasRole('Administrador')) {
+            $limit = null; // unlimited for Administrador
+        } elseif ($user->hasRole('Gestor')) {
             $limit = 3;
-        } elseif ($user->hasRole('colaborador')) {
+        } elseif ($user->hasRole('Colaborador')) {
             $limit = 2;
         } else {
             // default: no allowance
