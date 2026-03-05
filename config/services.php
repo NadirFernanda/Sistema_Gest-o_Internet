@@ -58,4 +58,15 @@ return [
         ],
     ],
 
+    // Integração com a loja (Storefront)
+    // Usado pelo dashboard do SG para montar o link do painel da loja
+    'sg' => [
+        // URL pública da loja; por padrão, usa LOJA_URL do .env
+        'loja_url' => env('LOJA_URL', 'http://127.0.0.1:8001'),
+
+        // Token partilhado com a loja para acesso ao /admin
+        // Deve ser igual ao SG_LOJA_ADMIN_TOKEN definido na .env da loja
+        'admin_token' => env('SG_LOJA_ADMIN_TOKEN', ''),
+    ],
+
 ];
