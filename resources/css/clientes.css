@@ -286,7 +286,7 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   align-items: center;
   justify-content: space-between;
 }
-.plan-summary.two-column { align-items: center; }
+.plan-summary.two-column { align-items: center; max-width: 720px; margin: 0 auto; }
 .plan-summary-left { flex: 1 1 60%; min-width: 220px; text-align: left; }
 .plan-summary-right { flex: 0 0 auto; display:flex; flex-direction:column; align-items:flex-end; gap:8px; min-width:140px; }
 .plan-summary .price-row { display:flex; gap:12px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
