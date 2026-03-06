@@ -18,25 +18,7 @@
                 </div>
                 <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
 
-                <!-- Grid 2x3: top row = Histórico | Compensar Dias | Adicionar Janela
-                     bottom row = Voltar (under Histórico) | Apagar (under Compensar) | Editar (under Adicionar) -->
-                <div class="cta-grid" style="margin-top:6px;">
-                    <!-- Top row -->
-                    <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
-                    <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
-                    <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
-
-                    <!-- Bottom row -->
-                    <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
-                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-secondary" type="submit">Apagar</button>
-                    </form>
-                    <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
-                </div>
-
-                {{-- removed duplicate CTA block; buttons are rendered above in the 2x3 grid --}}
+                {{-- CTA buttons moved below 'Detalhes do Plano' --}}
             </div>
 
             <div style="min-width:160px;text-align:right;">
@@ -122,6 +104,23 @@
                     <div class="muted" style="margin-top:8px;">Última alteração</div>
                     <div>{{ $plano->updated_at ? \Carbon\Carbon::parse($plano->updated_at)->format('d/m/Y H:i') : '—' }}</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- CTA buttons: 2x3 grid placed AFTER Detalhes do Plano as requested -->
+        <div style="max-width:880px;margin:18px auto 0;">
+            <div class="cta-grid">
+                <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+
+                <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
+                <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-secondary" type="submit">Apagar</button>
+                </form>
+                <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
             </div>
         </div>
 
