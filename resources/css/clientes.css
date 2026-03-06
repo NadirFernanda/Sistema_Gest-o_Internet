@@ -314,6 +314,17 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 .plano-summary .card { flex:1; min-width:260px; }
 .plano-summary .card .card-body { padding:14px; }
 
+/* Center the "Detalhes do Plano" card content */
+.plan-show-grid .card:first-child .card-header { text-align: center; }
+.plan-show-grid .card:first-child .card-body { display: block; }
+.plan-show-grid .card:first-child .card-body > div {
+  justify-items: center !important;
+  text-align: center;
+}
+@media (max-width:700px) {
+  .plan-show-grid .card:first-child .card-body > div { grid-template-columns: 1fr !important; }
+}
+
 /* Layout shared with Estoque de Equipamentos (moved from view to central stylesheet) */
 .estoque-container-moderna {
   max-width: 1100px;
