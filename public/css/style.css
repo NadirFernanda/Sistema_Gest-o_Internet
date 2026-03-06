@@ -199,6 +199,38 @@
     margin-top: 6px;
 }
 
+/* Strong overrides for CTA buttons in planos/show (applied directly to public style so no rebuild required) */
+.cta-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, max-content) !important;
+    grid-auto-flow: column !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+    justify-content: start !important;
+}
+.cta-grid .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    max-width: 160px !important;
+    width: auto !important;
+    background: #f7b500 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 6px 18px rgba(224,161,1,0.12) !important;
+}
+.cta-grid .btn:hover { background: #e0a800 !important; }
+
+/* Ensure responsive fallback: stack on small screens */
+@media (max-width: 700px) {
+    .cta-grid { grid-template-columns: 1fr !important; }
+    .cta-grid .btn { width: 100% !important; max-width: none !important; }
+}
+
 .login-btn {
     width: 100%;
     background: linear-gradient(90deg, #f7b500 60%, #ffce3a 100%);
