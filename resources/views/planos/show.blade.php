@@ -43,6 +43,86 @@
             </div>
         </div>
 
+        {{-- Detalhes do plano: data ativação, próxima renovação, ciclo, dias restantes, template, cliente, último pagamento --}}
+        @php
+            // calcula datas e dias restantes
+            try {
+                $dataAtiv = !empty($plano->data_ativacao) ? \Carbon\Carbon::parse($plano->data_ativacao)->startOfDay() : null;
+                if (!empty($plano->proxima_renovacao)) {
+                    $dataTerm = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
+                } elseif ($dataAtiv && $plano->ciclo) {
+                    $cicloInt = intval(preg_replace('/[^0-9]/','', (string)$plano->ciclo));
+                    if ($cicloInt <= 0) { $cicloInt = (int) $plano->ciclo; }
+                    $dataTerm = $dataAtiv->copy()->addDays($cicloInt - 1)->startOfDay();
+                } else {
+                    $dataTerm = null;
+                }
+            } catch (\Exception $e) {
+                $dataAtiv = null; $dataTerm = null;
+            }
+            $diasRest = $dataTerm ? \Carbon\Carbon::today()->diffInDays($dataTerm, false) : null;
+            // último pagamento (se houver cobrancas vinculadas ao plano)
+            try {
+                $ultimoPagamento = Cobranca::where('plano_id', $plano->id)->whereNotNull('data_pagamento')->orderByDesc('data_pagamento')->first();
+            } catch (\Exception $e) {
+                $ultimoPagamento = null;
+            }
+        @endphp
+
+        <div style="margin-top:18px;display:grid;grid-template-columns:1fr 320px;gap:18px;">
+            <div class="card">
+                <div class="card-header">Detalhes do Plano</div>
+                <div class="card-body">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div>
+                            <div class="muted">Data de Ativação</div>
+                            <div>{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Próxima Renovação / Término</div>
+                            <div>{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Ciclo (dias)</div>
+                            <div>{{ $plano->ciclo ?? '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Dias restantes</div>
+                            <div>{{ !is_null($diasRest) ? ($diasRest >= 0 ? $diasRest . ' dias' : abs($diasRest) . ' dias vencido') : '—' }}</div>
+                        </div>
+                        <div style="grid-column:1 / -1;">
+                            <div class="muted">Template</div>
+                            <div>{{ optional($plano->template)->name ?? ($plano->nome ?? '—') }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Cliente</div>
+                            <div>{{ $cliente ? $cliente->nome . ' — ' . ($cliente->contato ?? '') : '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Compensações registradas (cliente)</div>
+                            <div>{{ $compCount }}</div>
+                        </div>
+                        <div>
+                            <div class="muted">Último pagamento</div>
+                            <div>{{ $ultimoPagamento ? (\Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y') . ' — ' . number_format($ultimoPagamento->valor,2,',','.').' Kz') : '—' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Metadados</div>
+                <div class="card-body">
+                    <div class="muted">ID</div>
+                    <div>{{ $plano->id }}</div>
+                    <div class="muted" style="margin-top:8px;">Criado em</div>
+                    <div>{{ $plano->created_at ? \Carbon\Carbon::parse($plano->created_at)->format('d/m/Y H:i') : '—' }}</div>
+                    <div class="muted" style="margin-top:8px;">Última alteração</div>
+                    <div>{{ $plano->updated_at ? \Carbon\Carbon::parse($plano->updated_at)->format('d/m/Y H:i') : '—' }}</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal para compensar dias -->
         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
             <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
