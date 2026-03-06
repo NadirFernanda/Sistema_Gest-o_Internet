@@ -281,9 +281,9 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   max-width: 980px;
   margin: 0 auto;
   padding: 6px 12px;
-  text-align: center;
+  text-align: left;
 }
-.plan-summary .price-row { display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; }
+.plan-summary .price-row { display:flex; gap:12px; justify-content:flex-start; align-items:center; flex-wrap:wrap; }
 
 /* CTA grid: 3 columns × 2 rows, fill by column (column-first) */
 .cta-grid {
