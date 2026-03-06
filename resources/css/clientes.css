@@ -276,20 +276,28 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   white-space: nowrap;
 }
 
-/* Center the plan header (title + price) as a component */
+/* Plan header: two-column layout (left = text, right = price/badge) */
 .plan-summary {
   max-width: 980px;
   margin: 0 auto;
   padding: 6px 12px;
-  text-align: left;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
 }
-.plan-summary .price-row { display:flex; gap:12px; justify-content:flex-start; align-items:center; flex-wrap:wrap; }
-
-/* Ensure price/value and status are left-aligned and don't center on large fonts */
-.plan-summary .price-row > div { text-align: left; margin: 0; }
-.plan-summary .price-row > div:first-child { flex: 0 0 auto; }
+.plan-summary.two-column { align-items: center; }
+.plan-summary-left { flex: 1 1 60%; min-width: 220px; text-align: left; }
+.plan-summary-right { flex: 0 0 auto; display:flex; flex-direction:column; align-items:flex-end; gap:8px; min-width:140px; }
+.plan-summary .price-row { display:flex; gap:12px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
+.plan-summary .price-row > div { text-align: right; margin: 0; }
 .plan-summary .plan-status { text-align: left; margin-top: 8px; }
 .plan-summary .plan-status > div { text-align: left; }
+
+@media (max-width:700px) {
+  .plan-summary { flex-direction: column; align-items: flex-start; }
+  .plan-summary-right { align-self: flex-start; }
+}
 
 /* Make the overall plan-show card centered and constrain its children
    so the details card and CTA container align to the same central column */

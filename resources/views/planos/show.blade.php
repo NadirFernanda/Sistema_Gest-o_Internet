@@ -13,16 +13,20 @@
             $compCount = $cliente ? Compensacao::where('cliente_id', $cliente->id)->count() : 0;
         @endphp
 
-        <div class="plan-summary">
-            <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
-            <div class="price-row" style="margin-bottom:6px;">
-                <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
-                <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
+        <div class="plan-summary two-column">
+            <div class="plan-summary-left">
+                <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
+                <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
+                <div class="plan-status">
+                    <div style="color:#666;margin-bottom:6px;">Status:</div>
+                    <div style="font-weight:800;font-size:1.05rem;">{{ $plano->estado ?? '—' }}</div>
+                </div>
             </div>
-            <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
-            <div class="plan-status">
-                <div style="color:#666;margin-bottom:6px;">Status:</div>
-                <div style="font-weight:800;font-size:1.05rem;">{{ $plano->estado ?? '—' }}</div>
+            <div class="plan-summary-right">
+                <div class="price-row" style="margin-bottom:6px;">
+                    <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
+                    <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
+                </div>
             </div>
         </div>
 
