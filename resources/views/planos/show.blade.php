@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div style="max-width:980px;margin:18px auto;padding:8px 18px;background:#fff;border-radius:10px;">
+    <div class="plan-show-card">
         @php
             use App\Models\Cobranca;
             use App\Models\Compensacao;
@@ -9,19 +9,14 @@
             $compCount = $cliente ? Compensacao::where('cliente_id', $cliente->id)->count() : 0;
         @endphp
 
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:320px;">
-                <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-                    <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
-                    <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
-                </div>
-                <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
-
-                {{-- CTA buttons moved below 'Detalhes do Plano' --}}
+        <div class="plan-summary">
+            <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
+            <div class="price-row" style="margin-bottom:6px;">
+                <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
+                <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
             </div>
-
-            <div style="min-width:160px;text-align:right;">
+            <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
+            <div class="plan-status">
                 <div style="color:#666;margin-bottom:6px;">Status:</div>
                 <div style="font-weight:800;font-size:1.05rem;">{{ $plano->estado ?? '—' }}</div>
             </div>
@@ -53,7 +48,7 @@
             }
         @endphp
 
-        <div style="margin-top:18px;display:grid;grid-template-columns:1fr 320px;gap:18px;">
+        <div class="plan-show-grid" style="margin-top:18px;">
             <div class="card">
                 <div class="card-header">Detalhes do Plano</div>
                 <div class="card-body">
@@ -106,22 +101,21 @@
                 </div>
             </div>
         
-            <!-- CTA buttons: 2x3 grid placed in the left column so they align with Detalhes do Plano -->
-            <div style="grid-column:1 / 2; margin-top:18px;">
-                <!-- Inline forced grid to ensure immediate rendering: 3 columns, fill by column -->
-                <div class="cta-grid" style="display:grid;grid-template-columns:repeat(3,max-content);grid-template-rows:repeat(2,minmax(44px,auto));grid-auto-flow:column;gap:12px;justify-content:start;">
+            <!-- CTA buttons: centered under the left column -->
+            <div class="plan-actions-wrapper">
+                <div class="cta-grid">
                         <!-- Order set column-first so each column has 2 buttons: top then bottom -->
-                        <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="max-width:160px;">Histórico de Compensações</button>
-                        <a href="{{ route('planos.index') }}" class="btn btn-ghost" style="max-width:160px;">Voltar</a>
+                        <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                        <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
 
-                        <button id="compensar-dias-btn" class="btn btn-cta" style="max-width:160px;">Compensar Dias</button>
+                        <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
                         <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;">
                             @csrf
                             @method('DELETE')
-                            <button class="btn btn-secondary" type="submit" style="max-width:160px;">Apagar</button>
+                            <button class="btn btn-secondary" type="submit">Apagar</button>
                         </form>
-                        <button id="adicionar-janela-btn" class="btn btn-cta" style="max-width:160px;">Adicionar Janela</button>
-                        <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning" style="max-width:160px;">Editar</a>
+                        <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                        <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
                 </div>
             </div>
 

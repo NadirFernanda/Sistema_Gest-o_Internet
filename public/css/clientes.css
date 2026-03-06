@@ -270,6 +270,38 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
   border-radius: 12px;
   white-space: nowrap;
 }
+.plan-show-card {
+  max-width:980px;
+  margin:18px auto;
+  padding:20px;
+  background:#fff;
+  border-radius:10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  box-sizing:border-box;
+}
+
+.plan-summary { width:100%; }
+.plan-summary .price-row { display:flex; gap:12px; align-items:center; justify-content:center; }
+.plan-status { text-align:center; }
+
+.plan-show-grid { width:100%; display:grid; grid-template-columns:1fr 320px; gap:18px; align-items:start; box-sizing:border-box; }
+
+.plan-card .card-header, .card .card-header { font-weight:800; font-size:1.02rem; color:var(--gray-700); margin-bottom:8px; }
+.card { background: #fff; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.04); }
+.card .card-body { text-align:left; }
+
+/* Center CTAs under the left column and center them visually */
+.plan-actions-wrapper { grid-column:1 / 2; display:flex; justify-content:center; margin-top:18px; }
+.plan-actions-wrapper .cta-grid { justify-content:center; }
+
+@media (max-width:900px) {
+  .plan-show-grid { grid-template-columns:1fr; }
+  .plan-actions-wrapper { grid-column:1 / -1; }
+}
 .hero-ctas .btn-cta:hover { background: var(--yellow-600); }
 .hero-ctas .btn-cta:focus { outline: none; box-shadow: 0 0 0 4px rgba(154,86,0,0.08); }
 
