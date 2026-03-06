@@ -151,9 +151,12 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
   justify-content: center;
   border-radius: 8px;
   font-weight: 600;
-  /* reduce to a compact width so three columns fit comfortably */
-  max-width: 160px !important;
-  white-space: nowrap;
+  /* Force identical width/height for all CTA buttons */
+  box-sizing: border-box;
+  width: 220px !important;
+  height: 68px !important;
+  max-width: none !important;
+  white-space: normal;
 }
 .btn-cta { background: var(--yellow-500); color: var(--white); border: none; }
 .btn-cta:hover { background: var(--yellow-600); }

@@ -216,8 +216,11 @@
     border-radius: 8px !important;
     font-weight: 700 !important;
     white-space: nowrap !important;
-    max-width: 160px !important;
-    width: auto !important;
+    /* Force identical size for all CTA buttons to match design */
+    box-sizing: border-box !important;
+    width: 220px !important;
+    height: 68px !important;
+    max-width: none !important;
     background: #f7b500 !important;
     color: #ffffff !important;
     border: none !important;
