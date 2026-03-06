@@ -106,6 +106,21 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,0.5); display:none; align-items:center; justify-content:center; z-index:200; }
 .modal-overlay.active{ display:flex; }
 
+
+/* Restore primary button color and enforce compact sizing for CTA buttons */
+.btn-cta, .btn-primary, .cta-grid .btn, .busca-planos-btn, .modal .btn-confirm {
+  background: var(--yellow-500) !important;
+  color: var(--white) !important;
+  border: none !important;
+  box-shadow: 0 6px 18px rgba(224,161,1,0.12) !important;
+}
+.btn-cta:hover, .btn-primary:hover, .cta-grid .btn:hover, .busca-planos-btn:hover, .modal .btn-confirm:hover {
+  background: var(--yellow-600) !important;
+}
+
+/* Ensure CTA buttons stay compact on wide screens */
+.cta-grid .btn { width: auto; max-width: 220px; }
+
 /* Stack buttons vertically (full-width on container) */
 .stack-vertical{ display:flex; flex-direction:column; gap:12px; }
 .stack-vertical .btn{ width:100%; padding:12px 14px; border-radius:10px; box-sizing:border-box; }
@@ -115,24 +130,30 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 /* CTA grid: 2 rows x 3 columns, consistent button sizes */
 .cta-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* let columns size to the button content so the grid can fit 3 columns
+     even when the container is wide */
+  grid-template-columns: repeat(3, max-content);
   grid-template-rows: repeat(2, minmax(44px, auto));
   grid-auto-flow: column; /* fill top->bottom per column so each column has 2 buttons */
   gap: 12px;
   align-items: stretch;
+  justify-content: start;
+  width:100%; box-sizing:border-box;
 }
-.cta-grid{ width:100%; box-sizing:border-box; }
 .cta-grid .btn{ min-height:44px; }
-.cta-grid .btn, .cta-grid form { width:100%; }
+.cta-grid .btn, .cta-grid form { /* on wide screens keep compact buttons */
+  width: auto;
+}
 .cta-grid .btn {
-  width: 100%;
-  height: 100%;
   padding: 10px 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   font-weight: 600;
+  /* reduce to a compact width so three columns fit comfortably */
+  max-width: 220px;
+  white-space: nowrap;
 }
 .btn-cta { background: var(--yellow-500); color: var(--white); border: none; }
 .btn-cta:hover { background: var(--yellow-600); }
@@ -143,6 +164,7 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 /* Responsive: stack into single column on small screens */
 @media (max-width: 700px) {
   .cta-grid { grid-template-columns: 1fr; }
+  .cta-grid .btn, .cta-grid form { width:100%; max-width:none; }
 }
 
 @media (min-width:900px){
