@@ -118,15 +118,10 @@ class ClienteCompensacaoController extends Controller
             $currentNext = $hoje;
         }
 
-        // Regra de negócio (mesma de adicionarJanela):
-        // - Pagamento pontual: se hoje <= data de término atual, a compensação soma dias a partir
-        //   do último dia de término (currentNext).
-        // - Pagamento tardio: se hoje > data de término atual, a compensação soma dias a partir
-        //   de hoje (data de ativação/pagamento).
+        // Regra de negócio (compensação): a compensação deve ser contabilizada
+        // a partir da data em que termina a janela ($currentNext), independentemente
+        // da data de pagamento/hoje. Pagamentos seguem lógica distinta (data de pagamento).
         $base = $currentNext;
-        if ($hoje->gt($currentNext)) {
-            $base = $hoje;
-        }
 
         $anterior = $currentNext->toDateString();
         $diasComp = (int) $request->input('dias_compensados');
