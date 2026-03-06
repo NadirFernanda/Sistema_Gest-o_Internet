@@ -144,19 +144,19 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 .cta-grid .btn, .cta-grid form { /* on wide screens keep compact buttons */
   width: auto;
 }
-.cta-grid .btn {
-  padding: 10px 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-weight: 600;
-  /* Force identical width/height for all CTA buttons */
-  box-sizing: border-box;
+.plan-show-card .cta-grid .btn {
+  padding: 10px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  /* Force identical width/height for CTA buttons inside plan show */
+  box-sizing: border-box !important;
   width: 220px !important;
   height: 68px !important;
   max-width: none !important;
-  white-space: normal;
+  white-space: normal !important;
 }
 .btn-cta { background: var(--yellow-500); color: var(--white); border: none; }
 .btn-cta:hover { background: var(--yellow-600); }
