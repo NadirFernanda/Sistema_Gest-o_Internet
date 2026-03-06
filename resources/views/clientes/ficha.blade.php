@@ -1,59 +1,16 @@
 @extends('layouts.app')
 
-<div style="color:red;font-size:22px;text-align:center;">TESTE FICHA - PRODUÇÃO</div>
-
 @section('content')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
 @endpush
-<div class="container">
-    <style>
-        @media print { .no-print { display: none !important; } }
-        :root { --muted:#6b6b6b; --accent:#f7b500; --soft:#f6f7fb; }
-        body, .container, .ficha-cliente { font-family:'Segoe UI', 'Roboto', Arial, sans-serif; background:#f7f8fa; }
-        .ficha-header { max-width:980px; margin:28px auto 16px; text-align:center; }
-        .ficha-header .ficha-logo { display:block; margin:0 auto 10px; max-width:120px; height:auto; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
-        .ficha-cliente { max-width:980px; margin:24px auto; }
-        .section-title { font-weight:800; font-size:1.25rem; margin:18px 0 16px; color:#f7b500; letter-spacing:0.5px; }
-        .muted { color:var(--muted); font-size:0.97rem; }
-
-        /* Card and header */
-        .card { border:1px solid #e9ecef; border-radius:14px; overflow:hidden; background:#fff; box-shadow:0 2px 16px rgba(0,0,0,0.06); margin-bottom:22px; }
-        .card-header { background:#fffbe7; color:#f7b500; font-weight:800; font-size:1.08rem; padding:14px 20px; border-bottom:1px solid #f7b500; letter-spacing:0.5px; }
-        .card-body { padding:18px 22px; font-size:1.05rem; }
-
-        /* Tables: fixed layout, readable spacing and wrapping */
-        .table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; font-size:0.97rem; }
-        .table th, .table td { padding:10px 12px; border:1px solid #f0f0f0; vertical-align:middle; word-wrap:break-word; overflow-wrap:break-word; }
-        .table thead th { background:#fffbe7; font-weight:800; color:#f7b500; border-bottom:2px solid #f7b500; }
-        .table tbody tr td { background:#fff; }
-        .table tbody tr:nth-child(odd) td { background:#fcfcfd; }
-
-        /* Column helpers for better desktop widths */
-        .col-id { width:6%; }
-        .col-nome { width:28%; }
-        .col-modelo { width:16%; }
-        .col-serie { width:15%; }
-        .col-quant { width:8%; text-align:center; }
-        .col-morada { width:27%; }
-
-        /* Badges */
-        .badge-planos, .badge-cobrancas { display:inline-block; padding:4px 12px; border-radius:999px; font-size:0.95rem; color:#fff; background: #f7b500; font-weight:700; letter-spacing:0.2px; }
-        .badge-cobrancas.pago { background: #4caf50; color:#fff; }
-        .badge-cobrancas.pendente { background: #f7b500; color:#fff; }
-        .badge-cobrancas { background: #e0e0e0; color:#222; }
-
-        /* Modern row/col spacing */
-        .row { margin-bottom:18px; }
-        .card + .card { margin-top:18px; }
-        .card-body p { margin-bottom:10px; }
-    </style>
+<div class="clientes-container ficha-cliente">
     {{-- Compensação controls moved to plano detail view to avoid duplication --}}
 
     {{-- Cabeçalho da ficha com logotipo --}}
     <div class="ficha-header">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="ficha-logo">
-        <h2 style="margin-top:10px;font-weight:900;color:#222;letter-spacing:0.5px;">Ficha do Cliente</h2>
+        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logotipo" class="logo">
+        <h1 class="ficha-title">Ficha do Cliente</h1>
         <p class="mb-0 muted">Emitido: {{ now()->format('d/m/Y') }}</p>
     </div>
 
@@ -64,7 +21,7 @@
                 <div class="card">
                     <div class="card-header">Dados do Cliente</div>
                     <div class="card-body">
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;">
+                        <div class="ficha-grid">
                             <div><span class="muted">Nome / Razão social:</span><br><strong>{{ $cliente->nome }}</strong></div>
                             <div><span class="muted">BI / NIF:</span><br><strong>{{ $cliente->bi }}</strong></div>
                             <div><span class="muted">Contacto (WhatsApp):</span><br><strong>{{ $cliente->contato }}</strong></div>
@@ -80,12 +37,12 @@
                     </div>
                 </div>
         <div class="col-md-6">
-            <div class="card mb-3 shadow-sm" style="border-radius:12px;overflow:hidden;">
-                <div class="card-header" style="background:#fffbe7;color:#f7b500;font-weight:700;font-size:1.08rem;letter-spacing:0.5px;">Equipamentos Associados</div>
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header">Equipamentos Associados</div>
                 <div class="card-body p-0">
                     @if((isset($cliente->equipamentos) && $cliente->equipamentos->count()) || (isset($cliente->clienteEquipamentos) && $cliente->clienteEquipamentos->count()))
-                    <div class="table-responsive">
-                        <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;table-layout:fixed;">
+                    <div class="table-responsive ficha-equip-table">
+                        <table class="tabela-estoque-moderna table">
                             <colgroup>
                                 <col style="width:16%">
                                 <col style="width:28%">
@@ -96,24 +53,24 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Marca</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Descrição</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Modelo</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Nº Série</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Qtd</th>
-                                    <th style="text-align:center;vertical-align:middle;background:#fffbe7;color:#f7b500;font-weight:700;border-bottom:2px solid #f7b500;font-size:0.98rem;padding:8px 4px;">Ações</th>
+                                    <th class="text-center">Marca</th>
+                                    <th class="text-center">Descrição</th>
+                                    <th class="text-center">Modelo</th>
+                                    <th class="text-center">Nº Série</th>
+                                    <th class="text-center">Qtd</th>
+                                    <th class="text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($cliente->clienteEquipamentos ?? [] as $vinc)
                                     @php $est = $vinc->equipamento; @endphp
-                                    <tr style="background:{{ $loop->odd ? '#fcfcfd' : '#fff' }};">
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->nome ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->descricao ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->modelo ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $est->numero_serie ?? '-' }}</td>
-                                        <td style="text-align:center;vertical-align:middle;">{{ $vinc->quantidade ?? '1' }}</td>
-                                        <td style="white-space:nowrap;text-align:center;vertical-align:middle;">
+                                    <tr class="{{ $loop->odd ? 'odd-row' : 'even-row' }}">
+                                        <td class="text-center">{{ $est->nome ?? '-' }}</td>
+                                        <td class="text-center">{{ $est->descricao ?? '-' }}</td>
+                                        <td class="text-center">{{ $est->modelo ?? '-' }}</td>
+                                        <td class="text-center">{{ $est->numero_serie ?? '-' }}</td>
+                                        <td class="text-center">{{ $vinc->quantidade ?? '1' }}</td>
+                                        <td class="text-center nowrap">
                                             <a href="{{ route('cliente_equipamento.edit', [$cliente->id, $vinc->id]) }}" class="btn-icon btn-warning" title="Editar" aria-label="Editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                                             </a>
@@ -139,7 +96,7 @@
                 <div class="card-header">Planos Contratados</div>
                 <div class="card-body p-3">
                     @if(isset($cliente->planos) && $cliente->planos->count())
-                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                        <div id="planosLista" class="plan-grid">
                             @foreach($cliente->planos as $pl)
                                 @php
                                     try {
@@ -170,52 +127,50 @@
                                         if ($percent < 0) $percent = 0; if ($percent > 100) $percent = 100;
                                     }
                                 @endphp
-                                <div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #f0f0f0;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                                <div class="plan-card">
+                                    <div class="plan-meta">
                                         <div>
-                                            <div style="font-weight:800;font-size:1rem;color:#222;">{{ $pl->nome ?? 'Plano #' . $pl->id }}</div>
-                                            <div class="muted" style="font-size:0.92rem;margin-top:4px;">ID: {{ $pl->id }} • Estado: <span style="font-weight:700;color:#f7b500;">{{ $estado }}</span></div>
+                                            <div class="plan-title">{{ $pl->nome ?? 'Plano #' . $pl->id }}</div>
+                                            <div class="muted small" style="margin-top:4px;">ID: {{ $pl->id }} • Estado: <span class="chip chip--accent">{{ $estado }}</span></div>
                                         </div>
                                         <div style="text-align:right;min-width:120px;">
-                                            <div style="font-weight:700;color:#222;">{{ $preco }}</div>
+                                            <div class="plan-price">{{ $preco }}</div>
                                             <div class="muted" style="font-size:0.86rem;">Ciclo: {{ $cicloShown }}</div>
                                         </div>
                                     </div>
 
-                                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;">
+                                    <div class="plan-dates">
                                         <div>
                                             <div class="muted">Data Ativação</div>
-                                            <div style="font-weight:700;color:#333;">{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</div>
+                                            <div class="plan-date">{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</div>
                                         </div>
                                         <div>
                                             <div class="muted">Próxima Renovação / Término</div>
-                                            <div style="font-weight:700;color:#333;">{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</div>
+                                            <div class="plan-date">{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</div>
                                         </div>
                                     </div>
 
-                                    <div style="margin-top:12px;">
-                                        <div style="height:12px;background:#f1f3f6;border-radius:999px;overflow:hidden;">
-                                            <div style="height:100%;width:{{ $percent }}%;background:linear-gradient(90deg,#f7b500,#ffa726);box-shadow:inset 0 -2px 4px rgba(0,0,0,0.06);"></div>
-                                        </div>
-                                        <div class="muted" style="font-size:0.85rem;margin-top:6px;">{{ $totalCiclo ? $percent . '% do ciclo decorrido' : 'Progresso indisponível' }} @if(!is_null($diasRest)) • {{ $diasRest >= 0 ? $diasRest . ' dias restantes' : abs($diasRest) . ' dias vencido' }} @endif</div>
+                                    <div class="plan-progress">
+                                        <div class="progress"><div class="progress-bar" style="width:{{ $percent }}%"></div></div>
+                                        <div class="muted small">{{ $totalCiclo ? $percent . '% do ciclo decorrido' : 'Progresso indisponível' }} @if(!is_null($diasRest)) • {{ $diasRest >= 0 ? $diasRest . ' dias restantes' : abs($diasRest) . ' dias vencido' }} @endif</div>
                                     </div>
 
-                                    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                                        <a href="{{ route('clientes.show', $cliente->id) }}?plano={{ $pl->id }}" class="btn btn-sm btn-ghost" style="background:#fff;border:1px solid #e6e6e6;color:#333;padding:8px 10px;border-radius:8px;">Ver Detalhes</a>
+                                    <div class="plan-actions">
+                                        <a href="{{ route('clientes.show', $cliente->id) }}?plano={{ $pl->id }}" class="btn btn-sm btn-ghost">Ver Detalhes</a>
                                         <form method="POST" action="{{ route('clientes.adicionar_janela', $cliente->id) }}" style="display:inline-block;">
                                             @csrf
                                             <input type="hidden" name="plano_id" value="{{ $pl->id }}">
-                                            <button type="submit" class="btn btn-sm" style="background:#f7b500;color:#111;border-radius:8px;padding:8px 10px;border:0;font-weight:700;">Adicionar Janela</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">Adicionar Janela</button>
                                         </form>
-                                        <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='flex'" class="btn btn-sm btn-outline" style="padding:8px 10px;border-radius:8px;border:1px solid #e6e6e6;background:#fff;">Compensar Dias</button>
+                                        <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.add('active')" class="btn btn-sm btn-ghost">Compensar Dias</button>
                                     </div>
 
                                     {{-- Modal mínimo por plano (apenas se necessário) --}}
-                                    <div id="compensar-dias-plano-{{ $pl->id }}" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999;">
-                                        <div style="background:#fff;padding:18px;border-radius:10px;min-width:320px;max-width:520px;">
+                                    <div id="compensar-dias-plano-{{ $pl->id }}" class="modal-overlay" aria-hidden="true">
+                                        <div class="modal">
                                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                                                 <strong>Compensar dias — {{ $pl->nome ?? 'Plano' }}</strong>
-                                                <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='none'" class="btn btn-ghost">×</button>
+                                                <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.remove('active')" class="btn btn-ghost">×</button>
                                             </div>
                                             <form method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
                                                 @csrf
@@ -223,8 +178,8 @@
                                                 <label class="muted">Dias a compensar</label>
                                                 <input name="dias_compensados" id="dias_compensados" type="number" min="1" max="90" class="form-control" style="margin-top:6px;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;">
                                                 <div style="display:flex;gap:8px;justify-content:flex-end;">
-                                                    <button type="button" onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='none'" class="btn btn-ghost">Cancelar</button>
-                                                    <button type="submit" class="btn" style="background:#f7b500;color:#111;font-weight:700;border-radius:8px;padding:8px 12px;">Confirmar</button>
+                                                    <button type="button" onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.remove('active')" class="btn btn-ghost">Cancelar</button>
+                                                    <button type="submit" class="btn btn-cta">Confirmar</button>
                                                 </div>
                                             </form>
                                         </div>

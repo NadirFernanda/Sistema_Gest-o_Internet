@@ -532,4 +532,38 @@ clientes-lista-moderna .btn-icon:hover {
   .toolbar-flex .btn-search, .clientes-toolbar .busca-planos-btn, .planos-toolbar .btn-search { width:100%; max-width:none; flex: 0 0 auto; }
 }
 
+/* Ficha-specific grid for client basic data */
+.ficha-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+@media (max-width: 800px) {
+  .ficha-grid { grid-template-columns: 1fr; }
+}
+
+/* Plan card details (used on client detail view) */
+.plan-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+.plan-card { background:#fff; border-radius:12px; padding:14px; border:1px solid #f0f0f0; box-shadow:0 4px 12px rgba(0,0,0,0.04); display:flex; flex-direction:column; gap:12px; }
+.plan-title { font-weight:800; font-size:1rem; color:var(--gray-900); }
+.plan-meta { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.plan-price { font-weight:700; color:var(--gray-900); }
+.plan-dates { display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:end; }
+.plan-date { font-weight:700; color:#333; }
+.plan-progress .muted.small { margin-top:6px; font-size:0.85rem; }
+.progress { height:12px; background:#f1f3f6; border-radius:999px; overflow:hidden; }
+.progress-bar { height:100%; background:linear-gradient(90deg,var(--yellow-500),#ffa726); box-shadow:inset 0 -2px 4px rgba(0,0,0,0.06); width:0%; transition:width 400ms ease; }
+.plan-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+
+/* Utility classes used in template */
+.text-center{ text-align:center !important; }
+.nowrap{ white-space:nowrap; }
+.small{ font-size:0.85rem; }
+
+/* modal overlay: toggle via .active */
+.modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; }
+.modal-overlay.active{ display:flex; }
+
+
 
