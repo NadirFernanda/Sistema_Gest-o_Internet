@@ -298,10 +298,14 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   margin: 0 auto;
   padding-left: 16px;
   padding-right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .plan-show-grid {
   margin-top: 18px;
+  width: 100%;
   display: flex;
   justify-content: center; /* center the details card horizontally */
 }
@@ -319,6 +323,13 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   padding-left: 16px;
   padding-right: 16px;
 }
+
+/* Ensure details card inner grid items align top and are left-aligned for readability */
+.plan-show-grid .card .card-body > div { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.plan-show-grid .card .card-body .muted { color: #7a7a7a; }
+
+/* Ensure CTA grid width matches card width and is centered */
+.plan-actions-wrapper .cta-grid { max-width: 720px; width: 100%; }
 
 /* CTA grid: 3 columns × 2 rows, fill by column (column-first) */
 .cta-grid {
