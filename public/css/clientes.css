@@ -116,7 +116,8 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 .cta-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(48px, auto);
+  grid-template-rows: repeat(2, minmax(44px, auto));
+  grid-auto-flow: column; /* fill top->bottom per column so each column has 2 buttons */
   gap: 12px;
   align-items: stretch;
 }

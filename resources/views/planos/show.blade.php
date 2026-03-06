@@ -109,17 +109,19 @@
             <!-- CTA buttons: 2x3 grid placed in the left column so they align with Detalhes do Plano -->
             <div style="grid-column:1 / 2; margin-top:18px;">
                 <div class="cta-grid">
-                    <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
-                    <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
-                    <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                        <!-- Order set column-first so each column has 2 buttons: top then bottom -->
+                        <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                        <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
 
-                    <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
-                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-secondary" type="submit">Apagar</button>
-                    </form>
-                    <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
+                        <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                        <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-secondary" type="submit">Apagar</button>
+                        </form>
+
+                        <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                        <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
                 </div>
             </div>
 
