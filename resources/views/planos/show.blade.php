@@ -93,17 +93,7 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">Metadados</div>
-                <div class="card-body">
-                    <div class="muted">ID</div>
-                    <div>{{ $plano->id }}</div>
-                    <div class="muted" style="margin-top:8px;">Criado em</div>
-                    <div>{{ $plano->created_at ? \Carbon\Carbon::parse($plano->created_at)->format('d/m/Y H:i') : '—' }}</div>
-                    <div class="muted" style="margin-top:8px;">Última alteração</div>
-                    <div>{{ $plano->updated_at ? \Carbon\Carbon::parse($plano->updated_at)->format('d/m/Y H:i') : '—' }}</div>
-                </div>
-            </div>
+            <!-- Metadados removidos a pedido do usuário -->
         
             <!-- CTA buttons: centered under the left column -->
             <div class="plan-actions-wrapper">
