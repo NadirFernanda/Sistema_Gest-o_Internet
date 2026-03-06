@@ -291,6 +291,35 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 .plan-summary .plan-status { text-align: left; margin-top: 8px; }
 .plan-summary .plan-status > div { text-align: left; }
 
+/* Make the overall plan-show card centered and constrain its children
+   so the details card and CTA container align to the same central column */
+.plan-show-card {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.plan-show-grid {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center; /* center the details card horizontally */
+}
+.plan-show-grid .card {
+  width: 100%;
+  max-width: 720px; /* card width inside the centered column */
+  margin: 0 auto;
+}
+
+.plan-actions-wrapper {
+  max-width: 980px;
+  margin: 20px auto 0;
+  display: flex;
+  justify-content: center; /* center the CTA grid under the main card */
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
 /* CTA grid: 3 columns × 2 rows, fill by column (column-first) */
 .cta-grid {
   display: grid;
