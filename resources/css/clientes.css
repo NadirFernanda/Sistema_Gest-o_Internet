@@ -285,6 +285,12 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 }
 .plan-summary .price-row { display:flex; gap:12px; justify-content:flex-start; align-items:center; flex-wrap:wrap; }
 
+/* Ensure price/value and status are left-aligned and don't center on large fonts */
+.plan-summary .price-row > div { text-align: left; margin: 0; }
+.plan-summary .price-row > div:first-child { flex: 0 0 auto; }
+.plan-summary .plan-status { text-align: left; margin-top: 8px; }
+.plan-summary .plan-status > div { text-align: left; }
+
 /* CTA grid: 3 columns × 2 rows, fill by column (column-first) */
 .cta-grid {
   display: grid;
