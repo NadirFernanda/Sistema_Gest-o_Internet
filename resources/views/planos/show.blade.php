@@ -105,24 +105,23 @@
                     <div>{{ $plano->updated_at ? \Carbon\Carbon::parse($plano->updated_at)->format('d/m/Y H:i') : '—' }}</div>
                 </div>
             </div>
-        </div>
+        
+            <!-- CTA buttons: 2x3 grid placed in the left column so they align with Detalhes do Plano -->
+            <div style="grid-column:1 / 2; margin-top:18px;">
+                <div class="cta-grid">
+                    <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                    <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                    <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
 
-        <!-- CTA buttons: 2x3 grid placed AFTER Detalhes do Plano as requested -->
-        <div style="max-width:880px;margin:18px auto 0;">
-            <div class="cta-grid">
-                <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
-                <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
-                <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
-
-                <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
-                <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-secondary" type="submit">Apagar</button>
-                </form>
-                <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
+                    <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
+                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-secondary" type="submit">Apagar</button>
+                    </form>
+                    <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
+                </div>
             </div>
-        </div>
 
         <!-- Modal para compensar dias -->
         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
