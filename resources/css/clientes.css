@@ -323,6 +323,22 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   margin: 0 auto;
 }
 
+/* When plan header is inside the details card, make it span full card width and align content */
+.plan-show-grid .card .card-body .plan-summary.in-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 14px;
+}
+.plan-show-grid .card .card-body .plan-summary.in-card .plan-summary-left { text-align: left; flex:1 1 auto; }
+.plan-show-grid .card .card-body .plan-summary.in-card .plan-summary-right { flex:0 0 auto; display:flex; align-items:center; }
+@media (max-width:700px) {
+  .plan-show-grid .card .card-body .plan-summary.in-card { flex-direction:column; align-items:flex-start; }
+  .plan-show-grid .card .card-body .plan-summary.in-card .plan-summary-right { align-self:flex-start; margin-top:8px; }
+}
+
 .plan-actions-wrapper {
   max-width: 980px;
   margin: 20px auto 0;
