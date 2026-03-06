@@ -137,30 +137,101 @@
             </div>
             <div class="card mb-3">
                 <div class="card-header">Planos Contratados</div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
                     @if(isset($cliente->planos) && $cliente->planos->count())
-                        <table class="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Nº</th>
-                                    <th>Nome do Plano</th>
-                                    <th>Data Ativação</th>
-                                    <th>Ciclo (dias)</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($cliente->planos as $pl)
-                                    <tr>
-                                        <td>{{ $pl->id }}</td>
-                                        <td>{{ $pl->nome ?? '-' }}</td>
-                                        <td>{{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : 'Sem data' }}</td>
-                                        <td>{{ $pl->ciclo ?? '-' }}</td>
-                                        <td><span class="badge-planos">{{ $pl->estado ?? '-' }}</span></td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                            @foreach($cliente->planos as $pl)
+                                @php
+                                    try {
+                                        $dataAtiv = !empty($pl->data_ativacao) ? \Carbon\Carbon::parse($pl->data_ativacao)->startOfDay() : null;
+                                        if (!empty($pl->proxima_renovacao)) {
+                                            $dataTerm = \Carbon\Carbon::parse($pl->proxima_renovacao)->startOfDay();
+                                        } elseif ($dataAtiv && $pl->ciclo) {
+                                            $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$pl->ciclo));
+                                            if ($cicloInt <= 0) { $cicloInt = (int)$pl->ciclo; }
+                                            $dataTerm = $dataAtiv->copy()->addDays($cicloInt - 1)->startOfDay();
+                                        } else {
+                                            $dataTerm = null;
+                                        }
+                                    } catch (\Exception $e) {
+                                        $dataTerm = null;
+                                    }
+                                    $hoje = \Carbon\Carbon::today();
+                                    $cicloShown = $pl->ciclo ?? '-';
+                                    $preco = isset($pl->preco) ? number_format($pl->preco,2,',','.') . ' Kz' : '-';
+                                    $estado = $pl->estado ?? '-';
+                                    $diasRest = $dataTerm ? $hoje->diffInDays($dataTerm, false) : null;
+                                    $totalCiclo = null;
+                                    $percent = 0;
+                                    if ($dataAtiv && $dataTerm) {
+                                        $totalCiclo = max(1, $dataAtiv->diffInDays($dataTerm) + 1);
+                                        $passed = max(0, min($totalCiclo, $hoje->diffInDays($dataAtiv)) );
+                                        $percent = (int) floor(($passed / $totalCiclo) * 100);
+                                        if ($percent < 0) $percent = 0; if ($percent > 100) $percent = 100;
+                                    }
+                                @endphp
+                                <div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #f0f0f0;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                                        <div>
+                                            <div style="font-weight:800;font-size:1rem;color:#222;">{{ $pl->nome ?? 'Plano #' . $pl->id }}</div>
+                                            <div class="muted" style="font-size:0.92rem;margin-top:4px;">ID: {{ $pl->id }} • Estado: <span style="font-weight:700;color:#f7b500;">{{ $estado }}</span></div>
+                                        </div>
+                                        <div style="text-align:right;min-width:120px;">
+                                            <div style="font-weight:700;color:#222;">{{ $preco }}</div>
+                                            <div class="muted" style="font-size:0.86rem;">Ciclo: {{ $cicloShown }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;">
+                                        <div>
+                                            <div class="muted">Data Ativação</div>
+                                            <div style="font-weight:700;color:#333;">{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</div>
+                                        </div>
+                                        <div>
+                                            <div class="muted">Próxima Renovação / Término</div>
+                                            <div style="font-weight:700;color:#333;">{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top:12px;">
+                                        <div style="height:12px;background:#f1f3f6;border-radius:999px;overflow:hidden;">
+                                            <div style="height:100%;width:{{ $percent }}%;background:linear-gradient(90deg,#f7b500,#ffa726);box-shadow:inset 0 -2px 4px rgba(0,0,0,0.06);"></div>
+                                        </div>
+                                        <div class="muted" style="font-size:0.85rem;margin-top:6px;">{{ $totalCiclo ? $percent . '% do ciclo decorrido' : 'Progresso indisponível' }} @if(!is_null($diasRest)) • {{ $diasRest >= 0 ? $diasRest . ' dias restantes' : abs($diasRest) . ' dias vencido' }} @endif</div>
+                                    </div>
+
+                                    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                                        <a href="{{ route('clientes.show', $cliente->id) }}?plano={{ $pl->id }}" class="btn btn-sm btn-ghost" style="background:#fff;border:1px solid #e6e6e6;color:#333;padding:8px 10px;border-radius:8px;">Ver Detalhes</a>
+                                        <form method="POST" action="{{ route('clientes.adicionar_janela', $cliente->id) }}" style="display:inline-block;">
+                                            @csrf
+                                            <input type="hidden" name="plano_id" value="{{ $pl->id }}">
+                                            <button type="submit" class="btn btn-sm" style="background:#f7b500;color:#111;border-radius:8px;padding:8px 10px;border:0;font-weight:700;">Adicionar Janela</button>
+                                        </form>
+                                        <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='flex'" class="btn btn-sm btn-outline" style="padding:8px 10px;border-radius:8px;border:1px solid #e6e6e6;background:#fff;">Compensar Dias</button>
+                                    </div>
+
+                                    {{-- Modal mínimo por plano (apenas se necessário) --}}
+                                    <div id="compensar-dias-plano-{{ $pl->id }}" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999;">
+                                        <div style="background:#fff;padding:18px;border-radius:10px;min-width:320px;max-width:520px;">
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                                <strong>Compensar dias — {{ $pl->nome ?? 'Plano' }}</strong>
+                                                <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='none'" class="btn btn-ghost">×</button>
+                                            </div>
+                                            <form method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="plano_id" value="{{ $pl->id }}">
+                                                <label class="muted">Dias a compensar</label>
+                                                <input name="dias_compensados" id="dias_compensados" type="number" min="1" max="90" class="form-control" style="margin-top:6px;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                                                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                                                    <button type="button" onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').style.display='none'" class="btn btn-ghost">Cancelar</button>
+                                                    <button type="submit" class="btn" style="background:#f7b500;color:#111;font-weight:700;border-radius:8px;padding:8px 12px;">Confirmar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     @else
                         <p class="p-3 mb-0">Nenhum plano contratado.</p>
                     @endif
