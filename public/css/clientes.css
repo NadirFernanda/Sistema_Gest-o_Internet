@@ -105,6 +105,17 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
 /* Modal confirmation for deletions */
 .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,0.5); display:none; align-items:center; justify-content:center; z-index:200; }
 .modal-overlay.active{ display:flex; }
+
+/* Stack buttons vertically (full-width on container) */
+.stack-vertical{ display:flex; flex-direction:column; gap:12px; }
+.stack-vertical .btn{ width:100%; padding:12px 14px; border-radius:10px; box-sizing:border-box; }
+.plano-top-actions.stack-vertical .btn{ padding:14px 16px; }
+.stack-vertical .btn + form, .stack-vertical form + .btn{ margin-top:0; }
+
+@media (min-width:900px){
+  /* Keep buttons visually balanced on wide screens: limit max-width for CTA blocks */
+  .stack-vertical { max-width: 420px; }
+}
 .modal{ background:var(--white); border-radius:12px; padding:18px; max-width:520px; width:100%; box-shadow:0 20px 50px rgba(15,23,42,0.25); border:1px solid var(--gray-200); }
 .modal h3{ margin:0 0 8px 0; color:var(--gray-900); }
 .modal p{ margin:0 0 12px 0; color:var(--gray-700); }

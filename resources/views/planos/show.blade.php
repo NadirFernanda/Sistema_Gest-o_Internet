@@ -18,22 +18,20 @@
                 </div>
                 <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
 
-                <div class="plano-top-actions" style="display:flex;gap:12px;align-items:stretch;">
-                    <a href="{{ route('planos.edit', $plano->id) }}" class="plano-top-btn btn btn-warning" style="flex:1;text-align:center;padding:14px 0;border-radius:10px;">Editar</a>
-                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="display:inline-block;">
+                <div class="plano-top-actions stack-vertical">
+                    <a href="{{ route('planos.edit', $plano->id) }}" class="plano-top-btn btn btn-warning">Editar</a>
+                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');">
                         @csrf
                         @method('DELETE')
-                        <button class="plano-top-btn btn btn-warning" style="padding:14px 18px;border-radius:10px;margin-left:6px;">Apagar</button>
+                        <button class="plano-top-btn btn btn-warning">Apagar</button>
                     </form>
-                    <a href="{{ route('planos.index') }}" class="plano-top-btn btn btn-warning" style="flex:1;text-align:center;padding:14px 0;border-radius:10px;">Voltar</a>
+                    <a href="{{ route('planos.index') }}" class="plano-top-btn btn btn-warning">Voltar</a>
                 </div>
 
-                <div style="margin-top:18px;background:#fff6df;padding:14px;border-radius:10px;">
-                    <div style="display:flex;gap:12px;">
-                        <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Histórico de Compensações</button>
-                        <button id="compensar-dias-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Compensar Dias</button>
-                        <button id="adicionar-janela-btn" class="btn btn-cta" style="flex:1;padding:12px 0;border-radius:10px;font-weight:700;background:#f7b500;color:#fff;border:none;">Adicionar Janela</button>
-                    </div>
+                <div class="stack-vertical" style="margin-top:18px;background:#fff6df;padding:14px;border-radius:10px;">
+                    <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                    <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                    <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
                 </div>
             </div>
 
