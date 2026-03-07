@@ -9,6 +9,8 @@
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/css/app.css','resources/js/app.js'])
     @endif
+    {{-- Preload primeira imagem do carrossel para eliminar atraso de LCP --}}
+    <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
     <style>
       /* Ensure header inner uses the same centered container width as other sections */
       .store-header-inner{ display:flex !important; justify-content:space-between !important; padding-left:var(--page-gutter,1rem) !important; padding-right:var(--page-gutter,1rem) !important; margin:0 auto !important; max-width:var(--page-max-width,1100px) !important; width:100% !important; box-sizing:border-box !important; }

@@ -218,9 +218,9 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 45%);
   z-index: 1;
 }
-.carousel-slide.hero-1 { background-image: url('/img/carrossel1.jpg'); }
-.carousel-slide.hero-2 { background-image: url('/img/carrossel2.jpg'); }
-.carousel-slide.hero-3 { background-image: url('/img/carrossel3.jpg'); }
+.carousel-slide.hero-1 { background-image: image-set(url('/img/carrossel1.webp') type('image/webp'), url('/img/carrossel1.jpg') type('image/jpeg')); }
+.carousel-slide.hero-2 { background-image: image-set(url('/img/carrossel2.webp') type('image/webp'), url('/img/carrossel2.jpg') type('image/jpeg')); }
+.carousel-slide.hero-3 { background-image: image-set(url('/img/carrossel3.webp') type('image/webp'), url('/img/carrossel3.jpg') type('image/jpeg')); }
 .carousel-slide.active { z-index: 2; }
 /* Setas minimalistas — finas e discretas */
 .carousel-arrow {
@@ -254,21 +254,22 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 .carousel-arrow.right { right: 20px; }
 /* Sem indicadores / bolinhas */
 .carousel-indicators { display: none; }
-/* Card de conteúdo — alinhado à esquerda, sem caixa */
+/* Card de conteúdo — alinhado à esquerda, vidro fosco */
 .slide-card {
   position: relative;
   z-index: 3;
-  max-width: 520px;
+  max-width: 480px;
   width: 100%;
   margin-left: clamp(1.5rem, 6vw, 5rem);
-  padding: 0;
-  background: transparent;
-  backdrop-filter: none;
-  border-radius: 0;
+  padding: 2rem 2rem 1.8rem 2rem;
+  background: rgba(0,0,0,0.42);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 1rem;
   color: white;
   text-align: left;
-  box-shadow: none;
-  border: none;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
 }
 .slide-card::before {
   content: "";
