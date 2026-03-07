@@ -3,6 +3,23 @@
 @section('content')
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+        <style>
+            /* Centraliza o card e os botões; mantém o conteúdo do card alinhado à esquerda */
+            .plan-show-card { display:block; }
+            .plan-show-grid { display:flex; flex-direction:column; align-items:center; gap:18px; margin-top:18px; }
+            .plan-show-card .card { margin: 0; max-width:980px; width:100%; }
+            .plan-show-card .card .card-body { text-align: left; }
+            .plan-show-card .plan-summary.two-column.in-card { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+            .plan-show-card .plan-summary-left,
+            .plan-show-card .plan-summary-right { text-align: left; }
+            .plan-actions-wrapper { width:100%; display:flex; justify-content:center; }
+            .plan-actions-wrapper .cta-grid { justify-content:center; display:flex; gap:12px; flex-wrap:wrap; max-width:980px; }
+            @media (max-width:760px) {
+                .plan-show-card .plan-summary.two-column.in-card { flex-direction:column; align-items:flex-start; }
+                .plan-show-card .price-row { width:100%; display:flex; justify-content:flex-start; gap:12px; }
+                .plan-actions-wrapper .cta-grid { padding:0 12px; box-sizing:border-box; }
+            }
+        </style>
     @endpush
 
     <div class="plan-show-card">
