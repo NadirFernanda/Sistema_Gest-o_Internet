@@ -64,20 +64,30 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 }
 
 /* --- Modern Carousel with Background Images and Overlay --- */
-.hero-carousel { position: relative; overflow: hidden; border-radius: 1.5rem; box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07); min-height: 340px; }
+/* Corrigido: Remover fundo branco extra e garantir overlay */
+.hero-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+  min-height: 340px;
+  background: transparent !important;
+}
 .carousel-track { display: flex; transition: transform 0.7s cubic-bezier(.77,0,.18,1); }
+/* Corrigido: slide centralizado, sem overlay branco */
 .carousel-slide {
   min-width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.7s cubic-bezier(.77,0,.18,1), filter 0.7s cubic-bezier(.77,0,.18,1), transform 0.7s cubic-bezier(.77,0,.18,1);
-  opacity: 0.7;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   min-height: 340px;
-  filter: grayscale(0.15) brightness(0.95);
+  opacity: 1;
+  filter: none;
+  transition: transform 0.6s cubic-bezier(.77,0,.18,1);
 }
 .carousel-slide.hero-1 { background-image: linear-gradient(rgba(20,23,39,0.55),rgba(20,23,39,0.55)), url('/img/carrossel1.jpg'); }
 .carousel-slide.hero-2 { background-image: linear-gradient(rgba(20,23,39,0.55),rgba(20,23,39,0.55)), url('/img/carrossel2.jpg'); }
@@ -135,28 +145,47 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   90% { opacity: 0.7; }
   100% { opacity: 0.1; }
 }
+/* Corrigido: Card menor, centralizado, sem excesso de padding/margem */
 .slide-card {
-  background: rgba(255,255,255,0.10);
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.07);
-  border-radius: 1.2rem;
-  padding: 2.5rem 2.2rem;
-  max-width: 480px;
-  width: 95%;
+  position: relative;
+  z-index: 2;
+  max-width: 340px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.2rem 1rem 1.5rem 1rem;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(7px);
+  border-radius: 18px;
   color: #fff;
   text-align: center;
-  pointer-events: auto;
-  backdrop-filter: blur(2.5px);
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.07);
   border: 1.5px solid rgba(255,255,255,0.18);
-  transition: box-shadow 0.2s;
 }
-.slide-card h1 { font-size: 2.1rem; font-weight: 800; margin-bottom: 1.1rem; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
-.slide-card p { font-size: 1.15rem; font-weight: 400; margin-bottom: 1.5rem; color: #e0e7ef; }
-.slide-card .btn-primary { font-size: 1.08rem; font-weight: 700; padding: 0.7rem 1.5rem; border-radius: 0.7rem; margin: 0 0.3rem; }
+.slide-card h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.7rem;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.slide-card p {
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 1.1rem;
+  color: #e0e7ef;
+}
+.slide-card .btn-primary {
+  font-size: 1.08rem;
+  font-weight: 700;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.7rem;
+  margin: 0 0.3rem;
+}
 @media (max-width: 700px) {
-  .hero-carousel, .carousel-slide { min-height: 220px; }
-  .slide-card { padding: 1.2rem 0.5rem; }
-  .slide-card h1 { font-size: 1.2rem; }
-  .slide-card p { font-size: 0.98rem; }
+  .hero-carousel, .carousel-slide { min-height: 180px; }
+  .slide-card { max-width: 96vw; padding: 0.7rem 0.2rem 1rem 0.2rem; }
+  .slide-card h1 { font-size: 1rem; }
+  .slide-card p { font-size: 0.92rem; }
 }
 
 /* --- Botões padrão amarelos para toda a loja --- */
