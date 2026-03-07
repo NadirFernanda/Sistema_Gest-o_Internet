@@ -63,6 +63,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		goTo(0);
 		start();
+
+		// Carousel arrow navigation
+		const leftArrow = carousel.querySelector('.carousel-arrow.left');
+		const rightArrow = carousel.querySelector('.carousel-arrow.right');
+		if (leftArrow && rightArrow) {
+			leftArrow.addEventListener('click', () => { prevSlide(); restart(); });
+			rightArrow.addEventListener('click', () => { nextSlide(); restart(); });
+			// Keyboard accessibility
+			[leftArrow, rightArrow].forEach(btn => {
+				btn.addEventListener('keydown', e => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						btn.click();
+					}
+				});
+			});
+		}
+		// Mark active slide for fade effect
+		function updateActiveSlide() {
+			slides.forEach((slide, i) => {
+				slide.classList.toggle('active', i === index);
+			});
+		}
+		const originalGoTo = goTo;
+		goTo = function(i) {
+			originalGoTo(i);
+			updateActiveSlide();
+		};
+		updateActiveSlide();
 	}
 
 	// Load family & business plans

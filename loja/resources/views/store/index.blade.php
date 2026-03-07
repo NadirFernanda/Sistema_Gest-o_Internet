@@ -5,6 +5,8 @@
   <section class="mb-8">
     <div class="container">
       <div class="hero-carousel" aria-roledescription="carousel">
+        <button class="carousel-arrow left" aria-label="Anterior" tabindex="0">&#8592;</button>
+        <button class="carousel-arrow right" aria-label="Próximo" tabindex="0">&#8594;</button>
         <div class="carousel-track">
           <div class="carousel-slide hero-1"></div>
 
@@ -65,26 +67,34 @@
 
       <div class="plans-grid" aria-live="polite">
         @forelse ($individualPlans as $plan)
-          <div class="plan-card plan-card--individual plan-card--{{ $plan['id'] }}">
-            @if (!empty($plan['image']))
-              <div class="plan-thumb">
-                <img src="{{ $plan['image'] }}" alt="{{ $plan['name'] }}" loading="lazy">
+          <div class="plan-card-modern plan-card--individual plan-card--{{ $plan['id'] }}">
+            <div class="plan-card-modern-inner">
+              <div class="plan-card-modern-header">
+                <span class="plan-emoji" aria-hidden="true">
+                  @if(str_contains(strtolower($plan['name']), 'hora'))⏰@elseif(str_contains(strtolower($plan['name']), 'dia'))🌞@elseif(str_contains(strtolower($plan['name']), 'semana'))📅@elseif(str_contains(strtolower($plan['name']), 'mês') || str_contains(strtolower($plan['name']), 'mensal'))🗓️@else💡@endif
+                </span>
+                <h3 class="plan-title">{{ $plan['name'] }}</h3>
               </div>
-            @endif
-            <h3>{{ $plan['name'] }}</h3>
-            <div class="price">{{ number_format($plan['price_kwanza'], 0, ',', '.') }} <small>AOA</small></div>
-            <p class="desc">
-              {{ $plan['duration_label'] }} &mdash; {{ $plan['speed'] }}
-            </p>
-            @if (!empty($plan['description']))
-              <p class="desc">{{ $plan['description'] }}</p>
-            @endif
-            <div class="plan-actions">
-              <a class="btn-primary" href="{{ route('store.checkout', ['plan' => $plan['id']]) }}">Comprar</a>
+              <div class="plan-card-modern-body">
+                <div class="plan-price-row">
+                  <span class="plan-price">{{ number_format($plan['price_kwanza'], 0, ',', '.') }}</span>
+                  <span class="plan-currency">Kz</span>
+                </div>
+                <div class="plan-features">
+                  <span class="plan-feature"><strong>{{ $plan['duration_label'] }}</strong></span>
+                  <span class="plan-feature">{{ $plan['speed'] }}</span>
+                </div>
+                @if (!empty($plan['description']))
+                  <p class="plan-desc">{{ $plan['description'] }}</p>
+                @endif
+              </div>
+              <div class="plan-card-modern-footer">
+                <a class="btn-modern" href="{{ route('store.checkout', ['plan' => $plan['id']]) }}">Comprar Agora</a>
+              </div>
             </div>
           </div>
         @empty
-          <div class="plan-card empty">
+          <div class="plan-card-modern empty">
             <p>Os planos individuais serão exibidos aqui após cadastro no painel administrativo.</p>
           </div>
         @endforelse
