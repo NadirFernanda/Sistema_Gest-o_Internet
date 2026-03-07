@@ -77,4 +77,4 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 @media (max-width: 600px) {
   .hero-carousel { border-radius: 0.7rem; }
   .carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; }
-
+}
