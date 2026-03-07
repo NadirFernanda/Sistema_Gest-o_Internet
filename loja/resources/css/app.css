@@ -279,12 +279,12 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   gap: 0.7rem;
 }
 .store-logo {
-  width: 54px;
+  width: 90px;
   height: 54px;
-  border-radius: 1.2rem;
+  border-radius: 0.7rem;
   box-shadow: 0 2px 12px 0 rgba(37,99,235,0.10);
   background: #fff;
-  object-fit: cover;
+  object-fit: contain;
   transition: box-shadow 0.2s;
 }
 .store-title {

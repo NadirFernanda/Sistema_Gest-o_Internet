@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 
 class AutovendaOrderService
 {
+
     public function confirmPaymentAndDeliver(AutovendaOrder $order, ?string $paymentReference = null): AutovendaOrder
     {
         if ($order->isPaid()) {
@@ -26,9 +27,20 @@ class AutovendaOrderService
         $order->status = AutovendaOrder::STATUS_PAID;
         $order->paid_at = $now;
 
-        // Gera (ou atribui) o código WiFi
+        // Busca um código WiFi disponível do estoque
         if (empty($order->wifi_code)) {
-            $order->wifi_code = $this->generateWifiCode();
+            $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)->first();
+            if ($wifiCode) {
+                $wifiCode->status = \App\Models\WifiCode::STATUS_USED;
+                $wifiCode->autovenda_order_id = $order->id;
+                $wifiCode->used_at = $now;
+                $wifiCode->save();
+                $order->wifi_code = $wifiCode->code;
+            } else {
+                // Se não houver código disponível, lança exceção ou loga erro
+                Log::error('Sem códigos WiFi disponíveis no estoque para ordem '.$order->id);
+                throw new \Exception('Sem códigos WiFi disponíveis no estoque.');
+            }
         }
 
         // Marca entrega (nesta fase assumimos entrega imediata via e-mail/WhatsApp)
