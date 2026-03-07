@@ -186,6 +186,8 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   border-radius: 1.5rem;
   box-shadow: 0 8px 40px 0 rgba(0,0,0,0.18);
   height: 460px;
+  /* stacking context isolado — evita interferência de z-index externo */
+  isolation: isolate;
 }
 .carousel-track {
   display: flex;
@@ -204,25 +206,25 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   background-repeat: no-repeat;
   flex-shrink: 0;
 }
+/* Overlay escuro — SEM z-index para não lutar com o card */
 .carousel-slide::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.38) 55%, rgba(0,0,0,0.08) 100%);
-  z-index: 1;
+  background: linear-gradient(105deg, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
 }
-.carousel-slide::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 45%);
-  z-index: 1;
+.carousel-slide.hero-1 { background-image: url('/img/carrossel1.webp'); }
+.carousel-slide.hero-2 { background-image: url('/img/carrossel2.webp'); }
+.carousel-slide.hero-3 { background-image: url('/img/carrossel3.webp'); }
+/* Fallback JPEG para browsers sem suporte a WebP */
+@supports not (background-image: url('/img/x.webp')) {
+  .carousel-slide.hero-1 { background-image: url('/img/carrossel1.jpg'); }
+  .carousel-slide.hero-2 { background-image: url('/img/carrossel2.jpg'); }
+  .carousel-slide.hero-3 { background-image: url('/img/carrossel3.jpg'); }
 }
-.carousel-slide.hero-1 { background-image: image-set(url('/img/carrossel1.webp') type('image/webp'), url('/img/carrossel1.jpg') type('image/jpeg')); }
-.carousel-slide.hero-2 { background-image: image-set(url('/img/carrossel2.webp') type('image/webp'), url('/img/carrossel2.jpg') type('image/jpeg')); }
-.carousel-slide.hero-3 { background-image: image-set(url('/img/carrossel3.webp') type('image/webp'), url('/img/carrossel3.jpg') type('image/jpeg')); }
 .carousel-slide.active { z-index: 2; }
-/* Setas minimalistas — finas e discretas */
+/* Setas frosted-glass */
 .carousel-arrow {
   position: absolute;
   top: 50%;
@@ -234,17 +236,18 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.85);
-  border: 1.5px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.9);
+  border: 1.5px solid rgba(255,255,255,0.25);
   font-size: 1.15rem;
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 10;
   transition: background 0.22s, border-color 0.22s, color 0.22s, transform 0.22s;
   line-height: 1;
 }
 .carousel-arrow:hover, .carousel-arrow:focus {
-  background: rgba(251,191,36,0.88);
+  background: rgba(251,191,36,0.9);
   border-color: #fbbf24;
   color: #1a1a1a;
   transform: translateY(-50%) scale(1.09);
@@ -254,22 +257,23 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 .carousel-arrow.right { right: 20px; }
 /* Sem indicadores / bolinhas */
 .carousel-indicators { display: none; }
-/* Card de conteúdo — alinhado à esquerda, vidro fosco */
+/* Card de conteúdo — glass panel, sempre visível acima do overlay */
 .slide-card {
   position: relative;
-  z-index: 3;
+  /* z-index alto garante que fica SEMPRE acima do ::before overlay */
+  z-index: 5;
   max-width: 480px;
   width: 100%;
   margin-left: clamp(1.5rem, 6vw, 5rem);
   padding: 2rem 2rem 1.8rem 2rem;
-  background: rgba(0,0,0,0.42);
+  background: rgba(0,0,0,0.50);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 1rem;
-  color: white;
+  color: #fff;
   text-align: left;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.30);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 .slide-card::before {
   content: "";
