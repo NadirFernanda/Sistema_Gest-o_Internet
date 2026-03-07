@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AutovendaOrder;
+use App\Models\EquipmentOrder;
+use App\Models\Product;
 use App\Models\ResellerApplication;
 
 class AdminDashboardController extends Controller
@@ -20,6 +22,16 @@ class AdminDashboardController extends Controller
         $pendingResellers = ResellerApplication::where('status', ResellerApplication::STATUS_PENDING)->count();
         $totalResellers = ResellerApplication::count();
 
+        // Equipment stats
+        $totalProducts      = Product::count();
+        $totalEquipOrders   = EquipmentOrder::count();
+        $newEquipOrders     = EquipmentOrder::where('status', EquipmentOrder::STATUS_PENDING)->count();
+        $totalEquipRevenue  = EquipmentOrder::whereIn('status', [
+            EquipmentOrder::STATUS_CONFIRMED,
+            EquipmentOrder::STATUS_SHIPPED,
+            EquipmentOrder::STATUS_DELIVERED,
+        ])->sum('total_aoa');
+
         return view('admin.dashboard', [
             'totalOrders' => $totalOrders,
             'paidOrders' => $paidOrders,
@@ -28,6 +40,10 @@ class AdminDashboardController extends Controller
             'recentOrders' => $recentOrders,
             'pendingResellers' => $pendingResellers,
             'totalResellers' => $totalResellers,
+            'totalProducts' => $totalProducts,
+            'totalEquipOrders' => $totalEquipOrders,
+            'newEquipOrders' => $newEquipOrders,
+            'totalEquipRevenue' => $totalEquipRevenue,
         ]);
     }
 

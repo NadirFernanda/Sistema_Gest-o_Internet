@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AutovendaOrderAdminController;
 use App\Http\Controllers\Admin\ResellerAdminController;
+use App\Http\Controllers\Admin\ProductAdminController;
+use App\Http\Controllers\Admin\EquipmentOrderAdminController;
 use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ResellerPanelController;
 
 Route::get('/', function () {
@@ -41,6 +44,18 @@ Route::get('/autovenda/callback/simulate/{order}', [\App\Http\Controllers\Paymen
 Route::view('/quem-somos', 'pages.about');
 // Static page: Como Comprar
 Route::view('/como-comprar', 'pages.how-to-buy');
+
+// ── Loja de Equipamentos / Produtos ──────────────────────────────────────────
+Route::get('/equipamentos', [EquipmentController::class, 'index'])->name('equipment.index');
+Route::get('/carrinho', [EquipmentController::class, 'cart'])->name('equipment.cart');
+Route::post('/carrinho/adicionar', [EquipmentController::class, 'addToCart'])->name('equipment.cart.add');
+Route::post('/carrinho/remover', [EquipmentController::class, 'removeFromCart'])->name('equipment.cart.remove');
+Route::post('/carrinho/limpar', [EquipmentController::class, 'clearCart'])->name('equipment.cart.clear');
+Route::get('/equipamentos/checkout', [EquipmentController::class, 'checkout'])->name('equipment.checkout');
+Route::post('/equipamentos/checkout', [EquipmentController::class, 'processCheckout'])->name('equipment.checkout.process');
+Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confirmation'])->name('equipment.confirmation');
+// Must be last to avoid shadowing named routes above
+Route::get('/equipamentos/{slug}', [EquipmentController::class, 'show'])->name('equipment.show');
 // Área do Cliente (histórico de compras via e-mail)
 Route::get('/minha-conta', [CustomerAccountController::class, 'index'])->name('account.index');
 Route::post('/minha-conta/login', [CustomerAccountController::class, 'login'])->name('account.login');
@@ -48,11 +63,24 @@ Route::post('/minha-conta/logout', [CustomerAccountController::class, 'logout'])
 Route::post('/minha-conta/orders/{order}/resend-email', [CustomerAccountController::class, 'resendEmail'])->name('account.orders.resend-email');
 Route::get('/minha-conta/orders/{order}/whatsapp', [CustomerAccountController::class, 'openWhatsapp'])->name('account.orders.whatsapp');
 
-// Painel Administrativo da Loja (autovenda + revenda)
+// Painel Administrativo da Loja (autovenda + revenda + equipamentos)
 // Protegido por middleware 'sg-admin', que valida token partilhado com o SG.
 Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/recargas', [AutovendaOrderAdminController::class, 'index'])->name('admin.autovenda.index');
     Route::get('/relatorios', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::get('/revendedores', [ResellerAdminController::class, 'index'])->name('admin.resellers.index');
+
+    // Gestão de produtos (equipamentos)
+    Route::get('/equipamentos', [ProductAdminController::class, 'index'])->name('admin.equipment.products.index');
+    Route::get('/equipamentos/criar', [ProductAdminController::class, 'create'])->name('admin.equipment.products.create');
+    Route::post('/equipamentos', [ProductAdminController::class, 'store'])->name('admin.equipment.products.store');
+    Route::get('/equipamentos/{id}/editar', [ProductAdminController::class, 'edit'])->name('admin.equipment.products.edit');
+    Route::put('/equipamentos/{id}', [ProductAdminController::class, 'update'])->name('admin.equipment.products.update');
+    Route::delete('/equipamentos/{id}', [ProductAdminController::class, 'destroy'])->name('admin.equipment.products.destroy');
+
+    // Encomendas de equipamentos
+    Route::get('/encomendas-equipamentos', [EquipmentOrderAdminController::class, 'index'])->name('admin.equipment.orders.index');
+    Route::get('/encomendas-equipamentos/{id}', [EquipmentOrderAdminController::class, 'show'])->name('admin.equipment.orders.show');
+    Route::patch('/encomendas-equipamentos/{id}/estado', [EquipmentOrderAdminController::class, 'updateStatus'])->name('admin.equipment.orders.status');
 });

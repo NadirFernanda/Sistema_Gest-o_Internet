@@ -21,6 +21,18 @@
         <p>Total de pedidos: <strong>{{ $totalResellers }}</strong></p>
         <p class="plan-note" style="margin-top:.5rem;">Use o menu Administração &rarr; Revendedores para ver os detalhes.</p>
       </div>
+
+      <div class="info-card">
+        <h3>Equipamentos &amp; Produtos</h3>
+        <p>Produtos no catálogo: <strong>{{ $totalProducts }}</strong></p>
+        <p>Encomendas totais: <strong>{{ $totalEquipOrders }}</strong></p>
+        <p>Encomendas pendentes: <strong>{{ $newEquipOrders }}</strong></p>
+        <p style="margin-top:.5rem;">Receita confirmada: <strong>{{ number_format($totalEquipRevenue, 0, ',', '.') }} AOA</strong></p>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
+          <a href="{{ route('admin.equipment.products.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Produtos</a>
+          <a href="{{ route('admin.equipment.orders.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Encomendas</a>
+        </div>
+      </div>
     </div>
 
     <div class="info-grid" style="margin-top:2rem;">

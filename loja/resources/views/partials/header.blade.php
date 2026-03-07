@@ -21,6 +21,7 @@
         </div>
       </div>
 
+      <a href="{{ route('equipment.index') }}" class="{{ request()->is('equipamentos*') ? 'store-link active' : 'store-link' }}">Equipamentos</a>
       <a href="/minha-conta" class="{{ request()->is('minha-conta') ? 'store-link active' : 'store-link' }}">A minha conta</a>
 
       @auth
@@ -29,6 +30,8 @@
         <div class="store-dropdown-menu" role="menu" aria-hidden="true">
           <a href="/admin/recargas" class="store-link store-dropdown-item" role="menuitem">Gestão de recargas</a>
           <a href="/admin/relatorios" class="store-link store-dropdown-item" role="menuitem">Relatórios</a>
+          <a href="{{ route('admin.equipment.products.index') }}" class="store-link store-dropdown-item" role="menuitem">Produtos</a>
+          <a href="{{ route('admin.equipment.orders.index') }}" class="store-link store-dropdown-item" role="menuitem">Encomendas</a>
         </div>
       </div>
       @endauth
@@ -53,12 +56,15 @@
   <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
   <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
   <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
+  <a href="{{ route('equipment.index') }}" class="store-mobile-link">Equipamentos</a>
   <a href="/minha-conta" class="store-mobile-link">A minha conta</a>
     @auth
     <a href="/admin" class="store-mobile-link">Administração</a>
     <div class="store-mobile-submenu">
       <a href="/admin/recargas" class="store-mobile-link">Gestão de recargas</a>
       <a href="/admin/relatorios" class="store-mobile-link">Relatórios</a>
+      <a href="{{ route('admin.equipment.products.index') }}" class="store-mobile-link">Produtos</a>
+      <a href="{{ route('admin.equipment.orders.index') }}" class="store-mobile-link">Encomendas</a>
     </div>
     @endauth
   </div>
