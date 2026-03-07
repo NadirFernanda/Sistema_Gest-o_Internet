@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (carousel) {
 		const track = carousel.querySelector('.carousel-track');
 		const slides = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-slide'));
-		const cards = Array.prototype.slice.call(carousel.querySelectorAll('.hero-cards .slide-card'));
 		const indicators = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-indicators button'));
 		let index = 0;
 		const slideCount = slides.length;
@@ -14,16 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function goTo(i) {
 			index = (i + slideCount) % slideCount;
-			const x = -(index * 100);
-			if (track) {
-				track.style.transform = 'translateX(' + x + '%)';
-			}
+			track.style.transform = 'translateX(' + -(index * 100) + '%)';
 			indicators.forEach(btn => btn.classList.remove('active'));
 			if (indicators[index]) indicators[index].classList.add('active');
-			if (cards && cards.length) {
-				cards.forEach(c => c.classList.remove('visible'));
-				if (cards[index]) cards[index].classList.add('visible');
-			}
+			slides.forEach((s, si) => s.classList.toggle('active', si === index));
 		}
 
 		function nextSlide() { goTo(index + 1); }
@@ -61,9 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		carousel.addEventListener('mouseenter', stop);
 		carousel.addEventListener('mouseleave', start);
 
-		goTo(0);
-		start();
-
 		// Carousel arrow navigation
 		const leftArrow = carousel.querySelector('.carousel-arrow.left');
 		const rightArrow = carousel.querySelector('.carousel-arrow.right');
@@ -79,18 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 			});
 		}
-		// Mark active slide for fade effect
-		function updateActiveSlide() {
-			slides.forEach((slide, i) => {
-				slide.classList.toggle('active', i === index);
-			});
-		}
-		const originalGoTo = goTo;
-		goTo = function(i) {
-			originalGoTo(i);
-			updateActiveSlide();
-		};
-		updateActiveSlide();
+		goTo(0);
 	}
 
 	// Load family & business plans

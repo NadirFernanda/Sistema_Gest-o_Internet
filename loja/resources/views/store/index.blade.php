@@ -5,39 +5,40 @@
   <section class="mb-8">
     <div class="container">
       <div class="hero-carousel" aria-roledescription="carousel">
-        <button class="carousel-arrow left" aria-label="Anterior" tabindex="0">&#8592;</button>
-        <button class="carousel-arrow right" aria-label="Próximo" tabindex="0">&#8594;</button>
+        <button class="carousel-arrow left" aria-label="Anterior">&#8592;</button>
+        <button class="carousel-arrow right" aria-label="Próximo">&#8594;</button>
+
         <div class="carousel-track">
-          <div class="carousel-slide hero-1"></div>
-          <div class="carousel-slide hero-2"></div>
-          <div class="carousel-slide hero-3"></div>
-        </div>
-
-        <div class="hero-cards" aria-hidden="false">
-          <div class="slide-card" data-index="0">
-            <h1>Internet Residencial — até 100 Mbps</h1>
-            <p>Planos para famílias, streaming e gaming sem interrupções. Velocidades reais e preços claros.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
-              <a href="#planos" class="btn-primary">Ver Planos</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Saiba Mais</a>
+          <div class="carousel-slide hero-1">
+            <div class="slide-card">
+              <h1>Internet Residencial — até 100 Mbps</h1>
+              <p>Planos para famílias, streaming e gaming sem interrupções. Velocidades reais e preços claros.</p>
+              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                <a href="#planos" class="btn-primary">Ver Planos</a>
+                <a href="/como-comprar" class="btn-primary">Saiba Mais</a>
+              </div>
             </div>
           </div>
 
-          <div class="slide-card" data-index="1">
-            <h1>Internet Empresarial — conexões estáveis</h1>
-            <p>Soluções dedicadas para empresas com SLA e suporte técnico prioritário. Escalável e segura.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
-              <a href="#planos" class="btn-primary">Ver Soluções</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Contactar Vendas</a>
+          <div class="carousel-slide hero-2">
+            <div class="slide-card">
+              <h1>Internet Empresarial — conexões estáveis</h1>
+              <p>Soluções dedicadas para empresas com SLA e suporte técnico prioritário. Escalável e segura.</p>
+              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                <a href="#planos" class="btn-primary">Ver Soluções</a>
+                <a href="/como-comprar" class="btn-primary">Contactar Vendas</a>
+              </div>
             </div>
           </div>
 
-          <div class="slide-card" data-index="2">
-            <h1>Instalação Rápida & Suporte Local</h1>
-            <p>Agende instalação em 24–48h e conte com assistência técnica local sempre que precisar.</p>
-            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
-              <a href="#planos" class="btn-primary">Agendar Instalação</a>
-              <a href="/como-comprar" class="btn-primary" style="background:var(--success)">Fale Connosco</a>
+          <div class="carousel-slide hero-3">
+            <div class="slide-card">
+              <h1>Instalação Rápida &amp; Suporte Local</h1>
+              <p>Agende instalação em 24–48h e conte com assistência técnica local sempre que precisar.</p>
+              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                <a href="#planos" class="btn-primary">Agendar Instalação</a>
+                <a href="/como-comprar" class="btn-primary">Fale Connosco</a>
+              </div>
             </div>
           </div>
         </div>
