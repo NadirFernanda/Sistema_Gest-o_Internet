@@ -3,16 +3,7 @@
 return [
     // Planos para autovenda (cliente final, 1 dispositivo por voucher)
     'individual' => [
-        [
-            'id' => 'hora',
-            'name' => 'Plano Hora',
-            'duration_label' => '60 minutos',
-            'duration_minutes' => 60,
-            'speed' => 'Ilimitado*',
-            'price_kwanza' => 200,
-            'description' => 'Acesso rápido por 1 hora, ideal para tarefas pontuais, pagamentos e navegações curtas.',
-            'image' => '/img/foto.jpg',
-        ],
+        // Plano Hora removido conforme atualização, agora apenas Dia, Semana e Mês
         [
             'id' => 'diario',
             'name' => 'Plano Diário',
