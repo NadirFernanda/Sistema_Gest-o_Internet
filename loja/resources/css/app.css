@@ -160,11 +160,11 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 }
 
 /* --- Botões padrão amarelos para toda a loja --- */
-.btn-primary, .btn-modern, .slide-card .btn-primary, .plan-card-modern-footer .btn-modern, .plan-actions .btn-primary {
+.btn-primary, .btn-modern, .slide-card .btn-primary, .plan-card-modern-footer .btn-modern, .plan-actions .btn-primary, .store-cta {
   background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
   color: #fff !important;
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-  font-weight: 700;
+  font-weight: 500;
   border: none;
   border-radius: 0.75rem;
   padding: 0.7rem 1.5rem;
@@ -176,7 +176,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   outline: none;
   letter-spacing: 0.01em;
 }
-.btn-primary:hover, .btn-primary:focus, .btn-modern:hover, .btn-modern:focus, .slide-card .btn-primary:hover, .plan-card-modern-footer .btn-modern:hover, .plan-actions .btn-primary:hover {
+.btn-primary:hover, .btn-primary:focus, .btn-modern:hover, .btn-modern:focus, .slide-card .btn-primary:hover, .plan-card-modern-footer .btn-modern:hover, .plan-actions .btn-primary:hover, .store-cta:hover, .store-cta:focus {
   background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
   box-shadow: 0 4px 16px 0 rgba(251,191,36,0.23);
   transform: scale(1.04);
