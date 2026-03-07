@@ -359,35 +359,21 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 .slide-card {
   position: relative;
   z-index: 2;
-  max-width: 520px;
-  padding: 2rem;
+  max-width: 400px;
+  margin: 0 56px;
+  padding: 1.5rem 1.2rem;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(6px);
   border-radius: 16px;
   color: white;
-  text-align: left;
+  text-align: center;
   box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.07);
   border: 1.5px solid rgba(255,255,255,0.18);
 }
 .slide-card h1 {
-  font-size: 2.1rem;
-  font-weight: 800;
-  margin-bottom: 1.1rem;
-  color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  font-size: 1.6rem;
+  word-break: break-word;
 }
-.slide-card p {
-  font-size: 1.15rem;
-  font-weight: 400;
-  margin-bottom: 1.5rem;
-  color: #e0e7ef;
-}
-@media (max-width: 700px) {
-  .hero-carousel, .carousel-slide { min-height: 300px; }
-  .slide-card { padding: 1.2rem 0.5rem; }
-  .slide-card h1 { font-size: 1.2rem; }
-  .slide-card p { font-size: 0.98rem; }
-  .carousel-arrow { width: 32px; height: 32px; font-size: 1rem; }
-  .carousel-arrow.left { left: 8px; }
-  .carousel-arrow.right { right: 8px; }
-}
+.carousel-arrow.left { left: 12px; z-index: 20; }
+.carousel-arrow.right { right: 12px; z-index: 20; }
+.carousel-indicators { display: none !important; }
