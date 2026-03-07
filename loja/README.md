@@ -57,3 +57,49 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## Fluxo de Deploy — Local → GitHub → Servidor de Produção
+
+### 1. Publicar alterações do local para o GitHub
+
+```bash
+# No computador local (PowerShell ou terminal)
+git add .
+git commit -m "Descrição das alterações"
+git push origin main
+```
+
+### 2. Actualizar o servidor de produção
+
+Acede ao servidor via SSH e executa os seguintes comandos **por esta ordem**:
+
+```bash
+cd /var/www/sgmrtexas/loja
+
+# 1. Forçar o servidor a ficar igual ao GitHub (NUNCA usar git pull directamente)
+git fetch origin
+git reset --hard origin/main
+
+# 2. Instalar dependências PHP (sem pacotes de desenvolvimento)
+composer install --no-dev --optimize-autoloader
+
+# 3. Instalar dependências Node e compilar os assets
+npm ci
+npm run build
+
+# 4. Correr migrações pendentes (sem confirmação interactiva)
+php artisan migrate --force
+
+# 5. Limpar e regenerar caches de configuração, rotas e views
+php artisan optimize
+
+# 6. Reiniciar os serviços do servidor
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+```
+
+> **Porquê `git reset --hard origin/main` em vez de `git pull`?**
+> O `git pull` falha com "Not possible to fast-forward" quando há divergência de histórico entre o servidor e o repositório remoto.
+> O `git reset --hard origin/main` garante que o servidor fica **exactamente** igual ao último commit do GitHub, descartando qualquer alteração local no servidor.

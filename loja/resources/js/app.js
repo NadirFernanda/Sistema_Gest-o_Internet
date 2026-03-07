@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (carousel) {
 		const track = carousel.querySelector('.carousel-track');
 		const slides = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-slide'));
-		const indicators = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-indicators button'));
+		const progressBars = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-progress-bar'));
 		let index = 0;
 		const slideCount = slides.length;
 		let interval = null;
@@ -14,21 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		function goTo(i) {
 			index = (i + slideCount) % slideCount;
 			track.style.transform = 'translateX(' + -(index * 100) + '%)';
-			indicators.forEach(btn => btn.classList.remove('active'));
-			if (indicators[index]) indicators[index].classList.add('active');
 			slides.forEach((s, si) => s.classList.toggle('active', si === index));
+			// Reset progress bars — re-add active to trigger CSS animation restart
+			progressBars.forEach(bar => {
+				bar.classList.remove('active');
+				// Force reflow so animation restarts
+				void bar.offsetWidth;
+			});
+			if (progressBars[index]) progressBars[index].classList.add('active');
 		}
 
 		function nextSlide() { goTo(index + 1); }
 		function prevSlide() { goTo(index - 1); }
-
-		indicators.forEach(btn => {
-			btn.addEventListener('click', () => {
-				const i = Number(btn.getAttribute('data-index') || 0);
-				goTo(i);
-				restart();
-			});
-		});
 
 		let touchStartX = null;
 		carousel.addEventListener('touchstart', e => {

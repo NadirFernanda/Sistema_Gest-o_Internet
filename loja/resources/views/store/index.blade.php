@@ -11,42 +11,43 @@
         <div class="carousel-track">
           <div class="carousel-slide hero-1">
             <div class="slide-card">
-              <h1>Internet Residencial — até 100 Mbps</h1>
+              <h1>Internet Residencial<br>até 100 Mbps</h1>
               <p>Planos para famílias, streaming e gaming sem interrupções. Velocidades reais e preços claros.</p>
-              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+              <div class="slide-card-actions">
                 <a href="#planos" class="btn-primary">Ver Planos</a>
-                <a href="/como-comprar" class="btn-primary">Saiba Mais</a>
+                <a href="/como-comprar" class="btn-ghost">Saiba Mais</a>
               </div>
             </div>
           </div>
 
           <div class="carousel-slide hero-2">
             <div class="slide-card">
-              <h1>Internet Empresarial — conexões estáveis</h1>
+              <h1>Internet Empresarial<br>Conexões Estáveis</h1>
               <p>Soluções dedicadas para empresas com SLA e suporte técnico prioritário. Escalável e segura.</p>
-              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+              <div class="slide-card-actions">
                 <a href="#planos" class="btn-primary">Ver Soluções</a>
-                <a href="/como-comprar" class="btn-primary">Contactar Vendas</a>
+                <a href="/como-comprar" class="btn-ghost">Contactar Vendas</a>
               </div>
             </div>
           </div>
 
           <div class="carousel-slide hero-3">
             <div class="slide-card">
-              <h1>Instalação Rápida &amp; Suporte Local</h1>
+              <h1>Instalação Rápida<br>&amp; Suporte Local</h1>
               <p>Agende instalação em 24–48h e conte com assistência técnica local sempre que precisar.</p>
-              <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+              <div class="slide-card-actions">
                 <a href="#planos" class="btn-primary">Agendar Instalação</a>
-                <a href="/como-comprar" class="btn-primary">Fale Connosco</a>
+                <a href="/como-comprar" class="btn-ghost">Fale Connosco</a>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="carousel-indicators" role="tablist">
-          <button data-index="0" aria-label="Slide 1" class="active"></button>
-          <button data-index="1" aria-label="Slide 2"></button>
-          <button data-index="2" aria-label="Slide 3"></button>
+        {{-- Progress bar em vez de bolinhas --}}
+        <div class="carousel-progress" aria-hidden="true">
+          <div class="carousel-progress-bar active" data-index="0"></div>
+          <div class="carousel-progress-bar" data-index="1"></div>
+          <div class="carousel-progress-bar" data-index="2"></div>
         </div>
       </div>
     </div>

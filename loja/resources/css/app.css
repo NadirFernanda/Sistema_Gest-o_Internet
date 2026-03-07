@@ -184,13 +184,13 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   position: relative;
   overflow: hidden;
   border-radius: 1.5rem;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
-  height: 420px;
+  box-shadow: 0 8px 40px 0 rgba(0,0,0,0.18);
+  height: 460px;
 }
 .carousel-track {
   display: flex;
   height: 100%;
-  transition: transform 0.7s cubic-bezier(.77,0,.18,1);
+  transition: transform 0.75s cubic-bezier(.77,0,.18,1);
 }
 .carousel-slide {
   min-width: 100%;
@@ -198,7 +198,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -208,93 +208,166 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.55), rgba(0,0,0,0.25));
+  background: linear-gradient(105deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.38) 55%, rgba(0,0,0,0.08) 100%);
+  z-index: 1;
+}
+.carousel-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 45%);
   z-index: 1;
 }
 .carousel-slide.hero-1 { background-image: url('/img/carrossel1.jpg'); }
 .carousel-slide.hero-2 { background-image: url('/img/carrossel2.jpg'); }
 .carousel-slide.hero-3 { background-image: url('/img/carrossel3.jpg'); }
-.carousel-slide.active {
-  z-index: 2;
-}
+.carousel-slide.active { z-index: 2; }
+/* Setas minimalistas — finas e discretas */
 .carousel-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
-  color: #fff;
-  border: none;
-  font-size: 1.7rem;
-  box-shadow: 0 2px 8px 0 rgba(251,191,36,0.13);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  font-size: 1.15rem;
+  backdrop-filter: blur(8px);
   z-index: 10;
+  transition: background 0.22s, border-color 0.22s, color 0.22s, transform 0.22s;
+  line-height: 1;
 }
 .carousel-arrow:hover, .carousel-arrow:focus {
-  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
-  color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(251,191,36,0.23);
-  transform: translateY(-50%) scale(1.08);
+  background: rgba(251,191,36,0.88);
+  border-color: #fbbf24;
+  color: #1a1a1a;
+  transform: translateY(-50%) scale(1.09);
+  outline: none;
 }
-.carousel-indicators {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-}
-.carousel-indicators button {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.5);
-  border: none;
-  transition: all 0.3s ease;
-}
-.carousel-indicators button.active {
-  width: 26px;
-  background: #fbbf24;
-}
+.carousel-arrow.left  { left: 20px; }
+.carousel-arrow.right { right: 20px; }
+/* Sem indicadores / bolinhas */
+.carousel-indicators { display: none; }
+/* Card de conteúdo — alinhado à esquerda, sem caixa */
 .slide-card {
   position: relative;
-  z-index: 2;
-  max-width: 400px;
+  z-index: 3;
+  max-width: 520px;
   width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 1.2rem;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  border-radius: 16px;
+  margin-left: clamp(1.5rem, 6vw, 5rem);
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
   color: white;
-  text-align: center;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.07);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  text-align: left;
+  box-shadow: none;
+  border: none;
+}
+.slide-card::before {
+  content: "";
+  display: block;
+  width: 52px;
+  height: 4px;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  border-radius: 2px;
+  margin-bottom: 1.1rem;
 }
 .slide-card h1 {
-  font-size: 1.6rem;
+  font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.35);
   word-break: break-word;
 }
 .slide-card p {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.5vw, 1.05rem);
   font-weight: 400;
-  margin-bottom: 1.1rem;
-  color: #e0e7ef;
+  line-height: 1.6;
+  margin-bottom: 1.6rem;
+  color: rgba(255,255,255,0.82);
+  max-width: 400px;
+}
+.slide-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 .slide-card .btn-primary {
-  font-size: 1.08rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  padding: 0.7rem 1.5rem;
-  border-radius: 0.7rem;
-  margin: 0 0.3rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 0.65rem;
+  letter-spacing: 0.01em;
 }
-.carousel-arrow.left { left: 12px; z-index: 20; }
-.carousel-arrow.right { right: 12px; z-index: 20; }
+.slide-card .btn-ghost {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.63rem 1.4rem;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: rgba(255,255,255,0.9);
+  border: 1.5px solid rgba(255,255,255,0.38);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  display: inline-block;
+}
+.slide-card .btn-ghost:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.65);
+  color: #fff;
+}
+/* Progress bar em vez de bolinhas */
+.carousel-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  z-index: 20;
+  display: flex;
+  gap: 3px;
+  padding: 0 0;
+}
+.carousel-progress-bar {
+  flex: 1;
+  height: 100%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.carousel-progress-bar.active {
+  background: rgba(255,255,255,0.25);
+}
+.carousel-progress-bar.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  transform-origin: left;
+  animation: barFill 5s linear forwards;
+}
+@keyframes barFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
 @media (max-width: 700px) {
-  .hero-carousel { height: 280px; }
-  .slide-card { max-width: 96vw; padding: 0.7rem 0.5rem 1rem 0.5rem; }
-  .slide-card h1 { font-size: 1.1rem; }
+  .hero-carousel { height: 320px; }
+  .slide-card { margin-left: 1.2rem; max-width: calc(100vw - 5rem); }
+  .slide-card h1 { font-size: 1.15rem; }
+  .slide-card p { font-size: 0.88rem; }
+  .carousel-arrow { width: 38px; height: 38px; font-size: 1rem; }
+  .carousel-arrow.left { left: 10px; }
+  .carousel-arrow.right { right: 10px; }
 }
