@@ -80,44 +80,61 @@
     });
   }
 
-  // Search behaviour
-  var input = document.getElementById('store-search-input');
+  // Search — client-side, reads plan cards already rendered in the DOM
+  // Covers both individual plans (config) and family/business plans (SG).
+  // No AJAX needed: all data is already on the page.
+  var input   = document.getElementById('store-search-input');
   var results = document.getElementById('store-search-results');
-  var debounceTimer = null;
 
-  function renderResults(items) {
+  function buildIndex() {
+    var cards = document.querySelectorAll('.plan-card-modern:not(.family-empty-state)');
+    var index = [];
+    cards.forEach(function(card) {
+      var titleEl = card.querySelector('.plan-title');
+      var priceEl = card.querySelector('.plan-price');
+      var currEl  = card.querySelector('.plan-currency');
+      var descEl  = card.querySelector('.plan-desc');
+      var featEls = card.querySelectorAll('.plan-feature');
+      var link    = card.querySelector('a[href]');
+      if (!titleEl) return;
+      var features = Array.from(featEls).map(function(f){ return f.textContent.trim(); }).join(' · ');
+      index.push({
+        title:    titleEl.textContent.trim(),
+        price:    priceEl ? (priceEl.textContent.trim() + (currEl ? ' ' + currEl.textContent.trim() : '')) : '',
+        desc:     descEl  ? descEl.textContent.trim() : features,
+        href:     link    ? link.getAttribute('href') : '#planos',
+        section:  card.closest('#planos-familia-empresarial') ? 'Familiar / Empresarial' : 'Individual',
+      });
+    });
+    return index;
+  }
+
+  function doSearch(q) {
     results.innerHTML = '';
-    if (!items || items.length === 0) {
-      results.setAttribute('aria-hidden','true');
-      return;
-    }
-    items.forEach(function(it){
+    if (!q || q.trim().length < 2) { results.setAttribute('aria-hidden','true'); return; }
+    var needle = q.trim().toLowerCase();
+    var index  = buildIndex();
+    var hits   = index.filter(function(it){
+      return it.title.toLowerCase().indexOf(needle) !== -1
+          || it.desc.toLowerCase().indexOf(needle)  !== -1
+          || it.price.toLowerCase().indexOf(needle) !== -1;
+    });
+    if (!hits.length) { results.setAttribute('aria-hidden','true'); return; }
+    hits.forEach(function(it){
       var el = document.createElement('a');
-      el.href = '/#planos-familia-empresarial';
+      el.href = it.href;
       el.className = 'search-result-item';
       el.setAttribute('role','option');
-      el.innerHTML = '<div class="res-title">' + (it.name || '') + '</div>' + '<div class="res-sub">' + (it.preco ? (Number(it.preco).toLocaleString('pt') + ' Kz · ') : '') + (it.description ? (it.description.substring(0,80)) : 'Plano familiar / empresarial') + '</div>';
+      el.innerHTML = '<div class="res-title">' + it.title + '</div>'
+                   + '<div class="res-sub">' + (it.price ? it.price + ' · ' : '') + it.section + '</div>';
+      el.addEventListener('click', function(){ results.innerHTML = ''; results.setAttribute('aria-hidden','true'); });
       results.appendChild(el);
     });
     results.setAttribute('aria-hidden','false');
   }
 
-  function doSearch(q) {
-    if (!q || q.trim().length < 2) { renderResults([]); return; }
-    fetch('/sg/plan-templates?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
-      .then(function(r){ return r.json(); })
-      .then(function(json){ renderResults(json.data || []); })
-      .catch(function(){ renderResults([]); });
-  }
-
   if (input) {
-    input.addEventListener('input', function(e){
-      clearTimeout(debounceTimer);
-      var q = String(e.target.value || '');
-      debounceTimer = setTimeout(function(){ doSearch(q); }, 250);
-    });
-
-    // hide results when clicking outside
+    input.addEventListener('input', function(e){ doSearch(String(e.target.value || '')); });
     document.addEventListener('click', function(ev){
       if (!ev.target.closest('.search-wrapper')) {
         results.innerHTML = '';
