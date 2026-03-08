@@ -132,12 +132,12 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
   display: grid;
   /* let columns size to the button content so the grid can fit 3 columns
      even when the container is wide */
-  grid-template-columns: repeat(3, max-content);
-  grid-template-rows: repeat(2, minmax(44px, auto));
-  grid-auto-flow: column; /* fill top->bottom per column so each column has 2 buttons */
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 56px);
+  grid-auto-flow: column;
   gap: 12px;
   align-items: stretch;
-  justify-content: start;
+  justify-content: center;
   width:100%; box-sizing:border-box;
 }
 .cta-grid .btn{ min-height:44px; }
@@ -145,16 +145,15 @@ h1{ font-size:1.6rem; margin:0 0 6px 0; color:var(--gray-700); }
   width: auto;
 }
 .plan-show-card .cta-grid .btn {
-  padding: 10px 14px !important;
+  padding: 0 12px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  /* Force identical width/height for CTA buttons inside plan show */
+  border-radius: 10px !important;
+  font-weight: 700 !important;
   box-sizing: border-box !important;
-  width: 220px !important;
-  height: 68px !important;
+  width: 100% !important;
+  height: 56px !important;
   max-width: none !important;
   white-space: normal !important;
 }
@@ -271,16 +270,9 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
   white-space: nowrap;
 }
 .plan-show-card {
-  max-width:980px;
+  max-width:780px;
   margin:18px auto;
-  padding:20px;
-  background:#fff;
-  border-radius:10px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
+  padding:0 16px;
   box-sizing:border-box;
 }
 
@@ -288,15 +280,15 @@ body .bg-yellow-heavy{ background:var(--yellow-500); }
 .plan-summary .price-row { display:flex; gap:12px; align-items:center; justify-content:center; }
 .plan-status { text-align:center; }
 
-.plan-show-grid { width:100%; display:grid; grid-template-columns:1fr 320px; gap:18px; align-items:start; box-sizing:border-box; }
+.plan-show-grid { width:100%; margin-top:18px; }
 
 .plan-card .card-header, .card .card-header { font-weight:800; font-size:1.02rem; color:var(--gray-700); margin-bottom:8px; }
 .card { background: #fff; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.04); }
 .card .card-body { text-align:left; }
 
-/* Center CTAs under the left column and center them visually */
-.plan-actions-wrapper { grid-column:1 / 2; display:flex; justify-content:center; margin-top:18px; }
-.plan-actions-wrapper .cta-grid { justify-content:center; }
+/* Center CTAs under the card */
+.plan-actions-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
+.plan-actions-wrapper .cta-grid { width:100%; }
 
 @media (max-width:900px) {
   .plan-show-grid { grid-template-columns:1fr; }

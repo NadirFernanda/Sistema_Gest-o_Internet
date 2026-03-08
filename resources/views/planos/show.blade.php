@@ -33,9 +33,12 @@
                 $dataAtiv = null; $dataTerm = null;
             }
             $diasRest = $dataTerm ? \Carbon\Carbon::today()->diffInDays($dataTerm, false) : null;
-            // último pagamento (se houver cobrancas vinculadas ao plano)
+            // último pagamento do cliente (Cobranca não tem plano_id, usa cliente_id)
             try {
-                $ultimoPagamento = Cobranca::where('plano_id', $plano->id)->whereNotNull('data_pagamento')->orderByDesc('data_pagamento')->first();
+                $clienteId = $plano->cliente_id ?? ($plano->cliente->id ?? null);
+                $ultimoPagamento = $clienteId
+                    ? Cobranca::where('cliente_id', $clienteId)->whereNotNull('data_pagamento')->orderByDesc('data_pagamento')->first()
+                    : null;
             } catch (\Exception $e) {
                 $ultimoPagamento = null;
             }

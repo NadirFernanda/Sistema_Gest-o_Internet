@@ -302,25 +302,19 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 /* Make the overall plan-show card centered and constrain its children
    so the details card and CTA container align to the same central column */
 .plan-show-card {
-  max-width: 980px;
+  max-width: 780px;
   margin: 0 auto;
   padding-left: 16px;
   padding-right: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  box-sizing: border-box;
 }
 
 .plan-show-grid {
   margin-top: 18px;
   width: 100%;
-  display: flex;
-  justify-content: center; /* center the details card horizontally */
 }
 .plan-show-grid .card {
   width: 100%;
-  max-width: 720px; /* card width inside the centered column */
-  margin: 0 auto;
 }
 
 /* When plan header is inside the details card, make it span full card width and align content */
@@ -340,20 +334,16 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 }
 
 .plan-actions-wrapper {
-  max-width: 980px;
-  margin: 20px auto 0;
-  display: flex;
-  justify-content: center; /* center the CTA grid under the main card */
-  padding-left: 16px;
-  padding-right: 16px;
+  margin: 20px 0 0;
+  width: 100%;
 }
 
 /* Ensure details card inner grid items align top and are left-aligned for readability */
 .plan-show-grid .card .card-body > div { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
 .plan-show-grid .card .card-body .muted { color: #7a7a7a; }
 
-/* Ensure CTA grid width matches card width and is centered */
-.plan-actions-wrapper .cta-grid { max-width: 720px; width: 100%; }
+/* CTA grid width fills the parent container */
+.plan-actions-wrapper .cta-grid { width: 100%; }
 
 /* CTA grid: 3 columns × 2 rows, fill by column (column-first) */
 .cta-grid {
@@ -362,8 +352,6 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
   grid-template-rows: repeat(2, 56px);
   grid-auto-flow: column;
   gap: 12px;
-  max-width: 780px;
-  margin: 18px auto 0;
   align-items: stretch;
   justify-items: stretch;
 }
@@ -422,10 +410,9 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 .plano-summary .card { flex:1; min-width:260px; }
 .plano-summary .card .card-body { padding:14px; }
 
-/* Center the "Detalhes do Plano" card as a component; keep content left-aligned */
+/* Card fills the plan-show-card container — no extra centering needed */
 .plan-show-grid .card:first-child {
-  margin: 0 auto;
-  max-width: 780px;
+  margin: 0;
 }
 .plan-show-grid .card:first-child .card-header { text-align: center; }
 .plan-show-grid .card:first-child .card-body { display: block; text-align: left; }
