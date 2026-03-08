@@ -13,11 +13,21 @@ class PlanTemplateCatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $templates = PlanTemplate::query()
-            ->whereIn('estado', ['ativo', 'active', 'Ativo', 'Active', ''])
-            ->orWhereNull('estado')
-            ->orderBy('preco')
-            ->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'metadata']);
+        $query = PlanTemplate::query()
+            ->where(function ($q) {
+                $q->whereIn('estado', ['ativo', 'active', 'Ativo', 'Active', ''])
+                  ->orWhereNull('estado');
+            })
+            ->orderBy('preco');
+
+        if ($search = $request->query('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        $templates = $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'metadata']);
 
         return response()->json([
             'data' => $templates->map(function ($t) {

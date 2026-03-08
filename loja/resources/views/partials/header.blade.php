@@ -39,7 +39,7 @@
 
       <div class="store-actions">
         <div class="search-wrapper">
-          <input id="store-search-input" class="search-input" type="search" placeholder="Pesquisar planos, ex.: 10 Mbps" aria-label="Pesquisar planos">
+          <input id="store-search-input" class="search-input" type="search" autocomplete="off" placeholder="Pesquisar planos, ex.: 10 Mbps" aria-label="Pesquisar planos">
           <div id="store-search-results" class="search-results" role="listbox" aria-hidden="true"></div>
         </div>
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
@@ -93,10 +93,10 @@
     }
     items.forEach(function(it){
       var el = document.createElement('a');
-      el.href = '/planos/' + it.id;
+      el.href = '/#planos-familia-empresarial';
       el.className = 'search-result-item';
       el.setAttribute('role','option');
-      el.innerHTML = '<div class="res-title">' + (it.name || '') + '</div>' + '<div class="res-sub">' + (it.description ? (it.description.substring(0,80)) : '') + '</div>';
+      el.innerHTML = '<div class="res-title">' + (it.name || '') + '</div>' + '<div class="res-sub">' + (it.preco ? (Number(it.preco).toLocaleString('pt') + ' Kz · ') : '') + (it.description ? (it.description.substring(0,80)) : 'Plano familiar / empresarial') + '</div>';
       results.appendChild(el);
     });
     results.setAttribute('aria-hidden','false');
@@ -104,7 +104,7 @@
 
   function doSearch(q) {
     if (!q || q.trim().length < 2) { renderResults([]); return; }
-    fetch('/sg/plans?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+    fetch('/sg/plan-templates?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
       .then(function(r){ return r.json(); })
       .then(function(json){ renderResults(json.data || []); })
       .catch(function(){ renderResults([]); });
