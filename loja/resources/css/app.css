@@ -58,7 +58,8 @@ a { text-decoration: none; }
 .container--720 { max-width: 720px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 .container--880 { max-width: 880px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 
-main { min-height: calc(100vh - var(--header-height)); }
+/* min-height removed — hero carousel already fills viewport; section backgrounds cover remaining space */
+main { display: block; }
 
 /* ==========================================================================
    HEADER
@@ -820,17 +821,37 @@ main { min-height: calc(100vh - var(--header-height)); }
 .plan-card--featured .btn-modern    { background: var(--brand); color: var(--text-dark); }
 .plan-card--featured .btn-modern:hover { filter: brightness(1.06); }
 
-/* Compact CTA strip when family plans are unavailable */
-.family-plans-cta {
-  background: var(--surface);
+/* Family plans section */
+.planos-section--family {
+  background: var(--surface-2);
   border-top: 1px solid var(--muted-border);
-  padding: 2.5rem 0;
-  text-align: center;
 }
-.family-plans-cta p {
+
+/* Empty state when family plans not yet loaded from SG */
+.family-empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--surface);
+  border-radius: 1.25rem;
+  border: 1.5px dashed var(--muted-border);
+}
+.family-empty-state__icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.family-empty-state__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem;
+}
+.family-empty-state__text {
   color: var(--text-muted);
-  font-size: 1rem;
-  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  max-width: 420px;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
 }
 .btn-cta {
   display: inline-flex;

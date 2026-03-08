@@ -113,55 +113,53 @@
     </div>
   </section>
 
-@if(!empty($familyBusinessPlans))
-  <section class="planos-section" id="planos-familia-empresarial">
-    <div class="container">
-      <div class="section-header">
-        <h2>Planos Familiares &amp; Empresariais</h2>
-        <div class="section-header__rule"></div>
-        <p>Soluções para famílias e empresas — planos com duração de 30 dias, partilháveis ou com SLA dedicado conforme necessidade.</p>
-      </div>
+<section class="planos-section planos-section--family" id="planos-familia-empresarial">
+  <div class="container">
+    <div class="section-header">
+      <h2>Planos Familiares &amp; Empresariais</h2>
+      <div class="section-header__rule"></div>
+      <p>Soluções para famílias e empresas — planos com duração mensal, partilháveis ou com SLA dedicado. Dados carregados directamente do sistema de gestão.</p>
+    </div>
 
-      <div class="plans-grid" aria-live="polite">
-        @foreach ($familyBusinessPlans as $plan)
-          <div class="plan-card-modern">
-            <div class="plan-card-modern-inner">
-              <div class="plan-card-modern-header">
-                <span class="plan-emoji" aria-hidden="true">{{ str_contains(strtolower($plan['name'] ?? ''), 'empresa') ? '🏢' : '🏠' }}</span>
-                <h3 class="plan-title">{{ $plan['name'] ?? 'Plano' }}</h3>
-              </div>
-              <div class="plan-card-modern-body">
-                @if (!empty($plan['preco']))
-                  <div class="plan-price-row">
-                    <span class="plan-price">{{ number_format((float)$plan['preco'], 0, ',', '.') }}</span>
-                    <span class="plan-currency">Kz</span>
-                  </div>
-                @endif
-                @if (!empty($plan['ciclo']))
-                  <div class="plan-features">
-                    <span class="plan-feature"><strong>{{ $plan['ciclo'] }} dias</strong></span>
-                  </div>
-                @endif
-                @if (!empty($plan['description']))
-                  <p class="plan-desc">{{ $plan['description'] }}</p>
-                @endif
-              </div>
-              <div class="plan-card-modern-footer">
-                <a class="btn-modern" href="/quero-ser-revendedor">Solicitar Plano</a>
-              </div>
+    <div class="plans-grid" aria-live="polite">
+      @forelse ($familyBusinessPlans as $plan)
+        <div class="plan-card-modern">
+          <div class="plan-card-modern-inner">
+            <div class="plan-card-modern-header">
+              <span class="plan-emoji" aria-hidden="true">{{ str_contains(strtolower($plan['name'] ?? ''), 'empresa') ? '🏢' : '🏠' }}</span>
+              <h3 class="plan-title">{{ $plan['name'] ?? 'Plano' }}</h3>
+            </div>
+            <div class="plan-card-modern-body">
+              @if (!empty($plan['preco']))
+                <div class="plan-price-row">
+                  <span class="plan-price">{{ number_format((float)$plan['preco'], 0, ',', '.') }}</span>
+                  <span class="plan-currency">Kz</span>
+                </div>
+              @endif
+              @if (!empty($plan['ciclo']))
+                <div class="plan-features">
+                  <span class="plan-feature"><strong>{{ $plan['ciclo'] }} dias</strong></span>
+                </div>
+              @endif
+              @if (!empty($plan['description']))
+                <p class="plan-desc">{{ $plan['description'] }}</p>
+              @endif
+            </div>
+            <div class="plan-card-modern-footer">
+              <a class="btn-modern" href="/quero-ser-revendedor">Solicitar Plano</a>
             </div>
           </div>
-        @endforeach
-      </div>
-    </div>
-  </section>
-@else
-  <div class="family-plans-cta">
-    <div class="container">
-      <p>Planos familiares e empresariais disponíveis para contratar.</p>
-      <a href="/quero-ser-revendedor" class="btn-cta">Tornar-se Revendedor &rarr;</a>
+        </div>
+      @empty
+        <div class="family-empty-state">
+          <div class="family-empty-state__icon">📡</div>
+          <h3 class="family-empty-state__title">Planos carregando do sistema</h3>
+          <p class="family-empty-state__text">Os nossos planos familiares e empresariais são geridos directamente no sistema de gestão. Para saber mais ou contratar, contacte-nos.</p>
+          <a href="/quero-ser-revendedor" class="btn-cta">Falar com a equipa &rarr;</a>
+        </div>
+      @endforelse
     </div>
   </div>
-@endif
+</section>
 
 
