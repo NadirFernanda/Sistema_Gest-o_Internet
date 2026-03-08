@@ -29,57 +29,14 @@
       </div>
     @endif
 
-    {{-- Grid de produtos --}}
-    <div class="plans-grid" aria-live="polite">
-      @forelse ($products as $product)
-        <div class="plan-card-modern">
-          <div class="plan-card-modern-inner">
-            @if ($product->image_path)
-              <img src="{{ asset($product->image_path) }}" alt="{{ $product->name }}" class="product-img">
-            @else
-              <div class="product-placeholder">📦</div>
-            @endif
-
-            <div class="plan-card-modern-header">
-              <h3 class="plan-title">{{ $product->name }}</h3>
-            </div>
-
-            @if ($product->category)
-              <span class="plan-feature" style="margin-bottom:0.5rem;">{{ $product->category }}</span>
-            @endif
-
-            <div class="plan-card-modern-body">
-              <div class="plan-price-row">
-                <span class="plan-price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
-                <span class="plan-currency">Kz</span>
-              </div>
-
-              @if ($product->description)
-                <p class="plan-desc">{{ Str::limit($product->description, 100) }}</p>
-              @endif
-
-              @if (!$product->isInStock())
-                <p class="product-stock-warn">Sem stock</p>
-              @endif
-            </div>
-
-            <div class="product-actions">
-              <a href="{{ route('equipment.show', $product->slug) }}" class="btn-modern">Ver Detalhes</a>
-              @if ($product->isInStock())
-                <form method="POST" action="{{ route('equipment.cart.add') }}">
-                  @csrf
-                  <input type="hidden" name="product_id" value="{{ $product->id }}">
-                  <button type="submit" class="btn-modern">🛒 Adicionar</button>
-                </form>
-              @endif
-            </div>
-          </div>
-        </div>
-      @empty
-        <div class="plan-card-modern" style="grid-column:1/-1;">
-          <p>Nenhum produto disponível de momento. Volte em breve.</p>
-        </div>
-      @endforelse
+    {{-- Grid de produtos — carregado assíncronamente do SG --}}
+    <div class="plans-grid" id="sg-equipment-grid" aria-live="polite">
+      {{-- Skeleton de carregamento (3 pontos) — substituído pelo JS --}}
+      <div class="family-loading" style="grid-column:1/-1">
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+      </div>
     </div>
   </div>
 </div>

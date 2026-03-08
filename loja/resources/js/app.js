@@ -34,6 +34,67 @@ function renderFamilyCard(plan) {
 		+ '</div></div></div>';
 }
 
+// Render one equipment card from SG catalog
+function renderEquipmentCard(item) {
+	var imgHtml = item.imagem_url
+		? '<img src="' + esc(item.imagem_url) + '" alt="' + esc(item.nome) + '" class="product-img">'
+		: '<div class="product-placeholder">\uD83D\uDCE6</div>'; // 📦
+	var stockBadge = item.em_stock ? '' : '<p class="product-stock-warn">Sem stock</p>';
+	var catBadge   = item.categoria ? '<span class="plan-feature" style="margin-bottom:0.5rem;">' + esc(item.categoria) + '</span>' : '';
+	var desc       = item.descricao ? '<p class="plan-desc">' + esc(item.descricao) + '</p>' : '';
+	return '<div class="plan-card-modern">'
+		+ '<div class="plan-card-modern-inner">'
+		+ imgHtml
+		+ '<div class="plan-card-modern-header">'
+		+ '<h3 class="plan-title">' + esc(item.nome) + '</h3>'
+		+ '</div>'
+		+ catBadge
+		+ '<div class="plan-card-modern-body">'
+		+ '<div class="plan-price-row"><span class="plan-price">'
+		+ Number(item.preco).toLocaleString('pt-PT')
+		+ '</span><span class="plan-currency">Kz</span></div>'
+		+ desc
+		+ stockBadge
+		+ '</div>'
+		+ '<div class="product-actions">'
+		+ (item.em_stock
+			? '<button type="button" class="btn-modern" onclick="sgAddToCart(' + item.id + ', this)">&#x1F6D2; Adicionar</button>'
+			: '<span class="btn-modern" style="opacity:0.45;cursor:not-allowed;">Sem stock</span>')
+		+ '</div>'
+		+ '</div></div>';
+}
+
+var EQUIPMENT_EMPTY_HTML =
+	'<div class="family-empty-state" style="grid-column:1/-1">'
+	+ '<div class="family-empty-state__icon">\uD83D\uDCE6</div>'
+	+ '<h3 class="family-empty-state__title">Sem produtos dispon\u00edveis</h3>'
+	+ '<p class="family-empty-state__text">O cat\u00e1logo de equipamentos ser\u00e1 actualizado em breve. Contacte-nos para consultar disponibilidade.</p>'
+	+ '</div>';
+
+var EQUIPMENT_ERROR_HTML =
+	'<div class="family-empty-state" style="grid-column:1/-1">'
+	+ '<div class="family-empty-state__icon">\u26A0\uFE0F</div>'
+	+ '<h3 class="family-empty-state__title">Cat\u00e1logo indispon\u00edvel</h3>'
+	+ '<p class="family-empty-state__text">N\u00e3o foi poss\u00edvel carregar os equipamentos. Tente novamente mais tarde.</p>'
+	+ '</div>';
+
+// Add equipment from SG to loja cart (POST to loja cart endpoint)
+window.sgAddToCart = function(productId, btn) {
+	if (!btn) return;
+	btn.disabled = true;
+	btn.textContent = 'A adicionar\u2026';
+	var form = document.createElement('form');
+	form.method = 'POST';
+	form.action = '/carrinho/adicionar';
+	var csrf = document.querySelector('meta[name="csrf-token"]');
+	if (csrf) {
+		var t = document.createElement('input'); t.type = 'hidden'; t.name = '_token'; t.value = csrf.content; form.appendChild(t);
+	}
+	var pid = document.createElement('input'); pid.type = 'hidden'; pid.name = 'product_id'; pid.value = productId; form.appendChild(pid);
+	document.body.appendChild(form);
+	form.submit();
+};
+
 var FAMILY_EMPTY_HTML =
 	'<div class="family-empty-state">'
 	+ '<div class="family-empty-state__icon">\uD83D\uDCF6</div>'  // 📶
@@ -65,6 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
 					: FAMILY_EMPTY_HTML;
 			})
 			.catch(function() { familyGrid.innerHTML = FAMILY_ERROR_HTML; });
+	}
+
+	// ---- Async equipment catalog loader ----
+	// Loads equipment from SG after page is ready — same zero-FOUC pattern.
+	var equipGrid = document.getElementById('sg-equipment-grid');
+	if (equipGrid) {
+		fetch('/sg/equipment-catalog', { credentials: 'same-origin' })
+			.then(function(r) { return r.json(); })
+			.then(function(json) {
+				var items = json.data || [];
+				equipGrid.innerHTML = items.length
+					? items.map(renderEquipmentCard).join('')
+					: EQUIPMENT_EMPTY_HTML;
+			})
+			.catch(function() { equipGrid.innerHTML = EQUIPMENT_ERROR_HTML; });
 	}
 	// Hero carousel
 	var heroEl = document.getElementById('hero');

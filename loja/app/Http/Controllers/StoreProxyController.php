@@ -86,6 +86,30 @@ class StoreProxyController extends Controller
         }
     }
 
+    public function equipmentCatalog(Request $request)
+    {
+        // Proxy para o catálogo público de equipamentos à venda (gerido no SG)
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
+        $http = new Client(['base_uri' => $sg]);
+
+        try {
+            $res = $http->get('/api/equipment-catalog', [
+                'query' => $request->query(),
+                'http_errors' => false,
+                'timeout' => 8,
+            ]);
+
+            return response($res->getBody(), $res->getStatusCode())
+                ->header('Content-Type', $res->getHeaderLine('Content-Type') ?: 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'sg_unreachable',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
     public function sendOrder(Request $request)
     {
         $token = $this->getToken();

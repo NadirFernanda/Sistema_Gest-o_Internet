@@ -92,8 +92,10 @@
                   <span class="plan-currency">Kz</span>
                 </div>
                 <div class="plan-features">
-                  <span class="plan-feature"><strong>{{ $plan['duration_label'] }}</strong></span>
+                  <span class="plan-feature plan-feature--active"><strong>{{ $plan['duration_label'] }}</strong></span>
                   <span class="plan-feature">{{ $plan['speed'] }}</span>
+                  @if(!empty($plan['max_speed']))<span class="plan-feature">{{ $plan['max_speed'] }}</span>@endif
+                  @if(!empty($plan['download']))<span class="plan-feature">{{ $plan['download'] }}</span>@endif
                 </div>
                 @if (!empty($plan['description']))
                   <p class="plan-desc">{{ $plan['description'] }}</p>

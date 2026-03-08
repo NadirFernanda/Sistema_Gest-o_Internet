@@ -12,16 +12,11 @@ class EquipmentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::active()->orderBy('category')->orderBy('name');
+        // Products are loaded asynchronously from SG via JS (/sg/equipment-catalog).
+        // We only pass categories for the filter UI (if any local products exist as fallback).
+        $categories = collect();
 
-        if ($request->filled('categoria')) {
-            $query->where('category', $request->input('categoria'));
-        }
-
-        $products   = $query->get();
-        $categories = Product::active()->distinct()->pluck('category')->filter()->sort()->values();
-
-        return view('equipment.index', compact('products', 'categories'));
+        return view('equipment.index', compact('categories'));
     }
 
     public function show(string $slug)

@@ -17,6 +17,7 @@ Route::get('/', function () {
 // Demo proxy endpoints to interact with SG for the loja prototype
 Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
 Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
+Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
 
 // Storefront routes
