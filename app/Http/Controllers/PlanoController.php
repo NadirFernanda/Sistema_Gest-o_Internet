@@ -76,6 +76,11 @@ class PlanoController extends Controller
         try {
             $query = Plano::with(['cliente', 'template']);
 
+            // Filter by template_id when a specific plan type is selected
+            if ($templateId = $request->query('template_id')) {
+                $query->where('planos.template_id', (int) $templateId);
+            }
+
             if ($busca = $request->query('busca')) {
             $busca = trim($busca);
             // Use LOWER(... ) LIKE ? to provide case-insensitive search that

@@ -499,8 +499,12 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             }));
         }
 
-        function fetchAndUpdate(q){
-            const apiUrl = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos') + (q ? '?busca=' + encodeURIComponent(q) : '');
+        function fetchAndUpdate(q, templateId){
+            const base = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos');
+            const params = [];
+            if (q) params.push('busca=' + encodeURIComponent(q));
+            if (templateId) params.push('template_id=' + encodeURIComponent(templateId));
+            const apiUrl = base + (params.length ? '?' + params.join('&') : '');
             const prev = lista.innerHTML;
             lista.innerHTML = '<div style="padding:12px 0">Carregando resultados...</div>';
             fetch(apiUrl, { headers: Object.assign({}, headers), credentials: 'same-origin' })
@@ -509,17 +513,66 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 .catch(()=>{ lista.innerHTML = prev; });
         }
 
+        // Active template filter state
+        let _activeTemplateId = null;
+
+        function setTemplateFilter(id, name){
+            _activeTemplateId = id;
+            // highlight active card
+            document.querySelectorAll('.tpl-item').forEach(el => {
+                const isActive = el.getAttribute('data-template-id') == id;
+                el.style.borderColor = isActive ? '#f7b500' : 'rgba(231,214,137,0.4)';
+                el.style.boxShadow = isActive ? '0 0 0 2px rgba(247,181,0,0.35)' : '';
+                el.style.background = isActive ? '#fffbe7' : '#fff';
+            });
+            // show filter badge
+            const filterBar = document.getElementById('activePlanFilter');
+            const filterName = document.getElementById('activePlanFilterName');
+            if (filterBar) filterBar.style.display = 'flex';
+            if (filterName) filterName.textContent = name;
+            fetchAndUpdate('', id);
+        }
+
+        function clearTemplateFilter(){
+            _activeTemplateId = null;
+            document.querySelectorAll('.tpl-item').forEach(el => {
+                el.style.borderColor = 'rgba(231,214,137,0.4)';
+                el.style.boxShadow = '';
+                el.style.background = '#fff';
+            });
+            const filterBar = document.getElementById('activePlanFilter');
+            if (filterBar) filterBar.style.display = 'none';
+            fetchAndUpdate(input.value.trim());
+        }
+
+        // Attach click handlers to template summary items
+        document.querySelectorAll('.tpl-item').forEach(el => {
+            el.addEventListener('click', function(){
+                const tid = this.getAttribute('data-template-id');
+                const tname = this.getAttribute('data-template-name');
+                if (!tid) return;
+                if (_activeTemplateId == tid) {
+                    clearTemplateFilter();
+                } else {
+                    setTemplateFilter(tid, tname);
+                }
+            });
+        });
+
+        const clearFilterBtn = document.getElementById('clearPlanFilter');
+        if (clearFilterBtn) clearFilterBtn.addEventListener('click', clearTemplateFilter);
+
         function debounce(fn, wait){ let t; return function(){ const args = arguments; clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
-        const debouncedFetch = debounce(function(){ fetchAndUpdate(input.value.trim()); }, 300);
+        const debouncedFetch = debounce(function(){ fetchAndUpdate(input.value.trim(), _activeTemplateId); }, 300);
         input.addEventListener('input', debouncedFetch);
-        input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim()); } });
-        if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate(''); }); }
-        if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim()); }); }
+        input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim(), _activeTemplateId); } });
+        if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate('', _activeTemplateId); }); }
+        if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim(), _activeTemplateId); }); }
 
         // Expose a debug helper to manually refresh planos from console and
         // perform an initial load so the list shows on page load.
         try{
-            window.__refreshPlanos = function(){ try{ fetchAndUpdate(''); }catch(_){ } };
+            window.__refreshPlanos = function(){ try{ fetchAndUpdate('', _activeTemplateId); }catch(_){ } };
             // Initial fetch to populate the list when page loads
             fetchAndUpdate('');
         }catch(_){ }

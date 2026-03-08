@@ -86,7 +86,9 @@
                 <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
                     @isset($templates)
                         @foreach($templates as $tpl)
-                            <div class="tpl-item" style="background:#fff;padding:10px;border-radius:8px;border:1px solid rgba(231,214,137,0.4);display:flex;flex-direction:column;">
+                            <div class="tpl-item" data-template-id="{{ $tpl->id }}" data-template-name="{{ $tpl->name }}"
+                                 style="background:#fff;padding:10px;border-radius:8px;border:1px solid rgba(231,214,137,0.4);display:flex;flex-direction:column;cursor:pointer;transition:box-shadow 0.15s,border-color 0.15s;"
+                                 title="Clique para filtrar por {{ $tpl->name }}">
                                 <div class="tpl-item-title" style="font-weight:700;color:#f7b500;">{{ $tpl->name }}</div>
                                 <div class="tpl-item-count" style="font-size:1.4rem;font-weight:800;margin-top:6px;">{{ $tpl->clients_count ?? 0 }}</div>
                                 <div class="tpl-item-sub" style="font-size:0.9rem;color:#666;">clientes</div>
@@ -97,6 +99,11 @@
                     @endisset
                 </div>
             </div>
+        </div>
+
+        <div id="activePlanFilter" style="display:none;max-width:1100px;margin:10px auto 0;padding:8px 14px;background:#fff8e1;border:1px solid #f7b500;border-radius:8px;align-items:center;gap:10px;">
+            <span style="font-size:0.93rem;color:#333;">A mostrar planos de: <strong id="activePlanFilterName"></strong></span>
+            <button id="clearPlanFilter" style="margin-left:auto;background:transparent;border:1px solid #aaa;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.88rem;color:#555;">✕ Limpar filtro</button>
         </div>
 
         <div class="planos-lista" id="planosLista">
