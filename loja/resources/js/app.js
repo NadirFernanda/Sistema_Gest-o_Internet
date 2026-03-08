@@ -2,71 +2,50 @@ import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', () => {
 	// Hero carousel
-	const carousel = document.querySelector('.hero-carousel');
-	if (carousel) {
-		const track = carousel.querySelector('.carousel-track');
-		const slides = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-slide'));
-		const progressBars = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-progress-bar'));
-		let index = 0;
-		const slideCount = slides.length;
-		let interval = null;
+	var heroEl = document.getElementById('hero');
+	if (heroEl) {
+		var heroTrack  = heroEl.querySelector('#heroTrack');
+		var heroDots   = heroEl.querySelectorAll('.hero__dot');
+		var heroPrev   = heroEl.querySelector('.hero__arrow--prev');
+		var heroNext   = heroEl.querySelector('.hero__arrow--next');
+		var heroCount  = heroEl.querySelectorAll('.hero__slide').length;
+		var heroCur    = 0;
+		var heroTid    = null;
 
-		function goTo(i) {
-			index = (i + slideCount) % slideCount;
-			track.style.transform = 'translateX(' + -(index * 100) + '%)';
-			slides.forEach((s, si) => s.classList.toggle('active', si === index));
-			// Reset progress bars — re-add active to trigger CSS animation restart
-			progressBars.forEach(bar => {
-				bar.classList.remove('active');
-				// Force reflow so animation restarts
-				void bar.offsetWidth;
+		function heroGoTo(n) {
+			heroCur = ((n % heroCount) + heroCount) % heroCount;
+			heroTrack.style.transform = 'translateX(' + (-heroCur * 100) + '%)';
+			heroDots.forEach(function(d, i) {
+				d.classList.toggle('is-active', i === heroCur);
+				d.setAttribute('aria-selected', i === heroCur ? 'true' : 'false');
 			});
-			if (progressBars[index]) progressBars[index].classList.add('active');
 		}
 
-		function nextSlide() { goTo(index + 1); }
-		function prevSlide() { goTo(index - 1); }
+		function heroPlay()  { heroTid = window.setInterval(function() { heroGoTo(heroCur + 1); }, 5000); }
+		function heroPause() { window.clearInterval(heroTid); heroTid = null; }
+		function heroReset() { heroPause(); heroPlay(); }
 
-		let touchStartX = null;
-		carousel.addEventListener('touchstart', e => {
-			touchStartX = e.touches && e.touches[0] ? e.touches[0].clientX : null;
-		}, { passive: true });
+		if (heroPrev) heroPrev.addEventListener('click', function() { heroGoTo(heroCur - 1); heroReset(); });
+		if (heroNext) heroNext.addEventListener('click', function() { heroGoTo(heroCur + 1); heroReset(); });
 
-		carousel.addEventListener('touchend', e => {
-			if (touchStartX === null) return;
-			const touchEndX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : null;
-			if (touchEndX === null) return;
-			const dx = touchEndX - touchStartX;
-			if (Math.abs(dx) > 40) {
-				if (dx < 0) { nextSlide(); } else { prevSlide(); }
-				restart();
-			}
-			touchStartX = null;
+		heroDots.forEach(function(d) {
+			d.addEventListener('click', function() { heroGoTo(parseInt(d.dataset.slide, 10)); heroReset(); });
 		});
 
-		function start() { interval = window.setInterval(nextSlide, 5000); }
-		function stop() { if (interval) { window.clearInterval(interval); interval = null; } }
-		function restart() { stop(); start(); }
+		heroEl.addEventListener('mouseenter', heroPause);
+		heroEl.addEventListener('mouseleave', heroPlay);
 
-		carousel.addEventListener('mouseenter', stop);
-		carousel.addEventListener('mouseleave', start);
+		var heroSwipeX = null;
+		heroEl.addEventListener('touchstart', function(e) { heroSwipeX = e.touches[0].clientX; }, { passive: true });
+		heroEl.addEventListener('touchend', function(e) {
+			if (heroSwipeX === null) return;
+			var dx = e.changedTouches[0].clientX - heroSwipeX;
+			if (Math.abs(dx) > 40) { dx < 0 ? heroGoTo(heroCur + 1) : heroGoTo(heroCur - 1); heroReset(); }
+			heroSwipeX = null;
+		});
 
-		// Carousel arrow navigation
-		const leftArrow = carousel.querySelector('.carousel-arrow.left');
-		const rightArrow = carousel.querySelector('.carousel-arrow.right');
-		if (leftArrow && rightArrow) {
-			leftArrow.addEventListener('click', () => { prevSlide(); restart(); });
-			rightArrow.addEventListener('click', () => { nextSlide(); restart(); });
-			// Keyboard accessibility
-			[leftArrow, rightArrow].forEach(btn => {
-				btn.addEventListener('keydown', e => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						btn.click();
-					}
-				});
-			});
-		}
-		goTo(0);
+		heroGoTo(0);
+		heroPlay();
 	}
 
 	// Load family & business plans
