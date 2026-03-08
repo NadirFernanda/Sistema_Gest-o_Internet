@@ -767,6 +767,89 @@ main { min-height: calc(100vh - var(--header-height)); }
   .plan-price { font-size: 2.1rem; }
 }
 
+/* Individual plans — 3-column fixed grid */
+.plans-grid--individual {
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .plans-grid--individual { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .plans-grid--individual { grid-template-columns: 1fr; }
+}
+
+/* Individual plans section — white bg for contrast */
+.planos-section--individual {
+  background: var(--surface);
+  border-top: 1px solid var(--muted-border);
+}
+
+/* Plan badge (Mais Popular, etc.) */
+.plan-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--brand);
+  color: var(--text-dark);
+  padding: 0.18rem 0.65rem;
+  border-radius: 100px;
+  margin-bottom: 0.8rem;
+}
+
+/* Featured plan card — dark navy, lifted */
+.plan-card--featured {
+  background: var(--text-dark);
+  border-color: transparent;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22), 0 6px 20px rgba(15, 23, 42, 0.14);
+  transform: translateY(-10px);
+}
+.plan-card--featured:hover {
+  transform: translateY(-16px);
+  border-color: var(--brand);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.28), 0 8px 24px rgba(15, 23, 42, 0.16);
+}
+.plan-card--featured::before  { background: var(--brand); }
+.plan-card--featured .plan-title   { color: #fff; }
+.plan-card--featured .plan-price   { color: var(--brand); }
+.plan-card--featured .plan-currency { color: rgba(255,255,255,0.55); }
+.plan-card--featured .plan-feature  { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.85); }
+.plan-card--featured .plan-desc     { color: rgba(255,255,255,0.5); }
+.plan-card--featured .btn-modern    { background: var(--brand); color: var(--text-dark); }
+.plan-card--featured .btn-modern:hover { filter: brightness(1.06); }
+
+/* Compact CTA strip when family plans are unavailable */
+.family-plans-cta {
+  background: var(--surface);
+  border-top: 1px solid var(--muted-border);
+  padding: 2.5rem 0;
+  text-align: center;
+}
+.family-plans-cta p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0 0 1rem;
+}
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--text-dark);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: background 0.18s, transform 0.18s;
+}
+.btn-cta:hover {
+  background: #1e3a5f;
+  transform: translateY(-2px);
+}
+
 /* ==========================================================================
    PAGE HERO — inner pages (about, como comprar, conta)
    ========================================================================== */

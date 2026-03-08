@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  <section class="planos-section" id="planos">
+  <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
         <h2>Planos Individuais</h2>
@@ -75,10 +75,11 @@
         <p>Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.</p>
       </div>
 
-      <div class="plans-grid" aria-live="polite">
+      <div class="plans-grid plans-grid--individual" aria-live="polite">
         @forelse ($individualPlans as $plan)
-          <div class="plan-card-modern plan-card--individual plan-card--{{ $plan['id'] }}">
+          <div class="plan-card-modern plan-card--individual plan-card--{{ $plan['id'] }}{{ $plan['id'] === 'semanal' ? ' plan-card--featured' : '' }}">
             <div class="plan-card-modern-inner">
+              @if($plan['id'] === 'semanal')<div class="plan-badge">Mais Popular</div>@endif
               <div class="plan-card-modern-header">
                 <span class="plan-emoji" aria-hidden="true">
                   @if(str_contains(strtolower($plan['name']), 'hora'))⏰@elseif(str_contains(strtolower($plan['name']), 'dia'))🌞@elseif(str_contains(strtolower($plan['name']), 'semana'))📅@elseif(str_contains(strtolower($plan['name']), 'mês') || str_contains(strtolower($plan['name']), 'mensal'))🗓️@else💡@endif
@@ -112,6 +113,7 @@
     </div>
   </section>
 
+@if(!empty($familyBusinessPlans))
   <section class="planos-section" id="planos-familia-empresarial">
     <div class="container">
       <div class="section-header">
@@ -121,11 +123,11 @@
       </div>
 
       <div class="plans-grid" aria-live="polite">
-        @forelse ($familyBusinessPlans as $plan)
+        @foreach ($familyBusinessPlans as $plan)
           <div class="plan-card-modern">
             <div class="plan-card-modern-inner">
               <div class="plan-card-modern-header">
-                <span class="plan-emoji" aria-hidden="true">🏠</span>
+                <span class="plan-emoji" aria-hidden="true">{{ str_contains(strtolower($plan['name'] ?? ''), 'empresa') ? '🏢' : '🏠' }}</span>
                 <h3 class="plan-title">{{ $plan['name'] ?? 'Plano' }}</h3>
               </div>
               <div class="plan-card-modern-body">
@@ -149,14 +151,17 @@
               </div>
             </div>
           </div>
-        @empty
-          <div class="plan-card-modern" style="grid-column:1/-1;text-align:center;padding:2.5rem 1.5rem;">
-            <p style="color:var(--text-muted);font-size:1rem;">Planos familiares e empresariais disponíveis sob consulta.</p>
-            <a href="/como-comprar" class="btn-ghost" style="display:inline-block;margin-top:1rem;">Saiba como funciona</a>
-          </div>
-        @endforelse
+        @endforeach
       </div>
     </div>
   </section>
+@else
+  <div class="family-plans-cta">
+    <div class="container">
+      <p>Planos familiares e empresariais disponíveis para contratar.</p>
+      <a href="/quero-ser-revendedor" class="btn-cta">Tornar-se Revendedor &rarr;</a>
+    </div>
+  </div>
+@endif
 
 
