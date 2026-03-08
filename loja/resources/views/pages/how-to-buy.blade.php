@@ -1,12 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-  <section class="planos-section" role="main" aria-label="Como Comprar" style="padding-top:2rem;padding-bottom:2rem;">
-      <div class="howto-hero">
-        <h2>Como Comprar</h2>
-        <p>Passo a passo simples para escolher um plano, pagar e começar a navegar com a LuandaWiFi.</p>
-      </div>
+  <div class="page-hero">
+    <div class="container">
+      <span class="page-hero__eyebrow">Guia de Compra</span>
+      <h1 class="page-hero__title">Como Comprar</h1>
+      <p class="page-hero__desc">Passo a passo simples para escolher um plano, pagar e começar a navegar com a LuandaWiFi.</p>
+    </div>
+  </div>
 
+  <div class="page-body">
+    <div class="container">
       <div class="howto-steps">
         <div class="howto-step">
           <div class="step-badge">1</div>
@@ -79,6 +83,6 @@
         </div>
 
       </div>
-  </section>
-
+    </div>
+  </div>
 @endsection

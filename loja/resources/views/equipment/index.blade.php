@@ -1,10 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="planos-section" aria-label="Loja de equipamentos">
+<div class="page-hero">
   <div class="container">
-    <h2>Equipamentos & Produtos</h2>
-    <p class="lead">Routers, repetidores, antenas e acessórios para a sua rede WiFi. Encomende online e receba em casa.</p>
+    <span class="page-hero__eyebrow">Catálogo</span>
+    <h1 class="page-hero__title">Equipamentos &amp; Produtos</h1>
+    <p class="page-hero__desc">Routers, repetidores, antenas e acessórios para a sua rede WiFi. Encomende online e receba em casa.</p>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container">
 
     @if (session('success'))
       <div class="alert alert-success" role="alert">{{ session('success') }}</div>
@@ -15,16 +21,10 @@
 
     {{-- Filtro por categoria --}}
     @if ($categories->isNotEmpty())
-      <div class="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filtrar por categoria">
-        <a href="{{ route('equipment.index') }}"
-           class="plan-feature {{ !request('categoria') ? 'plan-feature--active' : '' }}">
-          Todos
-        </a>
+      <div class="category-filter" role="group" aria-label="Filtrar por categoria">
+        <a href="{{ route('equipment.index') }}" class="{{ !request('categoria') ? 'is-active' : '' }}">Todos</a>
         @foreach ($categories as $cat)
-          <a href="{{ route('equipment.index', ['categoria' => $cat]) }}"
-             class="plan-feature {{ request('categoria') === $cat ? 'plan-feature--active' : '' }}">
-            {{ $cat }}
-          </a>
+          <a href="{{ route('equipment.index', ['categoria' => $cat]) }}" class="{{ request('categoria') === $cat ? 'is-active' : '' }}">{{ $cat }}</a>
         @endforeach
       </div>
     @endif
@@ -35,11 +35,9 @@
         <div class="plan-card-modern">
           <div class="plan-card-modern-inner">
             @if ($product->image_path)
-              <img src="{{ asset($product->image_path) }}"
-                   alt="{{ $product->name }}"
-                   style="width:100%;height:160px;object-fit:cover;border-radius:0.75rem;margin-bottom:0.75rem;">
+              <img src="{{ asset($product->image_path) }}" alt="{{ $product->name }}" class="product-img">
             @else
-              <div style="width:100%;height:120px;background:#f1f5f9;border-radius:0.75rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">📦</div>
+              <div class="product-placeholder">📦</div>
             @endif
 
             <div class="plan-card-modern-header">
@@ -61,17 +59,17 @@
               @endif
 
               @if (!$product->isInStock())
-                <p style="color:#ef4444;font-size:0.9rem;font-weight:600;">Sem stock</p>
+                <p class="product-stock-warn">Sem stock</p>
               @endif
             </div>
 
-            <div class="plan-card-modern-footer" style="gap:0.5rem;display:flex;flex-wrap:wrap;">
-              <a href="{{ route('equipment.show', $product->slug) }}" class="btn-modern" style="flex:1;text-align:center;">Ver Detalhes</a>
+            <div class="product-actions">
+              <a href="{{ route('equipment.show', $product->slug) }}" class="btn-modern">Ver Detalhes</a>
               @if ($product->isInStock())
-                <form method="POST" action="{{ route('equipment.cart.add') }}" style="flex:1;">
+                <form method="POST" action="{{ route('equipment.cart.add') }}">
                   @csrf
                   <input type="hidden" name="product_id" value="{{ $product->id }}">
-                  <button type="submit" class="btn-modern" style="width:100%;">🛒 Adicionar</button>
+                  <button type="submit" class="btn-modern">🛒 Adicionar</button>
                 </form>
               @endif
             </div>
@@ -84,5 +82,5 @@
       @endforelse
     </div>
   </div>
-</section>
+</div>
 @endsection

@@ -4,26 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{{ config('app.name', 'Loja') }}</title>
-    <!-- Always include fallback.css first to avoid layout breakage when Vite assets are unavailable -->
-    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ file_exists(public_path('css/fallback.css')) ? filemtime(public_path('css/fallback.css')) : time() }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    {{-- Carregar CSS de forma mutuamente exclusiva: Vite quando disponivel, fallback caso contrario. --}}
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/css/app.css','resources/js/app.js'])
+    @else
+      <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     @endif
-    {{-- Preload primeira imagem do carrossel para eliminar atraso de LCP --}}
+    {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
-    <style>
-      /* Ensure header inner uses the same centered container width as other sections */
-      .store-header-inner{ display:flex !important; justify-content:space-between !important; padding-left:var(--page-gutter,1rem) !important; padding-right:var(--page-gutter,1rem) !important; margin:0 auto !important; max-width:var(--page-max-width,1100px) !important; width:100% !important; box-sizing:border-box !important; }
-      .store-brand{ order:1 !important; }
-      .store-right{ order:2 !important; margin-left:0 !important; }
-      .store-nav{ order:1 !important; flex:0 0 auto !important; }
-      .store-actions{ order:2 !important; margin-left:8px !important; }
-      .search-wrapper{ flex:0 0 320px !important; max-width:360px !important; }
-    </style>
   </head>
-  <body class="bg-gray-50 text-gray-900 antialiased">
+  <body>
     @include('partials.header')
-    <main class="container mx-auto py-8">
+    <main>
       @yield('content')
     </main>
     @include('partials.footer')

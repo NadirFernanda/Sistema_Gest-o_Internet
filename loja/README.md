@@ -66,24 +66,24 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ```bash
 # No computador local (PowerShell ou terminal)
-git add .
-git commit -m "Descrição das alterações"
-git push origin main
-```
-
-### 2. Actualizar o servidor de produção
-
-Acede ao servidor via SSH e executa os seguintes comandos **por esta ordem**:
-
-```bash
 cd /var/www/sgmrtexas/loja
+
 git fetch origin
 git reset --hard origin/main
+
 composer install --no-dev --optimize-autoloader
+
 npm ci
 npm run build
+
 php artisan migrate --force
+
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
 php artisan optimize
+
 sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx
 ```

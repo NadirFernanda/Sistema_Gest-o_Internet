@@ -57,11 +57,23 @@
     </div>
   </section>
 
+  {{-- Stat Bar --}}
+  <div class="stat-bar">
+    <div class="stat-bar__grid">
+      <div class="stat-bar__item"><span class="stat-bar__num">5.000+</span><span class="stat-bar__lbl">Clientes activos</span></div>
+      <div class="stat-bar__item"><span class="stat-bar__num">99.8%</span><span class="stat-bar__lbl">Uptime garantido</span></div>
+      <div class="stat-bar__item"><span class="stat-bar__num">24–48h</span><span class="stat-bar__lbl">Instalação rápida</span></div>
+      <div class="stat-bar__item"><span class="stat-bar__num">24/7</span><span class="stat-bar__lbl">Suporte técnico</span></div>
+    </div>
+  </div>
 
   <section class="planos-section" id="planos">
     <div class="container">
-      <h2>Planos Individuais</h2>
-      <p class="lead">Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.</p>
+      <div class="section-header">
+        <h2>Planos Individuais</h2>
+        <div class="section-header__rule"></div>
+        <p>Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.</p>
+      </div>
 
       <div class="plans-grid" aria-live="polite">
         @forelse ($individualPlans as $plan)
@@ -102,8 +114,11 @@
 
   <section class="planos-section" id="planos-familia-empresarial">
     <div class="container">
-      <h2>Planos Familiares & Empresariais</h2>
-      <p class="lead">Soluções para famílias e empresas — planos com duração de 30 dias, partilháveis ou com SLA dedicado conforme necessidade.</p>
+      <div class="section-header">
+        <h2>Planos Familiares &amp; Empresariais</h2>
+        <div class="section-header__rule"></div>
+        <p>Soluções para famílias e empresas — planos com duração de 30 dias, partilháveis ou com SLA dedicado conforme necessidade.</p>
+      </div>
 
       <div class="plans-grid" id="family-business-plans" aria-live="polite">
         <div class="plan-card empty">
