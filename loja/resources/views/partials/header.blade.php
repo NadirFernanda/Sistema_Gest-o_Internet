@@ -15,9 +15,27 @@
       <div class="store-dropdown">
         <a href="/quem-somos" class="{{ $sobreActive ? 'store-link active' : 'store-link' }}" aria-haspopup="true" aria-expanded="false">Sobre ▾</a>
         <div class="store-dropdown-menu" role="menu" aria-hidden="true">
-          <a href="/quem-somos" class="store-link store-dropdown-item" role="menuitem">Quem Somos</a>
-          <a href="/como-comprar" class="store-link store-dropdown-item" role="menuitem">Como Comprar</a>
-          <a href="{{ route('reseller.apply') }}" class="store-link store-dropdown-item" role="menuitem">Quero ser revendedor</a>
+          <a href="/quem-somos" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">🏢</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Quem Somos</span>
+              <span class="store-dropdown-item__desc">Conheça a empresa, missão e a rede AngolaWiFi</span>
+            </span>
+          </a>
+          <a href="/como-comprar" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">🛒</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Como Comprar</span>
+              <span class="store-dropdown-item__desc">Passo a passo para adquirir o seu plano WiFi</span>
+            </span>
+          </a>
+          <a href="{{ route('reseller.apply') }}" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">🤝</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Ser Revendedor</span>
+              <span class="store-dropdown-item__desc">Torne-se parceiro e revenda os nossos serviços</span>
+            </span>
+          </a>
         </div>
       </div>
 
@@ -28,10 +46,30 @@
       <div class="store-dropdown">
         <a href="/admin" class="{{ request()->is('admin*') ? 'store-link active store-link--muted' : 'store-link store-link--muted' }}" aria-haspopup="true" aria-expanded="false">Administração ▾</a>
         <div class="store-dropdown-menu" role="menu" aria-hidden="true">
-          <a href="/admin/recargas" class="store-link store-dropdown-item" role="menuitem">Gestão de recargas</a>
-          <a href="/admin/relatorios" class="store-link store-dropdown-item" role="menuitem">Relatórios</a>
-          <a href="{{ route('admin.equipment.products.index') }}" class="store-link store-dropdown-item" role="menuitem">Produtos</a>
-          <a href="{{ route('admin.equipment.orders.index') }}" class="store-link store-dropdown-item" role="menuitem">Encomendas</a>
+          <a href="/admin/recargas" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">💳</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Gestão de recargas</span>
+            </span>
+          </a>
+          <a href="/admin/relatorios" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">📊</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Relatórios</span>
+            </span>
+          </a>
+          <a href="{{ route('admin.equipment.products.index') }}" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">📦</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Produtos</span>
+            </span>
+          </a>
+          <a href="{{ route('admin.equipment.orders.index') }}" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">🛍️</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Encomendas</span>
+            </span>
+          </a>
         </div>
       </div>
       @endauth

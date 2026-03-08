@@ -36,9 +36,17 @@ function renderFamilyCard(plan) {
 
 var FAMILY_EMPTY_HTML =
 	'<div class="family-empty-state">'
-	+ '<div class="family-empty-state__icon">\uD83D\uDCE1</div>'  // 📡
-	+ '<h3 class="family-empty-state__title">Planos carregando do sistema</h3>'
-	+ '<p class="family-empty-state__text">Os nossos planos familiares e empresariais s\u00e3o geridos directamente no sistema de gest\u00e3o. Para saber mais ou contratar, contacte-nos.</p>'
+	+ '<div class="family-empty-state__icon">\uD83D\uDCF6</div>'  // 📶
+	+ '<h3 class="family-empty-state__title">Planos sob consulta</h3>'
+	+ '<p class="family-empty-state__text">Os nossos planos familiares e empresariais s\u00e3o configurados de acordo com as necessidades de cada cliente. Contacte-nos para obter uma proposta personalizada.</p>'
+	+ '<a href="/quero-ser-revendedor" class="btn-cta">Falar com a equipa &rarr;</a>'
+	+ '</div>';
+
+var FAMILY_ERROR_HTML =
+	'<div class="family-empty-state">'
+	+ '<div class="family-empty-state__icon">\u26A0\uFE0F</div>'  // ⚠️
+	+ '<h3 class="family-empty-state__title">Servi\u00e7o temporariamente indispon\u00edvel</h3>'
+	+ '<p class="family-empty-state__text">N\u00e3o foi poss\u00edvel carregar os planos de momento. Por favor tente mais tarde ou contacte-nos directamente.</p>'
 	+ '<a href="/quero-ser-revendedor" class="btn-cta">Falar com a equipa &rarr;</a>'
 	+ '</div>';
 
@@ -56,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					? plans.map(renderFamilyCard).join('')
 					: FAMILY_EMPTY_HTML;
 			})
-			.catch(function() { familyGrid.innerHTML = FAMILY_EMPTY_HTML; });
+			.catch(function() { familyGrid.innerHTML = FAMILY_ERROR_HTML; });
 	}
 	// Hero carousel
 	var heroEl = document.getElementById('hero');
