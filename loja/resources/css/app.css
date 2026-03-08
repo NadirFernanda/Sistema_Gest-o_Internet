@@ -113,9 +113,8 @@ main { display: block; }
 .store-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
   flex: 1;
-  justify-content: space-between;  /* nav left, actions right */
   padding-left: 2rem;
 }
 
@@ -189,7 +188,8 @@ main { display: block; }
 /* Actions / search */
 .store-actions { display: flex; align-items: center; gap: 0.5rem; }
 
-.search-wrapper { position: relative; width: 200px; flex-shrink: 1; }
+/* Hidden on mobile — shown at ≥768px via media query */
+.search-wrapper { display: none; position: relative; flex-shrink: 1; }
 
 .search-input {
   width: 100%;
@@ -209,6 +209,7 @@ main { display: block; }
 }
 
 .search-results {
+  display: none; /* shown only by JS when there are results */
   position: absolute;
   left: 0; right: 0;
   top: calc(100% + 6px);
@@ -236,8 +237,8 @@ main { display: block; }
 /* Header CTA */
 .store-cta {
   display: none;
-  padding: 0.5rem 1.1rem;
-  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem; /* matches page buttons */
   background: var(--brand);
   color: var(--text-dark);
   font-weight: 700;
@@ -316,16 +317,16 @@ main { display: block; }
 
 /* Responsive nav reveal */
 @media (min-width: 768px) {
-  .store-nav          { display: flex; }
+  .store-nav          { display: flex; margin-right: auto; } /* push actions to far right */
   .store-cta          { display: inline-flex; }
   .mobile-menu-toggle { display: none; }
   .store-mobile-menu  { display: none !important; }
   .store-title        { display: none; }
-  .search-wrapper     { width: 240px; }
+  .search-wrapper     { display: block; width: 200px; }
 }
 
 @media (min-width: 1024px) {
-  .search-wrapper { width: 300px; }
+  .search-wrapper { width: 220px; }
 }
 
 /* ==========================================================================
@@ -826,6 +827,29 @@ main { display: block; }
 .planos-section--family {
   background: var(--surface-2);
   border-top: 1px solid var(--muted-border);
+}
+
+/* Loading skeleton for async family plans */
+.family-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+}
+.family-loading__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted-border);
+  animation: family-pulse 1.2s ease-in-out infinite;
+}
+.family-loading__dot:nth-child(2) { animation-delay: 0.2s; }
+.family-loading__dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes family-pulse {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
 }
 
 /* Empty state when family plans not yet loaded from SG */

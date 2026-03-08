@@ -1,6 +1,63 @@
 import './bootstrap';
 
+// Escape HTML to prevent XSS when rendering server data into the DOM
+function esc(str) {
+	return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Render one family/business plan card (mirrors the Blade template CSS classes)
+function renderFamilyCard(plan) {
+	var isCompany = (plan.name || '').toLowerCase().indexOf('empresa') !== -1;
+	var emoji = isCompany ? '\uD83C\uDFE2' : '\uD83C\uDFE0'; // 🏢 or 🏠
+	var body = '';
+	if (plan.preco) {
+		body += '<div class="plan-price-row"><span class="plan-price">'
+			+ Number(plan.preco).toLocaleString('pt-PT')
+			+ '</span><span class="plan-currency">Kz</span></div>';
+	}
+	if (plan.ciclo) {
+		body += '<div class="plan-features"><span class="plan-feature"><strong>'
+			+ esc(plan.ciclo) + ' dias</strong></span></div>';
+	}
+	if (plan.description) {
+		body += '<p class="plan-desc">' + esc(plan.description) + '</p>';
+	}
+	return '<div class="plan-card-modern">'
+		+ '<div class="plan-card-modern-inner">'
+		+ '<div class="plan-card-modern-header">'
+		+ '<span class="plan-emoji" aria-hidden="true">' + emoji + '</span>'
+		+ '<h3 class="plan-title">' + esc(plan.name || 'Plano') + '</h3>'
+		+ '</div>'
+		+ '<div class="plan-card-modern-body">' + body + '</div>'
+		+ '<div class="plan-card-modern-footer">'
+		+ '<a class="btn-modern" href="/quero-ser-revendedor">Solicitar Plano</a>'
+		+ '</div></div></div>';
+}
+
+var FAMILY_EMPTY_HTML =
+	'<div class="family-empty-state">'
+	+ '<div class="family-empty-state__icon">\uD83D\uDCE1</div>'  // 📡
+	+ '<h3 class="family-empty-state__title">Planos carregando do sistema</h3>'
+	+ '<p class="family-empty-state__text">Os nossos planos familiares e empresariais s\u00e3o geridos directamente no sistema de gest\u00e3o. Para saber mais ou contratar, contacte-nos.</p>'
+	+ '<a href="/quero-ser-revendedor" class="btn-cta">Falar com a equipa &rarr;</a>'
+	+ '</div>';
+
 document.addEventListener('DOMContentLoaded', () => {
+
+	// ---- Async family/business plans loader ----
+	// Loads AFTER the page and CSS are fully applied — zero FOUC.
+	var familyGrid = document.getElementById('family-plans-grid');
+	if (familyGrid) {
+		fetch('/sg/plan-templates', { credentials: 'same-origin' })
+			.then(function(r) { return r.json(); })
+			.then(function(json) {
+				var plans = json.data || [];
+				familyGrid.innerHTML = plans.length
+					? plans.map(renderFamilyCard).join('')
+					: FAMILY_EMPTY_HTML;
+			})
+			.catch(function() { familyGrid.innerHTML = FAMILY_EMPTY_HTML; });
+	}
 	// Hero carousel
 	var heroEl = document.getElementById('hero');
 	if (heroEl) {

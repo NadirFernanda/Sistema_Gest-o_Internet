@@ -14,23 +14,10 @@ class StorefrontController extends Controller
         // Planos individuais são sempre carregados da configuração local
         $individualPlans = config('store_plans.individual', []);
 
-        // Planos familiares / empresariais carregados do catálogo de templates do SG
-        try {
-            $res = app(\App\Http\Controllers\StoreProxyController::class)->planTemplates(request());
-            $status = $res->getStatusCode();
-            if ($status >= 200 && $status < 300) {
-                $data = json_decode($res->getContent(), true);
-                $familyBusinessPlans = $data['data'] ?? [];
-            } else {
-                $familyBusinessPlans = [];
-            }
-        } catch (Exception $e) {
-            $familyBusinessPlans = [];
-        }
-
+            // Planos familiares/empresariais carregados de forma assíncrona pelo JS
+        // (evita bloquear o render da página enquanto espera a resposta do SG)
         return view('store.index', [
             'individualPlans' => $individualPlans,
-            'familyBusinessPlans' => $familyBusinessPlans,
         ]);
     }
 

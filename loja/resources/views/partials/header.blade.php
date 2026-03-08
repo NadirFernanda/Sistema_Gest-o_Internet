@@ -39,7 +39,7 @@
 
       <div class="store-actions">
         <div class="search-wrapper">
-          <input id="store-search-input" class="search-input" type="search" autocomplete="off" placeholder="Pesquisar planos, ex.: 10 Mbps" aria-label="Pesquisar planos">
+          <input id="store-search-input" class="search-input" type="search" autocomplete="off" name="store-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos">
           <div id="store-search-results" class="search-results" role="listbox" aria-hidden="true"></div>
         </div>
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
@@ -111,7 +111,7 @@
 
   function doSearch(q) {
     results.innerHTML = '';
-    if (!q || q.trim().length < 2) { results.setAttribute('aria-hidden','true'); return; }
+    if (!q || q.trim().length < 2) { hideResults(); return; }
     var needle = q.trim().toLowerCase();
     var index  = buildIndex();
     var hits   = index.filter(function(it){
@@ -119,7 +119,9 @@
           || it.desc.toLowerCase().indexOf(needle)  !== -1
           || it.price.toLowerCase().indexOf(needle) !== -1;
     });
-    if (!hits.length) { results.setAttribute('aria-hidden','true'); return; }
+    if (!hits.length) { hideResults(); return; }
+    results.style.display = 'block';
+    results.setAttribute('aria-hidden','false');
     hits.forEach(function(it){
       var el = document.createElement('a');
       el.href = it.href;
@@ -133,13 +135,23 @@
     results.setAttribute('aria-hidden','false');
   }
 
+  function hideResults() {
+    results.style.display = 'none';
+    results.setAttribute('aria-hidden','true');
+    results.innerHTML = '';
+  }
+
   if (input) {
-    input.addEventListener('input', function(e){ doSearch(String(e.target.value || '')); });
+    // Only trigger on real keystrokes (prevents browser autofill firing search)
+    var userTyped = false;
+    input.addEventListener('keydown', function() { userTyped = true; });
+    input.addEventListener('blur',    function() { userTyped = false; });
+    input.addEventListener('input', function(e){
+      if (!userTyped) { hideResults(); return; }
+      doSearch(String(e.target.value || ''));
+    });
     document.addEventListener('click', function(ev){
-      if (!ev.target.closest('.search-wrapper')) {
-        results.innerHTML = '';
-        results.setAttribute('aria-hidden','true');
-      }
+      if (!ev.target.closest('.search-wrapper')) hideResults();
     });
   }
 
