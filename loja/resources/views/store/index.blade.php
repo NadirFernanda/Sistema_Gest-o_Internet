@@ -120,10 +120,41 @@
         <p>Soluções para famílias e empresas — planos com duração de 30 dias, partilháveis ou com SLA dedicado conforme necessidade.</p>
       </div>
 
-      <div class="plans-grid" id="family-business-plans" aria-live="polite">
-        <div class="plan-card empty">
-          <p>Carregando planos...</p>
-        </div>
+      <div class="plans-grid" aria-live="polite">
+        @forelse ($familyBusinessPlans as $plan)
+          <div class="plan-card-modern">
+            <div class="plan-card-modern-inner">
+              <div class="plan-card-modern-header">
+                <span class="plan-emoji" aria-hidden="true">🏠</span>
+                <h3 class="plan-title">{{ $plan['name'] ?? 'Plano' }}</h3>
+              </div>
+              <div class="plan-card-modern-body">
+                @if (!empty($plan['preco']))
+                  <div class="plan-price-row">
+                    <span class="plan-price">{{ number_format((float)$plan['preco'], 0, ',', '.') }}</span>
+                    <span class="plan-currency">Kz</span>
+                  </div>
+                @endif
+                @if (!empty($plan['ciclo']))
+                  <div class="plan-features">
+                    <span class="plan-feature"><strong>{{ $plan['ciclo'] }} dias</strong></span>
+                  </div>
+                @endif
+                @if (!empty($plan['description']))
+                  <p class="plan-desc">{{ $plan['description'] }}</p>
+                @endif
+              </div>
+              <div class="plan-card-modern-footer">
+                <a class="btn-modern" href="/quero-ser-revendedor">Solicitar Plano</a>
+              </div>
+            </div>
+          </div>
+        @empty
+          <div class="plan-card-modern" style="grid-column:1/-1;text-align:center;padding:2.5rem 1.5rem;">
+            <p style="color:var(--text-muted);font-size:1rem;">Planos familiares e empresariais disponíveis sob consulta.</p>
+            <a href="/como-comprar" class="btn-ghost" style="display:inline-block;margin-top:1rem;">Saiba como funciona</a>
+          </div>
+        @endforelse
       </div>
     </div>
   </section>

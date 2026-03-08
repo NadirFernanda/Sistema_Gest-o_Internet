@@ -12,6 +12,9 @@ Route::get('/planos', [PlanoController::class, 'index']);
 Route::get('/planos/{id}', [PlanoController::class, 'show']);
 Route::put('/planos/{id}', [PlanoController::class, 'update']);
 Route::delete('/planos/{id}', [PlanoController::class, 'destroy']);
+
+// Public catalog of plan templates (used by the loja to show family/business plans)
+Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateCatalogController::class, 'index']);
 Route::post('/login', [AuthController::class, 'login']);
 // Clients endpoints: protect with VerifyApiToken middleware + rate limiting.
 // Use fully-qualified class name to avoid relying on route middleware alias resolution.
