@@ -83,9 +83,16 @@
         </div>
         <div class="form-group">
             <label for="quantidade">Quantidade <span class="text-danger">*</span></label>
-            <input type="number" id="quantidade" name="quantidade" min="1" value="{{ old('quantidade', 1) }}">
+            <input type="number" id="quantidade" name="quantidade" min="0" value="{{ old('quantidade', 1) }}">
             @if ($errors->has('quantidade'))
                 <div class="text-danger small">{{ $errors->first('quantidade') }}</div>
+            @endif
+        </div>
+        <div class="form-group">
+            <label for="preco">Preço de Venda (Kz)</label>
+            <input type="number" id="preco" name="preco" min="0" placeholder="Deixe em branco para 'Consultar preço'" value="{{ old('preco') }}">
+            @if ($errors->has('preco'))
+                <div class="text-danger small">{{ $errors->first('preco') }}</div>
             @endif
         </div>
         <div class="form-group">

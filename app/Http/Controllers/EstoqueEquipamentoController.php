@@ -41,10 +41,11 @@ class EstoqueEquipamentoController extends Controller
             'descricao' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
             'numero_serie' => 'required|string|max:255',
-            'quantidade' => 'required|integer|min:1',
+            'quantidade' => 'required|integer|min:0',
+            'preco' => 'nullable|integer|min:0',
             'imagem' => 'nullable|image|max:2048',
         ]);
-        $data = $request->only(['nome','descricao','modelo','numero_serie','quantidade']);
+        $data = $request->only(['nome','descricao','modelo','numero_serie','quantidade','preco']);
         if ($request->hasFile('imagem')) {
             $data['imagem'] = $request->file('imagem')->store('estoque_equipamentos', 'public');
         }
@@ -66,11 +67,12 @@ class EstoqueEquipamentoController extends Controller
             'descricao' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
             'numero_serie' => 'required|string|max:255',
-            'quantidade' => 'required|integer|min:1',
+            'quantidade' => 'required|integer|min:0',
+            'preco' => 'nullable|integer|min:0',
             'imagem' => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->only(['nome','descricao','modelo','numero_serie','quantidade']);
+        $data = $request->only(['nome','descricao','modelo','numero_serie','quantidade','preco']);
         if ($request->hasFile('imagem')) {
             // delete old image if present
             if ($equipamento->imagem) {

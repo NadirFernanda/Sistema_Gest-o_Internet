@@ -15,6 +15,12 @@ class EstoqueEquipamento extends Model
         'modelo',
         'numero_serie',
         'quantidade',
+        'preco',
         'imagem',
+    ];
+
+    protected $casts = [
+        'preco'     => 'integer',
+        'quantidade' => 'integer',
     ];
 }
