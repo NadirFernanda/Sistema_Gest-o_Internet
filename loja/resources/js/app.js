@@ -30,7 +30,11 @@ function renderFamilyCard(plan) {
 		+ '</div>'
 		+ '<div class="plan-card-modern-body">' + body + '</div>'
 		+ '<div class="plan-card-modern-footer">'
-		+ '<a class="btn-modern" href="/quero-ser-revendedor">Solicitar Plano</a>'
+		+ '<a class="btn-modern" href="/solicitar-plano?plan_id=' + encodeURIComponent(plan.id || '')
+			+ '&plan_name=' + encodeURIComponent(plan.name || '')
+			+ '&plan_preco=' + encodeURIComponent(plan.preco || '')
+			+ '&plan_ciclo=' + encodeURIComponent(plan.ciclo || '')
+			+ '">Comprar Plano</a>'
 		+ '</div></div></div>';
 }
 

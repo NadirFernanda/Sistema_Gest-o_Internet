@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EquipmentOrderAdminController;
 use App\Http\Controllers\Admin\SiteStatsAdminController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\FamilyPlanRequestController;
 use App\Http\Controllers\ResellerPanelController;
 
 Route::get('/', function () {
@@ -26,6 +27,11 @@ Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'sh
 // Checkout rápido pode receber o plano pela URL ou por query string ?plan=
 Route::get('/checkout/{plan?}', [\App\Http\Controllers\StorefrontController::class, 'checkout'])->name('store.checkout');
 Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'processCheckout'])->name('store.checkout.process');
+
+// Planos Familiares & Empresariais — checkout com identificação do cliente
+// (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
+Route::get('/solicitar-plano', [FamilyPlanRequestController::class, 'show'])->name('family.request.show');
+Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->name('family.request.store');
 
 // Módulo Revendedor - página de adesão
 Route::get('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'showForm'])->name('reseller.apply');

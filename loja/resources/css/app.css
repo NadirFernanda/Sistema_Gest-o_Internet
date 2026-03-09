@@ -1517,6 +1517,73 @@ main { display: block; }
 }
 .checkout-instructions li { margin-bottom: 0.35rem; }
 
+/* ── Confirmação de pedido — planos familiares/empresariais ─────────────────
+   Aplicável APENAS à página pages/solicitar-plano-confirmacao.blade.php.
+   ────────────────────────────────────────────────────────────────────────── */
+.solicitar-confirmacao {
+  text-align: center;
+  padding: 3rem 0 4rem;
+}
+.solicitar-confirmacao-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.solicitar-confirmacao-titulo {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-dark, #1e293b);
+  margin-bottom: 0.5rem;
+}
+.solicitar-confirmacao-subtitulo {
+  font-size: 1.05rem;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 2rem;
+}
+.solicitar-confirmacao-card {
+  background: #fff;
+  border: 1.5px solid rgba(247,181,0,0.3);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin: 0 auto 1.5rem;
+  max-width: 480px;
+  text-align: left;
+}
+.solicitar-confirmacao-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.solicitar-confirmacao-row:last-child { border-bottom: none; }
+.solicitar-confirmacao-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.solicitar-confirmacao-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: right;
+}
+.solicitar-confirmacao-info {
+  background: #fffaf0;
+  border: 1px solid rgba(247,181,0,0.3);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  max-width: 480px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.65;
+}
+
 /* ==========================================================================
    REVENDEDOR
    ========================================================================== */
