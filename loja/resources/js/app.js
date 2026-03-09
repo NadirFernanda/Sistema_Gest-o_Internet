@@ -189,4 +189,71 @@ document.addEventListener('DOMContentLoaded', () => {
 		heroGoTo(0);
 		heroPlay();
 	}
+
+	// ---- Stat bar counting animation ----
+	// Numbers count up from 0 when the stat bar scrolls into view.
+	// Uses IntersectionObserver (supported in all modern browsers).
+	var statNums = document.querySelectorAll('.stat-bar__num[data-count-to]');
+	var staticNums = document.querySelectorAll('.stat-bar__num[data-count-static]');
+
+	function easeOut(t) {
+		return 1 - Math.pow(1 - t, 3); // cubic ease-out
+	}
+
+	function animateCount(el) {
+		var target   = parseFloat(el.getAttribute('data-count-to'));
+		var decimals = parseInt(el.getAttribute('data-count-decimals') || '0', 10);
+		var suffix   = el.getAttribute('data-count-suffix') || '';
+		var duration = 1800; // ms
+		var start    = null;
+
+		function step(ts) {
+			if (!start) start = ts;
+			var elapsed  = ts - start;
+			var progress = Math.min(elapsed / duration, 1);
+			var value    = target * easeOut(progress);
+			var formatted = value.toLocaleString('pt-PT', {
+				minimumFractionDigits: decimals,
+				maximumFractionDigits: decimals,
+			});
+			el.textContent = formatted + suffix;
+			if (progress < 1) {
+				requestAnimationFrame(step);
+			}
+		}
+		requestAnimationFrame(step);
+	}
+
+	function animateStaticPop(el) {
+		el.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease';
+		el.style.transform  = 'scale(1)';
+		el.style.opacity    = '1';
+	}
+
+	if (statNums.length || staticNums.length) {
+		// Set initial state for static items
+		staticNums.forEach(function(el) {
+			el.style.transform = 'scale(0.6)';
+			el.style.opacity   = '0';
+		});
+
+		var observer = new IntersectionObserver(function(entries) {
+			entries.forEach(function(entry) {
+				if (!entry.isIntersecting) return;
+				var bar = entry.target;
+				observer.unobserve(bar);
+
+				// Stagger each item slightly
+				bar.querySelectorAll('.stat-bar__num[data-count-to]').forEach(function(el, i) {
+					setTimeout(function() { animateCount(el); }, i * 120);
+				});
+				bar.querySelectorAll('.stat-bar__num[data-count-static]').forEach(function(el, i) {
+					setTimeout(function() { animateStaticPop(el); }, i * 120 + 60);
+				});
+			});
+		}, { threshold: 0.3 });
+
+		var statBar = document.querySelector('.stat-bar');
+		if (statBar) observer.observe(statBar);
+	}
 });

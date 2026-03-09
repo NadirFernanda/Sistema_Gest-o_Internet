@@ -33,6 +33,12 @@
           <a href="{{ route('admin.equipment.orders.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Encomendas</a>
         </div>
       </div>
+
+      <div class="info-card">
+        <h3>📊 Estatísticas da Loja</h3>
+        <p style="color:#666;font-size:.9rem;margin-bottom:1rem;">Os 4 números de destaque na página inicial (clientes, uptime, instalação, suporte).</p>
+        <a href="{{ route('admin.site_stats.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Editar estatísticas</a>
+      </div>
     </div>
 
     <div class="info-grid" style="margin-top:2rem;">

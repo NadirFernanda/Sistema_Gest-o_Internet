@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
+use App\Models\SiteStat;
 use App\Services\AutovendaOrderService;
 use Illuminate\Http\Request;
 use Exception;
@@ -14,10 +15,14 @@ class StorefrontController extends Controller
         // Planos individuais são sempre carregados da configuração local
         $individualPlans = config('store_plans.individual', []);
 
+        // Estatísticas dinâmicas para a barra de números no topo
+        $siteStats = SiteStat::orderBy('ordem')->get();
+
             // Planos familiares/empresariais carregados de forma assíncrona pelo JS
         // (evita bloquear o render da página enquanto espera a resposta do SG)
         return view('store.index', [
             'individualPlans' => $individualPlans,
+            'siteStats'       => $siteStats,
         ]);
     }
 

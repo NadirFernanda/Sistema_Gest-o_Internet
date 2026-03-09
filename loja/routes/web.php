@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AutovendaOrderAdminController;
 use App\Http\Controllers\Admin\ResellerAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\EquipmentOrderAdminController;
+use App\Http\Controllers\Admin\SiteStatsAdminController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ResellerPanelController;
@@ -88,4 +89,8 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
 
     // Gestão de stock de códigos WiFi
     Route::get('/wifi-codes', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'index'])->name('admin.wifi_codes.index');
+
+    // Estatísticas da página inicial
+    Route::get('/estatisticas', [SiteStatsAdminController::class, 'index'])->name('admin.site_stats.index');
+    Route::put('/estatisticas/{stat}', [SiteStatsAdminController::class, 'update'])->name('admin.site_stats.update');
 });
