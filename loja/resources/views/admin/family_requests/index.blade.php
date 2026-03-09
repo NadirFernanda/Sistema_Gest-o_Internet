@@ -8,8 +8,9 @@
 
     <h2>Pedidos de Planos Familiares &amp; Empresariais</h2>
     <p class="lead">
-      Quando confirmar um pedido, o Sistema de Gestão cria automaticamente o registo do cliente
-      e adiciona a janela de acesso ao plano — não é necessária qualquer acção manual no SG.
+      A janela de acesso é adicionada <strong>automaticamente no SG</strong> quando o cliente submete o formulário.
+      O seu papel aqui é <strong>verificar se o pagamento foi recebido</strong> e cancelar casos em que não foi.
+      O botão "Activar no SG" só aparece quando a activação automática falhou.
     </p>
 
     {{-- Alertas --}}
@@ -111,14 +112,14 @@
             </td>
             <td style="padding:0.6rem 0.8rem;">
               @if(in_array($req->status, ['pending', 'confirmed']))
-                {{-- Confirm = sync janela in SG --}}
+                {{-- Activation failed automatically — manual fallback --}}
                 <form method="POST" action="{{ route('admin.family_requests.confirmar', $req) }}"
                       style="display:inline;"
-                      onsubmit="return confirm('Confirmar pedido #{{ $req->id }} e adicionar janela no SG?');">
+                      onsubmit="return confirm('Activar pedido #{{ $req->id }} manualmente no SG?');">
                   @csrf
                   <button type="submit" class="btn-primary"
                           style="padding:0.25rem 0.75rem;font-size:0.8rem;border:none;cursor:pointer;">
-                    ✅ Confirmar
+                    ⚡ Activar no SG
                   </button>
                 </form>
                 <form method="POST" action="{{ route('admin.family_requests.cancelar', $req) }}"

@@ -12,12 +12,21 @@
 <div class="container--720 checkout-page">
   <div class="solicitar-confirmacao">
 
-    <div class="solicitar-confirmacao-icon">✅</div>
-    <h1 class="solicitar-confirmacao-titulo">Pedido Registado!</h1>
-    <p class="solicitar-confirmacao-subtitulo">
-      O seu pedido de adesão ao plano <strong>{{ $familyRequest->plan_name }}</strong>
-      foi registado com sucesso.
-    </p>
+    @if($sgActivated)
+      <div class="solicitar-confirmacao-icon">✅</div>
+      <h1 class="solicitar-confirmacao-titulo">Plano Activado!</h1>
+      <p class="solicitar-confirmacao-subtitulo">
+        O seu plano <strong>{{ $familyRequest->plan_name }}</strong> foi activado com sucesso.
+        Efectue o pagamento para garantir a continuidade do serviço.
+      </p>
+    @else
+      <div class="solicitar-confirmacao-icon">📋</div>
+      <h1 class="solicitar-confirmacao-titulo">Pedido Registado!</h1>
+      <p class="solicitar-confirmacao-subtitulo">
+        Recebemos o seu pedido para o plano <strong>{{ $familyRequest->plan_name }}</strong>.
+        A nossa equipa irá contactá-lo(a) em breve para activar o acesso.
+      </p>
+    @endif
 
     <div class="solicitar-confirmacao-card">
       <div class="solicitar-confirmacao-row">
@@ -55,12 +64,20 @@
     </div>
 
     <div class="solicitar-confirmacao-info">
-      <p>
-        A nossa equipa irá <strong>contactá-lo(a) em breve</strong> pelo telefone
-        <strong>{{ $familyRequest->customer_phone }}</strong> ou pelo e-mail
-        <strong>{{ $familyRequest->customer_email }}</strong> para confirmar o pagamento e
-        activar o acesso.
-      </p>
+      @if($sgActivated)
+        <p>
+          O seu acesso está <strong>activo</strong>. Foi enviado um e-mail de confirmação para
+          <strong>{{ $familyRequest->customer_email }}</strong>.<br>
+          Por favor efectue o pagamento via <strong>{{ $familyRequest->payment_method === 'multicaixa_express' ? 'Multicaixa Express' : 'PayPal' }}</strong>
+          para garantir a continuidade do serviço.
+        </p>
+      @else
+        <p>
+          A nossa equipa irá <strong>contactá-lo(a) em breve</strong> pelo telefone
+          <strong>{{ $familyRequest->customer_phone }}</strong> ou pelo e-mail
+          <strong>{{ $familyRequest->customer_email }}</strong> para activar o acesso.
+        </p>
+      @endif
     </div>
 
     <a href="/" class="btn-primary" style="display:inline-block;margin-top:2rem;text-decoration:none;">
