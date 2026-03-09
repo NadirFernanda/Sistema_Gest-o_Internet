@@ -77,6 +77,7 @@ class FamilyPlanRequestController extends Controller
             return response()->json(['found' => false]);
         }
 
+        // ── 1. Pesquisa local (pedidos anteriores na loja) ────────────────
         $record = FamilyPlanRequest::where('customer_phone', 'like', '%' . $phone . '%')
             ->whereIn('status', [
                 FamilyPlanRequest::STATUS_ACTIVATED,
@@ -86,16 +87,30 @@ class FamilyPlanRequestController extends Controller
             ->orderByDesc('created_at')
             ->first(['customer_name', 'customer_email', 'customer_nif']);
 
-        if (! $record) {
-            return response()->json(['found' => false]);
+        if ($record) {
+            return response()->json([
+                'found'  => true,
+                'name'   => $record->customer_name,
+                'email'  => $record->customer_email ?? '',
+                'nif'    => $record->customer_nif ?? '',
+                'source' => 'loja',
+            ]);
         }
 
-        return response()->json([
-            'found' => true,
-            'name'  => $record->customer_name,
-            'email' => $record->customer_email,
-            'nif'   => $record->customer_nif ?? '',
-        ]);
+        // ── 2. Fallback: pesquisa no SG (clientes pré-existentes antes da loja) ──
+        $sgResult = app(StoreProxyController::class)->lookupClienteSG($phone);
+
+        if (! empty($sgResult['found'])) {
+            return response()->json([
+                'found'  => true,
+                'name'   => $sgResult['name']  ?? '',
+                'email'  => $sgResult['email'] ?? '',
+                'nif'    => $sgResult['nif']   ?? '',
+                'source' => 'sg',
+            ]);
+        }
+
+        return response()->json(['found' => false]);
     }
 
     /**

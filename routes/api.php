@@ -24,6 +24,8 @@ Route::get('/equipment-catalog', [\App\Http\Controllers\PublicEquipmentCatalogCo
 // Uses the same VerifyApiToken if API_CLIENTES_TOKEN is set; otherwise public.
 Route::middleware([\App\Http\Middleware\VerifyApiToken::class])->group(function () {
     Route::post('/janela-autovenda', [\App\Http\Controllers\AutovendaJanelaController::class, 'store']);
+    // Client lookup by phone — used by loja checkout form to pre-fill fields for returning clients
+    Route::get('/cliente-lookup', [\App\Http\Controllers\AutovendaJanelaController::class, 'lookup']);
 });
 Route::post('/login', [AuthController::class, 'login']);
 // Clients endpoints: protect with VerifyApiToken middleware + rate limiting.

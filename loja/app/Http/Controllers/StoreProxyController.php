@@ -130,6 +130,46 @@ class StoreProxyController extends Controller
     }
 
     /**
+     * lookupClienteSG
+     * ───────────────
+     * Searches the SG's clientes table by phone number.
+     * Used as a fallback by the loja checkout form when the client is not found
+     * in the local family_plan_requests table (e.g. existing SG clients who never
+     * used the loja before).
+     *
+     * @return array ['found' => bool, 'name' => string, 'email' => string, 'nif' => string]
+     */
+    public function lookupClienteSG(string $phone): array
+    {
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+        $http = new Client(['base_uri' => $sg]);
+
+        $headers = ['Accept' => 'application/json'];
+        $apiToken = env('SG_API_TOKEN');
+        if ($apiToken) {
+            $headers['X-API-TOKEN'] = $apiToken;
+        }
+
+        try {
+            $res = $http->get('/api/cliente-lookup', [
+                'headers'     => $headers,
+                'query'       => ['phone' => $phone],
+                'http_errors' => false,
+                'timeout'     => 6,
+            ]);
+
+            if ($res->getStatusCode() === 200) {
+                $body = json_decode((string) $res->getBody(), true);
+                return $body ?? ['found' => false];
+            }
+        } catch (\Exception $e) {
+            \Log::debug('lookupClienteSG: SG unreachable', ['error' => $e->getMessage()]);
+        }
+
+        return ['found' => false];
+    }
+
+    /**
      * syncJanela
      * ──────────
      * Called by FamilyPlanRequestAdminController when admin confirms a payment.

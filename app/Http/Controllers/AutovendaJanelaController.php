@@ -11,12 +11,14 @@ use App\Models\PlanTemplate;
 /**
  * AutovendaJanelaController
  * ═════════════════════════
- * Endpoint consumed by the loja when an admin confirms a family/business plan request.
- * Creates or finds the client in the SG, then extends (or initialises) their plan window.
+ * Endpoints consumed by the loja for client lookup and plan window management.
+ *
+ * GET  /api/cliente-lookup?phone=...  → find client by phone, return name/email/nif
+ * POST /api/janela-autovenda          → find/create client, extend/create plan window
  *
  * POST /api/janela-autovenda
  *   nome          string  required
- *   email         string  required email
+ *   email         string  optional  (clients from Angola often have none)
  *   contato       string  required
  *   nif           string  optional  (stored as bi with tipo=NIF when provided)
  *   template_id   int     required  must exist in plan_templates
@@ -24,11 +26,47 @@ use App\Models\PlanTemplate;
  */
 class AutovendaJanelaController extends Controller
 {
+    /**
+     * Lookup a client by phone number — used by the loja form to pre-fill fields.
+     * Returns name/email/nif from the most recently active client record, if found.
+     *
+     * GET /api/cliente-lookup?phone=9XXXXXXXX
+     */
+    public function lookup(Request $request)
+    {
+        $phone = preg_replace('/[\s\-\.()]/', '', $request->query('phone', ''));
+
+        if (mb_strlen($phone) < 7) {
+            return response()->json(['found' => false], 400);
+        }
+
+        $cliente = Cliente::where('contato', 'like', '%' . $phone . '%')
+            ->orderByDesc('created_at')
+            ->first(['nome', 'email', 'bi']);
+
+        if (! $cliente) {
+            return response()->json(['found' => false]);
+        }
+
+        // Only return bi if it looks like a real NIF (not a LOJA: hash placeholder)
+        $nif = null;
+        if (! empty($cliente->bi) && ! str_starts_with($cliente->bi, 'LOJA:')) {
+            $nif = $cliente->bi;
+        }
+
+        return response()->json([
+            'found' => true,
+            'name'  => $cliente->nome,
+            'email' => $cliente->email ?? '',
+            'nif'   => $nif ?? '',
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nome'             => 'required|string|max:255',
-            'email'            => 'required|email|max:255',
+            'email'            => 'nullable|email|max:255',
             'contato'          => 'required|string|max:20',
             'nif'              => 'nullable|string|max:64',
             'template_id'      => 'required|integer|exists:plan_templates,id',
@@ -38,14 +76,21 @@ class AutovendaJanelaController extends Controller
         $template = PlanTemplate::findOrFail($validated['template_id']);
 
         // ── 1. Find or create the client ──────────────────────────────────
-        $cliente = Cliente::where('email', $validated['email'])->first();
+        // Search by email first (most reliable), fallback to phone if no email provided.
+        $cliente = null;
+        if (! empty($validated['email'])) {
+            $cliente = Cliente::where('email', $validated['email'])->first();
+        }
+        if (! $cliente) {
+            $cliente = Cliente::where('contato', $validated['contato'])->first();
+        }
 
         if (! $cliente) {
-            $bi = $validated['nif'] ?? 'LOJA:' . strtoupper(substr(md5($validated['email']), 0, 8));
+            $bi = $validated['nif'] ?? ('LOJA:' . strtoupper(substr(md5($validated['contato']), 0, 8)));
             $cliente = Cliente::create([
                 'bi'      => $bi,
                 'nome'    => $validated['nome'],
-                'email'   => $validated['email'],
+                'email'   => $validated['email'] ?? null,
                 'contato' => $validated['contato'],
             ]);
         }
