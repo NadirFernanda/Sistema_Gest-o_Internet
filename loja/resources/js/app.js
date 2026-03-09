@@ -42,6 +42,9 @@ function renderEquipmentCard(item) {
 	var stockBadge = item.em_stock ? '' : '<p class="product-stock-warn">Sem stock</p>';
 	var catBadge   = item.categoria ? '<span class="plan-feature" style="margin-bottom:0.5rem;">' + esc(item.categoria) + '</span>' : '';
 	var desc       = item.descricao ? '<p class="plan-desc">' + esc(item.descricao) + '</p>' : '';
+	var precoHtml  = (item.preco && item.preco > 0)
+		? '<div class="plan-price-row"><span class="plan-price">' + Number(item.preco).toLocaleString('pt-PT') + '</span><span class="plan-currency">Kz</span></div>'
+		: '<div class="plan-price-row"><span class="plan-feature" style="font-style:italic;">Consultar pre\u00e7o</span></div>';
 	return '<div class="plan-card-modern">'
 		+ '<div class="plan-card-modern-inner">'
 		+ imgHtml
@@ -50,9 +53,7 @@ function renderEquipmentCard(item) {
 		+ '</div>'
 		+ catBadge
 		+ '<div class="plan-card-modern-body">'
-		+ '<div class="plan-price-row"><span class="plan-price">'
-		+ Number(item.preco).toLocaleString('pt-PT')
-		+ '</span><span class="plan-currency">Kz</span></div>'
+		+ precoHtml
 		+ desc
 		+ stockBadge
 		+ '</div>'
