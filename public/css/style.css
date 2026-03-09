@@ -168,37 +168,12 @@
 }
 
 .form-remember {
+    display: flex;
     flex-direction: row;
     align-items: center;
     gap: 5px;
     margin-bottom: 6px;
     margin-top: 2px;
-.form-remember {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0 !important;
-    margin-bottom: 0 !important;
-    margin-top: 0 !important;
-    padding-left: 0 !important;
-    background: none !important;
-    box-shadow: none !important;
-    width: auto !important;
-}
-
-.login-btn {
-    width: 100%;
-    background: linear-gradient(90deg, #f7b500 60%, #ffce3a 100%);
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 0;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px 0 rgba(247,181,0,0.08);
-    margin-top: 6px;
 }
 
 /* Strong overrides for CTA buttons in planos/show (applied directly to public style so no rebuild required) */
@@ -243,22 +218,46 @@
     font-weight: 700;
     font-size: 1rem;
     border: none;
-    border-radius: 7px;
-    padding: 10px 0;
+    border-radius: 8px;
+    padding: 12px 0;
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px 0 rgba(247,181,0,0.08);
     margin-top: 12px;
-    margin-bottom: 0;
-    align-self: center;
     display: block;
-    position: static;
 }
 .login-btn:hover {
     background: linear-gradient(90deg, #e0a800 60%, #ffd966 100%);
     box-shadow: 0 4px 16px 0 rgba(247,181,0,0.13);
 }
+
+/* Login — responsividade mobile */
+@media (max-width: 480px) {
+    .login-bg {
+        padding: 0 12px;
+        align-items: flex-start;
+        padding-top: 40px;
+        box-sizing: border-box;
+    }
+    .login-container {
+        padding: 24px 16px 20px;
+        border-radius: 12px;
+        min-height: auto;
+        width: 100%;
+    }
+    .login-logo {
+        width: 64px;
+        height: 64px;
+    }
+    .login-title {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+    .login-btn {
+        padding: 13px 0;
+    }
 }
+
 body {
     background: #fff;
     font-family: Arial, Helvetica, sans-serif;
