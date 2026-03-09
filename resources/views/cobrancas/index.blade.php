@@ -6,12 +6,26 @@
     <link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">   
 @endpush
 
+
 <div class="d-flex justify-content-center" style="min-height: 100vh;">
-    <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0
- 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">      @include('layouts.partials.clientes-hero', [
-        'title' => 'Relatório de Cobranças',
-        'subtitle' => '',
-    ])
+    <div class="relatorio-cobrancas-card" style="background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-radius: 32px; width: 100%; max-width: 1400px; min-height: 700px; margin: 40px auto; padding: 56px 48px; overflow-x: auto;">
+        @include('layouts.partials.clientes-hero', [
+            'title' => 'Relatório de Cobranças',
+            'subtitle' => '',
+        ])
+
+        <!-- Botões de download dos relatórios automáticos -->
+        <div class="relatorio-cabecalho-botoes" style="display:flex;gap:18px;margin-bottom:18px;">
+            <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="btn btn-primary" target="_blank">
+                <span style="font-weight:bold;">⬇ Diário</span>
+            </a>
+            <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="btn btn-primary" target="_blank">
+                <span style="font-weight:bold;">⬇ Semanal</span>
+            </a>
+            <a href="{{ route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="btn btn-primary" target="_blank">
+                <span style="font-weight:bold;">⬇ Mensal</span>
+            </a>
+        </div>
 
     <!-- toolbar removed here: buttons will be placed above the filter fields in
 side the filter box -->                                                         
