@@ -46,8 +46,8 @@
 
         <div class="sites-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
             <form class="search-form-inline" method="GET" action="{{ route('sites.index') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
-                <input type="search" name="busca" id="buscaSites" value="{{ request('busca') }}" class="search-input" placeholder="Pesquise por site..." aria-label="Pesquisar sites" style="flex:1;padding:10px 12px;border-radius:6px;border:2px solid #17a2b8;" />
-                <button type="button" id="btnBuscarSites" class="btn btn-search" style="padding:8px 12px;">Pesquisar</button>
+                <input type="search" name="busca" id="buscaSites" value="{{ request('busca') }}" class="search-input" placeholder="Pesquise por site..." aria-label="Pesquisar sites" style="flex:3;padding:10px 12px;border-radius:6px;border:2px solid #17a2b8;min-width:220px;" />
+                <button type="submit" id="btnBuscarSites" class="btn btn-cta" style="min-width:140px;">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
                 @if(auth()->user() && auth()->user()->hasRole('Administrador'))
