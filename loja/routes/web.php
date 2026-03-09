@@ -87,8 +87,11 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/encomendas-equipamentos/{id}', [EquipmentOrderAdminController::class, 'show'])->name('admin.equipment.orders.show');
     Route::patch('/encomendas-equipamentos/{id}/estado', [EquipmentOrderAdminController::class, 'updateStatus'])->name('admin.equipment.orders.status');
 
-    // Gestão de stock de códigos WiFi
+    // Gestão de stock de códigos WiFi (fornecidos pela operadora, importados pelo admin)
     Route::get('/wifi-codes', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'index'])->name('admin.wifi_codes.index');
+    Route::post('/wifi-codes/import-paste', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'importPaste'])->name('admin.wifi_codes.import_paste');
+    Route::post('/wifi-codes/import-csv', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'importCsv'])->name('admin.wifi_codes.import_csv');
+    Route::delete('/wifi-codes/{wifiCode}', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'destroy'])->name('admin.wifi_codes.destroy');
 
     // Estatísticas da página inicial
     Route::get('/estatisticas', [SiteStatsAdminController::class, 'index'])->name('admin.site_stats.index');
