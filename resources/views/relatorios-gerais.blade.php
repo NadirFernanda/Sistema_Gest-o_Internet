@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+@endpush
+
 @section('content')
 
 <div class="estoque-container-moderna">

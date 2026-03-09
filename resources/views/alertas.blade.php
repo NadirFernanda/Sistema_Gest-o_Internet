@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+@endpush
 
     <div class="alertas-container">
         @include('layouts.partials.clientes-hero', [

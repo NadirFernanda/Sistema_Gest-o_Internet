@@ -2,6 +2,7 @@
 
 @section('content')
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/relatorio-cobrancas.css') }}">   
 @endpush
 
