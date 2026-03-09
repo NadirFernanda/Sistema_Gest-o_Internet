@@ -66,8 +66,17 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ```bash
 # No computador local (PowerShell ou terminal)
-cd /var/www/sgmrtexas/loja
+cd c:\Users\Administrator\Documents\SGA-MR.TEXAS\PROJECTO\loja
+git add -A
+git commit -m "descrição das alterações"
+git push origin main
+```
 
+### 2. Deploy no servidor de produção (loja)
+
+```bash
+# No servidor de produção (SSH)
+cd /var/www/sgmrtexas/loja
 git fetch origin
 git reset --hard origin/main
 
@@ -78,10 +87,7 @@ npm run build
 
 php artisan migrate --force
 
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-
+php artisan optimize:clear
 php artisan optimize
 
 sudo systemctl restart php8.4-fpm
@@ -89,8 +95,8 @@ sudo systemctl reload nginx
 ```
 
 > **Porquê `git reset --hard origin/main` em vez de `git pull`?**
-> O `git pull` falha com "Not possible to fast-forward" quando há divergência de histórico entre o servidor e o repositório remoto.
-> O `git reset --hard origin/main` garante que o servidor fica **exactamente** igual ao último commit do GitHub, descartando qualquer alteração local no servidor.
+> O `git pull` falha com "unstaged changes" ou "not possible to fast-forward" quando há divergência entre o servidor e o repositório remoto.
+> O `git fetch origin` + `git reset --hard origin/main` garante que o servidor fica **exactamente** igual ao último commit do GitHub, descartando qualquer alteração local no servidor.
 
 ### Pré-requisito: sudo sem password para reiniciar serviços
 
