@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
-@endpush
 <div class="clientes-container ficha-cliente">
     {{-- Compensação controls moved to plano detail view to avoid duplication --}}
 

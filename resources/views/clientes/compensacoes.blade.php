@@ -1,11 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
-@endpush
 
-<div class="estoque-container-moderna">
+<div class="clientes-container">
     @include('layouts.partials.clientes-hero', [
         'title' => 'Histórico de Compensações',
         'subtitle' => 'Lista, pesquisa e exportação de compensações do cliente',

@@ -12,7 +12,7 @@
     </div>
 @endif
     <div class="clientes-container">
-        <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v=bf3e0ef">
+
         <header class="clientes-hero modern-hero">
             <div class="hero-inner">
                 <div class="hero-left">
