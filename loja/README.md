@@ -76,6 +76,36 @@ A loja trata dois tipos de planos de forma completamente diferente:
 
 ## Fluxo — Planos Familiares & Empresariais
 
+
+### Lookup automático por telefone (pré-preenchimento)
+
+No início do formulário de planos familiares/empresariais, o cliente pode introduzir o seu número de telefone para pré-preencher os dados automaticamente:
+
+1. **Cliente introduz o número de telefone**
+        - O campo "Já é cliente? Introduza o seu número de telefone" permite pesquisar rapidamente.
+2. **Pesquisa na loja**
+        - O sistema procura o telefone na base de dados local (`family_plan_requests`).
+3. **Fallback ao SG**
+        - Se não encontrar localmente, faz uma consulta ao sistema de gestão (SG) via API (`/api/cliente-lookup`).
+4. **Pré-preenchimento automático**
+        - Se encontrar, preenche automaticamente nome, e-mail (se existir) e NIF no formulário.
+        - O cliente só precisa confirmar ou corrigir os dados e prosseguir para o pagamento.
+5. **Novo cliente**
+        - Se não encontrar, o cliente preenche normalmente e os dados ficam guardados para a próxima vez.
+
+**Vantagens:**
+- Reduz drasticamente a fricção para clientes recorrentes
+- Não exige conta, password ou e-mail
+- Funciona para clientes antigos do SG e novos da loja
+
+**Arquitectura técnica:**
+- JS no formulário chama `GET /checkout/lookup?phone=9XXXXXXXX`
+- Controller faz lookup local e, se necessário, proxy para o SG
+- SG expõe endpoint `GET /api/cliente-lookup` (por telefone)
+- E-mail agora é opcional em todo o fluxo
+
+---
+
 ### Visão geral
 
 ```
