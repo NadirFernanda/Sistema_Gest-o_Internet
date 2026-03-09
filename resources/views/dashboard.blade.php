@@ -26,8 +26,6 @@
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
             <a href="{{ app()->router->has('planos.index') ? route('planos.index') : url('/planos') }}" class="btn">Planos</a>
-            <!-- Botão Sites: sempre aponta para https://sg.angolawifi.ao/sites -->
-            <a href="https://sg.angolawifi.ao/sites" class="btn" style="background:#17a2b8;">Sites</a>
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
 
@@ -39,6 +37,8 @@
                     : $lojaBaseUrl.'/admin';
             @endphp
             <a href="{{ $lojaAdminUrl }}" class="btn" target="_blank" rel="noopener">Loja</a>
+            <!-- Botão Sites: sempre aponta para https://sg.angolawifi.ao/sites -->
+            <a href="https://sg.angolawifi.ao/sites" class="btn" style="background:#17a2b8;">Sites</a>
 
             <div class="dropdown" style="display:block;position:relative;width:100%;">
                 <button class="btn" id="relatoriosBtn" type="button" style="width:100%;">Relatórios ▼</button>
