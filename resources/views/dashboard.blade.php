@@ -26,8 +26,8 @@
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
             <a href="{{ app()->router->has('planos.index') ? route('planos.index') : url('/planos') }}" class="btn">Planos</a>
-            <!-- Botão Sites removido completamente a pedido do usuário -->
-                <a href="https://sg.angolawifi.ao/sites" class="btn" style="background:#17a2b8;">Sites</a>
+            <!-- Botão Sites: sempre aponta para https://sg.angolawifi.ao/sites -->
+            <a href="https://sg.angolawifi.ao/sites" class="btn" style="background:#17a2b8;">Sites</a>
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
 
