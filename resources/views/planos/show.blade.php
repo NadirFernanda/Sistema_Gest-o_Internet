@@ -64,7 +64,6 @@
             <!-- Toolbar visual igual ao estoque, mas sem barra de pesquisa -->
             <div class="clientes-toolbar" style="margin-bottom:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
                 <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
                 <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="min-width:220px;white-space:normal;">Compensações</button>
                 <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
                 <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;display:inline;">
