@@ -1436,6 +1436,7 @@ main { display: block; }
 
 .checkout-note    { margin-top: 0.6rem; font-size: 0.82rem; color: var(--text-muted); }
 .checkout-actions { margin-top: 1.25rem; }
+.checkout-actions .btn-primary { width: 100%; box-sizing: border-box; }
 
 .checkout-errors {
   margin-bottom: 1rem;

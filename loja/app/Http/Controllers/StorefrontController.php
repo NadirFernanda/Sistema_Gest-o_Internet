@@ -16,7 +16,12 @@ class StorefrontController extends Controller
         $individualPlans = config('store_plans.individual', []);
 
         // Estatísticas dinâmicas para a barra de números no topo
-        $siteStats = SiteStat::orderBy('ordem')->get();
+        // Protegido contra tabela não existente (ex: primeiro deploy antes de migrate)
+        try {
+            $siteStats = \App\Models\SiteStat::orderBy('ordem')->get();
+        } catch (\Throwable $e) {
+            $siteStats = collect();
+        }
 
             // Planos familiares/empresariais carregados de forma assíncrona pelo JS
         // (evita bloquear o render da página enquanto espera a resposta do SG)
