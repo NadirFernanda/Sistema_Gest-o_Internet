@@ -18,6 +18,13 @@ Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateCatalogControll
 
 // Public catalog of equipment for sale (used by the loja equipment page)
 Route::get('/equipment-catalog', [\App\Http\Controllers\PublicEquipmentCatalogController::class, 'index']);
+
+// Loja autovenda: create/extend client plan window after payment confirmation
+// Called by the loja admin when confirming a family/business plan request.
+// Uses the same VerifyApiToken if API_CLIENTES_TOKEN is set; otherwise public.
+Route::middleware([\App\Http\Middleware\VerifyApiToken::class])->group(function () {
+    Route::post('/janela-autovenda', [\App\Http\Controllers\AutovendaJanelaController::class, 'store']);
+});
 Route::post('/login', [AuthController::class, 'login']);
 // Clients endpoints: protect with VerifyApiToken middleware + rate limiting.
 // Use fully-qualified class name to avoid relying on route middleware alias resolution.
