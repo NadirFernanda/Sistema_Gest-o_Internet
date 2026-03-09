@@ -5,7 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Representa uma ordem de autovenda (compra rápida de 1 código WiFi).
+ * AutovendaOrder — Ordem de compra de PLANO INDIVIDUAL (autovenda).
+ *
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║  ÂMBITO: PLANOS INDIVIDUAIS RÁPIDOS (Dia, Semana, Mês)         ║
+ * ║  Definidos em config/store_plans.php — SEM integração com SG.  ║
+ * ╠══════════════════════════════════════════════════════════════════╣
+ * ║  Os planos familiares e empresariais são geridos pelo Sistema   ║
+ * ║  de Gestão (SG) e têm fluxo completamente diferente:           ║
+ * ║    • Carregados via API do SG (/sg/plan-templates)             ║
+ * ║    • Requerem identificação do cliente (nome, e-mail, tel.)    ║
+ * ║    • NÃO criam registos nesta tabela                           ║
+ * ╚══════════════════════════════════════════════════════════════════╝
  *
  * Ciclo típico de estados:
  * - pending: criada a partir do checkout, antes da escolha de pagamento (opcional).

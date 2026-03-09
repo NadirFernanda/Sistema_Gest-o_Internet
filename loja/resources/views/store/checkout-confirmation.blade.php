@@ -1,63 +1,111 @@
+{{--
+    AUTOVENDA — CONFIRMAÇÃO DE PLANO INDIVIDUAL
+    ════════════════════════════════════════════
+    Esta página é exclusiva para os planos individuais rápidos (Dia, Semana, Mês).
+    NÃO existe integração com o Sistema de Gestão (SG) neste fluxo.
+
+    O que chegou aqui:
+      - $plan  → array com dados do plano (de config/store_plans.php)
+      - $order → AutovendaOrder já em estado "paid" com o $order->wifi_code preenchido
+
+    Não há $customer porque planos individuais não recolhem dados pessoais.
+    O código WiFi é exibido directamente nesta página.
+--}}
 @extends('layouts.app')
 
-@section('title', 'Confirmação de Pedido')
+@section('title', 'Compra Concluída – AngolaWiFi')
 
 @section('content')
-  <h1 class="text-xl font-semibold mb-4">Confirmação de Pedido</h1>
+<div class="container--720 checkout-page">
 
-  <div class="grid gap-6 md:grid-cols-5">
-    <div class="md:col-span-2 p-4 bg-white rounded shadow">
-      <h2 class="font-semibold mb-3">Resumo do Plano</h2>
+  {{-- Cabeçalho de sucesso --}}
+  <div class="checkout-success-header">
+    <span class="checkout-success-icon" aria-hidden="true">✅</span>
+    <h1 class="checkout-title">Compra Concluída!</h1>
+    <p class="checkout-subtitle">O seu código WiFi está pronto. Pode utilizá-lo imediatamente em qualquer ponto da rede AngolaWiFi.</p>
+  </div>
+
+  <div class="checkout-layout">
+
+    {{-- Código WiFi — destaque principal --}}
+    <section class="checkout-summary-card">
+      <h2>O Seu Código WiFi</h2>
+
       @isset($order)
-        <p class="mb-1 text-sm text-gray-600">Ref. pedido: #{{ $order->id }}</p>
-        @if(!empty($order->wifi_code))
-          <p class="mb-1"><strong>Código WiFi:</strong> <code>{{ $order->wifi_code }}</code></p>
+        @if (!empty($order->wifi_code))
+          <div class="wifi-code-box">
+            <span class="wifi-code-label">Código de acesso:</span>
+            <code class="wifi-code-value" id="wifiCodeText">{{ $order->wifi_code }}</code>
+            <button type="button" class="btn-copy" onclick="copyWifiCode()" title="Copiar código">
+              📋 Copiar
+            </button>
+          </div>
+          <p class="checkout-note">Guarde este código. A AngolaWiFi <strong>não armazena</strong> dados pessoais para planos individuais — se perder o código, não poderemos recuperá-lo.</p>
+        @else
+          <p class="checkout-note">O código está a ser processado. Se não aparecer em breve, contacte o suporte AngolaWiFi.</p>
         @endif
       @endisset
-      <p class="mb-1"><strong>Plano:</strong> {{ $plan['name'] }}</p>
-      <p class="mb-1"><strong>Duração:</strong> {{ $plan['duration_label'] }}</p>
-      <p class="mb-1"><strong>Velocidade:</strong> {{ $plan['speed'] }}</p>
-      <p class="mb-1"><strong>Quantidade:</strong> 1 código</p>
-      <p class="text-lg font-bold mt-2">Total: {{ number_format($plan['price_kwanza'], 0, ',', '.') }} AOA</p>
-    </div>
 
-    <div class="md:col-span-3 p-4 bg-white rounded shadow">
-      <h2 class="font-semibold mb-3">Dados do Pedido</h2>
-
-      @php
-        $hasCustomerData = !empty($customer['nome']) || !empty($customer['email']) || !empty($customer['telefone']) || !empty($customer['nif'] ?? null);
-      @endphp
-
-      @if($hasCustomerData)
-        <p class="mb-1"><strong>Nome:</strong> {{ $customer['nome'] }}</p>
-        <p class="mb-1"><strong>E-mail:</strong> {{ $customer['email'] }}</p>
-        <p class="mb-1"><strong>Telefone / WhatsApp:</strong> {{ $customer['telefone'] }}</p>
-        @if(!empty($customer['nif']))
-          <p class="mb-1"><strong>NIF:</strong> {{ $customer['nif'] }}</p>
-        @endif
-      @else
-        <p class="mb-2 text-sm text-gray-700">
-          Nenhum dado pessoal foi solicitado para esta compra. O seu código WiFi está disponível acima
-          nesta página e pode ser utilizado imediatamente.
-        </p>
+      {{-- Resumo do plano --}}
+      @if ($plan)
+        <hr class="checkout-divider">
+        <p><span class="label">Plano:</span> {{ $plan['name'] }}</p>
+        <p><span class="label">Duração:</span> {{ $plan['duration_label'] }}</p>
+        <p><span class="label">Velocidade:</span> {{ $plan['speed'] }}</p>
+        <p><span class="label">Quantidade:</span> 1 código</p>
+        <p class="total">Total pago: {{ number_format($plan['price_kwanza'], 0, ',', '.') }} AOA</p>
       @endif
+    </section>
+
+    {{-- Instruções + detalhes da ordem --}}
+    <section class="checkout-form-card">
+      <h2>Como Utilizar</h2>
+
+      <ol class="checkout-instructions">
+        <li>Ligue-se à rede WiFi <strong>AngolaWiFi</strong> no seu dispositivo.</li>
+        <li>Abra o browser — será redirecionado para o portal de acesso.</li>
+        <li>Introduza o código acima no campo de voucher e clique em <strong>Ligar</strong>.</li>
+        <li>Pronto — está a navegar!</li>
+      </ol>
 
       @isset($order)
-        <p class="mb-1"><strong>Método de pagamento:</strong>
-          @if($order->payment_method === \App\Models\AutovendaOrder::METHOD_MULTICAIXA)
+        <p class="checkout-note" style="margin-top:1rem;">
+          Ref. pedido: <strong>#{{ $order->id }}</strong><br>
+          Método de pagamento:
+          @if ($order->payment_method === \App\Models\AutovendaOrder::METHOD_MULTICAIXA)
             Multicaixa Express
-          @elseif($order->payment_method === \App\Models\AutovendaOrder::METHOD_PAYPAL)
+          @elseif ($order->payment_method === \App\Models\AutovendaOrder::METHOD_PAYPAL)
             PayPal
           @else
             {{ $order->payment_method }}
           @endif
         </p>
-        <p class="mb-1 text-sm text-gray-600"><strong>Estado interno:</strong> {{ $order->status }}</p>
       @endisset
 
-      <a href="{{ url('/') }}" class="inline-block mt-4 px-4 py-2 btn-primary">
-        Voltar à página inicial
-      </a>
-    </div>
+      <p class="checkout-note" style="margin-top:0.5rem;">
+        Nenhum dado pessoal foi recolhido para esta compra, em conformidade
+        com a política de planos individuais AngolaWiFi.
+      </p>
+
+      <div class="checkout-actions" style="margin-top:1.5rem;">
+        <a href="{{ url('/') }}" class="btn-primary">Comprar outro plano</a>
+      </div>
+    </section>
+
   </div>
+</div>
+
+@push('scripts')
+<script>
+function copyWifiCode() {
+  var code = document.getElementById('wifiCodeText');
+  if (!code) return;
+  navigator.clipboard.writeText(code.textContent.trim()).then(function() {
+    var btn = document.querySelector('.btn-copy');
+    if (btn) { btn.textContent = '✅ Copiado!'; setTimeout(function(){ btn.textContent = '📋 Copiar'; }, 2000); }
+  });
+}
+</script>
+@endpush
 @endsection
+

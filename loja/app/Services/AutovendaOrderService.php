@@ -8,6 +8,22 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * AutovendaOrderService — Serviço de entrega de ordens de AUTOVENDA (planos individuais).
+ *
+ * ÂMBITO: Este serviço gere EXCLUSIVAMENTE as ordens de planos individuais rápidos
+ * (Dia, Semana, Mês). Os planos familiares e empresariais são geridos pelo Sistema de
+ * Gestão (SG) e NÃO passam por aqui.
+ *
+ * Fluxo esperado:
+ *   1. StorefrontController cria a AutovendaOrder (status: awaiting_payment).
+ *   2. Cliente é redirecionado ao gateway de pagamento.
+ *   3. Gateway faz callback → PaymentCallbackController chama confirmPaymentAndDeliver().
+ *   4. Este serviço marca a ordem como "paid", retira um código WiFi do stock e entrega.
+ *
+ * Em modo protótipo, o passo 2-3 é simulado e confirmPaymentAndDeliver() é chamado
+ * directamente após a criação da ordem, mas a lógica de negócio é idêntica.
+ */
 class AutovendaOrderService
 {
 
@@ -27,7 +43,8 @@ class AutovendaOrderService
         $order->status = AutovendaOrder::STATUS_PAID;
         $order->paid_at = $now;
 
-        // Busca um código WiFi disponível do estoque
+        // Retira um código WiFi disponível do stock da loja.
+        // O stock é gerido localmente na tabela wifi_codes — não é consultado o SG.
         if (empty($order->wifi_code)) {
             $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)->first();
             if ($wifiCode) {
@@ -37,48 +54,37 @@ class AutovendaOrderService
                 $wifiCode->save();
                 $order->wifi_code = $wifiCode->code;
             } else {
-                // Se não houver código disponível, lança exceção ou loga erro
-                Log::error('Sem códigos WiFi disponíveis no estoque para ordem '.$order->id);
+                Log::error('Sem códigos WiFi disponíveis no estoque para ordem ' . $order->id);
                 throw new \Exception('Sem códigos WiFi disponíveis no estoque.');
             }
         }
 
-        // Marca entrega (nesta fase assumimos entrega imediata via e-mail/WhatsApp)
         $order->delivered_at = $now;
-        $order->delivered_via_email = true;
-        $order->delivered_via_whatsapp = true;
+
+        // Marca a entrega apenas pelos canais que realmente existem para esta ordem.
+        // Para planos individuais, e-mail e WhatsApp são opcionais — não são recolhidos
+        // por omissão. Por isso, só marcamos como entregue se o canal tiver dados.
+        $order->delivered_via_email     = !empty($order->customer_email);
+        $order->delivered_via_whatsapp  = !empty($order->customer_phone);
 
         $order->save();
 
-        // Envia e-mail com o código (simples protótipo) apenas se existir e-mail associado
+        // Envia e-mail com o código apenas se o cliente tiver providenciado e-mail.
+        // Para planos individuais rápidos, o e-mail não é obrigatório.
         if (!empty($order->customer_email)) {
             try {
                 Mail::to($order->customer_email)->send(new AutovendaWifiCodeMail($order));
             } catch (\Throwable $e) {
-                Log::warning('Falha ao enviar e-mail de código WiFi para ordem '.$order->id.': '.$e->getMessage());
+                Log::warning('Falha ao enviar e-mail de código WiFi para ordem ' . $order->id . ': ' . $e->getMessage());
             }
         }
 
-        // Integração real com WhatsApp ficará para fase posterior.
-        Log::info('Ordem de autovenda '.$order->id.' marcada como paga e código WiFi entregue.', [
-            'order_id' => $order->id,
+        Log::info('Ordem de autovenda ' . $order->id . ' paga e código WiFi entregue.', [
+            'order_id'  => $order->id,
             'wifi_code' => $order->wifi_code,
         ]);
 
         return $order;
     }
-
-    protected function generateWifiCode(): string
-    {
-        // Protótipo simples de geração; em produção, alinhar com o sistema real de stock/códigos.
-        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        $length = 10;
-        $code = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
-        }
-
-        return $code;
-    }
 }
+

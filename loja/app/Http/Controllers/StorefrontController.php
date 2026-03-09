@@ -50,17 +50,35 @@ class StorefrontController extends Controller
         ]);
     }
  
+    /**
+     * AUTOVENDA — PLANOS INDIVIDUAIS (Dia, Semana, Mês)
+     * ─────────────────────────────────────────────────
+     * Esta acção é EXCLUSIVA para planos individuais vendidos directamente
+     * pela loja, sem qualquer integração com o Sistema de Gestão (SG).
+     *
+     * Regras de negócio (doc: autovenda.md §3.1-a):
+     *  - Os planos estão definidos localmente em config/store_plans.php — o SG
+     *    não é consultado em nenhum passo deste fluxo.
+     *  - Não são recolhidos dados pessoais do cliente (sem nome, e-mail, telefone).
+     *  - O cliente escolhe apenas o plano e o método de pagamento.
+     *  - Após confirmação do pagamento, o código WiFi é entregue directamente
+     *    no ecrã de confirmação.
+     *
+     * NÃO CONFUNDIR com o checkout de planos familiares/empresariais:
+     *  - Esses planos são carregados do SG via API (/sg/plan-templates).
+     *  - Esse fluxo requer identificação do cliente (nome, e-mail, telefone).
+     *  - Aqui: nada disso. Só plano + método de pagamento.
+     */
     public function processCheckout(Request $request, AutovendaOrderService $orderService)
     {
+        // Apenas plan_id e payment_method — sem dados pessoais para planos individuais.
         $validated = $request->validate([
-            'plan_id' => 'required|string',
-            'nome' => 'nullable|string|max:255',
-            'email' => 'nullable|email',
-            'telefone' => 'nullable|string|max:50',
-            'nif' => 'nullable|string|max:50',
-            'payment_method' => 'required|string|in:'.AutovendaOrder::METHOD_MULTICAIXA.','.AutovendaOrder::METHOD_PAYPAL,
+            'plan_id'        => 'required|string',
+            'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_MULTICAIXA . ',' . AutovendaOrder::METHOD_PAYPAL,
         ]);
 
+        // Planos individuais são lidos exclusivamente da configuração local.
+        // Os planos familiares/empresariais (SG) têm um fluxo completamente diferente.
         $individualPlans = collect(config('store_plans.individual', []));
         $plan = $individualPlans->firstWhere('id', $validated['plan_id']);
 
@@ -70,39 +88,39 @@ class StorefrontController extends Controller
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
         }
 
-        $customer = [
-            'nome' => $validated['nome'] ?? '',
-            'email' => $validated['email'] ?? '',
-            'telefone' => $validated['telefone'] ?? '',
-            'nif' => $validated['nif'] ?? null,
-        ];
-
-        // Cria uma ordem básica de autovenda em estado "pending".
+        // Cria a ordem de autovenda em estado "awaiting_payment".
+        // Sem dados de cliente — os planos individuais não requerem identificação.
         $order = AutovendaOrder::create([
-            'plan_id' => $plan['id'],
-            'plan_name' => $plan['name'],
-            'plan_speed' => $plan['speed'] ?? null,
+            'plan_id'               => $plan['id'],
+            'plan_name'             => $plan['name'],
+            'plan_speed'            => $plan['speed'] ?? null,
             'plan_duration_minutes' => $plan['duration_minutes'] ?? null,
-            'quantity' => 1,
-            'amount_aoa' => $plan['price_kwanza'],
-            'currency' => 'AOA',
-            'customer_name' => $customer['nome'],
-            'customer_email' => $customer['email'],
-            'customer_phone' => $customer['telefone'],
-            'customer_nif' => $customer['nif'],
-            'status' => AutovendaOrder::STATUS_AWAITING_PAYMENT,
-            'payment_method' => $validated['payment_method'],
+            'quantity'              => 1,
+            'amount_aoa'            => $plan['price_kwanza'],
+            'currency'              => 'AOA',
+            'customer_name'         => null,
+            'customer_email'        => null,
+            'customer_phone'        => null,
+            'customer_nif'          => null,
+            'status'                => AutovendaOrder::STATUS_AWAITING_PAYMENT,
+            'payment_method'        => $validated['payment_method'],
         ]);
 
-        // Modo simulado: confirmamos o pagamento imediatamente e entregamos o código.
-        // Em produção, isto será feito pelo callback/retorno do gateway.
-        $orderService->confirmPaymentAndDeliver($order, 'SIMULATED');
+        // PROTÓTIPO — gatilho de pagamento simulado.
+        // Em produção este passo é substituído pelo redirect ao gateway (Multicaixa
+        // Express ou PayPal). O código WiFi só é entregue após o callback do gateway
+        // chamar PaymentCallbackController::simulateSuccess() — nunca aqui directamente.
+        try {
+            $orderService->confirmPaymentAndDeliver($order, 'SIMULATED');
+        } catch (\Throwable $e) {
+            // Sem stock de códigos WiFi disponíveis.
+            return redirect()
+                ->route('store.checkout', ['plan' => $plan['id']])
+                ->withErrors(['stock' => 'Sem códigos WiFi disponíveis de momento. Tente novamente mais tarde ou contacte o suporte.']);
+        }
 
-        // Nesta fase ainda não chamamos o gateway nem geramos código WiFi.
-        // A view de confirmação serve para validar o fluxo fim-a-fim do checkout rápido.
         return view('store.checkout-confirmation', [
-            'plan' => $plan,
-            'customer' => $customer,
+            'plan'  => $plan,
             'order' => $order,
         ]);
     }
