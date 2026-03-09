@@ -57,8 +57,8 @@
             </div>
         </div>
 
-        <div class="sites-lista" id="sitesLista">
-            <p>Nenhum site cadastrado ainda.</p>
+        <div class="sites-lista" id="sitesLista" style="display: flex; justify-content: center; align-items: center; min-height: 180px;">
+            <p style="text-align: center; font-size: 1.15rem; color: #666;">Nenhum site cadastrado ainda.</p>
         </div>
     </div>
 @endsection
