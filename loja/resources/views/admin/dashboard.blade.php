@@ -53,6 +53,19 @@
           <a href="{{ route('admin.wifi_codes.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Gerir / Importar</a>
         </div>
       </div>
+
+      <div class="info-card">
+        <h3>🏠 Planos Familiares / Empresariais</h3>
+        <p>Pendentes: <strong>{{ $pendingFamilyRequests }}</strong></p>
+        @if($pendingFamilyRequests > 0)
+          <p style="color:#d97706;font-weight:700;margin-top:.5rem;">⚠️ Há {{ $pendingFamilyRequests }} pedido(s) aguardando confirmação.</p>
+        @else
+          <p style="color:#22c55e;font-size:0.85rem;margin-top:.5rem;">Nenhum pedido pendente.</p>
+        @endif
+        <div style="margin-top:.75rem;">
+          <a href="{{ route('admin.family_requests.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Ver Pedidos</a>
+        </div>
+      </div>
     </div>
 
     <div class="info-grid" style="margin-top:2rem;">

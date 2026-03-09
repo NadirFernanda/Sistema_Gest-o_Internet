@@ -128,4 +128,56 @@ class StoreProxyController extends Controller
         ]);
         return response($res->getBody(), $res->getStatusCode())->header('Content-Type', $res->getHeaderLine('Content-Type'));
     }
+
+    /**
+     * syncJanela
+     * ──────────
+     * Called by FamilyPlanRequestAdminController when admin confirms a payment.
+     * POSTs to /api/janela-autovenda on the SG to find/create the client
+     * and extend (or initialise) their plan window.
+     *
+     * @param  array  $data  Keys: nome, email, contato, nif, template_id, loja_request_id
+     * @return array  ['success' => bool, 'data' => [...] | null, 'error' => string|null]
+     */
+    public function syncJanela(array $data): array
+    {
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+        $http = new Client(['base_uri' => $sg]);
+
+        $headers = ['Accept' => 'application/json'];
+        $apiToken = env('SG_API_TOKEN');
+        if ($apiToken) {
+            $headers['X-API-TOKEN'] = $apiToken;
+        }
+
+        try {
+            $res = $http->post('/api/janela-autovenda', [
+                'headers'     => $headers,
+                'json'        => $data,
+                'http_errors' => false,
+                'timeout'     => 12,
+            ]);
+
+            $body = json_decode((string) $res->getBody(), true);
+
+            if ($res->getStatusCode() >= 200 && $res->getStatusCode() < 300) {
+                return ['success' => true, 'data' => $body, 'error' => null];
+            }
+
+            \Log::error('syncJanela: SG returned error', [
+                'status' => $res->getStatusCode(),
+                'body'   => $body,
+                'data'   => $data,
+            ]);
+
+            return [
+                'success' => false,
+                'data'    => $body,
+                'error'   => $body['message'] ?? 'SG returned HTTP ' . $res->getStatusCode(),
+            ];
+        } catch (\Exception $e) {
+            \Log::error('syncJanela: could not reach SG', ['error' => $e->getMessage(), 'data' => $data]);
+            return ['success' => false, 'data' => null, 'error' => 'sg_unreachable: ' . $e->getMessage()];
+        }
+    }
 }

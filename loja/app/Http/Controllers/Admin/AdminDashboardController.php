@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AutovendaOrder;
 use App\Models\EquipmentOrder;
+use App\Models\FamilyPlanRequest;
 use App\Models\Product;
 use App\Models\ResellerApplication;
 use App\Models\WifiCode;
@@ -33,6 +34,9 @@ class AdminDashboardController extends Controller
             EquipmentOrder::STATUS_DELIVERED,
         ])->sum('total_aoa');
 
+        // Family/business plan requests
+        $pendingFamilyRequests = FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_PENDING)->count();
+
         // WiFi code stock
         $availableWifiCodes = WifiCode::where('status', WifiCode::STATUS_AVAILABLE)->count();
         $usedWifiCodes      = WifiCode::where('status', WifiCode::STATUS_USED)->count();
@@ -49,8 +53,9 @@ class AdminDashboardController extends Controller
             'totalEquipOrders'   => $totalEquipOrders,
             'newEquipOrders'     => $newEquipOrders,
             'totalEquipRevenue'  => $totalEquipRevenue,
-            'availableWifiCodes' => $availableWifiCodes,
-            'usedWifiCodes'      => $usedWifiCodes,
+            'availableWifiCodes'     => $availableWifiCodes,
+            'usedWifiCodes'          => $usedWifiCodes,
+            'pendingFamilyRequests'  => $pendingFamilyRequests,
         ]);
     }
 
