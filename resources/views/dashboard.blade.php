@@ -26,7 +26,9 @@
         <div class="dashboard-actions">
             <a href="{{ route('clientes') }}" class="btn">Clientes</a>
             <a href="{{ app()->router->has('planos.index') ? route('planos.index') : url('/planos') }}" class="btn">Planos</a>
-            <a href="{{ route('sites.index') }}" class="btn">Sites</a>
+            <!-- Botão Sites removido para teste -->
+            <!-- <a href="{{ route('sites.index') }}" class="btn">Sites</a> -->
+            <a href="/sites" class="btn" style="background:#e0a800;">Sites (Novo)</a>
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
 
