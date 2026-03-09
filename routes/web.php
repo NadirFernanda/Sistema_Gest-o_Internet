@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 
@@ -12,7 +12,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Redirecionar / para login ou dashboard
-// Corrige erro 500: rota clientes.index não definida
+// Corrige erro 500: rota clientes.index nÃ£o definida
 use App\Http\Controllers\ClienteController;
 
 Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
@@ -44,27 +44,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     // Corrige erro 500: rota para compensar dias (handler moved to dedicated controller)
     Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteCompensacaoController::class, 'store'])->name('clientes.compensar_dias');
-    // Adicionar janela automática: extende a próxima renovação pelo ciclo do plano
+    // Adicionar janela automÃ¡tica: extende a prÃ³xima renovaÃ§Ã£o pelo ciclo do plano
     Route::post('/clientes/{cliente}/adicionar-janela', [\App\Http\Controllers\ClienteController::class, 'adicionarJanela'])->name('clientes.adicionar_janela');
-    // Histórico de compensações de dias (por cliente)
+    // HistÃ³rico de compensaÃ§Ãµes de dias (por cliente)
     Route::get('/clientes/{cliente}/compensacoes', [\App\Http\Controllers\ClienteCompensacaoController::class, 'index'])->name('clientes.compensacoes');
-    // Exportar histórico de compensações (Excel)
+    // Exportar histÃ³rico de compensaÃ§Ãµes (Excel)
     Route::get('/clientes/{cliente}/compensacoes/export', [\App\Http\Controllers\ClienteController::class, 'exportCompensacoes'])->name('clientes.compensacoes.export')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.export');
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');
     Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
     Route::post('/clientes/{cliente}/ficha/send', [\App\Http\Controllers\ClienteController::class, 'sendFichaEmail'])->name('clientes.ficha.send');
-    // Ação combinada: envia a ficha por e-mail e retorna o PDF para download em um único clique
+    // AÃ§Ã£o combinada: envia a ficha por e-mail e retorna o PDF para download em um Ãºnico clique
     Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
-    // Gera uma URL assinada temporária para download sem sessão
+    // Gera uma URL assinada temporÃ¡ria para download sem sessÃ£o
     Route::get('/clientes/{cliente}/ficha/signed-url', [\App\Http\Controllers\ClienteController::class, 'createSignedUrl'])->name('clientes.ficha.signed.url');
     
-    // Página geral de relatórios multi-aba
+    // PÃ¡gina geral de relatÃ³rios multi-aba
     Route::get('/relatorios-gerais', [\App\Http\Controllers\RelatorioController::class, 'geral'])
         ->name('relatorios.gerais');
-    // Download dos relatórios automáticos (aceita nome de ficheiro opcional para histórico)
+    // Download dos relatÃ³rios automÃ¡ticos (aceita nome de ficheiro opcional para histÃ³rico)
     Route::get('/relatorios-gerais/download/{period}/{file?}', [\App\Http\Controllers\RelatorioController::class, 'download'])
         ->name('relatorios.gerais.download');
-    // Geração manual via UI
+    // GeraÃ§Ã£o manual via UI
     Route::post('/relatorios-gerais/gerar', [\App\Http\Controllers\RelatorioController::class, 'gerarAgora'])
         ->name('relatorios.gerais.gerar');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
@@ -85,7 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'destroyWeb'])->name('planos.destroy')->whereNumber('plano')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.delete');
     Route::get('/alertas', fn () => view('alertas'))->name('alertas');
 
-    // Relatório e cadastro de cobranças
+    // RelatÃ³rio e cadastro de cobranÃ§as
     Route::get('/cobrancas', [\App\Http\Controllers\CobrancaController::class, 'index'])->name('cobrancas.index');
     Route::get('/cobrancas/export', [\App\Http\Controllers\CobrancaController::class, 'exportExcel'])->name('cobrancas.export')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.export');
     Route::get('/cobrancas/create', [\App\Http\Controllers\CobrancaController::class, 'create'])->name('cobrancas.create')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':cobrancas.create');
@@ -132,7 +132,7 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('user')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':users.delete');
     
-    // Audit logs removed (legacy) — routes cleaned
+    // Audit logs removed (legacy) â€” routes cleaned
     // New audit UI (minimal) - access controlled by permission 'audits.view' if present
     Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditController::class, 'index'])
         ->name('admin.audit.index')
@@ -176,7 +176,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos/{equipamento}/edit', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'edit'])->name('estoque_equipamentos.edit');
     Route::put('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'update'])->name('estoque_equipamentos.update');
     Route::delete('/estoque-equipamentos/{equipamento}', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'destroy'])->name('estoque_equipamentos.destroy');
-    // Exportação específica do estoque de equipamentos
+    // ExportaÃ§Ã£o especÃ­fica do estoque de equipamentos
     Route::get('/estoque-equipamentos/export', function() {
         $equipamentos = \App\Models\EstoqueEquipamento::orderBy('nome')->get();
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\EstoqueEquipamentosExport($equipamentos), 'estoque_equipamentos.xlsx');
@@ -197,6 +197,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/clientes/{cliente}/vincular-equipamento/{vinculo}/registrar-devolucao', [\App\Http\Controllers\ClienteEquipamentoController::class, 'registrarDevolucao'])
         ->name('cliente_equipamento.registrar_devolucao')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.devolucao');
+
+    // Catalogo de venda de equipamentos (loja)
+    Route::get('/catalog-equipamentos', [\App\Http\Controllers\CatalogEquipamentosController::class, 'index'])->name('catalog_equipamentos.index');
+    Route::get('/catalog-equipamentos/create', [\App\Http\Controllers\CatalogEquipamentosController::class, 'create'])->name('catalog_equipamentos.create');
+    Route::post('/catalog-equipamentos', [\App\Http\Controllers\CatalogEquipamentosController::class, 'store'])->name('catalog_equipamentos.store');
+    Route::get('/catalog-equipamentos/{catalog_equipamento}/edit', [\App\Http\Controllers\CatalogEquipamentosController::class, 'edit'])->name('catalog_equipamentos.edit')->whereNumber('catalog_equipamento');
+    Route::put('/catalog-equipamentos/{catalog_equipamento}', [\App\Http\Controllers\CatalogEquipamentosController::class, 'update'])->name('catalog_equipamentos.update')->whereNumber('catalog_equipamento');
+    Route::delete('/catalog-equipamentos/{catalog_equipamento}', [\App\Http\Controllers\CatalogEquipamentosController::class, 'destroy'])->name('catalog_equipamentos.destroy')->whereNumber('catalog_equipamento');
 });
 
 // Dev helper routes removed. For local testing use the `diagnose:stock` command and feature branches.
@@ -210,7 +218,7 @@ Route::get('/_probe/hasroles', function () {
     ]);
 });
 
-// Rota pública apenas via URL assinada para permitir download temporário sem sessão
+// Rota pÃºblica apenas via URL assinada para permitir download temporÃ¡rio sem sessÃ£o
 Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfSigned'])
     ->name('clientes.ficha.signed')
     ->middleware('signed');
@@ -218,3 +226,4 @@ Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\C
 // TEMPORARY public download for testing (no auth, remove after testing)
 Route::get('/clientes/{cliente}/ficha/public-download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfPublic'])
     ->name('clientes.ficha.public');
+
