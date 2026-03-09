@@ -8,9 +8,19 @@
     <div class="plan-show-card">
         @php
             use App\Models\Cobranca;
-            use App\Models\Compensacao;
             $cliente = $plano->cliente ?? null;
-            $compCount = $cliente ? Compensacao::where('cliente_id', $cliente->id)->count() : 0;
+            // compensacoes table uses plano_id (not cliente_id) — query via all client planos
+            $compCount = 0;
+            try {
+                if ($cliente) {
+                    $planoIds = $cliente->planos->pluck('id');
+                    $compCount = $planoIds->isNotEmpty()
+                        ? \DB::table('compensacoes')->whereIn('plano_id', $planoIds)->count()
+                        : 0;
+                }
+            } catch (\Exception $e) {
+                $compCount = 0;
+            }
         @endphp
 
         {{-- plan header will be rendered inside the details card below for visual cohesion --}}
@@ -33,11 +43,17 @@
                 $dataAtiv = null; $dataTerm = null;
             }
             $diasRest = $dataTerm ? \Carbon\Carbon::today()->diffInDays($dataTerm, false) : null;
-            // último pagamento do cliente (Cobranca não tem plano_id, usa cliente_id)
+            // último pagamento: inclui cobranças com data_pagamento OU status=pago
             try {
                 $clienteId = $plano->cliente_id ?? ($plano->cliente->id ?? null);
                 $ultimoPagamento = $clienteId
-                    ? Cobranca::where('cliente_id', $clienteId)->whereNotNull('data_pagamento')->orderByDesc('data_pagamento')->first()
+                    ? Cobranca::where('cliente_id', $clienteId)
+                        ->where(function($q) {
+                            $q->whereNotNull('data_pagamento')->orWhere('status', 'pago');
+                        })
+                        ->orderByDesc('data_pagamento')
+                        ->orderByDesc('data_vencimento')
+                        ->first()
                     : null;
             } catch (\Exception $e) {
                 $ultimoPagamento = null;
@@ -95,7 +111,16 @@
                         </div>
                         <div>
                             <div class="muted">Último pagamento</div>
-                            <div>{{ $ultimoPagamento ? (\Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y') . ' — ' . number_format($ultimoPagamento->valor,2,',','.').' Kz') : '—' }}</div>
+                            <div>@if($ultimoPagamento)
+                                @php
+                                    $dpDate = $ultimoPagamento->data_pagamento
+                                        ? \Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y')
+                                        : ($ultimoPagamento->data_vencimento ? \Carbon\Carbon::parse($ultimoPagamento->data_vencimento)->format('d/m/Y') : null);
+                                @endphp
+                                {{ $dpDate ? $dpDate . ' — ' . number_format($ultimoPagamento->valor,2,',','.').' Kz' : '—' }}
+                            @else
+                                —
+                            @endif</div>
                         </div>
                     </div>
                 </div>

@@ -359,7 +359,7 @@ class PlanoController extends Controller
      */
     public function webShow($id)
     {
-        $plano = Plano::with('cliente')->findOrFail($id);
+        $plano = Plano::with(['cliente', 'cliente.planos'])->findOrFail($id);
         return view('planos.show', compact('plano'));
     }
 
