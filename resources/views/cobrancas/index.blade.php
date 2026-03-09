@@ -14,18 +14,6 @@
             'subtitle' => '',
         ])
 
-        <!-- Botões de download dos relatórios automáticos -->
-        <div class="relatorio-cabecalho-botoes" style="display:flex;gap:18px;margin-bottom:18px;">
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'diario']) }}" class="btn btn-primary" target="_blank">
-                <span style="font-weight:bold;">⬇ Diário</span>
-            </a>
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'semanal']) }}" class="btn btn-primary" target="_blank">
-                <span style="font-weight:bold;">⬇ Semanal</span>
-            </a>
-            <a href="{{ route('relatorios.gerais.download', ['period' => 'mensal']) }}" class="btn btn-primary" target="_blank">
-                <span style="font-weight:bold;">⬇ Mensal</span>
-            </a>
-        </div>
 
     <!-- toolbar removed here: buttons will be placed above the filter fields in
 side the filter box -->                                                         
