@@ -46,14 +46,14 @@
 
         <div class="sites-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
             <form class="search-form-inline" method="GET" action="{{ route('sites.index') }}" style="flex:1;display:flex;gap:8px;align-items:center;">
-                <input type="search" name="busca" id="buscaSites" value="{{ request('busca') }}" class="search-input" placeholder="Pesquise por site..." aria-label="Pesquisar sites" style="flex:5;padding:12px 16px;border-radius:6px;border:2px solid #ffc107;min-width:320px;height:48px;box-sizing:border-box;" />
-                <button type="submit" id="btnBuscarSites" class="btn btn-cta" style="min-width:120px;max-width:120px;height:48px;line-height:48px;padding:0 18px;">Pesquisar</button>
+                <input type="search" name="busca" id="buscaSites" value="{{ request('busca') }}" class="search-input" placeholder="Pesquise por site..." aria-label="Pesquisar sites" style="flex:5;padding:12px 16px;border-radius:8px;border:2px solid #ffc107;min-width:320px;height:48px;box-sizing:border-box;font-size:1.15rem;" />
+                <button type="submit" id="btnBuscarSites" class="btn btn-cta" style="min-width:120px;max-width:120px;height:48px;box-sizing:border-box;padding:0 18px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;">Pesquisar</button>
             </form>
             <div style="display:flex;gap:8px;">
                 @if(auth()->user() && auth()->user()->hasRole('Administrador'))
-                    <a href="{{ route('sites.create') }}" class="btn btn-cta" style="min-width:120px;max-width:120px;">Cadastrar</a>
+                    <a href="{{ route('sites.create') }}" class="btn btn-cta" style="min-width:120px;max-width:120px;height:48px;box-sizing:border-box;padding:0 18px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;">Cadastrar</a>
                 @endif
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="min-width:120px;max-width:120px;">Painel</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="min-width:120px;max-width:120px;height:48px;box-sizing:border-box;padding:0 18px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;">Painel</a>
             </div>
         </div>
 
