@@ -75,69 +75,70 @@
                 <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
                 <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
             </div>
-            <div class="card">
-                <div class="card-header">Detalhes do Plano</div>
-                <div class="card-body">
-                    <div class="plan-summary two-column in-card">
-                        <div class="plan-summary-left">
-                            <div style="margin-bottom:6px;color:#333;font-size:0.98rem;">Plano: <strong>{{ $plano->nome }}</strong></div>
-                            <p style="margin:6px 0 12px 0;color:#333;">{{ $plano->descricao }}</p>
-                            <div class="plan-status">
-                                <div style="color:#666;margin-bottom:6px;">Status:</div>
-                                <div style="font-weight:800;font-size:1.05rem;">{{ $plano->estado ?? '—' }}</div>
-                            </div>
-                        </div>
-                        <div class="plan-summary-right">
-                            <div class="price-row" style="margin-bottom:6px;">
-                                <div style="font-size:2rem;font-weight:800;">Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</div>
-                                <div style="background:#f0f0f0;padding:8px 12px;border-radius:999px;font-weight:700;color:#333;">{{ $plano->ciclo ?? '30' }} dias</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                        <div>
-                            <div class="muted">Data de Ativação</div>
-                            <div>{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Próxima Renovação / Término</div>
-                            <div>{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Ciclo (dias)</div>
-                            <div>{{ $plano->ciclo ?? '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Dias restantes</div>
-                            <div>{{ !is_null($diasRest) ? ($diasRest >= 0 ? $diasRest . ' dias' : abs($diasRest) . ' dias vencido') : '—' }}</div>
-                        </div>
-                        <div style="grid-column:1 / -1;">
-                            <div class="muted">Template</div>
-                            <div>{{ optional($plano->template)->name ?? ($plano->nome ?? '—') }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Cliente</div>
-                            <div>{{ $cliente ? $cliente->nome . ' — ' . ($cliente->contato ?? '') : '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Compensações registradas (cliente)</div>
-                            <div>{{ $compCount }}</div>
-                        </div>
-                        <div>
-                            <div class="muted">Último pagamento</div>
-                            <div>@if($ultimoPagamento)
-                                @php
-                                    $dpDate = $ultimoPagamento->data_pagamento
-                                        ? \Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y')
-                                        : ($ultimoPagamento->data_vencimento ? \Carbon\Carbon::parse($ultimoPagamento->data_vencimento)->format('d/m/Y') : null);
-                                @endphp
-                                {{ $dpDate ? $dpDate . ' — ' . number_format($ultimoPagamento->valor,2,',','.').' Kz' : '—' }}
-                            @else
-                                —
-                            @endif</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="estoque-tabela-moderna" style="margin-bottom:24px;">
+                <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
+                    <tbody>
+                        <tr>
+                            <th style="width:220px;text-align:left;">Plano</th>
+                            <td>{{ $plano->nome }}</td>
+                        </tr>
+                        <tr>
+                            <th>Descrição</th>
+                            <td>{{ $plano->descricao }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ $plano->estado ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Preço</th>
+                            <td>Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ciclo (dias)</th>
+                            <td>{{ $plano->ciclo ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Data de Ativação</th>
+                            <td>{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Próxima Renovação / Término</th>
+                            <td>{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Dias restantes</th>
+                            <td>{{ !is_null($diasRest) ? ($diasRest >= 0 ? $diasRest . ' dias' : abs($diasRest) . ' dias vencido') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Template</th>
+                            <td>{{ optional($plano->template)->name ?? ($plano->nome ?? '—') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Cliente</th>
+                            <td>{{ $cliente ? $cliente->nome . ' — ' . ($cliente->contato ?? '') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Compensações registradas (cliente)</th>
+                            <td>{{ $compCount }}</td>
+                        </tr>
+                        <tr>
+                            <th>Último pagamento</th>
+                            <td>
+                                @if($ultimoPagamento)
+                                    @php
+                                        $dpDate = $ultimoPagamento->data_pagamento
+                                            ? \Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y')
+                                            : ($ultimoPagamento->data_vencimento ? \Carbon\Carbon::parse($ultimoPagamento->data_vencimento)->format('d/m/Y') : null);
+                                    @endphp
+                                    {{ $dpDate ? $dpDate . ' — ' . number_format($ultimoPagamento->valor,2,',','.').' Kz' : '—' }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Botões de ação agora estão na toolbar acima -->
