@@ -62,11 +62,18 @@
 
         <div class="plan-show-grid" style="margin-top:18px;">
             <!-- Toolbar visual igual ao estoque, mas sem barra de pesquisa -->
-            <div class="clientes-toolbar" style="margin-bottom:18px;">
-                <div style="display:flex;gap:8px;">
-                    <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
-                </div>
+            <div class="clientes-toolbar" style="margin-bottom:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
+                <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
+                <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-secondary" type="submit">Apagar</button>
+                </form>
+                <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
             </div>
             <div class="card">
                 <div class="card-header">Detalhes do Plano</div>
@@ -133,20 +140,7 @@
                 </div>
             </div>
 
-            <!-- CTA buttons: centralizados -->
-            <div class="plan-actions-wrapper">
-                <div class="cta-grid">
-                    <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta">Histórico de Compensações</button>
-                    <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
-                    <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-secondary" type="submit">Apagar</button>
-                    </form>
-                    <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
-                    <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
-                </div>
-            </div>
+            <!-- Botões de ação agora estão na toolbar acima -->
 
         <!-- Modal para compensar dias -->
         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
