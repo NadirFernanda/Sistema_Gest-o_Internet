@@ -60,6 +60,148 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ---
 
+## Arquitectura da Loja — Dois tipos de planos
+
+A loja trata dois tipos de planos de forma completamente diferente:
+
+| | **Planos Individuais** | **Planos Familiares / Empresariais** |
+|---|---|---|
+| Identificação | Nenhuma | Nome, e-mail, telefone, NIF (opcional) |
+| Entrega | Código WiFi imediato no ecrã | Activação de janela no SG |
+| Integração SG | Nenhuma | `POST /api/janela-autovenda` |
+| Modelo | `AutovendaOrder` | `FamilyPlanRequest` |
+| Gateway | `PaymentCallbackController` | `FamilyPlanPaymentController` |
+
+---
+
+## Fluxo — Planos Familiares & Empresariais
+
+### Visão geral
+
+```
+Cliente → Formulário → awaiting_payment → Página de pagamento
+                                                  ↓
+                                          Cliente paga
+                                                  ↓
+                                  Gateway → POST /payment/familia/webhook
+                                                  ↓
+                                  Loja → POST /api/janela-autovenda (SG)
+                                                  ↓
+                                  SG activa o plano → e-mail ao cliente ✅
+
+                                          (se SG falhar)
+                                                  ↓
+                                  status = pending → admin activa manualmente
+```
+
+### Passo a passo
+
+**1. Cliente escolhe o plano**
+Os planos familiares/empresariais são carregados em tempo real do SG via `/sg/plan-templates`. O cliente clica "Comprar" e é redirecionado para o formulário.
+
+**2. Formulário de identificação — `GET /solicitar-plano?plan_id=...`**
+O cliente preenche: nome, e-mail, telefone, NIF (opcional), método de pagamento (Multicaixa Express ou PayPal).
+
+**3. Submissão — `POST /solicitar-plano`**
+O servidor (`FamilyPlanRequestController@store`):
+- Valida os dados
+- Cria um registo `FamilyPlanRequest` com `status = awaiting_payment`
+- Gera uma referência única: `AW-000042` (formato `AW-` + ID com 6 dígitos)
+- Envia e-mail de notificação ao admin
+- Redireciona para `/pagar-plano/{id}`
+
+> Nenhuma activação ocorre ainda. O pedido fica registado aguardando pagamento.
+
+**4. Página de pagamento — `GET /pagar-plano/{id}`**
+Renderizada por `FamilyPlanPaymentController@show`. Mostra instruções específicas por método:
+- **Multicaixa Express:** passo a passo com a referência `AW-000042` e valor a pagar
+- **PayPal:** botão de redirecionamento com instrução para incluir a referência na nota
+
+Em ambiente `local`/`testing` aparece um botão **"Simular Pagamento Confirmado"** para testes sem gateway real.
+
+**5. Cliente efectua o pagamento**
+O cliente paga pelo método escolhido. A partir daqui o processo é 100% automático.
+
+**6. Webhook do gateway — `POST /payment/familia/webhook`** *(CSRF exempt)*
+O gateway envia `{ "reference": "AW-000042" }`. O servidor (`FamilyPlanPaymentController@webhook`):
+- Localiza o pedido pela referência
+- Confirma que está em `awaiting_payment`
+- Chama `activate()`
+
+**7. Activação no SG — `POST /api/janela-autovenda`**
+A loja chama o SG com os dados do cliente. O SG (`AutovendaJanelaController@store`) executa:
+
+- **Cliente novo:** cria `Cliente` + cria `Plano` (`estado=Ativo`, `proxima_renovacao = hoje + ciclo`)
+- **Cliente já existente** (lookup por e-mail): encontra o cliente, verifica se já tem plano desse template
+  - Tem plano activo: **estende** `proxima_renovacao` adicionando os dias do ciclo (renovação)
+  - Não tem: cria plano novo para esse cliente
+
+**8. Conclusão**
+- Loja actualiza `status = activated`
+- Envia e-mail de confirmação ao cliente com nome do plano, referência e confirmação de acesso
+- A página `/pagar-plano/{id}` passa a mostrar "✅ Plano Activado!"
+
+### Estados do pedido (`FamilyPlanRequest.status`)
+
+| Status | Significado |
+|--------|-------------|
+| `awaiting_payment` | Pedido registado, aguarda confirmação de pagamento do gateway |
+| `pending` | Pagamento confirmado, mas SG inacessível — admin deve activar manualmente |
+| `activated` | Janela activada no SG com sucesso |
+| `cancelled` | Pedido cancelado pelo admin |
+
+### Fallback manual (admin)
+
+Se o SG estiver inacessível durante o webhook, o pedido fica `pending` com nota explicativa. O admin acede a `/admin/pedidos-planos-familiares` e clica "Confirmar/Activar" para tentar novamente.
+
+### Referências de código
+
+| Componente | Ficheiro |
+|---|---|
+| Formulário + registo | `app/Http/Controllers/FamilyPlanRequestController.php` |
+| Pagamento + webhook + activação | `app/Http/Controllers/FamilyPlanPaymentController.php` |
+| API no SG | `PROJECTO/app/Http/Controllers/AutovendaJanelaController.php` |
+| Proxy loja→SG | `app/Http/Controllers/StoreProxyController.php` |
+| Admin panel | `app/Http/Controllers/Admin/FamilyPlanRequestAdminController.php` |
+| Modelo | `app/Models/FamilyPlanRequest.php` |
+| Vista formulário | `resources/views/pages/solicitar-plano.blade.php` |
+| Vista pagamento | `resources/views/pages/pagar-plano.blade.php` |
+| CSRF exemption | `bootstrap/app.php` |
+| Rotas | `routes/web.php` — prefixo `/solicitar-plano`, `/pagar-plano`, `/payment/familia` |
+
+---
+
+## Roadmap — Pré-preenchimento por número de telefone (próxima fase)
+
+> **Problema actual:** o cliente preenche nome, telefone, NIF, etc. de cada vez que renova.
+>
+> **Contexto Angola:** a maioria dos clientes não usa e-mail regularmente. O número de telefone é o identificador universal — toda a gente sabe o seu número de cor.
+
+### Solução proposta: lookup por telefone (sem conta, sem password, sem e-mail)
+
+O cliente não precisa de criar conta. No início do formulário de checkout existe um campo de pesquisa rápida:
+
+```
+Já é cliente? Introduza o seu número de telefone:
+[ 9XX XXX XXX ]  [ Preencher automaticamente ]
+```
+
+Se o número existir na base de dados (de um pedido anterior), o formulário é preenchido automaticamente com os dados guardados. O cliente confirma, escolhe o plano e paga. Se for novo, preenche normalmente e os dados ficam guardados para a próxima vez.
+
+**Vantagens:**
+- Zero fricção — o cliente só precisa de saber o seu número de telefone
+- Não depende de e-mail nem de password
+- Não precisa de "criar conta" — os dados ficam na base de dados automaticamente na primeira compra
+- Funciona igualmente bem em telemóvel
+
+**Arquitectura prevista:**
+- Na tabela `family_plan_requests`, o `customer_phone` já existe — basta fazer lookup por ele
+- `GET /checkout/lookup?phone=9XXXXXXXX` → retorna JSON com dados do cliente (nome, email, nif) para preencher o form via JS
+- Nenhuma migração nova necessária na fase inicial
+- Opcional numa fase posterior: notificação de renovação por **WhatsApp** (via Twilio/Z-API) em vez de e-mail
+
+---
+
 ## Fluxo de Deploy — Local → GitHub → Servidor de Produção
 
 ### 1. Publicar alterações do local para o GitHub

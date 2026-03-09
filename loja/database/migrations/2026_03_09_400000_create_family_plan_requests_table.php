@@ -38,7 +38,7 @@ return new class extends Migration {
 
             // Dados do cliente (obrigatório — diferente dos planos individuais)
             $table->string('customer_name');
-            $table->string('customer_email');
+            $table->string('customer_email')->nullable();
             $table->string('customer_phone');
             $table->string('customer_nif')->nullable();
 

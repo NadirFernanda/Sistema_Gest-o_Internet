@@ -33,6 +33,7 @@ Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'pr
 // (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
 Route::get('/solicitar-plano', [FamilyPlanRequestController::class, 'show'])->name('family.request.show');
 Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->name('family.request.store');
+Route::get('/checkout/lookup', [FamilyPlanRequestController::class, 'lookup'])->name('family.request.lookup');
 
 // Pagamento dos planos familiares/empresariais
 // POST /payment/familia/webhook é CSRF-exempt (ver bootstrap/app.php)

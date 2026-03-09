@@ -63,6 +63,42 @@ class FamilyPlanRequestController extends Controller
     }
 
     /**
+     * Pesquisa dados de um cliente anterior pelo número de telefone.
+     * Usado pelo formulário de checkout para pré-preenchimento via JS.
+     * Devolve apenas nome, e-mail e NIF — nunca histórico de pedidos.
+     *
+     * GET /checkout/lookup?phone=9XXXXXXXX
+     */
+    public function lookup(Request $request)
+    {
+        $phone = preg_replace('/[\s\-\.()]/', '', $request->query('phone', ''));
+
+        if (mb_strlen($phone) < 7) {
+            return response()->json(['found' => false]);
+        }
+
+        $record = FamilyPlanRequest::where('customer_phone', 'like', '%' . $phone . '%')
+            ->whereIn('status', [
+                FamilyPlanRequest::STATUS_ACTIVATED,
+                FamilyPlanRequest::STATUS_PENDING,
+                FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
+            ])
+            ->orderByDesc('created_at')
+            ->first(['customer_name', 'customer_email', 'customer_nif']);
+
+        if (! $record) {
+            return response()->json(['found' => false]);
+        }
+
+        return response()->json([
+            'found' => true,
+            'name'  => $record->customer_name,
+            'email' => $record->customer_email,
+            'nif'   => $record->customer_nif ?? '',
+        ]);
+    }
+
+    /**
      * Processa o formulário de checkout do plano familiar/empresarial.
      * APENAS regista o pedido e redireciona para a página de pagamento.
      * A activação no SG ocorre DEPOIS do pagamento, via webhook do gateway.
@@ -75,7 +111,7 @@ class FamilyPlanRequestController extends Controller
             'plan_preco'     => 'nullable|integer|min:0',
             'plan_ciclo'     => 'nullable|integer|min:1',
             'customer_name'  => 'required|string|max:255',
-            'customer_email' => 'required|email|max:255',
+            'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'required|string|max:50',
             'customer_nif'   => 'nullable|string|max:50',
             'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_MULTICAIXA . ',' . FamilyPlanRequest::METHOD_PAYPAL,
@@ -87,7 +123,7 @@ class FamilyPlanRequestController extends Controller
             'plan_preco'      => $validated['plan_preco'] ?? null,
             'plan_ciclo_dias' => $validated['plan_ciclo'] ?? null,
             'customer_name'   => $validated['customer_name'],
-            'customer_email'  => $validated['customer_email'],
+            'customer_email'  => $validated['customer_email'] ?? null,
             'customer_phone'  => $validated['customer_phone'],
             'customer_nif'    => $validated['customer_nif'] ?? null,
             'payment_method'  => $validated['payment_method'],

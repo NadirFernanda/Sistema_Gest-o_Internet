@@ -35,8 +35,8 @@
 
       <div style="margin-top:1rem;padding:0.75rem;background:#fffaf0;border-radius:8px;border:1px solid rgba(247,181,0,0.3);font-size:0.82rem;color:#64748b;">
         <strong style="color:#1e293b;">Como funciona?</strong><br>
-        Após submeter este formulário, a nossa equipa recebe uma notificação, confirma o
-        seu pagamento e activa o plano no sistema. Receberá uma confirmação por e-mail.
+        Após o pagamento, o seu plano é activado automaticamente. Não precisa de aguardar
+        nenhuma confirmação manual — receberá uma notificação assim que o acesso estiver disponível.
       </div>
     </section>
 
@@ -63,6 +63,20 @@
         <input type="hidden" name="plan_preco" value="{{ $plan['preco'] ?? '' }}">
         <input type="hidden" name="plan_ciclo" value="{{ $plan['ciclo'] ?? '' }}">
 
+        {{-- Telefone — primeiro campo, serve também de lookup --}}
+        <div class="checkout-form-row">
+          <label for="customer_phone">Telefone / WhatsApp *</label>
+          <div class="checkout-phone-group">
+            <input type="tel" id="customer_phone" name="customer_phone"
+              value="{{ old('customer_phone') }}" required
+              placeholder="9XX XXX XXX" autocomplete="tel">
+            <button type="button" id="lookup-btn" class="checkout-lookup-btn" title="Preencher dados automaticamente">
+              Já sou cliente
+            </button>
+          </div>
+          <small id="lookup-feedback" class="checkout-lookup-feedback"></small>
+        </div>
+
         {{-- Nome --}}
         <div class="checkout-form-row">
           <label for="customer_name">Nome completo *</label>
@@ -73,18 +87,13 @@
 
         {{-- E-mail --}}
         <div class="checkout-form-row">
-          <label for="customer_email">E-mail *</label>
+          <label for="customer_email">
+            E-mail
+            <span style="font-weight:400;color:#94a3b8;">(opcional — para notificações)</span>
+          </label>
           <input type="email" id="customer_email" name="customer_email"
-            value="{{ old('customer_email') }}" required
+            value="{{ old('customer_email') }}"
             placeholder="exemplo@gmail.com" autocomplete="email">
-        </div>
-
-        {{-- Telefone --}}
-        <div class="checkout-form-row">
-          <label for="customer_phone">Telefone / WhatsApp *</label>
-          <input type="tel" id="customer_phone" name="customer_phone"
-            value="{{ old('customer_phone') }}" required
-            placeholder="9XX XXX XXX" autocomplete="tel">
         </div>
 
         {{-- NIF (opcional) --}}
@@ -112,10 +121,10 @@
           </div>
         </div>
 
-        <p class="checkout-note">* Campos obrigatórios. A equipa AngolaWiFi entrará em contacto pelo telefone/e-mail fornecidos.</p>
+        <p class="checkout-note">* Campos obrigatórios. Contactamos pelo telefone indicado em caso de dúvida.</p>
 
         <div class="checkout-actions">
-          <button type="submit" class="btn-primary">Enviar Pedido de Adesão</button>
+          <button type="submit" class="btn-primary">Avançar para Pagamento →</button>
         </div>
       </form>
     </section>
@@ -123,3 +132,121 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+  const phoneInput    = document.getElementById('customer_phone');
+  const nameInput     = document.getElementById('customer_name');
+  const emailInput    = document.getElementById('customer_email');
+  const nifInput      = document.getElementById('customer_nif');
+  const lookupBtn     = document.getElementById('lookup-btn');
+  const feedback      = document.getElementById('lookup-feedback');
+  const lookupUrl     = '{{ route('family.request.lookup') }}';
+
+  function setFeedback(msg, type) {
+    feedback.textContent = msg;
+    feedback.className = 'checkout-lookup-feedback checkout-lookup-feedback--' + type;
+    feedback.style.display = msg ? 'block' : 'none';
+  }
+
+  function markAutoFilled(input) {
+    input.classList.add('checkout-autofilled');
+  }
+
+  async function doLookup() {
+    const phone = phoneInput.value.replace(/[\s\-().]/g, '');
+    if (phone.length < 7) {
+      setFeedback('Introduza o número completo.', 'warn');
+      return;
+    }
+
+    lookupBtn.disabled = true;
+    lookupBtn.textContent = '…';
+    setFeedback('', '');
+
+    try {
+      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone));
+      const data = await res.json();
+
+      if (data.found) {
+        nameInput.value  = data.name  || '';
+        emailInput.value = data.email || '';
+        nifInput.value   = data.nif   || '';
+        [nameInput, emailInput, nifInput].forEach(markAutoFilled);
+        setFeedback('✓ Cliente encontrado — dados preenchidos. Confirme antes de avançar.', 'ok');
+      } else {
+        setFeedback('Número não encontrado — preencha os seus dados abaixo.', 'info');
+      }
+    } catch (e) {
+      setFeedback('Não foi possível verificar. Preencha os dados manualmente.', 'warn');
+    } finally {
+      lookupBtn.disabled = false;
+      lookupBtn.textContent = 'Já sou cliente';
+    }
+  }
+
+  lookupBtn.addEventListener('click', doLookup);
+
+  // Auto-dispara quando o campo de telefone fica com tamanho suficiente e o utilizador sai do campo
+  phoneInput.addEventListener('blur', function () {
+    const phone = this.value.replace(/[\s\-().]/g, '');
+    if (phone.length >= 9 && !nameInput.value.trim()) {
+      doLookup();
+    }
+  });
+
+  // Remove marca de auto-preenchido se o utilizador editar o campo manualmente
+  [nameInput, emailInput, nifInput].forEach(function (input) {
+    input.addEventListener('input', function () {
+      this.classList.remove('checkout-autofilled');
+    });
+  });
+})();
+</script>
+@endpush
+
+@push('styles')
+<style>
+.checkout-phone-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.checkout-phone-group input {
+  flex: 1;
+  min-width: 0;
+}
+.checkout-lookup-btn {
+  flex-shrink: 0;
+  padding: 0 1rem;
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.checkout-lookup-btn:hover  { background: #0284c7; }
+.checkout-lookup-btn:disabled { background: #94a3b8; cursor: default; }
+
+.checkout-lookup-feedback {
+  display: none;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem;
+}
+.checkout-lookup-feedback--ok   { background: #f0fdf4; color: #166534; }
+.checkout-lookup-feedback--info { background: #f0f9ff; color: #0369a1; }
+.checkout-lookup-feedback--warn { background: #fefce8; color: #854d0e; }
+
+.checkout-autofilled {
+  border-color: #86efac !important;
+  background: #f0fdf4 !important;
+}
+</style>
+@endpush
