@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EquipmentOrderAdminController;
 use App\Http\Controllers\Admin\SiteStatsAdminController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\FamilyPlanPaymentController;
 use App\Http\Controllers\FamilyPlanRequestController;
 use App\Http\Controllers\ResellerPanelController;
 
@@ -32,6 +33,12 @@ Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'pr
 // (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
 Route::get('/solicitar-plano', [FamilyPlanRequestController::class, 'show'])->name('family.request.show');
 Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->name('family.request.store');
+
+// Pagamento dos planos familiares/empresariais
+// POST /payment/familia/webhook é CSRF-exempt (ver bootstrap/app.php)
+Route::get('/pagar-plano/{id}', [FamilyPlanPaymentController::class, 'show'])->name('family.payment.show');
+Route::post('/payment/familia/webhook', [FamilyPlanPaymentController::class, 'webhook'])->name('family.payment.webhook');
+Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class, 'simulateSuccess'])->name('family.payment.simulate');
 
 // Módulo Revendedor - página de adesão
 Route::get('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'showForm'])->name('reseller.apply');

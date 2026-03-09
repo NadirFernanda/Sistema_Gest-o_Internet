@@ -25,7 +25,6 @@ Página pública acessível a qualquer utilizador, sem necessidade de login para
 
 A página deve exibir claramente os planos disponíveis, por exemplo:
 
-- Plano Hora – 60 minutos.
 - Plano Diário – 24 horas.
 - Plano Semanal – 7 dias.
 - Plano Mensal – 30 dias.

@@ -35,6 +35,7 @@ class FamilyPlanRequest extends Model
         'notes',
     ];
 
+    public const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
     public const STATUS_PENDING   = 'pending';
     public const STATUS_CONFIRMED = 'confirmed';
     public const STATUS_ACTIVATED = 'activated';
