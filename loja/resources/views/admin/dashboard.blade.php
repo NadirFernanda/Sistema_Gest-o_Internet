@@ -39,6 +39,20 @@
         <p style="color:#666;font-size:.9rem;margin-bottom:1rem;">Os 4 números de destaque na página inicial (clientes, uptime, instalação, suporte).</p>
         <a href="{{ route('admin.site_stats.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Editar estatísticas</a>
       </div>
+
+      <div class="info-card">
+        <h3>🔑 Stock de Códigos WiFi</h3>
+        <p>Disponíveis: <strong>{{ $availableWifiCodes }}</strong></p>
+        <p>Utilizados: <strong>{{ $usedWifiCodes }}</strong></p>
+        @if($availableWifiCodes === 0)
+          <p style="color:#dc2626;font-weight:700;margin-top:.5rem;">⚠️ Sem stock! Importe para poder vender.</p>
+        @elseif($availableWifiCodes < 10)
+          <p style="color:#d97706;font-weight:700;margin-top:.5rem;">⚠️ Stock baixo — importe mais códigos.</p>
+        @endif
+        <div style="margin-top:.75rem;">
+          <a href="{{ route('admin.wifi_codes.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Gerir / Importar</a>
+        </div>
+      </div>
     </div>
 
     <div class="info-grid" style="margin-top:2rem;">

@@ -7,6 +7,7 @@ use App\Models\AutovendaOrder;
 use App\Models\EquipmentOrder;
 use App\Models\Product;
 use App\Models\ResellerApplication;
+use App\Models\WifiCode;
 
 class AdminDashboardController extends Controller
 {
@@ -32,18 +33,24 @@ class AdminDashboardController extends Controller
             EquipmentOrder::STATUS_DELIVERED,
         ])->sum('total_aoa');
 
+        // WiFi code stock
+        $availableWifiCodes = WifiCode::where('status', WifiCode::STATUS_AVAILABLE)->count();
+        $usedWifiCodes      = WifiCode::where('status', WifiCode::STATUS_USED)->count();
+
         return view('admin.dashboard', [
-            'totalOrders' => $totalOrders,
-            'paidOrders' => $paidOrders,
-            'awaitingPayment' => $awaitingPayment,
-            'totalRevenueAoa' => $totalRevenueAoa,
-            'recentOrders' => $recentOrders,
-            'pendingResellers' => $pendingResellers,
-            'totalResellers' => $totalResellers,
-            'totalProducts' => $totalProducts,
-            'totalEquipOrders' => $totalEquipOrders,
-            'newEquipOrders' => $newEquipOrders,
-            'totalEquipRevenue' => $totalEquipRevenue,
+            'totalOrders'        => $totalOrders,
+            'paidOrders'         => $paidOrders,
+            'awaitingPayment'    => $awaitingPayment,
+            'totalRevenueAoa'    => $totalRevenueAoa,
+            'recentOrders'       => $recentOrders,
+            'pendingResellers'   => $pendingResellers,
+            'totalResellers'     => $totalResellers,
+            'totalProducts'      => $totalProducts,
+            'totalEquipOrders'   => $totalEquipOrders,
+            'newEquipOrders'     => $newEquipOrders,
+            'totalEquipRevenue'  => $totalEquipRevenue,
+            'availableWifiCodes' => $availableWifiCodes,
+            'usedWifiCodes'      => $usedWifiCodes,
         ]);
     }
 
