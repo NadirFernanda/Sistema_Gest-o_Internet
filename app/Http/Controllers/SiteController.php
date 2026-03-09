@@ -13,7 +13,7 @@ class SiteController extends Controller
     public function index()
     {
         $sites = Site::orderBy('id', 'desc')->get();
-        return view('sites.index', compact('sites'));
+        return view('sites', compact('sites'));
     }
 
     /**
