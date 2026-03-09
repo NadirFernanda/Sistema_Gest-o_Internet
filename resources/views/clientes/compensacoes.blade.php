@@ -7,13 +7,13 @@
 
 <div class="estoque-container-moderna">
     @include('layouts.partials.clientes-hero', [
-        'title' => 'Histórico de Compensações — ' . $cliente->nome,
-        'subtitle' => '',
-        'stackLeft' => true,
+        'title' => 'Histórico de Compensações',
+        'subtitle' => 'Lista, pesquisa e exportação de compensações do cliente',
+        'stackLeft' => false,
     ])
     <!-- Toolbar styles centralized in resources/css/clientes.css -->
 
-    <div class="clientes-toolbar">
+    <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;gap:10px;align-items:center;">
         <form method="GET" action="{{ route('clientes.compensacoes', $cliente->id) }}" class="search-form-inline">
             <input type="search" name="busca" value="{{ request('busca') }}" placeholder="Pesquisar por plano, usuário ou data..." class="search-input" />
             <button type="submit" class="btn btn-search">Pesquisar</button>
