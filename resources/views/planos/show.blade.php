@@ -79,51 +79,51 @@
                 <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
                     <tbody>
                         <tr>
-                            <th style="width:220px;text-align:left;">Plano</th>
+                            <th style="width:220px;text-align:left;vertical-align:middle;">Plano</th>
                             <td>{{ $plano->nome }}</td>
                         </tr>
                         <tr>
-                            <th>Descrição</th>
+                            <th style="text-align:left;vertical-align:middle;">Descrição</th>
                             <td>{{ $plano->descricao }}</td>
                         </tr>
                         <tr>
-                            <th>Status</th>
+                            <th style="text-align:left;vertical-align:middle;">Status</th>
                             <td>{{ $plano->estado ?? '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Preço</th>
+                            <th style="text-align:left;vertical-align:middle;">Preço</th>
                             <td>Kz {{ isset($plano->preco) ? number_format($plano->preco,2,',','.') : '-' }}</td>
                         </tr>
                         <tr>
-                            <th>Ciclo (dias)</th>
+                            <th style="text-align:left;vertical-align:middle;">Ciclo (dias)</th>
                             <td>{{ $plano->ciclo ?? '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Data de Ativação</th>
+                            <th style="text-align:left;vertical-align:middle;">Data de Ativação</th>
                             <td>{{ $dataAtiv ? $dataAtiv->format('d/m/Y') : '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Próxima Renovação / Término</th>
+                            <th style="text-align:left;vertical-align:middle;">Próxima Renovação / Término</th>
                             <td>{{ $dataTerm ? $dataTerm->format('d/m/Y') : '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Dias restantes</th>
+                            <th style="text-align:left;vertical-align:middle;">Dias restantes</th>
                             <td>{{ !is_null($diasRest) ? ($diasRest >= 0 ? $diasRest . ' dias' : abs($diasRest) . ' dias vencido') : '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Template</th>
+                            <th style="text-align:left;vertical-align:middle;">Template</th>
                             <td>{{ optional($plano->template)->name ?? ($plano->nome ?? '—') }}</td>
                         </tr>
                         <tr>
-                            <th>Cliente</th>
+                            <th style="text-align:left;vertical-align:middle;">Cliente</th>
                             <td>{{ $cliente ? $cliente->nome . ' — ' . ($cliente->contato ?? '') : '—' }}</td>
                         </tr>
                         <tr>
-                            <th>Compensações registradas (cliente)</th>
+                            <th style="text-align:left;vertical-align:middle;">Compensações registradas (cliente)</th>
                             <td>{{ $compCount }}</td>
                         </tr>
                         <tr>
-                            <th>Último pagamento</th>
+                            <th style="text-align:left;vertical-align:middle;">Último pagamento</th>
                             <td>
                                 @if($ultimoPagamento)
                                     @php
