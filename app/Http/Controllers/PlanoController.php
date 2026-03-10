@@ -20,6 +20,7 @@ class PlanoController extends Controller
                 'cliente_id' => 'required|exists:clientes,id',
                 'estado' => 'required|string',
                 'data_ativacao' => 'required|date',
+                'tipo' => 'required|in:familiar,institucional,empresarial,site',
             ]);
 
             $template = PlanTemplate::find($validated['template_id']);
@@ -303,6 +304,7 @@ class PlanoController extends Controller
             'cliente_id' => 'sometimes|required|exists:clientes,id',
             'estado' => 'sometimes|required|string',
             'data_ativacao' => 'sometimes|required|date',
+            'tipo' => 'sometimes|required|in:familiar,institucional,empresarial,site',
         ]);
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
@@ -327,6 +329,7 @@ class PlanoController extends Controller
                 'cliente_id' => 'required|exists:clientes,id',
                 'estado' => 'required|string',
                 'data_ativacao' => 'required|date',
+                'tipo' => 'required|in:familiar,institucional,empresarial,site',
             ]);
 
             $template = PlanTemplate::find($validated['template_id']);

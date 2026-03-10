@@ -11,6 +11,7 @@ class Plano extends Model
     protected $fillable = [
         'nome',
         'descricao',
+        'tipo',
         'preco',
         'ciclo',
         'template_id',
@@ -24,6 +25,7 @@ class Plano extends Model
         'ativo' => 'boolean',
         'data_ativacao' => 'date',
         'proxima_renovacao' => 'date',
+        'tipo' => 'string',
     ];
 
     public function template()
