@@ -141,12 +141,13 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
 
             function renderList(list){
                 if(!list.length){ listContainer.innerHTML = '<div class="muted" style="padding:8px 0">Nenhum modelo cadastrado.</div>'; return; }
-                let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Estado</th><th style="text-align:center; width:120px">Clientes</th><th style="width:170px"></th></tr></thead><tbody>';
+                let html = '<div class="templates-table-wrapper"><table><thead><tr><th>Nome</th><th>Preço</th><th> Clico</th><th>Tipo</th><th>Estado</th><th style="text-align:center; width:120px">Clientes</th><th style="width:170px"></th></tr></thead><tbody>';
                                 list.forEach(t => {
                                         html += `<tr data-id="${t.id}">` +
                                                         `<td>${escapeHtml(t.name)}</td>` +
                                                         `<td>${t.preco?('Kz '+Number(t.preco).toLocaleString('pt-AO',{minimumFractionDigits:2})):''}</td>` +
                                                         `<td>${t.ciclo||''}</td>` +
+                                                        `<td>${t.tipo||''}</td>` +
                                                         `<td>${t.estado||''}</td>` +
                                                         `<td style="text-align:center">${(t.template_active_clients_count !== undefined && t.template_active_clients_count !== null) ? (Number(t.template_active_clients_count) === 1 ? '1 Cliente' : (escapeHtml(String(t.template_active_clients_count)) + ' Clientes')) : ''}</td>` +
                                                         `<td style="text-align:right">` +
@@ -194,7 +195,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             }
 
             function formHtml(data){
-                data = data || {name:'', description:'', preco:'', ciclo:'', estado:''};
+                data = data || {name:'', description:'', preco:'', ciclo:'', estado:'', tipo:''};
                 return `
                     <form id="templateAjaxForm">
                         <div style="display:flex; gap:8px;">
@@ -202,6 +203,15 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                             <input name="preco" placeholder="Preço" value="${escapeAttr(data.preco||'')}" style="width:140px;padding:8px;border:1px solid #ccc;border-radius:6px;" />
                         </div>
                         <div style="margin-top:8px;"><input name="ciclo" placeholder="Ciclo (dias)" value="${escapeAttr(data.ciclo||'')}" style="width:160px;padding:8px;border:1px solid #ccc;border-radius:6px;" /></div>
+                        <div style="margin-top:8px;">
+                            <select name="tipo" style="padding:8px;border:1px solid #ccc;border-radius:6px;width:100%;">
+                                <option value="">Escolha o tipo</option>
+                                <option value="familiar" ${data.tipo == 'familiar' ? 'selected' : ''}>Familiar</option>
+                                <option value="institucional" ${data.tipo == 'institucional' ? 'selected' : ''}>Institucional</option>
+                                <option value="empresarial" ${data.tipo == 'empresarial' ? 'selected' : ''}>Empresarial</option>
+                                <option value="site" ${data.tipo == 'site' ? 'selected' : ''}>Site</option>
+                            </select>
+                        </div>
                         <div style="margin-top:8px;">
                             <select name="estado" style="padding:8px;border:1px solid #ccc;border-radius:6px;width:100%;">
                                 <option value="">Escolha o estado</option>

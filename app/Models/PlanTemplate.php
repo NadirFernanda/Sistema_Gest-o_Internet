@@ -15,6 +15,7 @@ class PlanTemplate extends Model
         'preco',
         'ciclo',
         'estado',
+        'tipo',
         'metadata',
     ];
 

@@ -39,6 +39,7 @@ class PlanTemplateController extends Controller
             'preco' => 'nullable|numeric',
             'ciclo' => 'nullable|integer',
             'estado' => 'nullable|string',
+            'tipo' => 'nullable|in:familiar,institucional,empresarial,site',
         ]);
 
         PlanTemplate::create($data);
@@ -58,6 +59,7 @@ class PlanTemplateController extends Controller
             'preco' => 'nullable|numeric',
             'ciclo' => 'nullable|integer',
             'estado' => 'nullable|string',
+            'tipo' => 'nullable|in:familiar,institucional,empresarial,site',
         ]);
 
         $plan_template->update($data);
