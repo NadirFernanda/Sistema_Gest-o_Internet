@@ -27,7 +27,7 @@ class PlanTemplateCatalogController extends Controller
             });
         }
 
-        $templates = $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'metadata']);
+        $templates = $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'tipo', 'metadata']);
 
         return response()->json([
             'data' => $templates->map(function ($t) {
@@ -38,6 +38,7 @@ class PlanTemplateCatalogController extends Controller
                     'preco'       => $t->preco,
                     'ciclo'       => $t->ciclo,
                     'estado'      => $t->estado,
+                    'tipo'        => $t->tipo,
                     'category'    => data_get($t->metadata, 'category', 'familia'),
                 ];
             }),
