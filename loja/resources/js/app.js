@@ -18,9 +18,11 @@ function renderFamilyCard(plan) {
 	if (plan.ciclo) {
 		features += '<span class="plan-feature plan-feature--active"><strong>' + esc(plan.ciclo) + ' dias</strong></span>';
 	}
-	if (plan.estado) {
-		features += '<span class="plan-feature">' + esc(plan.estado) + '</span>';
-	}
+	// Show extra feature chips from metadata (velocidade, speed, etc.) — never show estado
+	var extras = Array.isArray(plan.features) ? plan.features : [];
+	extras.forEach(function(f) {
+		if (f) features += '<span class="plan-feature">' + esc(f) + '</span>';
+	});
 
 	return '<div class="plan-card-modern">'
 		+ '<div class="plan-card-modern-inner">'
