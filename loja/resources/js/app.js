@@ -7,8 +7,10 @@ function esc(str) {
 
 // Render one family/business plan card (mirrors the Blade template CSS classes)
 function renderFamilyCard(plan) {
-	var isCompany = (plan.name || '').toLowerCase().indexOf('empresa') !== -1;
-	var emoji = isCompany ? '\uD83C\uDFE2' : '\uD83C\uDFE0'; // 🏢 or 🏠
+	var name = (plan.name || '').toLowerCase();
+	var emoji = '\uD83C\uDFE0'; // 🏠 default
+	if (name.indexOf('empresa') !== -1) emoji = '\uD83C\uDFE2'; // 🏢
+	if (name.indexOf('institucional') !== -1) emoji = '\uD83C\uDFDB'; // 🏛
 	var body = '';
 	if (plan.preco) {
 		body += '<div class="plan-price-row"><span class="plan-price">'
@@ -118,19 +120,30 @@ var FAMILY_ERROR_HTML =
 
 document.addEventListener('DOMContentLoaded', () => {
 
-	// ---- Async family/business plans loader ----
-	// Loads AFTER the page and CSS are fully applied — zero FOUC.
-	var familyGrid = document.getElementById('family-plans-grid');
-	if (familyGrid) {
+	// ---- Async family/business/institutional plans loader ----
+	// Single fetch, distributed across the 3 grids by plan name.
+	var familiarGrid     = document.getElementById('familiar-plans-grid');
+	var empresarialGrid  = document.getElementById('empresarial-plans-grid');
+	var institucionalGrid = document.getElementById('institucional-plans-grid');
+
+	if (familiarGrid || empresarialGrid || institucionalGrid) {
 		fetch('/sg/plan-templates', { credentials: 'same-origin' })
 			.then(function(r) { return r.json(); })
 			.then(function(json) {
 				var plans = json.data || [];
-				familyGrid.innerHTML = plans.length
-					? plans.map(renderFamilyCard).join('')
-					: FAMILY_EMPTY_HTML;
+				var familiar    = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('familiar') !== -1 || n.indexOf('famil') !== -1; });
+				var empresarial = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('empresa') !== -1; });
+				var institucional = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('institucional') !== -1; });
+
+				if (familiarGrid)      familiarGrid.innerHTML      = familiar.length      ? familiar.map(renderFamilyCard).join('')      : FAMILY_EMPTY_HTML;
+				if (empresarialGrid)   empresarialGrid.innerHTML   = empresarial.length   ? empresarial.map(renderFamilyCard).join('')   : FAMILY_EMPTY_HTML;
+				if (institucionalGrid) institucionalGrid.innerHTML = institucional.length ? institucional.map(renderFamilyCard).join('') : FAMILY_EMPTY_HTML;
 			})
-			.catch(function() { familyGrid.innerHTML = FAMILY_ERROR_HTML; });
+			.catch(function() {
+				if (familiarGrid)      familiarGrid.innerHTML      = FAMILY_ERROR_HTML;
+				if (empresarialGrid)   empresarialGrid.innerHTML   = FAMILY_ERROR_HTML;
+				if (institucionalGrid) institucionalGrid.innerHTML = FAMILY_ERROR_HTML;
+			});
 	}
 
 	// ---- Async equipment catalog loader ----
