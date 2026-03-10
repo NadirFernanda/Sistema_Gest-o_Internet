@@ -1801,8 +1801,17 @@ main { display: block; }
 .muted       { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; }
 .dev-credit  { font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
 .legal-nav   { display: flex; gap: 1.1rem; }
-.legal-nav a { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; transition: color 0.18s; }
-.legal-nav a:hover { color: white; }
+ .dev-credit  {
+   font-size: 0.95rem;
+   color: #fff;
+   font-weight: 700;
+   text-shadow: 0 1px 6px rgba(0,0,0,0.18);
+   letter-spacing: 0.02em;
+   margin-top: 0.2rem;
+ }
+ .legal-nav   { display: flex; gap: 1.1rem; }
+ .legal-nav a { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; transition: color 0.18s; }
+ .legal-nav a:hover { color: white; }
 
 /* ==========================================================================
    ALERTAS
