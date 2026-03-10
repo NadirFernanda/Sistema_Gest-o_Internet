@@ -5,36 +5,40 @@ function esc(str) {
 	return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Render one family/business plan card (mirrors the Blade template CSS classes)
+// Render one family/business plan card — same layout as individual plan cards
 function renderFamilyCard(plan) {
 	var tipo = (plan.tipo || '').toLowerCase();
 	var emoji = tipo === 'empresarial' ? '\uD83C\uDFE2' : (tipo === 'institucional' ? '\uD83C\uDFDB' : '\uD83C\uDFE0'); // 🏢 🏛 🏠
-	var body = '';
-	if (plan.preco) {
-		body += '<div class="plan-price-row"><span class="plan-price">'
-			+ Number(plan.preco).toLocaleString('pt-PT')
-			+ '</span><span class="plan-currency">Kz</span></div>';
-	}
+
+	var precoFormatted = plan.preco
+		? Number(plan.preco).toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+		: '';
+
+	var features = '';
 	if (plan.ciclo) {
-		body += '<div class="plan-features"><span class="plan-feature"><strong>'
-			+ esc(plan.ciclo) + ' dias</strong></span></div>';
+		features += '<span class="plan-feature plan-feature--active"><strong>' + esc(plan.ciclo) + ' dias</strong></span>';
 	}
-	if (plan.description) {
-		body += '<p class="plan-desc">' + esc(plan.description) + '</p>';
+	if (plan.estado) {
+		features += '<span class="plan-feature">' + esc(plan.estado) + '</span>';
 	}
+
 	return '<div class="plan-card-modern">'
 		+ '<div class="plan-card-modern-inner">'
 		+ '<div class="plan-card-modern-header">'
 		+ '<span class="plan-emoji" aria-hidden="true">' + emoji + '</span>'
 		+ '<h3 class="plan-title">' + esc(plan.name || 'Plano') + '</h3>'
 		+ '</div>'
-		+ '<div class="plan-card-modern-body">' + body + '</div>'
+		+ '<div class="plan-card-modern-body">'
+		+ (precoFormatted ? '<div class="plan-price-row"><span class="plan-price">' + precoFormatted + '</span><span class="plan-currency">Kz</span></div>' : '')
+		+ (features ? '<div class="plan-features">' + features + '</div>' : '')
+		+ (plan.description ? '<p class="plan-desc">' + esc(plan.description) + '</p>' : '')
+		+ '</div>'
 		+ '<div class="plan-card-modern-footer">'
 		+ '<a class="btn-modern" href="/solicitar-plano?plan_id=' + encodeURIComponent(plan.id || '')
 			+ '&plan_name=' + encodeURIComponent(plan.name || '')
 			+ '&plan_preco=' + encodeURIComponent(plan.preco || '')
 			+ '&plan_ciclo=' + encodeURIComponent(plan.ciclo || '')
-			+ '">Comprar Plano</a>'
+			+ '">Comprar Agora</a>'
 		+ '</div></div></div>';
 }
 
