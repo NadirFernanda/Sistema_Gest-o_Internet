@@ -7,10 +7,12 @@ function esc(str) {
 
 // Render one family/business plan card (mirrors the Blade template CSS classes)
 function renderFamilyCard(plan) {
-	var name = (plan.name || '').toLowerCase();
-	var emoji = '\uD83C\uDFE0'; // 🏠 default
-	if (name.indexOf('empresa') !== -1) emoji = '\uD83C\uDFE2'; // 🏢
-	if (name.indexOf('institucional') !== -1) emoji = '\uD83C\uDFDB'; // 🏛
+	var tipo = (plan.tipo || plan.category || '').toLowerCase();
+	var emoji = '\uD83C\uDFE0'; // 🏠 familia
+	if (tipo.indexOf('empresa') !== -1) emoji = '\uD83C\uDFE2'; // 🏢
+	if (tipo.indexOf('institucional') !== -1) emoji = '\uD83C\uDFDB'; // 🏛
+	var badge = plan.is_popular ? '<div class="plan-badge">Mais Popular</div>' : '';
+	var featuredClass = plan.is_popular ? ' plan-card--featured' : '';
 	var body = '';
 	if (plan.preco) {
 		body += '<div class="plan-price-row"><span class="plan-price">'
@@ -18,14 +20,15 @@ function renderFamilyCard(plan) {
 			+ '</span><span class="plan-currency">Kz</span></div>';
 	}
 	if (plan.ciclo) {
-		body += '<div class="plan-features"><span class="plan-feature"><strong>'
+		body += '<div class="plan-features"><span class="plan-feature plan-feature--active"><strong>'
 			+ esc(plan.ciclo) + ' dias</strong></span></div>';
 	}
 	if (plan.description) {
 		body += '<p class="plan-desc">' + esc(plan.description) + '</p>';
 	}
-	return '<div class="plan-card-modern">'
+	return '<div class="plan-card-modern' + featuredClass + '">'
 		+ '<div class="plan-card-modern-inner">'
+		+ badge
 		+ '<div class="plan-card-modern-header">'
 		+ '<span class="plan-emoji" aria-hidden="true">' + emoji + '</span>'
 		+ '<h3 class="plan-title">' + esc(plan.name || 'Plano') + '</h3>'
@@ -36,7 +39,7 @@ function renderFamilyCard(plan) {
 			+ '&plan_name=' + encodeURIComponent(plan.name || '')
 			+ '&plan_preco=' + encodeURIComponent(plan.preco || '')
 			+ '&plan_ciclo=' + encodeURIComponent(plan.ciclo || '')
-			+ '">Comprar Plano</a>'
+			+ '">Comprar Agora</a>'
 		+ '</div></div></div>';
 }
 
@@ -131,9 +134,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			.then(function(r) { return r.json(); })
 			.then(function(json) {
 				var plans = json.data || [];
-				var familiar    = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('familiar') !== -1 || n.indexOf('famil') !== -1; });
-				var empresarial = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('empresa') !== -1; });
-				var institucional = plans.filter(function(p) { var n = (p.name||'').toLowerCase(); return n.indexOf('institucional') !== -1; });
+				var familiar      = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t === 'familia' || t === 'familiar' || t === ''; });
+				var empresarial   = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t.indexOf('empresa') !== -1; });
+				var institucional = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t.indexOf('institucional') !== -1; });
+				// Se todos caírem em 'familiar' por tipo vazio, tentar separar pelo nome como fallback
+				if (empresarial.length === 0 && institucional.length === 0 && familiar.length === plans.length && plans.length > 0) {
+					familiar      = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('empresa') === -1 && n.indexOf('institucional') === -1; });
+					empresarial   = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('empresa') !== -1; });
+					institucional = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('institucional') !== -1; });
+				}
 
 				if (familiarGrid)      familiarGrid.innerHTML      = familiar.length      ? familiar.map(renderFamilyCard).join('')      : FAMILY_EMPTY_HTML;
 				if (empresarialGrid)   empresarialGrid.innerHTML   = empresarial.length   ? empresarial.map(renderFamilyCard).join('')   : FAMILY_EMPTY_HTML;
