@@ -130,16 +130,51 @@
     </div>
   </section>
 
-<section class="planos-section planos-section--family" id="planos-familia-empresarial">
+{{-- Planos Familiares --}}
+<section class="planos-section planos-section--family" id="planos-familiares">
   <div class="container">
     <div class="section-header">
-      <h2>Planos Familiares &amp; Empresariais</h2>
+      <h2>Planos Familiares</h2>
       <div class="section-header__rule"></div>
-      <p>Soluções para famílias e empresas — planos com duração mensal, partilháveis ou com SLA dedicado. Dados carregados directamente do sistema de gestão.</p>
+      <p>Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.</p>
     </div>
+    <div class="plans-grid" id="familiar-plans-grid" aria-live="polite">
+      <div class="family-loading">
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    {{-- Plans populated asynchronously by app.js after CSS is already applied --}}
-    <div class="plans-grid" id="family-plans-grid" aria-live="polite">
+{{-- Planos Empresariais --}}
+<section class="planos-section planos-section--company" id="planos-empresariais">
+  <div class="container">
+    <div class="section-header">
+      <h2>Planos Empresariais</h2>
+      <div class="section-header__rule"></div>
+      <p>Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.</p>
+    </div>
+    <div class="plans-grid" id="empresarial-plans-grid" aria-live="polite">
+      <div class="family-loading">
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+        <div class="family-loading__dot"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- Planos Institucionais --}}
+<section class="planos-section planos-section--institutional" id="planos-institucionais">
+  <div class="container">
+    <div class="section-header">
+      <h2>Planos Institucionais</h2>
+      <div class="section-header__rule"></div>
+      <p>Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.</p>
+    </div>
+    <div class="plans-grid" id="institucional-plans-grid" aria-live="polite">
       <div class="family-loading">
         <div class="family-loading__dot"></div>
         <div class="family-loading__dot"></div>
