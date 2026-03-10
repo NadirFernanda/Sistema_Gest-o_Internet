@@ -2084,15 +2084,25 @@ main { display: block; }
 
   :root { --page-gutter: 0.75rem; }
 
+  /* ── Hero carousel ── */
+  .hero__slide {
+    height: clamp(230px, 62vw, 310px);
+  }
+
   .hero__card {
-    margin-left: 2.25rem;
-    margin-right: 2.25rem;
-    max-width: calc(100% - 4.5rem);
+    margin-left: 1rem;
+    margin-right: 1rem;
+    max-width: calc(100% - 2rem);
     padding: 0.875rem;
   }
 
-  .hero__title { font-size: 1rem; }
-  .hero__desc  { font-size: 0.78rem; -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  .hero__eyebrow { font-size: 0.62rem; margin-bottom: 0.25rem; }
+  .hero__title   { font-size: 1rem; margin-bottom: 0.25rem; }
+  .hero__desc    { font-size: 0.78rem; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 0.5rem; line-height: 1.45; }
+
+  .hero__arrow { display: none; }
+
+  .hero__dots { bottom: 0.5rem; }
 
   .hero__actions .btn-primary,
   .hero__actions .btn-ghost {
@@ -2109,7 +2119,19 @@ main { display: block; }
 
   .page-hero__title { font-size: 1.3rem; }
 
-  .footer-inner { gap: 1.25rem; padding: 1.5rem var(--page-gutter) 1rem; }
+  /* ── Footer ── */
+  .footer-inner {
+    gap: 1rem 0.75rem;
+    padding: 1.5rem var(--page-gutter) 1rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-brand   { grid-column: 1 / -1; }
+  .footer-contact { grid-column: 1 / -1; }
+  .footer-col h4  { font-size: 0.68rem; margin-bottom: 0.5rem; }
+  .footer-links a { font-size: 0.82rem; }
+  .footer-mission { font-size: 0.8rem; }
+  .footer-note    { font-size: 0.8rem; }
+  .contact-label, .contact-link { font-size: 0.82rem; }
 }
 
 
