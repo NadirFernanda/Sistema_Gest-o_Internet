@@ -138,7 +138,7 @@
       <div class="section-header__rule"></div>
       <p>Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.</p>
     </div>
-    <div class="plans-grid" id="familiar-plans-grid" aria-live="polite">
+    <div class="plans-grid plans-grid--individual" id="familiar-plans-grid" aria-live="polite">
       <div class="family-loading">
         <div class="family-loading__dot"></div>
         <div class="family-loading__dot"></div>
@@ -156,7 +156,7 @@
       <div class="section-header__rule"></div>
       <p>Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.</p>
     </div>
-    <div class="plans-grid" id="empresarial-plans-grid" aria-live="polite">
+    <div class="plans-grid plans-grid--individual" id="empresarial-plans-grid" aria-live="polite">
       <div class="family-loading">
         <div class="family-loading__dot"></div>
         <div class="family-loading__dot"></div>
@@ -174,7 +174,7 @@
       <div class="section-header__rule"></div>
       <p>Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.</p>
     </div>
-    <div class="plans-grid" id="institucional-plans-grid" aria-live="polite">
+    <div class="plans-grid plans-grid--individual" id="institucional-plans-grid" aria-live="polite">
       <div class="family-loading">
         <div class="family-loading__dot"></div>
         <div class="family-loading__dot"></div>
