@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div class="hero__slide" style="background-image:url('/img/carrossel2.webp')">
+      <div class="hero__slide" data-bg="/img/carrossel2.webp">
         <div class="hero__card">
           <span class="hero__eyebrow">Soluções Empresariais</span>
           <h1 class="hero__title">Internet<br><strong>Empresarial</strong></h1>
@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <div class="hero__slide" style="background-image:url('/img/carrossel3.webp')">
+      <div class="hero__slide" data-bg="/img/carrossel3.webp">
         <div class="hero__card">
           <span class="hero__eyebrow">Instalação Rápida</span>
           <h1 class="hero__title">Instalado em<br><strong>24–48 horas</strong></h1>

@@ -5,46 +5,36 @@ function esc(str) {
 	return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Render one family/business plan card — same layout as individual plan cards
+// Render one family/business plan card (mirrors the Blade template CSS classes)
 function renderFamilyCard(plan) {
-	var tipo = (plan.tipo || '').toLowerCase();
-	var emoji = tipo === 'empresarial' ? '\uD83C\uDFE2' : (tipo === 'institucional' ? '\uD83C\uDFDB' : '\uD83C\uDFE0'); // 🏢 🏛 🏠
-
-	var precoFormatted = plan.preco
-		? Number(plan.preco).toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-		: '';
-
-	var features = '';
-	if (plan.ciclo) {
-		features += '<span class="plan-feature plan-feature--active"><strong>' + esc(plan.ciclo) + ' dias</strong></span>';
+	var isCompany = (plan.name || '').toLowerCase().indexOf('empresa') !== -1;
+	var emoji = isCompany ? '\uD83C\uDFE2' : '\uD83C\uDFE0'; // 🏢 or 🏠
+	var body = '';
+	if (plan.preco) {
+		body += '<div class="plan-price-row"><span class="plan-price">'
+			+ Number(plan.preco).toLocaleString('pt-PT')
+			+ '</span><span class="plan-currency">Kz</span></div>';
 	}
-	// Show extra feature chips from metadata (velocidade, speed, etc.) — never show estado
-	var extras = Array.isArray(plan.features) ? plan.features : [];
-	extras.forEach(function(f) {
-		if (f) features += '<span class="plan-feature">' + esc(f) + '</span>';
-	});
-
-	// Badge "Mais Popular" for the most-sold plan in each category (from API is_popular flag)
-	var badge = plan.is_popular ? '<div class="plan-badge">Mais Popular</div>' : '';
-
-	return '<div class="plan-card-modern' + (plan.is_popular ? ' plan-card--featured' : '') + '">'
+	if (plan.ciclo) {
+		body += '<div class="plan-features"><span class="plan-feature"><strong>'
+			+ esc(plan.ciclo) + ' dias</strong></span></div>';
+	}
+	if (plan.description) {
+		body += '<p class="plan-desc">' + esc(plan.description) + '</p>';
+	}
+	return '<div class="plan-card-modern">'
 		+ '<div class="plan-card-modern-inner">'
-		+ badge
 		+ '<div class="plan-card-modern-header">'
 		+ '<span class="plan-emoji" aria-hidden="true">' + emoji + '</span>'
 		+ '<h3 class="plan-title">' + esc(plan.name || 'Plano') + '</h3>'
 		+ '</div>'
-		+ '<div class="plan-card-modern-body">'
-		+ (precoFormatted ? '<div class="plan-price-row"><span class="plan-price">' + precoFormatted + '</span><span class="plan-currency">Kz</span></div>' : '')
-		+ (features ? '<div class="plan-features">' + features + '</div>' : '')
-		+ (plan.description ? '<p class="plan-desc">' + esc(plan.description) + '</p>' : '')
-		+ '</div>'
+		+ '<div class="plan-card-modern-body">' + body + '</div>'
 		+ '<div class="plan-card-modern-footer">'
 		+ '<a class="btn-modern" href="/solicitar-plano?plan_id=' + encodeURIComponent(plan.id || '')
 			+ '&plan_name=' + encodeURIComponent(plan.name || '')
 			+ '&plan_preco=' + encodeURIComponent(plan.preco || '')
 			+ '&plan_ciclo=' + encodeURIComponent(plan.ciclo || '')
-			+ '">Comprar Agora</a>'
+			+ '">Comprar Plano</a>'
 		+ '</div></div></div>';
 }
 
@@ -128,44 +118,19 @@ var FAMILY_ERROR_HTML =
 
 document.addEventListener('DOMContentLoaded', () => {
 
-	// ---- Async plans loader: Familiares, Empresariais, Institucionais ----
+	// ---- Async family/business plans loader ----
 	// Loads AFTER the page and CSS are fully applied — zero FOUC.
-	var familiarGrid    = document.getElementById('familiar-plans-grid');
-	var empresarialGrid = document.getElementById('empresarial-plans-grid');
-	var institucionalGrid = document.getElementById('institucional-plans-grid');
-
-	var anyPlanGrid = familiarGrid || empresarialGrid || institucionalGrid;
-	if (anyPlanGrid) {
+	var familyGrid = document.getElementById('family-plans-grid');
+	if (familyGrid) {
 		fetch('/sg/plan-templates', { credentials: 'same-origin' })
 			.then(function(r) { return r.json(); })
 			.then(function(json) {
 				var plans = json.data || [];
-
-				var familiar    = plans.filter(function(p) { return (p.tipo || '').toLowerCase() === 'familiar'; });
-				var empresarial = plans.filter(function(p) { return (p.tipo || '').toLowerCase() === 'empresarial'; });
-				var institucional = plans.filter(function(p) { return (p.tipo || '').toLowerCase() === 'institucional'; });
-
-				if (familiarGrid) {
-					familiarGrid.innerHTML = familiar.length
-						? familiar.map(renderFamilyCard).join('')
-						: FAMILY_EMPTY_HTML;
-				}
-				if (empresarialGrid) {
-					empresarialGrid.innerHTML = empresarial.length
-						? empresarial.map(renderFamilyCard).join('')
-						: FAMILY_EMPTY_HTML;
-				}
-				if (institucionalGrid) {
-					institucionalGrid.innerHTML = institucional.length
-						? institucional.map(renderFamilyCard).join('')
-						: FAMILY_EMPTY_HTML;
-				}
+				familyGrid.innerHTML = plans.length
+					? plans.map(renderFamilyCard).join('')
+					: FAMILY_EMPTY_HTML;
 			})
-			.catch(function() {
-				if (familiarGrid)     familiarGrid.innerHTML     = FAMILY_ERROR_HTML;
-				if (empresarialGrid)  empresarialGrid.innerHTML  = FAMILY_ERROR_HTML;
-				if (institucionalGrid) institucionalGrid.innerHTML = FAMILY_ERROR_HTML;
-			});
+			.catch(function() { familyGrid.innerHTML = FAMILY_ERROR_HTML; });
 	}
 
 	// ---- Async equipment catalog loader ----
@@ -193,8 +158,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		var heroCur    = 0;
 		var heroTid    = null;
 
+		var heroSlides = heroEl.querySelectorAll('.hero__slide');
+
+		function heroLoadBg(slide) {
+			var bg = slide.getAttribute('data-bg');
+			if (bg) { slide.style.backgroundImage = 'url(' + bg + ')'; slide.removeAttribute('data-bg'); }
+		}
+
 		function heroGoTo(n) {
 			heroCur = ((n % heroCount) + heroCount) % heroCount;
+			heroLoadBg(heroSlides[heroCur]);
+			// preload next
+			heroLoadBg(heroSlides[((heroCur + 1) % heroCount)]);
 			heroTrack.style.transform = 'translateX(' + (-heroCur * 100) + '%)';
 			heroDots.forEach(function(d, i) {
 				d.classList.toggle('is-active', i === heroCur);
