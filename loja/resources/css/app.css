@@ -1679,11 +1679,25 @@ main { display: block; }
    RODAPÉ — dark
    ========================================================================== */
 .site-footer {
+  position: relative;
   background: #0d1526;
+  background-image: url('/img/carrossel3.webp');
+  background-size: cover;
+  background-position: center;
   border-top: none;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.9);
   margin-top: 5rem;
   font-size: 0.95rem;
+  overflow: hidden;
+}
+
+.site-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 28, 0.87);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .footer-inner {
@@ -1694,6 +1708,8 @@ main { display: block; }
   max-width: var(--page-max-width);
   margin: 0 auto;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 640px)  { .footer-inner { grid-template-columns: repeat(2, 1fr); } }
@@ -1721,14 +1737,14 @@ main { display: block; }
 .footer-logo { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; }
 
 .footer-mission {
-  color: rgba(255, 255, 255, 0.48);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 0.88rem;
   line-height: 1.65;
   margin: 0 0 1rem;
   max-width: 260px;
 }
 
-.footer-cta { color: rgba(255, 255, 255, 0.42); font-size: 0.85rem; margin: 0 0 0.875rem; }
+.footer-cta { color: rgba(255, 255, 255, 0.62); font-size: 0.85rem; margin: 0 0 0.875rem; }
 
 .footer-social { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 
@@ -1753,10 +1769,10 @@ main { display: block; }
 }
 
 .footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.55rem; }
-.footer-links a       { color: rgba(255, 255, 255, 0.48); font-size: 0.9rem; transition: color 0.18s; }
+.footer-links a       { color: rgba(255, 255, 255, 0.70); font-size: 0.9rem; transition: color 0.18s; }
 .footer-links a:hover { color: white; }
 
-.footer-note { font-size: 0.88rem; color: rgba(255, 255, 255, 0.42); line-height: 1.55; margin: 0 0 0.75rem; }
+.footer-note { font-size: 0.88rem; color: rgba(255, 255, 255, 0.65); line-height: 1.55; margin: 0 0 0.75rem; }
 
 .contact-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.45rem; }
 .contact-label { font-weight: 600; color: rgba(255, 255, 255, 0.8); margin-right: 3px; font-size: 0.88rem; }
@@ -1764,8 +1780,10 @@ main { display: block; }
 .contact-link:hover { opacity: 0.8; text-decoration: underline; }
 
 .footer-legal {
-  background: rgba(0, 0, 0, 0.25);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
   padding: 1.1rem 0 1.25rem;
 }
 
@@ -1780,10 +1798,10 @@ main { display: block; }
   gap: 0.75rem;
 }
 
-.muted       { color: rgba(255, 255, 255, 0.35); font-size: 0.85rem; }
-.dev-credit  { font-size: 0.85rem; color: rgba(255, 255, 255, 0.35); }
+.muted       { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; }
+.dev-credit  { font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
 .legal-nav   { display: flex; gap: 1.1rem; }
-.legal-nav a { color: rgba(255, 255, 255, 0.35); font-size: 0.85rem; transition: color 0.18s; }
+.legal-nav a { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; transition: color 0.18s; }
 .legal-nav a:hover { color: white; }
 
 /* ==========================================================================
@@ -1833,7 +1851,7 @@ main { display: block; }
 
   .store-brand { gap: 0.4rem; }
   .store-logo  { width: 38px; height: 38px; border-radius: 6px; }
-  .store-title { font-size: 1rem; }
+  .store-title { font-size: 1rem; display: none; }
 
   .store-right { padding-left: 0; gap: 0.5rem; justify-content: flex-end; }
 
