@@ -24,8 +24,12 @@ function renderFamilyCard(plan) {
 		if (f) features += '<span class="plan-feature">' + esc(f) + '</span>';
 	});
 
-	return '<div class="plan-card-modern">'
+	// Badge "Mais Popular" for the most-sold plan in each category (from API is_popular flag)
+	var badge = plan.is_popular ? '<div class="plan-badge">Mais Popular</div>' : '';
+
+	return '<div class="plan-card-modern' + (plan.is_popular ? ' plan-card--featured' : '') + '">'
 		+ '<div class="plan-card-modern-inner">'
+		+ badge
 		+ '<div class="plan-card-modern-header">'
 		+ '<span class="plan-emoji" aria-hidden="true">' + emoji + '</span>'
 		+ '<h3 class="plan-title">' + esc(plan.name || 'Plano') + '</h3>'

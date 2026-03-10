@@ -68,12 +68,39 @@ class FamilyPlanPaymentController extends Controller
 
     /**
      * Activa o plano: sincroniza a janela no SG, actualiza o status e notifica o cliente.
+     * - Se o pedido já tem sg_plano_id (criado como Pendente no checkout),
+     *   usa /api/janela-activar para apenas mudar o estado — mais eficiente.
+     * - Caso contrário cria a janela completa via syncJanela (comportamento anterior).
      * Se o SG falhar, muda para STATUS_PENDING para intervenção manual pelo admin.
      */
     private function activate(FamilyPlanRequest $req): bool
     {
         try {
-            $proxy  = app(StoreProxyController::class);
+            $proxy = app(StoreProxyController::class);
+
+            if ($req->sg_plano_id) {
+                // Fast path: plan already exists on the SG as Pendente — just flip to Ativo.
+                $result = $proxy->activarJanela((int) $req->sg_plano_id, $req->id);
+                if ($result['success']) {
+                    $sgData = $result['data'] ?? [];
+                    $notes  = 'SG OK (activado) | plano_id=' . $req->sg_plano_id
+                            . ' | proxima_renovacao=' . ($sgData['proxima_renovacao'] ?? '?');
+                    $req->update([
+                        'status' => FamilyPlanRequest::STATUS_ACTIVATED,
+                        'notes'  => $notes,
+                    ]);
+                    FamilyPlanRequestController::notifyActivated($req);
+                    return true;
+                }
+                // SG activar failed — fall through to full syncJanela as recovery
+                \Log::warning('FamilyPlanPayment: activarJanela falhou, a tentar syncJanela completo', [
+                    'request_id'  => $req->id,
+                    'sg_plano_id' => $req->sg_plano_id,
+                    'error'       => $result['error'] ?? 'unknown',
+                ]);
+            }
+
+            // Full sync: creates or extends the plan window on the SG.
             $result = $proxy->syncJanela([
                 'nome'            => $req->customer_name,
                 'email'           => $req->customer_email,

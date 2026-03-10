@@ -220,4 +220,56 @@ class StoreProxyController extends Controller
             return ['success' => false, 'data' => null, 'error' => 'sg_unreachable: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * activarJanela
+     * ─────────────
+     * Activates a plan on the SG that was previously registered as 'Pendente'.
+     * Called by the payment webhook after the gateway confirms the payment.
+     *
+     * @param  int    $sgPlanoId       The plano.id on the SG side.
+     * @param  int    $lojaRequestId   For cross-system audit tracing.
+     * @return array  ['success' => bool, 'data' => [...] | null, 'error' => string|null]
+     */
+    public function activarJanela(int $sgPlanoId, int $lojaRequestId): array
+    {
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+        $http = new Client(['base_uri' => $sg]);
+
+        $headers = ['Accept' => 'application/json'];
+        $apiToken = env('SG_API_TOKEN');
+        if ($apiToken) {
+            $headers['X-API-TOKEN'] = $apiToken;
+        }
+
+        try {
+            $res = $http->post("/api/janela-activar/{$sgPlanoId}", [
+                'headers'     => $headers,
+                'json'        => ['loja_request_id' => $lojaRequestId],
+                'http_errors' => false,
+                'timeout'     => 10,
+            ]);
+
+            $body = json_decode((string) $res->getBody(), true);
+
+            if ($res->getStatusCode() >= 200 && $res->getStatusCode() < 300) {
+                return ['success' => true, 'data' => $body, 'error' => null];
+            }
+
+            \Log::error('activarJanela: SG returned error', [
+                'status'    => $res->getStatusCode(),
+                'body'      => $body,
+                'plano_id'  => $sgPlanoId,
+            ]);
+
+            return [
+                'success' => false,
+                'data'    => $body,
+                'error'   => $body['message'] ?? 'SG returned HTTP ' . $res->getStatusCode(),
+            ];
+        } catch (\Exception $e) {
+            \Log::error('activarJanela: could not reach SG', ['error' => $e->getMessage(), 'plano_id' => $sgPlanoId]);
+            return ['success' => false, 'data' => null, 'error' => 'sg_unreachable: ' . $e->getMessage()];
+        }
+    }
 }
