@@ -267,14 +267,10 @@ class ClienteController extends Controller
         $dias = $request->input('dias', 5);
         $hoje = now()->startOfDay();
 
-        // Be tolerant to different spellings/casing of the "estado" field
-        // and also accept empty/null estado as active.
+        // Include all plans except permanently cancelled ones.
+        // Expired plans may have estado='Inativo' or 'Suspenso' and must still appear.
         $planosRaw = \App\Models\Plano::with('cliente')
-            ->where(function($q){
-                $q->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%ativ%'])
-                  ->orWhereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%activ%'])
-                  ->orWhereRaw("COALESCE(estado, '') = ''");
-            })
+            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) NOT LIKE ?", ['%cancel%'])
             ->get();
 
         $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {

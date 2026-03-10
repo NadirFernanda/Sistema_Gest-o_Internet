@@ -167,8 +167,6 @@ Route::middleware('auth')->group(function () {
     
     // Export routes removed per request
 
-    // Sites (pontos de transmissão)
-    Route::resource('sites', \App\Http\Controllers\SiteController::class);
 });
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
