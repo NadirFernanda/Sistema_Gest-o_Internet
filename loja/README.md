@@ -62,36 +62,31 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Planos Disponíveis
 
-### Planos Individuais
-Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.
 
+### Planos Disponíveis
+
+#### Planos Individuais
 | Plano | Preço | Duração | Velocidade | Download | Descrição |
 |---|---|---|---|---|---|
 | Diário | 200 Kz | 24 horas | Até 100 Mbps | Ilimitado | Internet para o dia inteiro, perfeito para quem precisa de conectividade contínua durante 24h. |
 | Semanal | 500 Kz | 7 dias | Até 100 Mbps | Ilimitado | Plano de 7 dias para utilização recorrente, ideal para estudantes e profissionais. |
 | Mensal | 1.000 Kz | 30 dias | Até 100 Mbps | Ilimitado | Plano de 30 dias com acesso estável e previsível, para uso contínuo em casa ou no escritório. |
 
-### Planos Familiares
-Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.
-
+#### Planos Familiares
 | Plano | Preço | Duração | Velocidade | Descrição |
 |---|---|---|---|---|
 | Família 6MBPS | 27.500 Kz | 30 dias | 6 Mbps | Ideal para famílias de até 6 membros no agregado |
 | Família 8MBPS | 32.500 Kz | 30 dias | 8 Mbps | Ideal para famílias com até 8 membros no agregado |
 | Família 10MBPS | 35.750 Kz | 30 dias | 10 Mbps | Ideal para assistir streaming, como Netflix, canais de TV online etc... |
 
-### Planos Empresariais
-Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.
-
+#### Planos Empresariais
 | Plano | Preço | Duração | Velocidade | Descrição |
 |---|---|---|---|---|
 | Empresarial 25MBPS | 195.000 Kz | 30 dias | 25 Mbps | Ideal para micro e pequenas empresas. Taxa de instalação sob consulta. |
 | Empresarial 50MBPS | 312.000 Kz | 30 dias | 50 Mbps | Ideal para médias empresas. Taxa de instalação sob consulta. |
 | Empresarial 100MBPS | 561.000 Kz | 30 dias | 100 Mbps | Ideal para grandes empresas. Taxa de instalação sob consulta. |
 
-### Planos Institucionais
-Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.
-
+#### Planos Institucionais
 | Plano | Preço | Duração | Velocidade | Descrição |
 |---|---|---|---|---|
 | Institucional +150MBPS | 2.908.583 Kz | 30 dias | +150 Mbps | Ideal para instituições do Estado. Taxa de instalação sob consulta. |
