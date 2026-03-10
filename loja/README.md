@@ -60,146 +60,42 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ---
 
-## Arquitectura da Loja — Dois tipos de planos
+## Planos Disponíveis
 
-A loja trata dois tipos de planos de forma completamente diferente:
+### Planos Individuais
+Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.
 
-| | **Planos Individuais** | **Planos Familiares / Empresariais** |
-|---|---|---|
-| Identificação | Nenhuma | Nome, e-mail, telefone, NIF (opcional) |
-| Entrega | Código WiFi imediato no ecrã | Activação de janela no SG |
-| Integração SG | Nenhuma | `POST /api/janela-autovenda` |
-| Modelo | `AutovendaOrder` | `FamilyPlanRequest` |
-| Gateway | `PaymentCallbackController` | `FamilyPlanPaymentController` |
+| Plano | Preço | Duração | Velocidade | Download | Descrição |
+|---|---|---|---|---|---|
+| Diário | 200 Kz | 24 horas | Até 100 Mbps | Ilimitado | Internet para o dia inteiro, perfeito para quem precisa de conectividade contínua durante 24h. |
+| Semanal | 500 Kz | 7 dias | Até 100 Mbps | Ilimitado | Plano de 7 dias para utilização recorrente, ideal para estudantes e profissionais. |
+| Mensal | 1.000 Kz | 30 dias | Até 100 Mbps | Ilimitado | Plano de 30 dias com acesso estável e previsível, para uso contínuo em casa ou no escritório. |
 
----
+### Planos Familiares
+Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.
 
-## Fluxo — Planos Familiares & Empresariais
+| Plano | Preço | Duração | Velocidade | Descrição |
+|---|---|---|---|---|
+| Família 6MBPS | 27.500 Kz | 30 dias | 6 Mbps | Ideal para famílias de até 6 membros no agregado |
+| Família 8MBPS | 32.500 Kz | 30 dias | 8 Mbps | Ideal para famílias com até 8 membros no agregado |
+| Família 10MBPS | 35.750 Kz | 30 dias | 10 Mbps | Ideal para assistir streaming, como Netflix, canais de TV online etc... |
 
+### Planos Empresariais
+Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.
 
-### Lookup automático por telefone (pré-preenchimento)
+| Plano | Preço | Duração | Velocidade | Descrição |
+|---|---|---|---|---|
+| Empresarial 25MBPS | 195.000 Kz | 30 dias | 25 Mbps | Ideal para micro e pequenas empresas. Taxa de instalação sob consulta. |
+| Empresarial 50MBPS | 312.000 Kz | 30 dias | 50 Mbps | Ideal para médias empresas. Taxa de instalação sob consulta. |
+| Empresarial 100MBPS | 561.000 Kz | 30 dias | 100 Mbps | Ideal para grandes empresas. Taxa de instalação sob consulta. |
 
-No início do formulário de planos familiares/empresariais, o cliente pode introduzir o seu número de telefone para pré-preencher os dados automaticamente:
+### Planos Institucionais
+Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.
 
-1. **Cliente introduz o número de telefone**
-        - O campo "Já é cliente? Introduza o seu número de telefone" permite pesquisar rapidamente.
-2. **Pesquisa na loja**
-        - O sistema procura o telefone na base de dados local (`family_plan_requests`).
-3. **Fallback ao SG**
-        - Se não encontrar localmente, faz uma consulta ao sistema de gestão (SG) via API (`/api/cliente-lookup`).
-4. **Pré-preenchimento automático**
-        - Se encontrar, preenche automaticamente nome, e-mail (se existir) e NIF no formulário.
-        - O cliente só precisa confirmar ou corrigir os dados e prosseguir para o pagamento.
-5. **Novo cliente**
-        - Se não encontrar, o cliente preenche normalmente e os dados ficam guardados para a próxima vez.
+| Plano | Preço | Duração | Velocidade | Descrição |
+|---|---|---|---|---|
+| Institucional +150MBPS | 2.908.583 Kz | 30 dias | +150 Mbps | Ideal para instituições do Estado. Taxa de instalação sob consulta. |
 
-**Vantagens:**
-- Reduz drasticamente a fricção para clientes recorrentes
-- Não exige conta, password ou e-mail
-- Funciona para clientes antigos do SG e novos da loja
-
-**Arquitectura técnica:**
-- JS no formulário chama `GET /checkout/lookup?phone=9XXXXXXXX`
-- Controller faz lookup local e, se necessário, proxy para o SG
-- SG expõe endpoint `GET /api/cliente-lookup` (por telefone)
-- E-mail agora é opcional em todo o fluxo
-
----
-
-### Visão geral
-
-```
-Cliente → Formulário → awaiting_payment → Página de pagamento
-                                                  ↓
-                                          Cliente paga
-                                                  ↓
-                                  Gateway → POST /payment/familia/webhook
-                                                  ↓
-                                  Loja → POST /api/janela-autovenda (SG)
-                                                  ↓
-                                  SG activa o plano → e-mail ao cliente ✅
-
-                                          (se SG falhar)
-                                                  ↓
-                                  status = pending → admin activa manualmente
-```
-
-### Passo a passo
-
-**1. Cliente escolhe o plano**
-Os planos familiares/empresariais são carregados em tempo real do SG via `/sg/plan-templates`. O cliente clica "Comprar" e é redirecionado para o formulário.
-
-**2. Formulário de identificação — `GET /solicitar-plano?plan_id=...`**
-O cliente preenche: nome, e-mail, telefone, NIF (opcional), método de pagamento (Multicaixa Express ou PayPal).
-
-**3. Submissão — `POST /solicitar-plano`**
-O servidor (`FamilyPlanRequestController@store`):
-- Valida os dados
-- Cria um registo `FamilyPlanRequest` com `status = awaiting_payment`
-- Gera uma referência única: `AW-000042` (formato `AW-` + ID com 6 dígitos)
-- Envia e-mail de notificação ao admin
-- Redireciona para `/pagar-plano/{id}`
-
-> Nenhuma activação ocorre ainda. O pedido fica registado aguardando pagamento.
-
-**4. Página de pagamento — `GET /pagar-plano/{id}`**
-Renderizada por `FamilyPlanPaymentController@show`. Mostra instruções específicas por método:
-- **Multicaixa Express:** passo a passo com a referência `AW-000042` e valor a pagar
-- **PayPal:** botão de redirecionamento com instrução para incluir a referência na nota
-
-Em ambiente `local`/`testing` aparece um botão **"Simular Pagamento Confirmado"** para testes sem gateway real.
-
-**5. Cliente efectua o pagamento**
-O cliente paga pelo método escolhido. A partir daqui o processo é 100% automático.
-
-**6. Webhook do gateway — `POST /payment/familia/webhook`** *(CSRF exempt)*
-O gateway envia `{ "reference": "AW-000042" }`. O servidor (`FamilyPlanPaymentController@webhook`):
-- Localiza o pedido pela referência
-- Confirma que está em `awaiting_payment`
-- Chama `activate()`
-
-**7. Activação no SG — `POST /api/janela-autovenda`**
-A loja chama o SG com os dados do cliente. O SG (`AutovendaJanelaController@store`) executa:
-
-- **Cliente novo:** cria `Cliente` + cria `Plano` (`estado=Ativo`, `proxima_renovacao = hoje + ciclo`)
-- **Cliente já existente** (lookup por e-mail): encontra o cliente, verifica se já tem plano desse template
-  - Tem plano activo: **estende** `proxima_renovacao` adicionando os dias do ciclo (renovação)
-  - Não tem: cria plano novo para esse cliente
-
-**8. Conclusão**
-- Loja actualiza `status = activated`
-- Envia e-mail de confirmação ao cliente com nome do plano, referência e confirmação de acesso
-- A página `/pagar-plano/{id}` passa a mostrar "✅ Plano Activado!"
-
-### Estados do pedido (`FamilyPlanRequest.status`)
-
-| Status | Significado |
-|--------|-------------|
-| `awaiting_payment` | Pedido registado, aguarda confirmação de pagamento do gateway |
-| `pending` | Pagamento confirmado, mas SG inacessível — admin deve activar manualmente |
-| `activated` | Janela activada no SG com sucesso |
-| `cancelled` | Pedido cancelado pelo admin |
-
-### Fallback manual (admin)
-
-Se o SG estiver inacessível durante o webhook, o pedido fica `pending` com nota explicativa. O admin acede a `/admin/pedidos-planos-familiares` e clica "Confirmar/Activar" para tentar novamente.
-
-### Referências de código
-
-| Componente | Ficheiro |
-|---|---|
-| Formulário + registo | `app/Http/Controllers/FamilyPlanRequestController.php` |
-| Pagamento + webhook + activação | `app/Http/Controllers/FamilyPlanPaymentController.php` |
-| API no SG | `PROJECTO/app/Http/Controllers/AutovendaJanelaController.php` |
-| Proxy loja→SG | `app/Http/Controllers/StoreProxyController.php` |
-| Admin panel | `app/Http/Controllers/Admin/FamilyPlanRequestAdminController.php` |
-| Modelo | `app/Models/FamilyPlanRequest.php` |
-| Vista formulário | `resources/views/pages/solicitar-plano.blade.php` |
-| Vista pagamento | `resources/views/pages/pagar-plano.blade.php` |
-| CSRF exemption | `bootstrap/app.php` |
-| Rotas | `routes/web.php` — prefixo `/solicitar-plano`, `/pagar-plano`, `/payment/familia` |
-
----
 
 ## Roadmap — Pré-preenchimento por número de telefone (próxima fase)
 
