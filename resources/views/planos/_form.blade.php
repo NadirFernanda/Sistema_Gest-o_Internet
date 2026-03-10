@@ -37,10 +37,10 @@
             <label class="field-label">Tipo do plano <span style="color:#d00">*</span></label>
             <select name="tipo" class="select" required>
                 <option value="">Selecione o tipo</option>
-                <option value="familiar" {{ old('tipo') == 'familiar' ? 'selected' : '' }}>Familiar</option>
-                <option value="institucional" {{ old('tipo') == 'institucional' ? 'selected' : '' }}>Institucional</option>
-                <option value="empresarial" {{ old('tipo') == 'empresarial' ? 'selected' : '' }}>Empresarial</option>
-                <option value="site" {{ old('tipo') == 'site' ? 'selected' : '' }}>Site</option>
+                <option value="familiar" {{ (old('tipo') ?? (isset($plano) ? $plano->tipo : null)) == 'familiar' ? 'selected' : '' }}>Familiar</option>
+                <option value="institucional" {{ (old('tipo') ?? (isset($plano) ? $plano->tipo : null)) == 'institucional' ? 'selected' : '' }}>Institucional</option>
+                <option value="empresarial" {{ (old('tipo') ?? (isset($plano) ? $plano->tipo : null)) == 'empresarial' ? 'selected' : '' }}>Empresarial</option>
+                <option value="site" {{ (old('tipo') ?? (isset($plano) ? $plano->tipo : null)) == 'site' ? 'selected' : '' }}>Site</option>
             </select>
         </div>
         <div class="form-row-full">
