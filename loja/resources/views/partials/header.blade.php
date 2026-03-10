@@ -76,6 +76,10 @@
       </nav>
 
       <div class="store-actions">
+        <div class="search-wrapper">
+          <input id="store-search-input" class="search-input" type="search" autocomplete="off" name="store-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos">
+          <div id="store-search-results" class="search-results" role="listbox" aria-hidden="true"></div>
+        </div>
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
           <span class="mobile-menu-icon"></span>
@@ -111,6 +115,81 @@
     btn.addEventListener('click', function(){
       var isOpen = menu.classList.toggle('open');
       btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+
+  // Search — client-side, reads plan cards already rendered in the DOM
+  var input   = document.getElementById('store-search-input');
+  var results = document.getElementById('store-search-results');
+
+  function buildIndex() {
+    var cards = document.querySelectorAll('.plan-card-modern:not(.family-empty-state)');
+    var index = [];
+    cards.forEach(function(card) {
+      var titleEl = card.querySelector('.plan-title');
+      var priceEl = card.querySelector('.plan-price');
+      var currEl  = card.querySelector('.plan-currency');
+      var descEl  = card.querySelector('.plan-desc');
+      var featEls = card.querySelectorAll('.plan-feature');
+      var link    = card.querySelector('a[href]');
+      if (!titleEl) return;
+      var features = Array.from(featEls).map(function(f){ return f.textContent.trim(); }).join(' · ');
+      index.push({
+        title:   titleEl.textContent.trim(),
+        price:   priceEl ? (priceEl.textContent.trim() + (currEl ? ' ' + currEl.textContent.trim() : '')) : '',
+        desc:    descEl  ? descEl.textContent.trim() : features,
+        href:    link    ? link.getAttribute('href') : '#planos',
+        section: card.closest('.planos-section--family') ? 'Familiar'
+               : card.closest('.planos-section--company') ? 'Empresarial'
+               : card.closest('.planos-section--institutional') ? 'Institucional'
+               : 'Individual',
+      });
+    });
+    return index;
+  }
+
+  function doSearch(q) {
+    results.innerHTML = '';
+    if (!q || q.trim().length < 2) { hideResults(); return; }
+    var needle = q.trim().toLowerCase();
+    var index  = buildIndex();
+    var hits   = index.filter(function(it){
+      return it.title.toLowerCase().indexOf(needle) !== -1
+          || it.desc.toLowerCase().indexOf(needle)  !== -1
+          || it.price.toLowerCase().indexOf(needle) !== -1;
+    });
+    if (!hits.length) { hideResults(); return; }
+    results.style.display = 'block';
+    results.setAttribute('aria-hidden','false');
+    hits.forEach(function(it){
+      var el = document.createElement('a');
+      el.href = it.href;
+      el.className = 'search-result-item';
+      el.setAttribute('role','option');
+      el.innerHTML = '<div class="res-title">' + it.title + '</div>'
+                   + '<div class="res-sub">' + (it.price ? it.price + ' · ' : '') + it.section + '</div>';
+      el.addEventListener('click', function(){ results.innerHTML = ''; results.setAttribute('aria-hidden','true'); });
+      results.appendChild(el);
+    });
+    results.setAttribute('aria-hidden','false');
+  }
+
+  function hideResults() {
+    results.style.display = 'none';
+    results.setAttribute('aria-hidden','true');
+    results.innerHTML = '';
+  }
+
+  if (input) {
+    var userTyped = false;
+    input.addEventListener('keydown', function() { userTyped = true; });
+    input.addEventListener('blur',    function() { userTyped = false; });
+    input.addEventListener('input', function(e){
+      if (!userTyped) { hideResults(); return; }
+      doSearch(String(e.target.value || ''));
+    });
+    document.addEventListener('click', function(ev){
+      if (!ev.target.closest('.search-wrapper')) hideResults();
     });
   }
 
