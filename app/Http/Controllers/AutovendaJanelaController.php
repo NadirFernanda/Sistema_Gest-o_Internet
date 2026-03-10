@@ -17,12 +17,17 @@ use App\Models\PlanTemplate;
  * POST /api/janela-autovenda          → find/create client, extend/create plan window
  *
  * POST /api/janela-autovenda
- *   nome          string  required
- *   email         string  optional  (clients from Angola often have none)
- *   contato       string  required
- *   nif           string  optional  (stored as bi with tipo=NIF when provided)
- *   template_id   int     required  must exist in plan_templates
- *   loja_request_id int   optional  for cross-system audit tracing
+ *   nome            string  required
+ *   email           string  optional  (clients from Angola often have none)
+ *   contato         string  required
+ *   nif             string  optional  (stored as bi with tipo=NIF when provided)
+ *   template_id     int     required  must exist in plan_templates
+ *   loja_request_id int     optional  for cross-system audit tracing
+ *   estado          string  optional  'Ativo' (default) or 'Pendente' (awaiting payment)
+ *
+ * POST /api/janela-activar/{plano_id}
+ *   Marks an existing 'Pendente' plan as 'Ativo'.
+ *   loja_request_id int   optional  for audit tracing
  */
 class AutovendaJanelaController extends Controller
 {
@@ -71,7 +76,12 @@ class AutovendaJanelaController extends Controller
             'nif'              => 'nullable|string|max:64',
             'template_id'      => 'required|integer|exists:plan_templates,id',
             'loja_request_id'  => 'nullable|integer',
+            'estado'           => 'nullable|string|in:Ativo,Pendente',
         ]);
+
+        // Allow the caller to create the plan as 'Pendente' (awaiting payment confirmation).
+        // The default remains 'Ativo' to preserve backward compatibility with the webhook flow.
+        $estadoInicial = $validated['estado'] ?? 'Ativo';
 
         $template = PlanTemplate::findOrFail($validated['template_id']);
 
@@ -128,7 +138,7 @@ class AutovendaJanelaController extends Controller
 
             $novaRenovacao = $base->copy()->addDays($ciclo)->toDateString();
             $plano->proxima_renovacao = $novaRenovacao;
-            $plano->estado = 'Ativo';
+            $plano->estado = $estadoInicial;
             $plano->save();
 
             \DB::table('compensacoes')->insert([
@@ -161,7 +171,7 @@ class AutovendaJanelaController extends Controller
             'ciclo'             => $template->ciclo,
             'template_id'       => $template->id,
             'cliente_id'        => $cliente->id,
-            'estado'            => 'Ativo',
+            'estado'            => $estadoInicial,
             'data_ativacao'     => $dataAtivacao,
             'proxima_renovacao' => $proximaRenovacao,
         ]);
@@ -179,5 +189,40 @@ class AutovendaJanelaController extends Controller
             'plano_id'          => $plano->id,
             'proxima_renovacao' => $proximaRenovacao,
         ], 201);
+    }
+
+    /**
+     * Activate a plan that was previously created as 'Pendente'.
+     * Called by the loja payment webhook after payment is confirmed.
+     *
+     * POST /api/janela-activar/{plano_id}
+     *   loja_request_id  int  optional  for audit tracing
+     */
+    public function activar(Request $request, int $planoId)
+    {
+        $plano = Plano::find($planoId);
+
+        if (! $plano) {
+            return response()->json(['success' => false, 'error' => 'plano_not_found'], 404);
+        }
+
+        // Only transition from Pendente (or any non-active state) to Ativo.
+        // If already Ativo, treat as success (idempotent).
+        if (strtolower(trim($plano->estado ?? '')) !== 'ativo') {
+            $plano->estado = 'Ativo';
+            $plano->save();
+
+            \Log::info('AutovendaJanela: plano activado após pagamento', [
+                'plano_id'        => $plano->id,
+                'loja_request_id' => $request->input('loja_request_id'),
+            ]);
+        }
+
+        return response()->json([
+            'success'           => true,
+            'action'            => 'plano_activated',
+            'plano_id'          => $plano->id,
+            'proxima_renovacao' => $plano->proxima_renovacao,
+        ]);
     }
 }
