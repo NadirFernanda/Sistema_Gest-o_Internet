@@ -324,6 +324,11 @@ class ClienteController extends Controller
             ];
         })->values();
 
+        // Ordenar alfabeticamente pelo nome do cliente
+        $alertas = $alertas->sortBy(function($a) {
+            return mb_strtolower($a['nome'] ?? '');
+        })->values();
+
         // Return an array directly so the frontend `main.js` can consume it
         return response()->json($alertas);
     }
