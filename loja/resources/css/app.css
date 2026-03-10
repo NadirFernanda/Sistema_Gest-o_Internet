@@ -788,7 +788,7 @@ main { display: block; }
   flex: 1;
 }
 
-.plan-card-modern-footer { margin-top: 1.25rem; }
+.plan-card-modern-footer { margin-top: auto; padding-top: 1.25rem; }
 
 .plan-card-modern-footer .btn-modern,
 .plan-card-modern-footer .btn-primary {
@@ -806,7 +806,7 @@ main { display: block; }
 /* Individual plans — 3-column fixed grid */
 .plans-grid--individual {
   grid-template-columns: repeat(3, 1fr);
-  align-items: start;
+  align-items: stretch;
 }
 @media (max-width: 900px) {
   .plans-grid--individual { grid-template-columns: repeat(2, 1fr); }
