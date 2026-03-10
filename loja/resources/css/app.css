@@ -1871,15 +1871,15 @@ main { display: block; }
 
   /* ── Hero carousel ──────────────────────────────────────────────────── */
   .hero__slide {
-    height: clamp(280px, 72vw, 400px);
+    height: clamp(320px, 78vw, 440px);
     justify-content: center;
   }
 
   .hero__card {
-    margin-left: auto;
-    margin-right: auto;
-    width: calc(100% - 2rem);
-    max-width: calc(100% - 2rem);
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: calc(100% - 4rem);
+    max-width: 340px;
     padding: 1.1rem 1.15rem;
     border-radius: 0.75rem;
     text-align: center;
@@ -2080,14 +2080,14 @@ main { display: block; }
 
   /* ── Hero carousel ── */
   .hero__slide {
-    height: clamp(260px, 68vw, 320px);
+    height: clamp(290px, 72vw, 360px);
   }
 
   .hero__card {
-    margin-left: auto;
-    margin-right: auto;
-    width: calc(100% - 1.5rem);
-    max-width: calc(100% - 1.5rem);
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: calc(100% - 3rem);
+    max-width: 300px;
     padding: 0.875rem 0.75rem;
     border-radius: 0.65rem;
     box-sizing: border-box;
