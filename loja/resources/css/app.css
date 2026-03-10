@@ -58,7 +58,7 @@ a { text-decoration: none; }
 .container--720 { max-width: 720px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 .container--880 { max-width: 880px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 
-/* min-height removed — hero carousel already fills viewport; section backgrounds cover remaining space */
+/* min-height removed ï¿½ hero carousel already fills viewport; section backgrounds cover remaining space */
 main { display: block; }
 
 /* ==========================================================================
@@ -220,7 +220,7 @@ main { display: block; }
 /* Actions / search */
 .store-actions { display: flex; align-items: center; gap: 0.5rem; }
 
-/* Hidden on mobile — shown at =768px via media query */
+/* Hidden on mobile ï¿½ shown at =768px via media query */
 .search-wrapper { display: none; position: relative; flex-shrink: 1; }
 
 .search-input {
@@ -566,7 +566,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   STAT BAR — confiança abaixo do hero
+   STAT BAR ï¿½ confianï¿½a abaixo do hero
    ========================================================================== */
 .stat-bar { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
 
@@ -645,7 +645,7 @@ main { display: block; }
    ========================================================================== */
 .planos-section { padding: 4rem 0; }
 
-/* legacy — keep for backward compatibility */
+/* legacy ï¿½ keep for backward compatibility */
 .planos-section > .container > h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 900;
@@ -809,7 +809,7 @@ main { display: block; }
   .plan-price { font-size: 2.1rem; }
 }
 
-/* Individual plans — 3-column fixed grid */
+/* Individual plans ï¿½ 3-column fixed grid */
 .plans-grid--individual {
   grid-template-columns: repeat(3, 1fr);
   align-items: stretch;
@@ -821,7 +821,7 @@ main { display: block; }
   .plans-grid--individual { grid-template-columns: 1fr; }
 }
 
-/* Individual plans section — white bg for contrast */
+/* Individual plans section ï¿½ white bg for contrast */
 .planos-section--individual {
   background: var(--surface);
   border-top: 1px solid var(--muted-border);
@@ -841,7 +841,7 @@ main { display: block; }
   margin-bottom: 0.8rem;
 }
 
-/* Featured plan card — dark navy, lifted */
+/* Featured plan card ï¿½ dark navy, lifted */
 .plan-card--featured {
   background: var(--text-dark);
   border-color: transparent;
@@ -947,7 +947,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PAGE HERO — inner pages (about, como comprar, conta)
+   PAGE HERO ï¿½ inner pages (about, como comprar, conta)
    ========================================================================== */
 .page-hero {
   background: linear-gradient(140deg, var(--text-dark) 0%, #1a3055 100%);
@@ -1002,13 +1002,13 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PAGE BODY — content below page-hero
+   PAGE BODY ï¿½ content below page-hero
    ========================================================================== */
 .page-body          { padding: 4rem 0 5rem; }
 .page-body--compact { padding: 2.5rem 0 4rem; }
 
 /* ==========================================================================
-   INFO CARDS — quem somos, missão, visão
+   INFO CARDS ï¿½ quem somos, missï¿½o, visï¿½o
    ========================================================================== */
 .info-grid {
   display: grid;
@@ -1077,7 +1077,7 @@ main { display: block; }
 .brand-strong   { color: var(--brand); font-weight: 800; }
 
 /* ==========================================================================
-   HOW TO BUY — passos
+   HOW TO BUY ï¿½ passos
    ========================================================================== */
 .steps-section { padding: 4rem 0 5rem; }
 
@@ -1152,7 +1152,7 @@ main { display: block; }
 .steps-list       { padding-left: 1.1rem; margin: 0.5rem 0 0; }
 .steps-list li    { margin-bottom: 0.35rem; color: var(--text-muted); font-size: 0.9rem; }
 
-/* legacy howto-hero — replaced by page-hero */
+/* legacy howto-hero ï¿½ replaced by page-hero */
 .howto-hero {
   background: linear-gradient(180deg, rgba(247,181,0,0.06), rgba(255,255,255,0));
   border-radius: 1rem;
@@ -1165,7 +1165,7 @@ main { display: block; }
 .howto-hero p  { margin: 0; color: var(--text-muted); font-size: 1.05rem; }
 
 /* ==========================================================================
-   GLOBAL FIELD — forms
+   GLOBAL FIELD ï¿½ forms
    ========================================================================== */
 .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
 
@@ -1251,7 +1251,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   CATEGORY FILTER — equipment
+   CATEGORY FILTER ï¿½ equipment
    ========================================================================== */
 .category-filter {
   display: flex;
@@ -1281,7 +1281,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PRODUCT CARDS — equipment
+   PRODUCT CARDS ï¿½ equipment
    ========================================================================== */
 .product-img {
   width: 100%;
@@ -1318,7 +1318,7 @@ main { display: block; }
 .product-stock-warn { color: #ef4444; font-size: 0.875rem; font-weight: 600; margin-top: 0.4rem; }
 
 /* ==========================================================================
-   CONTA — auth
+   CONTA ï¿½ auth
    ========================================================================== */
 .auth-grid {
   display: grid;
@@ -1451,9 +1451,9 @@ main { display: block; }
 .checkout-errors ul { padding-left: 1rem; margin: 0; }
 .checkout-errors li { list-style: disc; }
 
-/* -- Confirmação de compra — planos individuais (autovenda) -----------------
-   Aplicável APENAS à página store/checkout-confirmation.blade.php.
-   Não tem relação com o fluxo dos planos familiares/empresariais do SG.
+/* -- Confirmaï¿½ï¿½o de compra ï¿½ planos individuais (autovenda) -----------------
+   Aplicï¿½vel APENAS ï¿½ pï¿½gina store/checkout-confirmation.blade.php.
+   Nï¿½o tem relaï¿½ï¿½o com o fluxo dos planos familiares/empresariais do SG.
    -------------------------------------------------------------------------- */
 .checkout-success-header {
   text-align: center;
@@ -1517,8 +1517,8 @@ main { display: block; }
 }
 .checkout-instructions li { margin-bottom: 0.35rem; }
 
-/* -- Confirmação de pedido — planos familiares/empresariais -----------------
-   Aplicável APENAS à página pages/solicitar-plano-confirmacao.blade.php.
+/* -- Confirmaï¿½ï¿½o de pedido ï¿½ planos familiares/empresariais -----------------
+   Aplicï¿½vel APENAS ï¿½ pï¿½gina pages/solicitar-plano-confirmacao.blade.php.
    -------------------------------------------------------------------------- */
 .solicitar-confirmacao {
   text-align: center;
@@ -1687,7 +1687,7 @@ main { display: block; }
 .reseller-form-actions  { margin-top: 1.25rem; display: flex; justify-content: flex-end; }
 
 /* ==========================================================================
-   RODAPÉ — dark
+   RODAPï¿½ ï¿½ dark
    ========================================================================== */
 .site-footer {
   background: #0d1526;
@@ -1823,6 +1823,251 @@ main { display: block; }
 .plan-card .price { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
 .plan-card .desc  { color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0; }
 .plan-card .plan-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+
+/* ==========================================================================
+   RESPONSIVE ENHANCEMENTS
+   Comprehensive mobile-first responsive rules for all loja pages.
+   ========================================================================== */
+
+/* ---- Prevent horizontal overflow globally ---- */
+html { overflow-x: hidden; }
+img, video, svg { max-width: 100%; }
+
+/* ---- Scroll wrapper for tables on small screens ---- */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========================= max-width: 1024px ============================== */
+@media (max-width: 1024px) {
+  :root { --page-gutter: 1.25rem; }
+}
+
+/* ========================= max-width: 768px =============================== */
+@media (max-width: 768px) {
+  /* Dropdown â€” position static on touch devices (handled by mobile menu) */
+  .store-dropdown-menu {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    top: auto;
+    min-width: unset;
+    border-radius: 12px;
+  }
+
+  /* Section spacing */
+  .planos-section { padding: 2.5rem 0; }
+  .page-body      { padding: 2.5rem 0 3rem; }
+  .page-body--compact { padding: 1.75rem 0 2.5rem; }
+  .section-header { margin-bottom: 1.75rem; }
+  .section-header p,
+  .section-header .lead { font-size: 0.95rem; }
+
+  /* Page hero */
+  .page-hero { padding: 2.5rem 0 3rem; }
+  .page-hero__desc { font-size: 0.95rem; }
+
+  /* Checkout layout already collapses at 640px â€” fine */
+
+  /* Footer legal stacks */
+  .footer-legal-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  .legal-nav { justify-content: center; }
+}
+
+/* ========================= max-width: 640px =============================== */
+@media (max-width: 640px) {
+  /* Container gutters */
+  :root { --page-gutter: 1rem; }
+
+  /* Stat bar */
+  .stat-bar__num { font-size: 1.4rem; }
+  .stat-bar__lbl { font-size: 0.72rem; letter-spacing: 0.03em; }
+  .stat-bar__item { padding: 1rem 0.6rem; }
+
+  /* Data tables shrink gracefully */
+  .data-table th,
+  .data-table td { padding: 0.55rem 0.6rem; font-size: 0.82rem; }
+  .data-table th { white-space: normal; font-size: 0.72rem; }
+
+  /* Reseller */
+  .reseller-intro     { padding: 1.5rem; }
+  .reseller-form-card { padding: 1.5rem; }
+  .reseller-title     { font-size: 1.3rem; }
+
+  /* Info cards / howto */
+  .info-card   { padding: 1.35rem; }
+  .howto-step  { padding: 1.15rem; }
+
+  /* Confirmation card */
+  .solicitar-confirmacao-card { padding: 1.15rem 1.25rem; }
+  .solicitar-confirmacao-titulo { font-size: 1.5rem; }
+  .solicitar-confirmacao { padding: 2rem 0 3rem; }
+
+  /* Auth / Account */
+  .auth-card { padding: 1.35rem; }
+
+  /* Equipment images */
+  .product-img         { height: 130px; }
+  .product-placeholder { height: 110px; }
+}
+
+/* ========================= max-width: 480px =============================== */
+@media (max-width: 480px) {
+  /* Checkout pages */
+  .checkout-page  { padding: 1.5rem var(--page-gutter) 3rem; }
+  .checkout-title { font-size: 1.2rem; }
+  .checkout-subtitle { font-size: 0.88rem; }
+  .checkout-summary-card,
+  .checkout-form-card { padding: 1.1rem; }
+
+  /* Solicitar-plano phone group stacks */
+  .checkout-phone-group {
+    flex-direction: column;
+  }
+  .checkout-phone-group input { width: 100%; }
+  .checkout-lookup-btn { padding: 0.55rem 1rem; text-align: center; }
+
+  /* Solicitar-plano confirmation rows stack */
+  .solicitar-confirmacao-row {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .solicitar-confirmacao-value { text-align: left; }
+
+  /* Footer tighter */
+  .footer-inner { gap: 1.75rem; padding: 2rem var(--page-gutter) 1.5rem; }
+
+  /* Howto steps */
+  .howto-step  { gap: 0.75rem; }
+  .step-badge  { width: 38px; height: 38px; font-size: 0.95rem; border-radius: 10px; }
+
+  /* Info banner stacks */
+  .info-banner { flex-direction: column; text-align: center; gap: 0.75rem; }
+
+  /* Plan features wrap tighter */
+  .plan-features { gap: 0.25rem; }
+
+  /* Buttons â€” slightly smaller */
+  .btn-primary,
+  .btn-modern,
+  .btn-ghost {
+    font-size: 0.88rem;
+    padding: 0.55rem 1.1rem;
+  }
+  .btn-cta { font-size: 0.85rem; padding: 0.55rem 1.2rem; }
+
+  /* Category filter horizontal scroll */
+  .category-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+  .category-filter a { flex-shrink: 0; }
+}
+
+/* ========================= max-width: 380px =============================== */
+@media (max-width: 380px) {
+  /* Hero card tight fit */
+  .hero__card {
+    margin-left: 0.5rem;
+    max-width: calc(100% - 3.5rem);
+    padding: 0.9rem 0.85rem 1rem;
+  }
+  .hero__title   { font-size: 1rem; }
+  .hero__desc    { font-size: 0.78rem; margin-bottom: 0.85rem; }
+  .hero__eyebrow { font-size: 0.66rem; margin-bottom: 0.5rem; }
+  .hero__actions { gap: 0.4rem; }
+  .hero__actions .btn-primary,
+  .hero__actions .btn-ghost {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.85rem;
+  }
+  .hero__arrow { width: 32px; height: 32px; }
+  .hero__arrow--prev { left:  0.25rem; }
+  .hero__arrow--next { right: 0.25rem; }
+
+  /* Stat bar extra small */
+  .stat-bar__num { font-size: 1.2rem; }
+  .stat-bar__lbl { font-size: 0.65rem; }
+  .stat-bar__item { padding: 0.75rem 0.35rem; }
+
+  /* Plan card small screens */
+  .plan-card-modern-inner { padding: 1rem; }
+  .plan-price  { font-size: 1.8rem; }
+  .plan-title  { font-size: 0.88rem; }
+  .plan-feature { font-size: 0.72rem; padding: 0.15rem 0.4rem; }
+  .plan-desc   { font-size: 0.8rem; }
+
+  /* WiFi code box */
+  .wifi-code-value { font-size: 1.2rem; letter-spacing: 0.08em; }
+  .wifi-code-box   { padding: 0.9rem 0.65rem; }
+
+  /* Page hero */
+  .page-hero { padding: 1.75rem 0 2rem; }
+  .page-hero__title { font-size: 1.25rem; }
+  .page-hero__desc  { font-size: 0.85rem; }
+  .page-hero__eyebrow { font-size: 0.65rem; padding: 0.2rem 0.6rem; }
+  
+  /* Footer brand */
+  .footer-brand-text { font-size: 1.1rem; }
+  .footer-mission    { font-size: 0.82rem; }
+}
+
+/* ========================= Touch / safe-area / scrollbar ================== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .site-footer { padding-bottom: env(safe-area-inset-bottom); }
+  .store-header { padding-top: env(safe-area-inset-top); }
+}
+
+/* Smooth momentum scrolling for all overflow containers */
+.category-filter,
+.table-responsive { -webkit-overflow-scrolling: touch; }
+
+/* ========================= Landscape phones =============================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero__slide { height: 280px; }
+  .hero__card  { padding: 0.75rem 0.85rem; }
+  .hero__title { font-size: 1rem; }
+  .hero__desc  { display: none; }
+  .page-hero   { padding: 1.5rem 0; }
+}
+
+
+/* ---- Payment page (pagar-plano) inline class overrides ---- */
+@media (max-width: 480px) {
+  .pagar-plano-detalhe { padding: 0.75rem 1rem; }
+  .pagar-plano-instrucoes { padding: 1rem; }
+  .pagar-plano-valor { font-size: 1.3rem; }
+}
+
+/* ---- Mobile search â€” full width below header when focused ---- */
+@media (max-width: 767px) {
+  .store-header-inner { gap: 0.5rem; }
+  .store-brand { gap: 0.4rem; }
+  .store-logo  { width: 40px; height: 40px; }
+}
+
+/* ---- Ensure hero CTA buttons wrap gracefully ---- */
+@media (max-width: 320px) {
+  .hero__actions {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .hero__actions .btn-primary,
+  .hero__actions .btn-ghost {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
 
 /* ==========================================================================
    DARK MODE
