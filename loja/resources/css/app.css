@@ -385,7 +385,7 @@ main { display: block; }
 .btn-primary,
 .btn-modern {
   background: var(--brand);
-  color: var(--text-dark);
+  color: #fff;
   box-shadow: 0 4px 14px rgba(247, 181, 0, 0.25);
 }
 
@@ -860,7 +860,7 @@ main { display: block; }
 .plan-card--featured .plan-feature  { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.85); }
 .plan-card--featured .plan-feature--active { background: var(--brand); color: var(--text-dark); }
 .plan-card--featured .plan-desc     { color: rgba(255,255,255,0.5); }
-.plan-card--featured .btn-modern    { background: var(--brand); color: var(--text-dark); }
+.plan-card--featured .btn-modern    { background: var(--brand); color: #fff; }
 .plan-card--featured .btn-modern:hover { filter: brightness(1.06); }
 
 /* Family plans section */
