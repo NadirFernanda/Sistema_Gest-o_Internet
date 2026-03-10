@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -58,7 +58,7 @@ a { text-decoration: none; }
 .container--720 { max-width: 720px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 .container--880 { max-width: 880px; margin: 0 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
 
-/* min-height removed — hero carousel already fills viewport; section backgrounds cover remaining space */
+/* min-height removed � hero carousel already fills viewport; section backgrounds cover remaining space */
 main { display: block; }
 
 /* ==========================================================================
@@ -220,7 +220,7 @@ main { display: block; }
 /* Actions / search */
 .store-actions { display: flex; align-items: center; gap: 0.5rem; }
 
-/* Hidden on mobile — shown at ≥768px via media query */
+/* Hidden on mobile � shown at =768px via media query */
 .search-wrapper { display: none; position: relative; flex-shrink: 1; }
 
 .search-input {
@@ -566,7 +566,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   STAT BAR — confiança abaixo do hero
+   STAT BAR � confian�a abaixo do hero
    ========================================================================== */
 .stat-bar { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
 
@@ -645,7 +645,7 @@ main { display: block; }
    ========================================================================== */
 .planos-section { padding: 4rem 0; }
 
-/* legacy — keep for backward compatibility */
+/* legacy � keep for backward compatibility */
 .planos-section > .container > h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 900;
@@ -809,7 +809,7 @@ main { display: block; }
   .plan-price { font-size: 2.1rem; }
 }
 
-/* Individual plans — 3-column fixed grid */
+/* Individual plans � 3-column fixed grid */
 .plans-grid--individual {
   grid-template-columns: repeat(3, 1fr);
   align-items: start;
@@ -821,7 +821,7 @@ main { display: block; }
   .plans-grid--individual { grid-template-columns: 1fr; }
 }
 
-/* Individual plans section — white bg for contrast */
+/* Individual plans section � white bg for contrast */
 .planos-section--individual {
   background: var(--surface);
   border-top: 1px solid var(--muted-border);
@@ -841,7 +841,7 @@ main { display: block; }
   margin-bottom: 0.8rem;
 }
 
-/* Featured plan card — dark navy, lifted */
+/* Featured plan card � dark navy, lifted */
 .plan-card--featured {
   background: var(--text-dark);
   border-color: transparent;
@@ -859,6 +859,7 @@ main { display: block; }
 .plan-card--featured .plan-price   { color: var(--brand); }
 .plan-card--featured .plan-currency { color: rgba(255,255,255,0.55); }
 .plan-card--featured .plan-feature  { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.85); }
+.plan-card--featured .plan-feature--active { background: var(--brand); color: var(--text-dark); }
 .plan-card--featured .plan-desc     { color: rgba(255,255,255,0.5); }
 .plan-card--featured .btn-modern    { background: var(--brand); color: var(--text-dark); }
 .plan-card--featured .btn-modern:hover { filter: brightness(1.06); }
@@ -947,7 +948,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PAGE HERO — inner pages (about, como comprar, conta)
+   PAGE HERO � inner pages (about, como comprar, conta)
    ========================================================================== */
 .page-hero {
   background: linear-gradient(140deg, var(--text-dark) 0%, #1a3055 100%);
@@ -1002,13 +1003,13 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PAGE BODY — content below page-hero
+   PAGE BODY � content below page-hero
    ========================================================================== */
 .page-body          { padding: 4rem 0 5rem; }
 .page-body--compact { padding: 2.5rem 0 4rem; }
 
 /* ==========================================================================
-   INFO CARDS — quem somos, missão, visão
+   INFO CARDS � quem somos, miss�o, vis�o
    ========================================================================== */
 .info-grid {
   display: grid;
@@ -1077,7 +1078,7 @@ main { display: block; }
 .brand-strong   { color: var(--brand); font-weight: 800; }
 
 /* ==========================================================================
-   HOW TO BUY — passos
+   HOW TO BUY � passos
    ========================================================================== */
 .steps-section { padding: 4rem 0 5rem; }
 
@@ -1152,7 +1153,7 @@ main { display: block; }
 .steps-list       { padding-left: 1.1rem; margin: 0.5rem 0 0; }
 .steps-list li    { margin-bottom: 0.35rem; color: var(--text-muted); font-size: 0.9rem; }
 
-/* legacy howto-hero — replaced by page-hero */
+/* legacy howto-hero � replaced by page-hero */
 .howto-hero {
   background: linear-gradient(180deg, rgba(247,181,0,0.06), rgba(255,255,255,0));
   border-radius: 1rem;
@@ -1165,7 +1166,7 @@ main { display: block; }
 .howto-hero p  { margin: 0; color: var(--text-muted); font-size: 1.05rem; }
 
 /* ==========================================================================
-   GLOBAL FIELD — forms
+   GLOBAL FIELD � forms
    ========================================================================== */
 .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
 
@@ -1251,7 +1252,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   CATEGORY FILTER — equipment
+   CATEGORY FILTER � equipment
    ========================================================================== */
 .category-filter {
   display: flex;
@@ -1281,7 +1282,7 @@ main { display: block; }
 }
 
 /* ==========================================================================
-   PRODUCT CARDS — equipment
+   PRODUCT CARDS � equipment
    ========================================================================== */
 .product-img {
   width: 100%;
@@ -1318,7 +1319,7 @@ main { display: block; }
 .product-stock-warn { color: #ef4444; font-size: 0.875rem; font-weight: 600; margin-top: 0.4rem; }
 
 /* ==========================================================================
-   CONTA — auth
+   CONTA � auth
    ========================================================================== */
 .auth-grid {
   display: grid;
@@ -1451,10 +1452,10 @@ main { display: block; }
 .checkout-errors ul { padding-left: 1rem; margin: 0; }
 .checkout-errors li { list-style: disc; }
 
-/* ── Confirmação de compra — planos individuais (autovenda) ─────────────────
-   Aplicável APENAS à página store/checkout-confirmation.blade.php.
-   Não tem relação com o fluxo dos planos familiares/empresariais do SG.
-   ────────────────────────────────────────────────────────────────────────── */
+/* -- Confirma��o de compra � planos individuais (autovenda) -----------------
+   Aplic�vel APENAS � p�gina store/checkout-confirmation.blade.php.
+   N�o tem rela��o com o fluxo dos planos familiares/empresariais do SG.
+   -------------------------------------------------------------------------- */
 .checkout-success-header {
   text-align: center;
   padding: 2rem 0 1rem;
@@ -1517,9 +1518,9 @@ main { display: block; }
 }
 .checkout-instructions li { margin-bottom: 0.35rem; }
 
-/* ── Confirmação de pedido — planos familiares/empresariais ─────────────────
-   Aplicável APENAS à página pages/solicitar-plano-confirmacao.blade.php.
-   ────────────────────────────────────────────────────────────────────────── */
+/* -- Confirma��o de pedido � planos familiares/empresariais -----------------
+   Aplic�vel APENAS � p�gina pages/solicitar-plano-confirmacao.blade.php.
+   -------------------------------------------------------------------------- */
 .solicitar-confirmacao {
   text-align: center;
   padding: 3rem 0 4rem;
@@ -1627,7 +1628,7 @@ main { display: block; }
 }
 
 .reseller-points li::before {
-  content: '✓';
+  content: '?';
   position: absolute;
   left: 0;
   color: var(--brand);
@@ -1687,7 +1688,7 @@ main { display: block; }
 .reseller-form-actions  { margin-top: 1.25rem; display: flex; justify-content: flex-end; }
 
 /* ==========================================================================
-   RODAPÉ — dark
+   RODAP� � dark
    ========================================================================== */
 .site-footer {
   background: #0d1526;
