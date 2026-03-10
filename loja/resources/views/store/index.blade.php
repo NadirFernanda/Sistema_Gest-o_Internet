@@ -88,11 +88,6 @@
         <h2>Planos Individuais</h2>
         <div class="section-header__rule"></div>
         <p>Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.</p>
-        <ul class="planos-text-list">
-          <li><strong>Plano Diário:</strong> 200 Kz, 24 horas, ilimitado, até 100 Mbps. Internet para o dia inteiro, perfeito para quem precisa de conectividade contínua durante 24h.</li>
-          <li><strong>Plano Semanal:</strong> 500 Kz, 7 dias, ilimitado, até 100 Mbps. Plano de 7 dias para utilização recorrente, ideal para estudantes e profissionais.</li>
-          <li><strong>Plano Mensal:</strong> 1.000 Kz, 30 dias, ilimitado, até 100 Mbps. Plano de 30 dias com acesso estável e previsível, para uso contínuo em casa ou no escritório.</li>
-        </ul>
       </div>
 
       <div class="plans-grid plans-grid--individual" aria-live="polite">
@@ -142,11 +137,6 @@
       <h2>Planos Familiares</h2>
       <div class="section-header__rule"></div>
       <p>Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.</p>
-      <ul class="planos-text-list">
-        <li><strong>Plano família: 6MBPS</strong> — 27.500 Kz, 30 dias. Ideal para famílias de até 6 membros no agregado.</li>
-        <li><strong>Plano família: 8MBPS</strong> — 32.500 Kz, 30 dias. Ideal para famílias com até 8 membros no agregado.</li>
-        <li><strong>Plano família: 10MBPS</strong> — 35.750 Kz, 30 dias. Ideal para assistir streaming, como Netflix, canais de TV online etc...</li>
-      </ul>
     </div>
     <div class="plans-grid plans-grid--individual" id="familiar-plans-grid" aria-live="polite">
       <div class="family-loading">
@@ -165,11 +155,6 @@
       <h2>Planos Empresariais</h2>
       <div class="section-header__rule"></div>
       <p>Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.</p>
-      <ul class="planos-text-list">
-        <li><strong>Plano empresarial: 25MBPS</strong> — 195.000 Kz, 30 dias. Ideal para micro e pequenas empresas. Taxa de instalação sob consulta.</li>
-        <li><strong>Plano empresarial: 50MBPS</strong> — 312.000 Kz, 30 dias. Ideal para médias empresas. Taxa de instalação sob consulta.</li>
-        <li><strong>Plano empresarial: 100MBPS</strong> — 561.000 Kz, 30 dias. Ideal para grandes empresas. Taxa de instalação sob consulta.</li>
-      </ul>
     </div>
     <div class="plans-grid plans-grid--individual" id="empresarial-plans-grid" aria-live="polite">
       <div class="family-loading">
@@ -188,9 +173,6 @@
       <h2>Planos Institucionais</h2>
       <div class="section-header__rule"></div>
       <p>Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.</p>
-      <ul class="planos-text-list">
-        <li><strong>Plano institucional: +150MBPS</strong> — 2.908.583 Kz, 30 dias. Ideal para instituições do Estado. Taxa de instalação sob consulta.</li>
-      </ul>
     </div>
     <div class="plans-grid plans-grid--individual" id="institucional-plans-grid" aria-live="polite">
       <div class="family-loading">
