@@ -37,9 +37,9 @@ class PlanTemplateCatalogController extends Controller
                     'description' => $t->description,
                     'preco'       => $t->preco,
                     'ciclo'       => $t->ciclo,
-                    'estado'      => $t->estado,
                     'tipo'        => $t->tipo,
                     'category'    => data_get($t->metadata, 'category', 'familia'),
+                    'features'    => array_values(array_filter((array) data_get($t->metadata, 'features', []), 'strlen')),
                 ];
             }),
         ]);
