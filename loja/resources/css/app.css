@@ -1111,7 +1111,7 @@ main { display: block; }
   box-shadow: 0 4px 12px rgba(247, 181, 0, 0.35);
 }
 
-.step-body { flex: 1; }
+.step-body { flex: 1; min-width: 0; }
 
 .step-body h4 {
   margin: 0 0 0.4rem;
@@ -1140,6 +1140,21 @@ main { display: block; }
 .plan-note        { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.6rem; font-style: italic; }
 .steps-list       { padding-left: 1.1rem; margin: 0.5rem 0 0; }
 .steps-list li    { margin-bottom: 0.35rem; color: var(--text-muted); font-size: 0.9rem; }
+
+/* Plan description lists inside section-header */
+.planos-text-list {
+  padding-left: 1.25rem;
+  margin: 0.75rem 0 0;
+  max-width: 640px;
+}
+.planos-text-list li {
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 
 /* legacy howto-hero — replaced by page-hero */
 .howto-hero {
@@ -1992,6 +2007,8 @@ main { display: block; }
   .step-body p   { font-size: 0.88rem; }
 
   .plan-item { padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+  .planos-text-list { padding-left: 1rem; }
+  .planos-text-list li { font-size: 0.88rem; }
 
   /* ── Auth / account ─────────────────────────────────────────────────── */
   .auth-card { padding: 1.25rem; border-radius: 0.875rem; }
