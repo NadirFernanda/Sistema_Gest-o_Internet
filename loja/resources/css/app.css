@@ -1876,11 +1876,14 @@ main { display: block; }
   }
 
   .hero__card {
-    margin: 0 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: calc(100% - 2rem);
     max-width: calc(100% - 2rem);
     padding: 1.1rem 1.15rem;
     border-radius: 0.75rem;
     text-align: center;
+    box-sizing: border-box;
   }
 
   .hero__eyebrow { font-size: 0.68rem; margin-bottom: 0.35rem; }
@@ -2081,10 +2084,13 @@ main { display: block; }
   }
 
   .hero__card {
-    margin: 0 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: calc(100% - 1.5rem);
     max-width: calc(100% - 1.5rem);
     padding: 0.875rem 0.75rem;
     border-radius: 0.65rem;
+    box-sizing: border-box;
   }
 
   .hero__eyebrow { font-size: 0.6rem; margin-bottom: 0.2rem; letter-spacing: 0.08em; }
