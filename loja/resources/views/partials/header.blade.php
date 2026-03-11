@@ -81,6 +81,8 @@
           <div id="store-search-results" class="search-results" role="listbox" aria-hidden="true"></div>
         </div>
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
+        <a href="/solucoes" class="store-cta" aria-label="Ver soluções empresariais">Ver soluções</a>
+        <a href="/agendar-instalacao" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
           <span class="mobile-menu-icon"></span>
         </button>
