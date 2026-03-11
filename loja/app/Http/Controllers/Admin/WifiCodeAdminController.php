@@ -91,7 +91,7 @@ class WifiCodeAdminController extends Controller
     public function importCsv(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt,text/plain|max:2048',
+            'csv_file' => 'required|file|mimes:csv,txt,text/plain|max:512000',
         ]);
 
         $content = file_get_contents($request->file('csv_file')->getRealPath());

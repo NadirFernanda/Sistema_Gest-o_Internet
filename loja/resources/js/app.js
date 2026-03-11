@@ -15,7 +15,8 @@ function renderFamilyCard(plan) {
 	var featuredClass = plan.is_popular ? ' plan-card--featured' : '';
 	var body = '';
 	if (plan.preco) {
-		body += '<div class="plan-price-row"><span class="plan-price">'
+		var prefix = tipo.indexOf('institucional') !== -1 ? '<span style="font-size:0.7em;font-weight:400;display:block;margin-bottom:0.1em;">a partir de</span>' : '';
+		body += '<div class="plan-price-row">' + prefix + '<span class="plan-price">'
 			+ Number(plan.preco).toLocaleString('pt-PT')
 			+ '</span><span class="plan-currency">Kz</span></div>';
 	}

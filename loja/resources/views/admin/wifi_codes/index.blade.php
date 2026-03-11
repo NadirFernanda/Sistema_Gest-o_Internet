@@ -68,7 +68,7 @@
         <h2>📁 Importar — Ficheiro CSV/TXT</h2>
         <p style="font-size:0.85rem;color:#64748b;margin-bottom:.75rem;">
           Faça upload de um ficheiro <code>.csv</code> ou <code>.txt</code> com os códigos
-          (um por linha). Máximo: 2 MB.
+          (um por linha). Máximo: 500 MB.
         </p>
         <form method="POST" action="{{ route('admin.wifi_codes.import_csv') }}" enctype="multipart/form-data">
           @csrf
