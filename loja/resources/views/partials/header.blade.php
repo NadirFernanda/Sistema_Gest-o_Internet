@@ -15,6 +15,9 @@
       <div class="store-dropdown">
         <a href="/quem-somos" class="{{ $sobreActive ? 'store-link active' : 'store-link' }}" aria-haspopup="true" aria-expanded="false">Sobre ▾</a>
         <div class="store-dropdown-menu" role="menu" aria-hidden="true">
+          <div class="dropdown-search-wrapper" style="padding: 12px 16px 8px 16px;">
+            <input id="dropdown-search-input" class="search-input" type="search" autocomplete="off" name="dropdown-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos" style="width: 100%; max-width: 260px;">
+          </div>
           <a href="/quem-somos" class="store-dropdown-item" role="menuitem">
             <span class="store-dropdown-item__icon">🏢</span>
             <span class="store-dropdown-item__body">
