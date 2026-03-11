@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		function heroPlay()  { heroTid = window.setInterval(function() { heroGoTo(heroCur + 1); }, 5000); }
+		function heroPlay()  { heroTid = window.setInterval(function() { heroGoTo(heroCur + 1); }, 10000); }
 		function heroPause() { window.clearInterval(heroTid); heroTid = null; }
 		function heroReset() { heroPause(); heroPlay(); }
 
