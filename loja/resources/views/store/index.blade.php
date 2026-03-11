@@ -32,8 +32,8 @@
       <div class="hero__slide" data-bg="/img/carrossel3.webp">
         <div class="hero__card">
           <span class="hero__eyebrow">Instalação Rápida</span>
-          <h1 class="hero__title">Instalado em<br><strong>24–48 horas</strong></h1>
-          <p class="hero__desc">Assistência técnica local disponível sempre que precisar. Agenda-se online em minutos.</p>
+          <h1 class="hero__title">Conecte-se em<br><strong>até 48 horas!</strong></h1>
+          <p class="hero__desc">Rápido, fácil e sem complicações.</p>
           <div class="hero__actions">
             <a href="#planos" class="btn-primary">Agendar Instalação</a>
             <a href="/como-comprar" class="btn-ghost">Fale Connosco</a>
