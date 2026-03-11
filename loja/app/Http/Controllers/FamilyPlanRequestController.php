@@ -115,8 +115,8 @@ class FamilyPlanRequestController extends Controller
 
     /**
      * Processa o formulário de checkout do plano familiar/empresarial.
-     * Regista o pedido, cria a janela no SG como 'Pendente' e redireciona para pagamento.
-     * A activação final (Pendente → Ativo) ocorre via webhook do gateway de pagamento.
+     * APENAS regista o pedido e redireciona para a página de pagamento.
+     * A activação no SG ocorre DEPOIS do pagamento, via webhook do gateway.
      */
     public function store(Request $request)
     {
@@ -148,42 +148,6 @@ class FamilyPlanRequestController extends Controller
         // Generate and persist the payment reference (requires the DB-assigned ID)
         $requestRecord->payment_reference = 'AW-' . str_pad($requestRecord->id, 6, '0', STR_PAD_LEFT);
         $requestRecord->save();
-
-        // ── Registo imediato no SG ────────────────────────────────────────
-        // Cria a janela no SG como 'Pendente' para que o admin a veja desde o início.
-        // Quando o gateway confirmar o pagamento, o webhook muda para 'Ativo'.
-        // Se o SG estiver inacessível, o pedido avança normalmente; a janela será
-        // criada como 'Ativo' quando o webhook disparar (comportamento anterior).
-        try {
-            $proxy = app(StoreProxyController::class);
-            $sgResult = $proxy->syncJanela([
-                'nome'            => $requestRecord->customer_name,
-                'email'           => $requestRecord->customer_email,
-                'contato'         => $requestRecord->customer_phone,
-                'nif'             => $requestRecord->customer_nif,
-                'template_id'     => $requestRecord->plan_id,
-                'loja_request_id' => $requestRecord->id,
-                'estado'          => 'Pendente',
-            ]);
-
-            if ($sgResult['success']) {
-                $sgPlanoId = $sgResult['data']['plano_id'] ?? null;
-                if ($sgPlanoId) {
-                    $requestRecord->sg_plano_id = $sgPlanoId;
-                    $requestRecord->save();
-                }
-            } else {
-                Log::warning('FamilyPlanRequest: SG inaccessível ao criar pedido (janela será criada no webhook)', [
-                    'request_id' => $requestRecord->id,
-                    'error'      => $sgResult['error'] ?? 'unknown',
-                ]);
-            }
-        } catch (\Throwable $e) {
-            Log::warning('FamilyPlanRequest: excepção ao registar no SG durante checkout', [
-                'request_id' => $requestRecord->id,
-                'error'      => $e->getMessage(),
-            ]);
-        }
 
         // Notifica o admin do novo pedido pendente de pagamento
         $this->notifyAdmin($requestRecord);

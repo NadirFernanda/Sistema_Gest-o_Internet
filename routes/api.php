@@ -24,8 +24,6 @@ Route::get('/equipment-catalog', [\App\Http\Controllers\PublicEquipmentCatalogCo
 // Uses the same VerifyApiToken if API_CLIENTES_TOKEN is set; otherwise public.
 Route::middleware([\App\Http\Middleware\VerifyApiToken::class])->group(function () {
     Route::post('/janela-autovenda', [\App\Http\Controllers\AutovendaJanelaController::class, 'store']);
-    // Activate a 'Pendente' plan after payment confirmation (called by loja webhook)
-    Route::post('/janela-activar/{plano_id}', [\App\Http\Controllers\AutovendaJanelaController::class, 'activar']);
     // Client lookup by phone — used by loja checkout form to pre-fill fields for returning clients
     Route::get('/cliente-lookup', [\App\Http\Controllers\AutovendaJanelaController::class, 'lookup']);
 });

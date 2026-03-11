@@ -220,7 +220,7 @@
 .checkout-lookup-btn {
   flex-shrink: 0;
   padding: 0 1rem;
-  background: var(--brand, #f7b500);
+  background: #0ea5e9;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -230,7 +230,7 @@
   white-space: nowrap;
   transition: background 0.15s;
 }
-.checkout-lookup-btn:hover  { background: #e0a800; }
+.checkout-lookup-btn:hover  { background: #0284c7; }
 .checkout-lookup-btn:disabled { background: #94a3b8; cursor: default; }
 
 .checkout-lookup-feedback {

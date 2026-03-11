@@ -33,7 +33,6 @@ class FamilyPlanRequest extends Model
         'payment_reference',
         'status',
         'notes',
-        'sg_plano_id',
     ];
 
     public const STATUS_AWAITING_PAYMENT = 'awaiting_payment';

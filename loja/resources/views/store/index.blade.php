@@ -8,8 +8,8 @@
       <div class="hero__slide" style="background-image:url('/img/carrossel1.webp')">
         <div class="hero__card">
           <span class="hero__eyebrow">Internet Residencial</span>
-          <h1 class="hero__title">WiFi até<br><strong>100 Mbps</strong></h1>
-          <p class="hero__desc">Planos para famílias, streaming e gaming sem interrupções. Velocidades reais e preços claros.</p>
+          <h1 class="hero__title">WiFi Ilimitada<br><strong>Até 10 Mbps</strong></h1>
+          <p class="hero__desc">Planos ideais para famílias que querem streaming, jogos e navegação sem interrupções. Conexão estável, velocidades reais e preços claros.</p>
           <div class="hero__actions">
             <a href="#planos" class="btn-primary">Ver Planos</a>
             <a href="/como-comprar" class="btn-ghost">Saiba Mais</a>
