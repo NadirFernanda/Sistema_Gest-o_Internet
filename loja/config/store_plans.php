@@ -13,7 +13,7 @@ return [
             'max_speed' => 'Até 100 Mbps',
             'download' => 'Download Ilimitado',
             'price_kwanza' => 200,
-            'description' => 'Internet para o dia todo, ideal para quem precisa de conectividade contínua sem interrupções.',
+            'description' => "<strong>Velocidade: até 10MBPS</strong><br><strong>Duração:</strong> 24 horas<br><strong>Download Ilimitado</strong><br>Internet para o dia todo, ideal para quem precisa de conectividade contínua sem interrupçõs.",
             'image' => '/img/foto.jpg',
         ],
         [
