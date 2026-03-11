@@ -80,8 +80,8 @@
 
       <div class="store-actions">
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
-        <a href="/solucoes" class="store-cta" aria-label="Ver soluções empresariais">Ver soluções</a>
-        <a href="/agendar-instalacao" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
+        <a href="/#planos-empresariais" class="store-cta" aria-label="Ver soluções empresariais">Ver soluções</a>
+        <a href="/solicitar-plano" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
           <span class="mobile-menu-icon"></span>
         </button>
@@ -95,8 +95,8 @@
       <input id="mobile-search-input" class="search-input" type="search" autocomplete="off" name="mobile-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos" style="width: 100%; max-width: 260px;">
     </div>
     <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-mobile-link store-mobile-cta">Ver planos</a>
-    <a href="/solucoes" class="store-mobile-link store-mobile-cta">Ver soluções</a>
-    <a href="/agendar-instalacao" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
+    <a href="/#planos-empresariais" class="store-mobile-link store-mobile-cta">Ver soluções</a>
+    <a href="/solicitar-plano" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
     <a href="/" class="store-mobile-link">Início</a>
     <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
     <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
