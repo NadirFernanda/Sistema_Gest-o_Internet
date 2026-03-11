@@ -87,7 +87,7 @@
       <div class="section-header">
         <h2>Planos Individuais</h2>
         <div class="section-header__rule"></div>
-        <p>Os planos individuais garantem maior autonomia, permitindo que qualquer utilizador compre o seu código de acesso e navegue de forma independente em qualquer um dos vários pontos da rede Luanda WiFi.</p>
+        <p><strong>Tenha autonomia total:</strong> compre seu código de acesso e conecte-se de forma independente em qualquer ponto da rede <strong>AngolaWiFi.</strong></p>
       </div>
 
       <div class="plans-grid plans-grid--individual" aria-live="polite">
