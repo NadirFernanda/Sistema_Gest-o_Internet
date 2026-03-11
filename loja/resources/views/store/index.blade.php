@@ -112,7 +112,16 @@
                   @if(!empty($plan['max_speed']))<span class="plan-feature">{{ $plan['max_speed'] }}</span>@endif
                   @if(!empty($plan['download']))<span class="plan-feature">{{ $plan['download'] }}</span>@endif
                 </div>
-                @if (!empty($plan['description']))
+                @if ($plan['id'] === 'diario')
+                  <div class="plan-desc">
+                    <div><strong>Plano Diário</strong></div>
+                    <div><strong>200 Kz</strong></div>
+                    <div>Velocidade: até 10MBPS</div>
+                    <div>Duração: 24 horas</div>
+                    <div>Download Ilimitado</div>
+                    <div>Internet para o dia todo, ideal para quem precisa de conectividade contínua sem interrupçõs.</div>
+                  </div>
+                @elseif (!empty($plan['description']))
                   <p class="plan-desc">{{ $plan['description'] }}</p>
                 @endif
               </div>
