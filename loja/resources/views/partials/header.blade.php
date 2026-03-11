@@ -91,12 +91,18 @@
 
   <!-- Mobile menu -->
   <div id="store-mobile-menu" class="store-mobile-menu">
-  <a href="/" class="store-mobile-link">Início</a>
-  <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
-  <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
-  <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
-  <a href="{{ route('equipment.index') }}" class="store-mobile-link">Equipamentos</a>
-  <a href="/minha-conta" class="store-mobile-link">A minha conta</a>
+    <div class="mobile-search-wrapper" style="padding: 12px 16px 8px 16px;">
+      <input id="mobile-search-input" class="search-input" type="search" autocomplete="off" name="mobile-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos" style="width: 100%; max-width: 260px;">
+    </div>
+    <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-mobile-link store-mobile-cta">Ver planos</a>
+    <a href="/solucoes" class="store-mobile-link store-mobile-cta">Ver soluções</a>
+    <a href="/agendar-instalacao" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
+    <a href="/" class="store-mobile-link">Início</a>
+    <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
+    <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
+    <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
+    <a href="{{ route('equipment.index') }}" class="store-mobile-link">Equipamentos</a>
+    <a href="/minha-conta" class="store-mobile-link">A minha conta</a>
     @auth
     <a href="/admin" class="store-mobile-link">Administração</a>
     <div class="store-mobile-submenu">
