@@ -61,20 +61,37 @@
   <div class="stat-bar">
     <div class="stat-bar__grid">
       @forelse($siteStats ?? [] as $stat)
+        @php
+          /* Para o item "Clientes activos" usa sempre o n.º real do SG */
+          $isClientsItem = mb_strtolower(trim($stat->legenda)) === 'clientes activos';
+          $liveCount     = ($isClientsItem && isset($activeClientCount) && $activeClientCount !== null)
+                         ? $activeClientCount : null;
+        @endphp
         <div class="stat-bar__item">
           <span class="stat-bar__num"
-            @if($stat->count_to !== null)
+            @if($liveCount !== null)
+              data-count-to="{{ $liveCount }}"
+              data-count-decimals="0"
+              data-count-suffix=""
+            @elseif($stat->count_to !== null)
               data-count-to="{{ $stat->count_to }}"
               data-count-decimals="{{ $stat->count_decimals }}"
               data-count-suffix="{{ $stat->count_suffix }}"
             @else
               data-count-static="1"
             @endif
-          >{{ $stat->valor }}</span>
+          >{{ $liveCount !== null ? number_format($liveCount, 0, ',', '.') : $stat->valor }}</span>
           <span class="stat-bar__lbl">{{ $stat->legenda }}</span>
         </div>
       @empty
-        <div class="stat-bar__item"><span class="stat-bar__num" data-count-to="5000" data-count-decimals="0" data-count-suffix="+">5.000+</span><span class="stat-bar__lbl">Clientes activos</span></div>
+        <div class="stat-bar__item">
+          @if(isset($activeClientCount) && $activeClientCount !== null)
+            <span class="stat-bar__num" data-count-to="{{ $activeClientCount }}" data-count-decimals="0" data-count-suffix="">{{ number_format($activeClientCount, 0, ',', '.') }}</span>
+          @else
+            <span class="stat-bar__num" data-count-static="1">—</span>
+          @endif
+          <span class="stat-bar__lbl">Clientes activos</span>
+        </div>
         <div class="stat-bar__item"><span class="stat-bar__num" data-count-to="99.8" data-count-decimals="1" data-count-suffix="%">99.8%</span><span class="stat-bar__lbl">Uptime garantido</span></div>
         <div class="stat-bar__item"><span class="stat-bar__num" data-count-static="1">24–48h</span><span class="stat-bar__lbl">Instalação rápida</span></div>
         <div class="stat-bar__item"><span class="stat-bar__num" data-count-static="1">24/7</span><span class="stat-bar__lbl">Suporte técnico</span></div>

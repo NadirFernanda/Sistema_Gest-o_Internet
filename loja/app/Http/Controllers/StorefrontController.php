@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AutovendaOrder;
 use App\Models\SiteStat;
 use App\Services\AutovendaOrderService;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 
 class StorefrontController extends Controller
@@ -23,12 +25,61 @@ class StorefrontController extends Controller
             $siteStats = collect();
         }
 
-            // Planos familiares/empresariais carregados de forma assíncrona pelo JS
+        // Número real de clientes activos consultado ao SG, com cache de 30 minutos.
+        $activeClientCount = $this->fetchActiveClientCount();
+
+        // Planos familiares/empresariais carregados de forma assíncrona pelo JS
         // (evita bloquear o render da página enquanto espera a resposta do SG)
         return view('store.index', [
-            'individualPlans' => $individualPlans,
-            'siteStats'       => $siteStats,
+            'individualPlans'   => $individualPlans,
+            'siteStats'         => $siteStats,
+            'activeClientCount' => $activeClientCount,
         ]);
+    }
+
+    /**
+     * Consulta o SG para obter o número actual de clientes activos.
+     * Resultado em cache por 30 minutos para não sobrecarregar o SG.
+     * Devolve null se o SG estiver inacessível (fallback silencioso na view).
+     */
+    private function fetchActiveClientCount(): ?int
+    {
+        if (Cache::has('sg_active_clients_count')) {
+            return Cache::get('sg_active_clients_count');
+        }
+
+        $sg      = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+        $apiPath = config('services.sg.active_clients_path', '/api/stats/active-clients');
+        $headers = ['Accept' => 'application/json'];
+        $apiToken = env('SG_API_TOKEN');
+        if ($apiToken) {
+            $headers['X-API-TOKEN'] = $apiToken;
+        }
+
+        try {
+            $res = (new Client(['timeout' => 4]))->get($sg . $apiPath, [
+                'headers'     => $headers,
+                'http_errors' => false,
+            ]);
+            if ($res->getStatusCode() === 200) {
+                $body  = json_decode((string) $res->getBody(), true);
+                // Suporta múltiplos formatos de resposta do SG
+                $count = $body['active_clients']
+                      ?? $body['count']
+                      ?? $body['total']
+                      ?? ($body['data']['count']          ?? null)
+                      ?? ($body['data']['active_clients'] ?? null);
+                if (is_numeric($count) && $count >= 0) {
+                    $count = (int) $count;
+                    Cache::put('sg_active_clients_count', $count, now()->addMinutes(30));
+                    return $count;
+                }
+            }
+        } catch (\Throwable $e) {
+            // SG inacessível — a view usa o fallback silencioso
+        }
+
+        return null;
     }
 
     public function show($id)
@@ -86,6 +137,14 @@ class StorefrontController extends Controller
             return redirect()
                 ->route('store.checkout')
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
+        }
+
+        // SEGURANÇA: em produção, a simulação de pagamento está BLOQUEADA.
+        // O gateway real ainda não está integrado — mostrar mensagem ao cliente.
+        if (app()->isProduction()) {
+            return redirect()
+                ->route('store.checkout', ['plan' => $plan['id']])
+                ->withErrors(['gateway' => 'O pagamento online para planos individuais está temporariamente indisponível. Dirija-se a um ponto de venda ou contacte o suporte (+244 949 364 505).']);
         }
 
         // Cria a ordem de autovenda em estado "awaiting_payment".

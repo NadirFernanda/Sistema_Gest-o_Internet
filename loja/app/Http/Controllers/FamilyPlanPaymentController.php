@@ -28,10 +28,28 @@ class FamilyPlanPaymentController extends Controller
 
     /**
      * Webhook do gateway de pagamento (CSRF exempt — ver bootstrap/app.php).
-     * Em produção: validar a assinatura/HMAC do gateway antes de processar.
+     * Valida a assinatura HMAC se PAYMENT_WEBHOOK_SECRET estiver configurado,
+     * evitando que qualquer pessoa forge um webhook e active planos sem pagar.
      */
     public function webhook(Request $request)
     {
+        // ── Verificação da assinatura HMAC ─────────────────────────────────
+        // Se PAYMENT_WEBHOOK_SECRET estiver definido no .env, exige que a chamada
+        // inclua o header correcto; caso contrário rejeita com 401.
+        $webhookSecret = env('PAYMENT_WEBHOOK_SECRET');
+        if ($webhookSecret) {
+            $signature = $request->header('X-Webhook-Signature')
+                      ?? $request->header('X-Gateway-Signature')
+                      ?? '';
+            $expected  = 'sha256=' . hash_hmac('sha256', $request->getContent(), $webhookSecret);
+            if (! hash_equals($expected, (string) $signature)) {
+                Log::warning('Payment webhook: assinatura HMAC inválida', [
+                    'ip' => $request->ip(),
+                ]);
+                return response()->json(['error' => 'invalid_signature'], 401);
+            }
+        }
+
         $reference = $request->input('reference') ?? $request->input('referencia');
         if (!$reference) {
             return response()->json(['error' => 'missing_reference'], 400);
@@ -51,10 +69,15 @@ class FamilyPlanPaymentController extends Controller
 
     /**
      * Simula a confirmação de pagamento (para testes sem gateway real).
-     * Apenas funciona se o pedido estiver no estado awaiting_payment.
+     * BLOQUEADO em produção: apenas disponível em ambientes local/staging.
      */
     public function simulateSuccess($id)
     {
+        // Impede activação gratuita de planos em produção.
+        if (app()->isProduction()) {
+            abort(404);
+        }
+
         $req = FamilyPlanRequest::findOrFail($id);
 
         if ($req->status !== FamilyPlanRequest::STATUS_AWAITING_PAYMENT) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FamilyPlanRequest;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -132,17 +133,56 @@ class FamilyPlanRequestController extends Controller
             'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_MULTICAIXA . ',' . FamilyPlanRequest::METHOD_PAYPAL,
         ]);
 
+        // ── Verifica o plano junto ao SG para evitar adulteração de preço ────────
+        // Os campos plan_name e plan_preco vêm de campos ocultos no formulário e
+        // podem ser manipulados pelo cliente. Buscamos os valores reais do SG e
+        // rejeitamos se o plano não for encontrado (SG acessível) ou sinalizamos
+        // para revisão manual (SG inacessível).
+        $sgVerifiedName   = $validated['plan_name'];
+        $sgVerifiedPreco  = $validated['plan_preco'] ?? null;
+        $sgVerifiedCiclo  = $validated['plan_ciclo'] ?? null;
+        $priceVerified    = false;
+
+        try {
+            $sg  = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+            $res = (new Client(['timeout' => 5]))->get($sg . '/api/plan-templates', ['http_errors' => false]);
+
+            if ($res->getStatusCode() === 200) {
+                $templates = json_decode((string) $res->getBody(), true)['data'] ?? [];
+                $template  = collect($templates)->firstWhere('id', $validated['plan_id']);
+
+                if ($template) {
+                    // Usa os valores autoritativos do SG, ignorando os do cliente
+                    $sgVerifiedName   = $template['nome']  ?? $sgVerifiedName;
+                    $sgVerifiedPreco  = isset($template['preco'])  ? (int) $template['preco']  : $sgVerifiedPreco;
+                    $sgVerifiedCiclo  = isset($template['ciclo'])  ? (int) $template['ciclo']  : $sgVerifiedCiclo;
+                    $priceVerified    = true;
+                } else {
+                    // SG acessível mas plano não encontrado → possível adulteração
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['plan_id' => 'O plano seleccionado já não está disponível. Por favor seleccione outro plano.']);
+                }
+            }
+        } catch (\Throwable $e) {
+            // SG inacessível — prossegue com valores do cliente mas sinaliza para revisão
+            Log::warning('FamilyPlanRequest: não foi possível verificar o template do plano (SG inacessível)', [
+                'plan_id' => $validated['plan_id'],
+            ]);
+        }
+
         $requestRecord = FamilyPlanRequest::create([
             'plan_id'         => $validated['plan_id'],
-            'plan_name'       => $validated['plan_name'],
-            'plan_preco'      => $validated['plan_preco'] ?? null,
-            'plan_ciclo_dias' => $validated['plan_ciclo'] ?? null,
+            'plan_name'       => $sgVerifiedName,
+            'plan_preco'      => $sgVerifiedPreco,
+            'plan_ciclo_dias' => $sgVerifiedCiclo,
             'customer_name'   => $validated['customer_name'],
             'customer_email'  => $validated['customer_email'] ?? null,
             'customer_phone'  => $validated['customer_phone'],
             'customer_nif'    => $validated['customer_nif'] ?? null,
             'payment_method'  => $validated['payment_method'],
             'status'          => FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
+            'notes'           => $priceVerified ? null : 'AVISO: preço não verificado — SG inacessível durante o checkout.',
         ]);
 
         // Generate and persist the payment reference (requires the DB-assigned ID)

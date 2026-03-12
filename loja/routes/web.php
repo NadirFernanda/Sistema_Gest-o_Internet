@@ -27,18 +27,18 @@ Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::clas
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
 // Checkout rápido pode receber o plano pela URL ou por query string ?plan=
 Route::get('/checkout/{plan?}', [\App\Http\Controllers\StorefrontController::class, 'checkout'])->name('store.checkout');
-Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'processCheckout'])->name('store.checkout.process');
+Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'processCheckout'])->middleware('throttle:10,1')->name('store.checkout.process');
 
 // Planos Familiares & Empresariais — checkout com identificação do cliente
 // (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
 Route::get('/solicitar-plano', [FamilyPlanRequestController::class, 'show'])->name('family.request.show');
-Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->name('family.request.store');
-Route::get('/checkout/lookup', [FamilyPlanRequestController::class, 'lookup'])->name('family.request.lookup');
+Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->middleware('throttle:5,1')->name('family.request.store');
+Route::get('/checkout/lookup', [FamilyPlanRequestController::class, 'lookup'])->middleware('throttle:30,1')->name('family.request.lookup');
 
 // Pagamento dos planos familiares/empresariais
 // POST /payment/familia/webhook é CSRF-exempt (ver bootstrap/app.php)
 Route::get('/pagar-plano/{id}', [FamilyPlanPaymentController::class, 'show'])->name('family.payment.show');
-Route::post('/payment/familia/webhook', [FamilyPlanPaymentController::class, 'webhook'])->name('family.payment.webhook');
+Route::post('/payment/familia/webhook', [FamilyPlanPaymentController::class, 'webhook'])->middleware('throttle:30,1')->name('family.payment.webhook');
 Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class, 'simulateSuccess'])->name('family.payment.simulate');
 
 // Módulo Revendedor - página de adesão
@@ -48,7 +48,7 @@ Route::get('/quero-ser-revendedor/obrigado', [\App\Http\Controllers\ResellerCont
 
 // Área do Revendedor (pós-aprovação)
 Route::get('/painel-revendedor', [ResellerPanelController::class, 'index'])->name('reseller.panel');
-Route::post('/painel-revendedor/login', [ResellerPanelController::class, 'login'])->name('reseller.panel.login');
+Route::post('/painel-revendedor/login', [ResellerPanelController::class, 'login'])->middleware('throttle:5,1')->name('reseller.panel.login');
 Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logout'])->name('reseller.panel.logout');
 Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');
@@ -75,9 +75,9 @@ Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confi
 Route::get('/equipamentos/{slug}', [EquipmentController::class, 'show'])->name('equipment.show');
 // Área do Cliente (histórico de compras via e-mail)
 Route::get('/minha-conta', [CustomerAccountController::class, 'index'])->name('account.index');
-Route::post('/minha-conta/login', [CustomerAccountController::class, 'login'])->name('account.login');
+Route::post('/minha-conta/login', [CustomerAccountController::class, 'login'])->middleware('throttle:10,1')->name('account.login');
 Route::post('/minha-conta/logout', [CustomerAccountController::class, 'logout'])->name('account.logout');
-Route::post('/minha-conta/orders/{order}/resend-email', [CustomerAccountController::class, 'resendEmail'])->name('account.orders.resend-email');
+Route::post('/minha-conta/orders/{order}/resend-email', [CustomerAccountController::class, 'resendEmail'])->middleware('throttle:5,1')->name('account.orders.resend-email');
 Route::get('/minha-conta/orders/{order}/whatsapp', [CustomerAccountController::class, 'openWhatsapp'])->name('account.orders.whatsapp');
 
 // Painel Administrativo da Loja (autovenda + revenda + equipamentos)

@@ -20,17 +20,21 @@ class VerifySgAdminAccess
             abort(403, 'Admin token not configured.');
         }
 
-        // Token pode vir via query string (?token=...), header (X-SG-Admin-Token) ou sessão (autenticado anteriormente)
+        // Token pode vir via query string (?token=...), header (X-SG-Admin-Token)
+        // ou sinalizado na sessão (autenticado anteriormente).
+        // SEGURANÇA: a sessão guarda apenas um flag booleano, nunca o token em si.
+        $sessionAuth = $request->session()->get('sg_admin_authenticated', false);
+
         $provided = (string) ($request->query('token')
             ?: $request->header('X-SG-Admin-Token', '')
-            ?: $request->session()->get('sg_admin_token', ''));
+            ?: ($sessionAuth ? $expected : ''));
 
         if ($provided === '' || ! hash_equals($expected, $provided)) {
             abort(403, 'Unauthorized access to loja admin.');
         }
 
-        // Persiste na sessão para que as navegações seguintes não precisem do token na URL
-        $request->session()->put('sg_admin_token', $expected);
+        // Persiste flag booleano na sessão — nunca o valor do token.
+        $request->session()->put('sg_admin_authenticated', true);
 
         return $next($request);
     }

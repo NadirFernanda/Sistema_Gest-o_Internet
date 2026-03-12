@@ -37,11 +37,13 @@ return [
 
     // Sistema de gestão (SG) principal - API em PROJECTO
     'sg' => [
-        'url' => env('SG_URL', 'http://127.0.0.1:8000'),
-        'client_id' => env('SG_CLIENT_ID'),
-        'client_secret' => env('SG_CLIENT_SECRET'),
+        'url'                 => env('SG_URL', 'http://127.0.0.1:8000'),
+        'client_id'           => env('SG_CLIENT_ID'),
+        'client_secret'       => env('SG_CLIENT_SECRET'),
         // Token partilhado para acesso ao painel da loja a partir do SG
-        'admin_token' => env('SG_LOJA_ADMIN_TOKEN'),
+        'admin_token'         => env('SG_LOJA_ADMIN_TOKEN'),
+        // Endpoint do SG para contagem de clientes activos (stat bar da homepage)
+        'active_clients_path' => env('SG_ACTIVE_CLIENTS_PATH', '/api/stats/active-clients'),
     ],
 
 ];

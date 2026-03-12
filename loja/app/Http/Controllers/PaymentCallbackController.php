@@ -10,6 +10,11 @@ class PaymentCallbackController extends Controller
 {
     public function simulateSuccess(Request $request, AutovendaOrder $order, AutovendaOrderService $service)
     {
+        // SEGURANÇA: simulação bloqueada em produção (evita entrega gratuita de códigos WiFi).
+        if (app()->isProduction()) {
+            abort(404);
+        }
+
         // Protótipo: em produção, isto seria chamado pelo gateway (webhook/return URL)
         $paymentReference = $request->input('ref');
 
