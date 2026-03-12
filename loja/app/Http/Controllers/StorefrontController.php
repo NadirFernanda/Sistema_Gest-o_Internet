@@ -39,7 +39,7 @@ class StorefrontController extends Controller
 
     /**
      * Consulta o SG para obter o número actual de clientes activos.
-     * Resultado em cache por 30 minutos para não sobrecarregar o SG.
+     * Resultado em cache por 5 minutos para reflectir novas activações rapidamente.
      * Devolve null se o SG estiver inacessível (fallback silencioso na view).
      */
     private function fetchActiveClientCount(): ?int
@@ -71,7 +71,7 @@ class StorefrontController extends Controller
                       ?? ($body['data']['active_clients'] ?? null);
                 if (is_numeric($count) && $count >= 0) {
                     $count = (int) $count;
-                    Cache::put('sg_active_clients_count', $count, now()->addMinutes(30));
+                    Cache::put('sg_active_clients_count', $count, now()->addMinutes(5));
                     return $count;
                 }
             }
