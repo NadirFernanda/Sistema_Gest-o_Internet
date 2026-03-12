@@ -16,6 +16,15 @@ Route::delete('/planos/{id}', [PlanoController::class, 'destroy']);
 // Public catalog of plan templates (used by the loja to show family/business plans)
 Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateCatalogController::class, 'index']);
 
+// Contador público de clientes activos — usado pela loja na barra de estatísticas.
+// Conta os planos com ativo=true; resultado em cache no SG por 2 minutos.
+Route::get('/stats/active-clients', function () {
+    $count = \Illuminate\Support\Facades\Cache::remember('sg_active_clients_count', 120, function () {
+        return \App\Models\Plano::where('ativo', true)->count();
+    });
+    return response()->json(['active_clients' => $count]);
+})->middleware('throttle:30,1');
+
 // Public catalog of equipment for sale (used by the loja equipment page)
 Route::get('/equipment-catalog', [\App\Http\Controllers\PublicEquipmentCatalogController::class, 'index']);
 

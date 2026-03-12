@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Plano;
 use App\Models\PlanTemplate;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PlanoController extends Controller
@@ -44,6 +45,7 @@ class PlanoController extends Controller
 
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
+            Cache::forget('sg_active_clients_count'); // invalida cache do contador de clientes activos
 
             // If this is a regular web form submit (not expecting JSON), redirect
             if (! $request->wantsJson()) {
@@ -291,6 +293,7 @@ class PlanoController extends Controller
             return response()->json(['success' => false, 'message' => 'Plano não encontrado'], 404);
         }
         $plano->delete();
+        Cache::forget('sg_active_clients_count');
         return response()->json(['success' => true, 'message' => 'Plano removido com sucesso.']);
     }
 
@@ -308,6 +311,7 @@ class PlanoController extends Controller
         ]);
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
+        Cache::forget('sg_active_clients_count'); // invalida cache (ativo pode ter mudado)
         // If this request is a normal web form submit, redirect to the show page
         if (! $request->wantsJson()) {
             return redirect()->route('planos.show', $plano->id)->with('success', 'Plano atualizado com sucesso.');
@@ -348,6 +352,7 @@ class PlanoController extends Controller
 
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
+            Cache::forget('sg_active_clients_count');
             return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
@@ -383,6 +388,7 @@ class PlanoController extends Controller
     {
         $plano = Plano::findOrFail($id);
         $plano->delete();
+        Cache::forget('sg_active_clients_count');
         return redirect()->route('planos.index')->with('success', 'Plano removido.');
     }
 }
