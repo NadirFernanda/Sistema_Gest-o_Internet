@@ -4,14 +4,70 @@ namespace App\Http\Controllers;
 
 use App\Models\EquipmentOrder;
 use App\Models\Product;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class EquipmentController extends Controller
 {
+    // ── SG sync ───────────────────────────────────────────────────────────────
+
+    /**
+     * Fetch the equipment catalog from the SG and upsert into the local products
+     * table. Results are cached for 5 minutes so that each page load isn't slow.
+     */
+    private function syncFromSG(): void
+    {
+        if (Cache::has('sg_equipment_synced')) {
+            return;
+        }
+
+        $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+
+        try {
+            $http = new Client(['timeout' => 8]);
+            $res  = $http->get($sg . '/api/equipment-catalog', ['http_errors' => false]);
+            $json = json_decode((string) $res->getBody(), true);
+            $items = $json['data'] ?? [];
+
+            foreach ($items as $item) {
+                if (empty($item['nome'])) {
+                    continue;
+                }
+
+                $slug = Str::slug($item['nome']);
+                if (empty($slug)) {
+                    continue;
+                }
+
+                Product::updateOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'name'        => $item['nome'],
+                        'description' => $item['descricao'] ?? null,
+                        'price_aoa'   => max(0, (int) ($item['preco'] ?? 0)),
+                        'stock'       => !empty($item['em_stock']) ? 1 : 0,
+                        'image_path'  => $item['imagem_url'] ?? null,
+                        'category'    => $item['categoria'] ?? null,
+                        'active'      => true,
+                    ]
+                );
+            }
+
+            // Cache for 5 minutes so we don't hammer the SG on every request
+            Cache::put('sg_equipment_synced', true, now()->addMinutes(5));
+        } catch (\Exception $e) {
+            // SG unreachable — the view will use whatever is already in the local DB
+        }
+    }
+
     // ── Public catalog ────────────────────────────────────────────────────────
 
     public function index(Request $request)
     {
+        $this->syncFromSG();
+
         $query = Product::active()->orderBy('name');
 
         if ($request->filled('categoria')) {
@@ -27,6 +83,8 @@ class EquipmentController extends Controller
 
     public function show(string $slug)
     {
+        $this->syncFromSG();
+
         $product = Product::active()->where('slug', $slug)->firstOrFail();
 
         return view('equipment.show', compact('product'));
