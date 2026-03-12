@@ -24,6 +24,7 @@ class ResellerController extends Controller
             'email' => 'required|email',
             'phone' => 'required|string|max:50',
             'installation_location' => 'required|string|max:255',
+            'internet_type' => 'required|in:own,angolawifi',
         ]);
 
         $subject = 'Quero ser agente revendedor';
@@ -36,6 +37,7 @@ class ResellerController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'installation_location' => $validated['installation_location'],
+            'internet_type' => $validated['internet_type'],
             'subject' => $subject,
             'message' => $message,
             'status' => ResellerApplication::STATUS_PENDING,

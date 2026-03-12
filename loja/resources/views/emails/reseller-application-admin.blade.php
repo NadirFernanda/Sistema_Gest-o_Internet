@@ -13,6 +13,15 @@
     <p><strong>E-mail:</strong> {{ $application->email }}</p>
     <p><strong>Telefone/WhatsApp:</strong> {{ $application->phone }}</p>
     <p><strong>Local de Instalação Pretendido:</strong> {{ $application->installation_location }}</p>
+    <p><strong>Tipo de Internet:</strong>
+      @if($application->internet_type === \App\Models\ResellerApplication::INTERNET_OWN)
+        Tem internet própria no local de instalação
+      @elseif($application->internet_type === \App\Models\ResellerApplication::INTERNET_ANGOLAWIFI)
+        Necessita de internet fornecida pela AngolaWiFi
+      @else
+        Não especificado
+      @endif
+    </p>
 
     <p><strong>Assunto:</strong> {{ $application->subject }}</p>
     <p><strong>Mensagem:</strong></p>

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\AutovendaWifiCodeMail;
 use App\Models\AutovendaOrder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -39,37 +40,45 @@ class AutovendaOrderService
             $order->payment_reference = $paymentReference;
         }
 
-        // Marca como pago
-        $order->status = AutovendaOrder::STATUS_PAID;
-        $order->paid_at = $now;
+        // Envolve a atribuição do código WiFi e o guardado da ordem numa transacção
+        // com bloqueio pessimista (lockForUpdate) para impedir que dois pedidos
+        // simultâneos retirem o mesmo código do stock (race condition).
+        DB::transaction(function () use (&$order, $now) {
+            // Marca como pago
+            $order->status = AutovendaOrder::STATUS_PAID;
+            $order->paid_at = $now;
 
-        // Retira um código WiFi disponível do stock da loja.
-        // O stock é gerido localmente na tabela wifi_codes — não é consultado o SG.
-        if (empty($order->wifi_code)) {
-            $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)->first();
-            if ($wifiCode) {
-                $wifiCode->status = \App\Models\WifiCode::STATUS_USED;
-                $wifiCode->autovenda_order_id = $order->id;
-                $wifiCode->used_at = $now;
-                $wifiCode->save();
-                $order->wifi_code = $wifiCode->code;
-            } else {
-                Log::error('Sem códigos WiFi disponíveis no estoque para ordem ' . $order->id);
-                throw new \Exception('Sem códigos WiFi disponíveis no estoque.');
+            // Retira um código WiFi disponível do stock da loja.
+            // O stock é gerido localmente na tabela wifi_codes — não é consultado o SG.
+            if (empty($order->wifi_code)) {
+                $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)
+                    ->lockForUpdate()   // bloqueia a linha; impede outro pedido de a seleccionar
+                    ->first();
+                if ($wifiCode) {
+                    $wifiCode->status = \App\Models\WifiCode::STATUS_USED;
+                    $wifiCode->autovenda_order_id = $order->id;
+                    $wifiCode->used_at = $now;
+                    $wifiCode->save();
+                    $order->wifi_code = $wifiCode->code;
+                } else {
+                    Log::error('Sem códigos WiFi disponíveis no estoque para ordem ' . $order->id);
+                    throw new \Exception('Sem códigos WiFi disponíveis no estoque.');
+                }
             }
-        }
 
-        $order->delivered_at = $now;
+            $order->delivered_at = $now;
 
-        // Marca a entrega apenas pelos canais que realmente existem para esta ordem.
-        // Para planos individuais, e-mail e WhatsApp são opcionais — não são recolhidos
-        // por omissão. Por isso, só marcamos como entregue se o canal tiver dados.
-        $order->delivered_via_email     = !empty($order->customer_email);
-        $order->delivered_via_whatsapp  = !empty($order->customer_phone);
+            // Marca a entrega apenas pelos canais que realmente existem para esta ordem.
+            // Para planos individuais, e-mail e WhatsApp são opcionais — não são recolhidos
+            // por omissão. Por isso, só marcamos como entregue se o canal tiver dados.
+            $order->delivered_via_email     = !empty($order->customer_email);
+            $order->delivered_via_whatsapp  = !empty($order->customer_phone);
 
-        $order->save();
+            $order->save();
+        }); // fim da transacção — lock libertado antes do envio do e-mail
 
         // Envia e-mail com o código apenas se o cliente tiver providenciado e-mail.
+        // Mantido FORA da transacção para não segurar o lock durante uma operação de rede.
         // Para planos individuais rápidos, o e-mail não é obrigatório.
         if (!empty($order->customer_email)) {
             try {

@@ -1686,6 +1686,44 @@ main { display: block; }
   font-size: 0.9rem;
 }
 
+.reseller-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.reseller-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 500 !important;
+  cursor: pointer;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--muted-border);
+  background: var(--surface);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.reseller-radio-option:has(input:checked) {
+  border-color: var(--brand);
+  background: rgba(247, 181, 0, 0.07);
+}
+
+.reseller-radio-option input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--brand);
+  flex-shrink: 0;
+}
+
+.reseller-field-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 0.15rem;
+}
+
 .reseller-fixed-title   { margin: 0 0 0.35rem; font-weight: 700; color: var(--text-dark); }
 .reseller-fixed-body    { margin: 0; white-space: pre-line; color: var(--text-muted); }
 .reseller-form-actions  { margin-top: 1.25rem; display: flex; justify-content: flex-end; }

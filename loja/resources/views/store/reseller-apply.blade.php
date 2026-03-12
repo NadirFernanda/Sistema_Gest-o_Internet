@@ -67,6 +67,25 @@
             <input id="installation_location" name="installation_location" type="text" required value="{{ old('installation_location') }}" />
           </div>
 
+          <div class="reseller-form-row">
+            <label>Tipo de ligação à internet *</label>
+            <div class="reseller-radio-group">
+              <label class="reseller-radio-option">
+                <input type="radio" name="internet_type" value="own" required
+                  {{ old('internet_type') === 'own' ? 'checked' : '' }}>
+                <span>Tenho internet própria no local de instalação</span>
+              </label>
+              <label class="reseller-radio-option">
+                <input type="radio" name="internet_type" value="angolawifi"
+                  {{ old('internet_type') === 'angolawifi' ? 'checked' : '' }}>
+                <span>Necessito de internet fornecida pela AngolaWiFi</span>
+              </label>
+            </div>
+            @error('internet_type')
+              <span class="reseller-field-error">{{ $message }}</span>
+            @enderror
+          </div>
+
           <div class="reseller-fixed-message">
             <p class="reseller-fixed-title">Mensagem a enviar</p>
             <p class="reseller-fixed-body">

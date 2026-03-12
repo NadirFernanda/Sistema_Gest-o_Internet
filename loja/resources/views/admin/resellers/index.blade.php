@@ -36,6 +36,7 @@
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">E-mail</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Telefone</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Local Instalação</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Tipo Internet</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Estado</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Criado em</th>
           </tr>
@@ -48,12 +49,21 @@
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->email }}</td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->phone }}</td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->installation_location }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
+                @if($app->internet_type === \App\Models\ResellerApplication::INTERNET_OWN)
+                  <span title="Tem internet própria">Própria</span>
+                @elseif($app->internet_type === \App\Models\ResellerApplication::INTERNET_ANGOLAWIFI)
+                  <span title="Necessita internet da AngolaWiFi">AngolaWiFi</span>
+                @else
+                  <span class="muted">—</span>
+                @endif
+              </td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->status }}</td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ optional($app->created_at)->format('d/m/Y H:i') }}</td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" style="padding:.6rem;text-align:center;" class="muted">Nenhum pedido encontrado para os filtros atuais.</td>
+              <td colspan="8" style="padding:.6rem;text-align:center;" class="muted">Nenhum pedido encontrado para os filtros atuais.</td>
             </tr>
           @endforelse
         </tbody>

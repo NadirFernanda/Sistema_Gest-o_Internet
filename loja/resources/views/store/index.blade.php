@@ -62,7 +62,8 @@
     <div class="stat-bar__grid">
       @forelse($siteStats ?? [] as $stat)
         @php
-          /* Para o item "Clientes activos" usa sempre o n.º real do SG */
+          /* Para o item "Clientes activos" usa sempre o n.º real do SG.
+             Se o SG estiver inacessível, exibe '—' em vez de um número falso. */
           $isClientsItem = mb_strtolower(trim($stat->legenda)) === 'clientes activos';
           $liveCount     = ($isClientsItem && isset($activeClientCount) && $activeClientCount !== null)
                          ? $activeClientCount : null;
@@ -73,14 +74,17 @@
               data-count-to="{{ $liveCount }}"
               data-count-decimals="0"
               data-count-suffix=""
-            @elseif($stat->count_to !== null)
+            @elseif(!$isClientsItem && $stat->count_to !== null)
+              {{-- Nunca animar o item de clientes com um valor estático falso --}}
               data-count-to="{{ $stat->count_to }}"
               data-count-decimals="{{ $stat->count_decimals }}"
               data-count-suffix="{{ $stat->count_suffix }}"
             @else
               data-count-static="1"
             @endif
-          >{{ $liveCount !== null ? number_format($liveCount, 0, ',', '.') : $stat->valor }}</span>
+          >{{ $liveCount !== null
+               ? number_format($liveCount, 0, ',', '.')
+               : ($isClientsItem ? '—' : $stat->valor) }}</span>
           <span class="stat-bar__lbl">{{ $stat->legenda }}</span>
         </div>
       @empty
