@@ -2,11 +2,10 @@
   <div class="footer-inner container">
     <div class="footer-col footer-brand">
       <a href="/" class="brand-link" aria-label="Voltar à página inicial">
-        <span class="footer-brand-text">{{ config('app.name', 'Loja') }}</span>
+        <span class="footer-brand-text">AngolaWiFi</span>
       </a>
-      <h4>Redes sociais</h4>
-      <p class="footer-mission">Conectamos pessoas à Internet com clareza, segurança e suporte local.</p>
-      <p class="footer-cta muted">Siga-nos para novidades, dicas e ofertas locais.</p>
+      <h4>Conectando vidas, lares e negócios</h4>
+      <p class="footer-mission">Redes Sociais</p>
       <div class="footer-social" aria-hidden="false">
         <a href="#" aria-label="WhatsApp" class="social-link">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 10-2.47 5.78L21 21l-1.73-5.27A8.45 8.45 0 0021 11.5z" fill="currentColor" opacity="0.12"/><path d="M17.2 6.8c-.6-.6-1.4-.9-2.3-.9-.9 0-1.7.4-2.3 1.1-.6.6-1 1.5-1 2.4 0 .4.1.8.2 1.1.1.4.2.7.2 1.1 0 .5-.2.9-.5 1.3l-.6.6c-.3.3-.8.4-1.2.3-.6-.1-1.2-.2-1.9-.6L6 15.8c.6 1.4 2.2 3.3 4.8 4.8l1.1-.5c.3-.1.6-.1.9-.1 1 0 1.9-.3 2.6-.9 1.6-1.4 2.8-3.9 2.8-6.5 0-.9-.3-1.7-.9-2.3z" fill="currentColor"/></svg>
