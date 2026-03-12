@@ -14,13 +14,16 @@ class EquipmentOrder extends Model
         'items',
         'total_aoa',
         'status',
+        'order_type',
+        'estimated_delivery_date',
         'payment_method',
         'notes',
     ];
 
     protected $casts = [
-        'items' => 'array',
-        'total_aoa' => 'integer',
+        'items'                   => 'array',
+        'total_aoa'               => 'integer',
+        'estimated_delivery_date' => 'date',
     ];
 
     public const STATUS_PENDING   = 'pending';
@@ -28,6 +31,9 @@ class EquipmentOrder extends Model
     public const STATUS_SHIPPED   = 'shipped';
     public const STATUS_DELIVERED = 'delivered';
     public const STATUS_CANCELLED = 'cancelled';
+
+    public const TYPE_IMMEDIATE = 'immediate';
+    public const TYPE_BACKORDER = 'backorder';
 
     public const METHOD_MULTICAIXA = 'multicaixa_express';
     public const METHOD_PAYPAL     = 'paypal';

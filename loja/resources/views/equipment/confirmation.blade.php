@@ -36,6 +36,20 @@
           </strong>
         </p>
 
+        @if ($order->estimated_delivery_date)
+          <p style="font-size:0.93rem;color:#15803d;margin-top:0.4rem;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:-2px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Entrega estimada: <strong>{{ $order->estimated_delivery_date->format('d/m/Y') }}</strong>
+          </p>
+        @endif
+
+        @if ($order->order_type === \App\Models\EquipmentOrder::TYPE_BACKORDER)
+          <p style="font-size:0.88rem;color:#d97706;margin-top:0.35rem;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:-2px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Encomenda por pedido — prazo de 2 a 30 dias úteis após confirmação do pagamento.
+          </p>
+        @endif
+
         @if ($order->customer_address)
           <p style="font-size:0.93rem;color:#64748b;">Entrega: {{ $order->customer_address }}</p>
         @endif

@@ -1856,6 +1856,150 @@ main { display: block; }
 .plan-card .plan-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 
 /* ==========================================================================
+   EQUIPMENT STORE — Grid, Cards, Buy Buttons
+   ========================================================================== */
+
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.equipment-card {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1.5px solid #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.equipment-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.1);
+  transform: translateY(-3px);
+}
+
+.equipment-card__img-link { display: block; overflow: hidden; }
+.equipment-card__img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.equipment-card:hover .equipment-card__img { transform: scale(1.04); }
+
+.equipment-card__img-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.equipment-card__body {
+  padding: 1rem 1.125rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.35rem;
+}
+
+.equipment-card__cat {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #64748b;
+}
+
+.equipment-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.35;
+}
+.equipment-card__name a { color: inherit; text-decoration: none; }
+.equipment-card__name a:hover { color: var(--brand); }
+
+.equipment-card__price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin-top: 0.25rem;
+}
+.equipment-card__price span { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+
+.equipment-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  margin-top: 0.25rem;
+  width: fit-content;
+}
+.equipment-card__badge--in-stock  { background: #dcfce7; color: #15803d; }
+.equipment-card__badge--backorder { background: #fef3c7; color: #d97706; }
+
+.equipment-card__btn {
+  display: block;
+  margin-top: auto;
+  padding-top: 1rem;
+  text-align: center;
+  background: var(--brand);
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  text-decoration: none;
+  transition: filter 0.15s;
+}
+.equipment-card__btn:hover { filter: brightness(1.06); color: #1e293b; }
+
+/* Produto detail — action buttons */
+.btn-buy-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-buy-now:hover { background: #15803d; color: #fff; }
+
+.btn-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--brand);
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter 0.15s;
+}
+.btn-order:hover { filter: brightness(0.95); color: #1e293b; }
+
+/* ==========================================================================
    MOBILE RESPONSIVE — ≤ 767px
    ========================================================================== */
 @media (max-width: 767px) {
@@ -2166,6 +2310,13 @@ main { display: block; }
   .footer-mission { font-size: 0.8rem; }
   .footer-note    { font-size: 0.8rem; }
   .contact-label, .contact-link { font-size: 0.82rem; }
+
+  /* ── Equipment grid ─────────────────────────────────────────────────── */
+  .equipment-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+  .equipment-card__img,
+  .equipment-card__img-placeholder { height: 150px; }
 }
 
-
+@media (max-width: 380px) {
+  .equipment-grid { grid-template-columns: 1fr; }
+}

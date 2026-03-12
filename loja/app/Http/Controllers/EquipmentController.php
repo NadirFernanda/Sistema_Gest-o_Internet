@@ -12,11 +12,17 @@ class EquipmentController extends Controller
 
     public function index(Request $request)
     {
-        // Products are loaded asynchronously from SG via JS (/sg/equipment-catalog).
-        // We only pass categories for the filter UI (if any local products exist as fallback).
-        $categories = collect();
+        $query = Product::active()->orderBy('name');
 
-        return view('equipment.index', compact('categories'));
+        if ($request->filled('categoria')) {
+            $query->where('category', $request->input('categoria'));
+        }
+
+        $products   = $query->get();
+        $categories = Product::active()->whereNotNull('category')
+                         ->distinct()->pluck('category')->sort()->values();
+
+        return view('equipment.index', compact('products', 'categories'));
     }
 
     public function show(string $slug)
@@ -40,13 +46,11 @@ class EquipmentController extends Controller
         $request->validate([
             'product_id' => 'required|integer|exists:products,id',
             'quantity'   => 'sometimes|integer|min:1|max:99',
+            'order_type' => 'sometimes|string|in:immediate,backorder',
         ]);
 
-        $product = Product::active()->findOrFail($request->input('product_id'));
-
-        if (!$product->isInStock()) {
-            return back()->withErrors(['stock' => 'Produto sem stock disponível.']);
-        }
+        $product   = Product::active()->findOrFail($request->input('product_id'));
+        $orderType = $request->input('order_type', $product->isInStock() ? 'immediate' : 'backorder');
 
         $qty  = max(1, (int) $request->input('quantity', 1));
         $cart = session('equipment_cart', []);
@@ -56,11 +60,12 @@ class EquipmentController extends Controller
             $cart[$key]['quantity'] += $qty;
         } else {
             $cart[$key] = [
-                'product_id'    => $product->id,
-                'product_name'  => $product->name,
+                'product_id'     => $product->id,
+                'product_name'   => $product->name,
                 'unit_price_aoa' => $product->price_aoa,
-                'quantity'      => $qty,
-                'image_path'    => $product->image_path,
+                'quantity'       => $qty,
+                'image_path'     => $product->image_path,
+                'order_type'     => $orderType,
             ];
         }
 
@@ -132,20 +137,30 @@ class EquipmentController extends Controller
             'product_name'   => $item['product_name'],
             'quantity'       => $item['quantity'],
             'unit_price_aoa' => $item['unit_price_aoa'],
+            'order_type'     => $item['order_type'] ?? 'immediate',
         ])->values()->all();
 
         $total = collect($cart)->sum(fn($item) => $item['unit_price_aoa'] * $item['quantity']);
 
+        $hasBackorder = collect($cart)->contains(
+            fn($item) => ($item['order_type'] ?? 'immediate') === 'backorder'
+        );
+        $orderType             = $hasBackorder ? EquipmentOrder::TYPE_BACKORDER : EquipmentOrder::TYPE_IMMEDIATE;
+        $estimatedDeliveryDate = $hasBackorder ? now()->addDays(30)->toDateString()
+                                               : now()->addDays(2)->toDateString();
+
         $order = EquipmentOrder::create([
-            'customer_name'    => $validated['customer_name'],
-            'customer_email'   => $validated['customer_email'] ?? null,
-            'customer_phone'   => $validated['customer_phone'],
-            'customer_address' => $validated['customer_address'] ?? null,
-            'items'            => $items,
-            'total_aoa'        => $total,
-            'status'           => EquipmentOrder::STATUS_PENDING,
-            'payment_method'   => $validated['payment_method'],
-            'notes'            => $validated['notes'] ?? null,
+            'customer_name'           => $validated['customer_name'],
+            'customer_email'          => $validated['customer_email'] ?? null,
+            'customer_phone'          => $validated['customer_phone'],
+            'customer_address'        => $validated['customer_address'] ?? null,
+            'items'                   => $items,
+            'total_aoa'               => $total,
+            'status'                  => EquipmentOrder::STATUS_PENDING,
+            'order_type'              => $orderType,
+            'estimated_delivery_date' => $estimatedDeliveryDate,
+            'payment_method'          => $validated['payment_method'],
+            'notes'                   => $validated['notes'] ?? null,
         ]);
 
         session()->forget('equipment_cart');
