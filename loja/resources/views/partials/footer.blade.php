@@ -37,13 +37,11 @@
       </ul>
     </div>
 
-    <aside class="footer-col footer-contact" aria-label="Fale com Angolawifi">
-      <h4>Fale com Angolawifi</h4>
-      <p class="footer-note">Precisa de ajuda? Contacte-nos pelos canais abaixo e responderemos o mais breve possível.</p>
+    <aside class="footer-col footer-contact" aria-label="Fale connosco">
+      <h4>Fale connosco</h4>
       <ul class="contact-list" style="list-style:none;padding:0;margin:0;">
         <li><span class="contact-label">Telefone:</span> <a class="contact-link" href="tel:+244949364505">+244 949 364 505</a></li>
-        <li><span class="contact-label">E-mail:</span> <a class="contact-link" href="mailto:suporte@luandawifi.ao">suporte@luandawifi.ao</a></li>
-        <li><span class="contact-label">Instagram:</span> <a class="contact-link" href="https://instagram.com/luandawifi2025" target="_blank" rel="noopener">@luandawifi2025</a></li>
+        <li><span class="contact-label">E-mail:</span> <a class="contact-link" href="mailto:suporte@angolawifi.ao">suporte@angolawifi.ao</a></li>
       </ul>
     </aside>
   </div>
