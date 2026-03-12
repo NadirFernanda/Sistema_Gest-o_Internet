@@ -14,6 +14,14 @@
       <div class="info-grid">
         <div class="info-card">
           <div class="info-card__icon">
+            <!-- Alvo SVG -->
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+          </div>
+          <h3>Missão</h3>
+          <p>Conectar pessoas, famílias e empresas à internet de forma simples, segura e confiável, oferecendo acesso fácil a hotspots, fibra e links via micro-ondas, com suporte local eficiente e soluções digitais inovadoras.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card__icon">
             <!-- Globo SVG -->
             <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><ellipse cx="12" cy="12" rx="6" ry="10" stroke="currentColor" stroke-width="2" fill="none"/><ellipse cx="12" cy="12" rx="10" ry="6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
           </div>
