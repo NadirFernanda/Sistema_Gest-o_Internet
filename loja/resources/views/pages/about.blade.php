@@ -44,9 +44,7 @@
           </ul>
         </div>
       </div>
-      <div class="info-banner">
-        <p>Obrigado por confiar na <span class="brand-strong">{{ config('app.name', 'Loja') }}</span> — juntos conectamos Angola.</p>
-      </div>
+      <!-- info-banner removido conforme solicitado -->
     </div>
   </div>
 @endsection
