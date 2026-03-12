@@ -62,7 +62,10 @@ class StorefrontController extends Controller
                 'http_errors' => false,
             ]);
             if ($res->getStatusCode() === 200) {
-                $body  = json_decode((string) $res->getBody(), true);
+                // Alguns ficheiros PHP no SG são gravados com BOM (EF BB BF),
+                // que é emitido antes do JSON e faz json_decode retornar null.
+                $raw   = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+                $body  = json_decode($raw, true);
                 // Suporta múltiplos formatos de resposta do SG
                 $count = $body['active_clients']
                       ?? $body['count']
