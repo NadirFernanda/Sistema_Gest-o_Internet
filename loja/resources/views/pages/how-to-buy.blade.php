@@ -5,7 +5,7 @@
     <div class="container">
       <span class="page-hero__eyebrow">Guia de Compra</span>
       <h1 class="page-hero__title">Como Comprar</h1>
-      <p class="page-hero__desc">Passo a passo simples para escolher um plano, pagar e começar a navegar com a LuandaWiFi.</p>
+      <p class="page-hero__desc">Passo a passo simples para escolher um plano, pagar e começar a navegar com a AngolaWiFi.</p>
     </div>
   </div>
 
