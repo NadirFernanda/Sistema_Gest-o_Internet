@@ -1843,20 +1843,11 @@ main { display: block; }
   gap: 0.75rem;
 }
 
-.muted       { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; }
-.dev-credit  { font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
+.muted       { color: rgba(255, 255, 255, 0.60); font-size: 0.84rem; }
+.dev-credit  { font-size: 0.84rem; color: rgba(255, 255, 255, 0.60); font-weight: 400; letter-spacing: 0; }
 .legal-nav   { display: flex; gap: 1.1rem; }
- .dev-credit  {
-   font-size: 0.95rem;
-   color: #fff;
-   font-weight: 700;
-   text-shadow: 0 1px 6px rgba(0,0,0,0.18);
-   letter-spacing: 0.02em;
-   margin-top: 0.2rem;
- }
- .legal-nav   { display: flex; gap: 1.1rem; }
- .legal-nav a { color: rgba(255, 255, 255, 0.55); font-size: 0.85rem; transition: color 0.18s; }
- .legal-nav a:hover { color: white; }
+.legal-nav a { color: rgba(255, 255, 255, 0.60); font-size: 0.84rem; transition: color 0.18s; }
+.legal-nav a:hover { color: rgba(255, 255, 255, 0.96); }
 
 /* ==========================================================================
    ALERTAS
@@ -2305,14 +2296,23 @@ main { display: block; }
   .auth-card h3 { font-size: 1.05rem; margin-bottom: 0.875rem; }
 
   /* ── Equipment ──────────────────────────────────────────────────────── */
-  .category-filter { gap: 0.35rem; margin-bottom: 1.25rem; }
+  .category-filter { gap: 0.35rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
   .category-filter a { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+  .equipment-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .equipment-card__visual { height: 190px; }
 
   .product-img         { height: 130px; border-radius: 0.625rem; }
   .product-placeholder { height: 110px; font-size: 2rem; }
   .product-actions     { gap: 0.35rem; }
   .product-actions .btn-modern,
   .product-actions .btn-primary { padding: 0.45rem 0.5rem; font-size: 0.82rem; }
+
+  .btn-buy-now,
+  .btn-order {
+    font-size: 0.9rem;
+    padding: 0.7rem 1.35rem;
+  }
 
   /* ── Checkout ───────────────────────────────────────────────────────── */
   .checkout-page  { padding: 2rem var(--page-gutter) 3rem; }
@@ -2458,11 +2458,35 @@ main { display: block; }
   .contact-label, .contact-link { font-size: 0.82rem; }
 
   /* ── Equipment grid ─────────────────────────────────────────────────── */
-  .equipment-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+  .category-filter { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.25rem; }
+  .equipment-grid { gap: 0.875rem; }
   .equipment-card__visual { height: 160px; }
   .equipment-card__price  { font-size: 1.15rem; }
 }
 
 @media (max-width: 380px) {
   .equipment-grid { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   TABLET — 768 px → 1023 px  (portrait iPad, mid-range surface)
+   ========================================================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+  .planos-section  { padding: 3rem 0; }
+  .steps-section   { padding: 3rem 0 4rem; }
+  .page-body       { padding: 3rem 0 4rem; }
+  .page-hero       { padding: 3rem 0 3.5rem; }
+
+  .site-footer     { margin-top: 4rem; }
+
+  /* Equipment grid — 2 cols until the auto-fill 3-col threshold (~974px) */
+  .equipment-grid  { gap: 1.25rem; }
+  .equipment-card__visual { height: 200px; }
+
+  /* Hero card better centred on portrait tablet */
+  .hero__card {
+    max-width: 380px;
+    padding: 1.5rem 1.5rem 1.375rem;
+  }
 }

@@ -85,7 +85,7 @@
   <div class="footer-legal">
     <div class="container footer-legal-inner">
       <small class="muted">&copy; {{ date('Y') }} AngolaWiFi. Todos os direitos reservados.</small>
-      <div class="dev-credit">Dev. por <strong>Fernanda Gonçalves</strong></div>
+      <div class="dev-credit">Desenvolvido por Fernanda Gonçalves</div>
       <nav class="legal-nav" aria-label="Links legais">
         <a href="/privacy">Privacidade</a>
         <a href="/terms">Termos</a>
