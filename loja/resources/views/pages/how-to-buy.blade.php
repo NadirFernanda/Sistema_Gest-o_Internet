@@ -15,40 +15,42 @@
         <div class="howto-step">
           <div class="step-badge">1</div>
           <div class="step-body">
-            <h4>Planos por Código (Individuais)</h4>
+            <h4>Planos Individuais – Internet por Hotspot</h4>
             <ul class="steps-list">
-              <li>Acesse a rede LuandaWiFi num dos pontos de cobertura.</li>
-              <li>Escolha um plano individual (Hora, Diário, Semanal, Mensal).</li>
-              <li>Pague com Multicaixa Express ou outro método disponível.</li>
-              <li>O código de acesso será exibido imediatamente e enviado por e‑mail.</li>
-              <li>Conecte-se à rede, abra o portal, insira o código e comece a navegar.</li>
-              <li><strong>Importante:</strong> Não há coleta de dados pessoais. Se perder o código, não poderá recuperá-lo.</li>
+              <li>Seleccione a rede AngolaWiFi num dos pontos de cobertura</li>
+              <li>Acesse a loja online clicando no link: <a href="https://www.angolawifi.ao" target="_blank">www.angolawifi.ao</a> ou pode fazé-lo por inter do browser;</li>
+              <li>Escolha o Seu Plano Ideal;</li>
+              <li>Clique em finalizar compra;</li>
+              <li>Preenche os seus dados;</li>
+              <li>Escolha a opções de pagamento (multicaixa expresso ou outra disponivel no sistema); e,</li>
+              <li>Finalize a compra clicando em escolher a forma de pagamento</li>
             </ul>
-            <div class="howto-plan-list">
-              <div class="plan-item"><span>Plano Hora</span><strong>200 Kz</strong></div>
-              <div class="plan-item"><span>Plano Semanal</span><strong>500 Kz</strong></div>
-              <div class="plan-item"><span>Plano Mensal</span><strong>1.000 Kz</strong></div>
-            </div>
+            <p><strong>Nota:</strong> Após o pagamento, o código de recarga é exibido imediatamente na página e também fica disponível no e-mail e whatsapp fornecido.</p>
+            <h5>Como activar?</h5>
+            <ul class="steps-list">
+              <li>Certifique-se de que esteja conectado a rede AngolaWiFi num dos pontos de cobertura;</li>
+              <li>Acesse o link: www.a.com;</li>
+              <li>Introduza o codigo voucher;</li>
+              <li>Clique em recarregar.</li>
+            </ul>
+            <p><strong>Obs.:</strong> O sistema irá processar a recarga em 20 segundos</p>
           </div>
         </div>
 
         <div class="howto-step">
           <div class="step-badge">2</div>
           <div class="step-body">
-            <h4>Planos Familiares / Empresariais/Institucionais</h4>
+            <h4>Planos Família, Empresa e Institucional</h4>
             <ul class="steps-list">
-              <li>Acesse a rede LuandaWiFi ou entre em contato pelo site.</li>
-              <li>Escolha o plano familiar ou empresarial (6 Mbps, 8 Mbps, 10 Mbps).</li>
-              <li>Preencha os seus dados: Nome, Telefone, E‑mail.</li>
-              <li>Pague com Multicaixa Express ou outro método disponível.</li>
-              <li>A ativação será comunicada após confirmação do pagamento.</li>
-              <li><strong>Importante:</strong> Estes planos requerem dados pessoais para ativação e suporte.</li>
+              <li>Acesse a loja através do link <a href="https://www.angolawifi.ao" target="_blank">www.angolawifi.ao</a>;</li>
+              <li>Escolha o Seu Plano;</li>
+              <li>Clique em finalizar compra;</li>
+              <li>Preenche os seus dados;</li>
+              <li>Escolha a opções de pagamento (multicaixa expresso ou outra disponivel no sistema); e,</li>
+              <li>Finalize a compra clicando em escolher a forma de pagamento</li>
             </ul>
-            <div class="howto-plan-list">
-              <div class="plan-item"><span>6 Mbps</span><strong>27.500 Kz</strong></div>
-              <div class="plan-item"><span>8 Mbps</span><strong>32.500 Kz</strong></div>
-              <div class="plan-item"><span>10 Mbps</span><strong>35.750 Kz</strong></div>
-            </div>
+            <p><strong>Nota 1:</strong> Após o pagamento, o receberá uma notificação no e-mail cadastrado;</p>
+            <p><strong>Nota 2:</strong> As empresas e famílias são obrigados a cadastrarem contas</p>
           </div>
         </div>
 
