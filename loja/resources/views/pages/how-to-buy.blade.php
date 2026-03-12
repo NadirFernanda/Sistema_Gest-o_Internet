@@ -52,9 +52,7 @@
           </div>
         </div>
 
-        <div class="info-banner">
-          <p>Para mais perguntas, visite <a class="contact-link" href="https://www.angolawifi.ao" target="_blank" rel="noopener">www.angolawifi.ao</a> ou contacte suporte@luandawifi.ao</p>
-        </div>
+        <!-- info-banner removido conforme solicitado -->
       </div>
     </div>
   </div>
