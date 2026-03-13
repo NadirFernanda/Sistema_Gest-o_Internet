@@ -1631,7 +1631,7 @@ main { display: block; }
 }
 
 .reseller-points li::before {
-  content: 'Γ£ô';
+  content: '\2713';
   position: absolute;
   left: 0;
   color: var(--brand);
