@@ -9,7 +9,7 @@ return [
             'name' => 'Plano Diário',
             'duration_label' => '24 horas',
             'duration_minutes' => 24 * 60,
-            'speed' => 'Ilimitado',
+            'speed' => '', // removido Ilimitado
             'max_speed' => 'até 10MBPS',
             'download' => 'Download Ilimitado',
             'price_kwanza' => 200,
