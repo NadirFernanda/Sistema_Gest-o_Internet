@@ -42,6 +42,8 @@
         </div>
       </div>
 
+      <a href="/painel-revendedor" class="store-link store-link--highlight" style="font-weight:600; color:#0d9488;">Painel do Revendedor</a>
+
       <a href="{{ route('equipment.index') }}" class="{{ request()->is('equipamentos*') ? 'store-link active' : 'store-link' }}">Equipamentos</a>
       <a href="/minha-conta" class="{{ request()->is('minha-conta') ? 'store-link active' : 'store-link' }}">A minha conta</a>
 
@@ -98,6 +100,7 @@
     <a href="/#planos-empresariais" class="store-mobile-link store-mobile-cta">Ver soluções</a>
     <a href="/solicitar-plano" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
     <a href="/" class="store-mobile-link">Início</a>
+    <a href="/painel-revendedor" class="store-mobile-link" style="font-weight:600; color:#0d9488;">Painel do Revendedor</a>
     <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
     <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
     <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
