@@ -2,338 +2,306 @@
 
 @section('content')
 <style>
-/* â”€â”€ Admin Design System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.adm { --primary:#4f46e5; --primary-hover:#4338ca; --success:#16a34a; --warning:#d97706; --danger:#dc2626;
-       --bg:#f1f5f9; --surface:#fff; --border:#e2e8f0; --text:#1e293b; --muted:#64748b; --faint:#94a3b8; }
-.adm-page { background:var(--bg); padding:2rem 0 3rem; }
-.adm-wrap  { max-width:1200px; margin:0 auto; padding:0 1.5rem; }
+/* ── Admin WiFi Codes ─────────────────────────────────── */
+:root {
+  --a-bg:     #f4f6f9;
+  --a-surf:   #ffffff;
+  --a-border: #dde2ea;
+  --a-text:   #1a202c;
+  --a-muted:  #64748b;
+  --a-faint:  #9aa5b4;
+  --a-blue:   #3b82f6;
+  --a-indigo: #4f46e5;
+  --a-green:  #16a34a;
+  --a-amber:  #d97706;
+  --a-red:    #dc2626;
+  --a-purple: #7c3aed;
+}
+.ap { font-family: Inter, system-ui, sans-serif; background: var(--a-bg); min-height: 60vh; padding: 2rem 0 4rem; color: var(--a-text); }
+.ap-wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
 
-/* Header */
-.adm-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.75rem; margin-bottom:2rem; }
-.adm-header h1 { font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 .2rem; letter-spacing:-.02em; }
-.adm-crumb { font-size:.78rem; color:var(--faint); }
+/* header */
+.ap-topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.75rem; }
+.ap-topbar h1 { font-size: 1.35rem; font-weight: 800; margin: 0 0 .15rem; letter-spacing: -.02em; color: var(--a-text); }
+.ap-topbar .ap-sub { font-size: .78rem; color: var(--a-faint); }
+.ap-back { font-size: .82rem; font-weight: 600; color: var(--a-muted); text-decoration: none; padding: .4rem .85rem; border: 1px solid var(--a-border); border-radius: 7px; background: var(--a-surf); transition: background .15s; }
+.ap-back:hover { background: var(--a-border); color: var(--a-text); }
 
-/* Alerts */
-.adm-alert { padding:.85rem 1.1rem; border-radius:10px; margin-bottom:1rem; font-size:.875rem; display:flex; align-items:flex-start; gap:.6rem; }
-.adm-alert-ok  { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
-.adm-alert-err { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
+/* alerts */
+.ap-ok  { background: #f0fdf4; border: 1px solid #86efac; border-left: 4px solid var(--a-green); color: #166534; padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: 1rem; }
+.ap-err { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--a-red);   color: #7f1d1d; padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: 1rem; }
 
-/* Stat cards */
-.adm-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.75rem; margin-bottom:1rem; }
-.adm-stat  { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem;
-             box-shadow:0 1px 3px rgba(0,0,0,.05); }
-.adm-stat-val  { font-size:1.85rem; font-weight:800; line-height:1; color:var(--text); margin:0 0 .25rem; }
-.adm-stat-lbl  { font-size:.75rem; color:var(--muted); font-weight:500; }
-.adm-stat-warn { color:var(--danger) !important; }
-.adm-plan-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; margin-bottom:2rem; }
-@media(max-width:600px){ .adm-plan-stats { grid-template-columns:1fr; } }
-.adm-plan-stat { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.25rem;
-                box-shadow:0 1px 3px rgba(0,0,0,.05); border-top:3px solid; }
-.adm-plan-stat.diario  { border-top-color:#3b82f6; }
-.adm-plan-stat.semanal { border-top-color:#8b5cf6; }
-.adm-plan-stat.mensal  { border-top-color:#f59e0b; }
-.adm-plan-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; margin-bottom:.6rem; }
-.adm-plan-stat.diario  .adm-plan-icon { background:#dbeafe; }
-.adm-plan-stat.semanal .adm-plan-icon { background:#ede9fe; }
-.adm-plan-stat.mensal  .adm-plan-icon { background:#fef3c7; }
-.adm-plan-stat-name { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); margin:0 0 .3rem; }
-.adm-plan-stat-val  { font-size:1.9rem; font-weight:800; color:var(--text); margin:0; line-height:1.1; }
-.adm-plan-stat-sub  { font-size:.78rem; color:var(--muted); margin:.25rem 0 0; }
-.stock-ok  { color:var(--success) !important; }
-.stock-low { color:var(--warning) !important; }
-.stock-out { color:var(--danger)  !important; }
+/* stat row */
+.ap-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .75rem; margin-bottom: .85rem; }
+.ap-stat { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1rem 1.1rem; }
+.ap-stat-val { font-size: 1.7rem; font-weight: 800; line-height: 1; margin: 0 0 .2rem; }
+.ap-stat-lbl { font-size: .75rem; color: var(--a-muted); font-weight: 500; }
 
-/* Import section */
-.adm-section-title { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--faint);
-                     margin:0 0 .9rem; display:flex; align-items:center; gap:.5rem; }
-.adm-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-.adm-import-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-bottom:2rem; }
-.adm-icard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem; 
-             box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; flex-direction:column; }
-.adm-icard-head { display:flex; align-items:center; gap:.75rem; margin-bottom:.6rem; }
-.adm-icard-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; }
-.adm-icard-paste .adm-icard-icon { background:#eef2ff; }
-.adm-icard-csv   .adm-icard-icon { background:#fef3c7; }
-.adm-icard-head-text h3 { font-size:.97rem; font-weight:700; color:var(--text); margin:0; }
-.adm-icard-head-text p  { font-size:.78rem; color:var(--muted); margin:0; margin-top:.1rem; }
-.adm-icard form { flex:1; display:flex; flex-direction:column; }
-.adm-form-body { flex:1; }
+/* plan stat cards */
+.ap-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 2rem; }
+@media (max-width: 600px) { .ap-plans { grid-template-columns: 1fr; } }
+.ap-plan { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid; }
+.ap-plan-diario  { border-top-color: var(--a-blue); }
+.ap-plan-semanal { border-top-color: var(--a-purple); }
+.ap-plan-mensal  { border-top-color: var(--a-amber); }
+.ap-plan-name { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); margin: 0 0 .35rem; }
+.ap-plan-val  { font-size: 2rem; font-weight: 800; line-height: 1; margin: 0; }
+.ap-plan-note { font-size: .78rem; margin: .3rem 0 0; }
+.c-ok  { color: var(--a-green); }
+.c-low { color: var(--a-amber); }
+.c-out { color: var(--a-red);   }
+.c-dim { color: var(--a-muted); }
 
-/* Fields */
-.adm-field  { margin-bottom:.85rem; }
-.adm-label  { display:block; font-size:.78rem; font-weight:600; color:#374151; margin-bottom:.3rem; }
-.adm-label sup { color:#ef4444; font-size:.85em; }
-.adm-ctrl   { width:100%; box-sizing:border-box; padding:.55rem .8rem; border:1.5px solid var(--border);
-              border-radius:8px; font-size:.875rem; color:var(--text); background:#f8fafc; font-family:inherit;
-              transition:border-color .15s,box-shadow .15s; outline:none; }
-.adm-ctrl:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.12); background:#fff; }
-.adm-ctrl-mono { font-family:'Courier New',monospace; }
+/* section label */
+.ap-sec { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--a-faint); margin: 0 0 .85rem; display: flex; align-items: center; gap: .6rem; }
+.ap-sec::after { content: ''; flex: 1; height: 1px; background: var(--a-border); }
 
-/* File drop zone */
-.adm-dropzone { border:2px dashed var(--border); border-radius:10px; padding:1.75rem 1rem; text-align:center;
-                background:#f8fafc; cursor:pointer; transition:border-color .2s,background .2s;
-                display:flex; flex-direction:column; align-items:center; gap:.4rem; flex:1; }
-.adm-dropzone:hover,
-.adm-dropzone.has-file { border-color:#6366f1; background:#eef2ff; }
-.adm-dropzone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-.adm-dropzone-wrap { position:relative; flex:1; display:flex; }
-.adm-dropzone .dz-icon { font-size:1.75rem; }
-.adm-dropzone .dz-text { font-size:.8rem; color:var(--muted); }
-.adm-dropzone .dz-hint { font-size:.72rem; color:var(--faint); }
-.adm-dropzone .dz-chosen { font-size:.82rem; color:#4f46e5; font-weight:600; display:none; }
+/* import grid */
+.ap-import-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.ap-card { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 11px; padding: 1.4rem; display: flex; flex-direction: column; }
+.ap-card-title { font-size: .92rem; font-weight: 700; margin: 0 0 .2rem; color: var(--a-text); }
+.ap-card-sub   { font-size: .78rem; color: var(--a-muted); margin: 0 0 1rem; }
+.ap-card form  { flex: 1; display: flex; flex-direction: column; }
+.ap-card-body  { flex: 1; }
 
-/* Buttons */
-.adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.6rem 1.2rem;
-           border-radius:8px; font-size:.875rem; font-weight:600; border:none; cursor:pointer;
-           transition:all .15s; text-decoration:none; white-space:nowrap; font-family:inherit; }
-.adm-btn-primary { background:#4f46e5; color:#fff; }
-.adm-btn-primary:hover { background:#4338ca; transform:translateY(-1px); box-shadow:0 4px 12px rgba(79,70,229,.3); }
-.adm-btn-ghost { background:transparent; color:var(--muted); border:1.5px solid var(--border); }
-.adm-btn-ghost:hover { background:var(--border); color:var(--text); }
-.adm-btn-danger-ghost { background:transparent; color:var(--danger); border:none; padding:.3rem .5rem; font-size:.8rem; }
-.adm-btn-danger-ghost:hover { background:#fee2e2; border-radius:6px; }
-.adm-btn-full { width:100%; }
-.adm-btn-sm { padding:.38rem .8rem; font-size:.8rem; }
-.adm-form-foot { margin-top:auto; padding-top:1rem; }
+/* fields */
+.ap-field { margin-bottom: .8rem; }
+.ap-label { display: block; font-size: .77rem; font-weight: 600; color: #374151; margin-bottom: .3rem; }
+.ap-label sup { color: var(--a-red); }
+.ap-ctrl  { width: 100%; box-sizing: border-box; padding: .55rem .75rem; border: 1.5px solid var(--a-border); border-radius: 8px; font-size: .875rem; color: var(--a-text); background: #f8fafc; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; }
+.ap-ctrl:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,.12); background: #fff; }
+.ap-ctrl-mono { font-family: 'Courier New', monospace; }
+.ap-file-zone { border: 2px dashed var(--a-border); border-radius: 9px; padding: 1.5rem 1rem; text-align: center; background: #f8fafc; cursor: pointer; transition: border-color .2s, background .2s; position: relative; margin-top: .3rem; }
+.ap-file-zone:hover, .ap-file-zone.ready { border-color: #818cf8; background: #eef2ff; }
+.ap-file-zone input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.ap-file-label  { font-size: .82rem; color: var(--a-muted); }
+.ap-file-hint   { font-size: .72rem; color: var(--a-faint); margin-top: .25rem; }
+.ap-file-chosen { font-size: .82rem; color: var(--a-indigo); font-weight: 600; margin-top: .25rem; display: none; }
 
-/* Filter bar */
-.adm-filterbar { background:var(--surface); border:1px solid var(--border); border-radius:12px;
-                 padding:1rem 1.25rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-end;
-                 margin-bottom:1.25rem; box-shadow:0 1px 3px rgba(0,0,0,.04); }
-.adm-fg { display:flex; flex-direction:column; gap:.25rem; }
-.adm-fg.grow { flex:1; min-width:180px; }
+/* button */
+.ap-foot { margin-top: auto; padding-top: 1rem; }
+.ap-btn  { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem 1.2rem; border-radius: 8px; font-size: .875rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: background .15s; text-decoration: none; white-space: nowrap; }
+.ap-btn-primary { background: var(--a-indigo); color: #fff; width: 100%; justify-content: center; }
+.ap-btn-primary:hover { background: #4338ca; }
+.ap-btn-outline { background: var(--a-surf); color: var(--a-muted); border: 1.5px solid var(--a-border); }
+.ap-btn-outline:hover { background: var(--a-border); color: var(--a-text); }
+.ap-btn-sm { padding: .35rem .75rem; font-size: .8rem; }
+.ap-btn-del { background: none; border: none; color: var(--a-red); cursor: pointer; font-size: .8rem; padding: .25rem .45rem; border-radius: 5px; font-family: inherit; }
+.ap-btn-del:hover { background: #fee2e2; }
 
-/* Table */
-.adm-tcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden;
-             box-shadow:0 1px 4px rgba(0,0,0,.06); }
-.adm-table { width:100%; border-collapse:collapse; font-size:.845rem; }
-.adm-table thead tr { background:#f8fafc; }
-.adm-table th { text-align:left; padding:.75rem 1rem; font-size:.7rem; font-weight:700; text-transform:uppercase;
-                letter-spacing:.06em; color:var(--faint); border-bottom:1px solid var(--border); white-space:nowrap; }
-.adm-table td { padding:.65rem 1rem; border-bottom:1px solid #f8fafc; color:#374151; vertical-align:middle; }
-.adm-table tbody tr:last-child td { border-bottom:none; }
-.adm-table tbody tr:hover td { background:#fafbff; }
-.adm-table .col-mono { font-family:'Courier New',monospace; font-weight:700; color:var(--text); font-size:.82rem; letter-spacing:.03em; }
-.adm-table .col-dim  { color:var(--faint); }
-.adm-table .col-link a { color:#4f46e5; text-decoration:none; font-weight:600; }
-.adm-table .col-link a:hover { text-decoration:underline; }
+/* filter bar */
+.ap-filters { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: .9rem 1.1rem; display: flex; flex-wrap: wrap; gap: .65rem; align-items: flex-end; margin-bottom: 1.1rem; }
+.ap-fg { display: flex; flex-direction: column; gap: .25rem; }
+.ap-fg.grow { flex: 1; min-width: 170px; }
 
-/* Badges */
-.adm-badge { display:inline-flex; align-items:center; gap:.3rem; padding:.22rem .65rem; border-radius:999px; font-size:.75rem; font-weight:600; white-space:nowrap; }
-.badge-green  { background:#dcfce7; color:#15803d; }
-.badge-gray   { background:#f1f5f9; color:#475569; }
-.badge-amber  { background:#fef3c7; color:#b45309; }
-.badge-blue   { background:#dbeafe; color:#1d4ed8; }
-.badge-purple { background:#ede9fe; color:#6d28d9; }
-.badge-gold   { background:#fef9c3; color:#a16207; }
-.badge-warn   { background:#fff7ed; color:#c2410c; }
+/* table */
+.ap-tcard { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; overflow: hidden; }
+.ap-table { width: 100%; border-collapse: collapse; font-size: .845rem; }
+.ap-table thead { background: #f8fafc; }
+.ap-table th { text-align: left; padding: .65rem 1rem; font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); border-bottom: 1px solid var(--a-border); white-space: nowrap; }
+.ap-table td { padding: .6rem 1rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; color: #374151; }
+.ap-table tbody tr:last-child td { border-bottom: none; }
+.ap-table tbody tr:hover td { background: #fafbff; }
+.ap-table .mono { font-family: 'Courier New', monospace; font-weight: 700; font-size: .82rem; }
+.ap-table .dim  { color: var(--a-faint); font-size: .82rem; }
 
-/* Empty state */
-.adm-empty { text-align:center; padding:3rem 1rem; color:var(--faint); }
-.adm-empty .adm-empty-icon { font-size:2.5rem; margin-bottom:.5rem; }
-.adm-empty p { margin:.25rem 0; font-size:.875rem; }
+/* badges */
+.badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .73rem; font-weight: 700; white-space: nowrap; }
+.bg-blue   { background: #dbeafe; color: #1d4ed8; }
+.bg-purple { background: #ede9fe; color: #6d28d9; }
+.bg-amber  { background: #fef3c7; color: #b45309; }
+.bg-green  { background: #dcfce7; color: #15803d; }
+.bg-gray   { background: #f1f5f9; color: #475569; }
+.bg-orange { background: #ffedd5; color: #9a3412; }
 
-/* Pagination */
-.adm-pager { padding: .75rem 1.25rem; border-top:1px solid var(--border); background:#fafafa; }
+/* empty */
+.ap-empty { padding: 3rem 1rem; text-align: center; color: var(--a-faint); }
+.ap-empty-title { font-size: .95rem; font-weight: 700; color: var(--a-muted); margin: 0 0 .3rem; }
+.ap-empty-sub   { font-size: .82rem; margin: 0; }
+
+/* pager */
+.ap-pager { padding: .7rem 1rem; border-top: 1px solid var(--a-border); background: #f8fafc; }
 </style>
 
-<div class="adm">
-<div class="adm-page">
-<div class="adm-wrap">
+<div class="ap">
+<div class="ap-wrap">
 
-  {{-- Page header --}}
-  <div class="adm-header">
+  {{-- ── Cabeçalho ───────────────────────────────────────── --}}
+  <div class="ap-topbar">
     <div>
-      <h1>ðŸ”‘ CÃ³digos WiFi</h1>
-      <p class="adm-crumb">Admin â€º Stock de Vouchers por Plano</p>
+      <h1>C&oacute;digos WiFi</h1>
+      <p class="ap-sub">Admin &rsaquo; Stock de Vouchers por Plano</p>
     </div>
-    <a href="{{ route('admin.dashboard') }}" class="adm-btn adm-btn-ghost adm-btn-sm">â† Dashboard</a>
+    <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
   </div>
 
-  {{-- Alerts --}}
+  {{-- ── Alertas ──────────────────────────────────────────── --}}
   @if(session('success'))
-    <div class="adm-alert adm-alert-ok">
-      <span>âœ“</span> <span>{{ session('success') }}</span>
-    </div>
+    <div class="ap-ok">&#10003; {{ session('success') }}</div>
   @endif
   @if($errors->any())
-    <div class="adm-alert adm-alert-err">
-      <span>âœ•</span>
-      <div>@foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
+    <div class="ap-err">
+      @foreach($errors->all() as $e)<div>&#10007; {{ $e }}</div>@endforeach
     </div>
   @endif
 
-  {{-- Global stats --}}
+  {{-- ── Contadores globais ───────────────────────────────── --}}
   @php
     $available = $statusCounts['available'] ?? 0;
     $used      = $statusCounts['used']      ?? 0;
     $reserved  = $statusCounts['reserved']  ?? 0;
-    $planLabels = ['diario' => 'DiÃ¡rio', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
-    $planIcons  = ['diario' => 'â˜€ï¸', 'semanal' => 'ðŸ“…', 'mensal' => 'ðŸ—“ï¸'];
+    $planLabels = ['diario' => 'Di&aacute;rio', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
+    $planText   = ['diario' => 'Diário',        'semanal' => 'Semanal', 'mensal' => 'Mensal'];
   @endphp
-  <div class="adm-stats" style="margin-bottom:.75rem;">
-    <div class="adm-stat">
-      <p class="adm-stat-val" style="color:{{ $available > 0 ? 'var(--success)' : 'var(--danger)' }}">{{ $available }}</p>
-      <p class="adm-stat-lbl">DisponÃ­veis</p>
+  <div class="ap-stats">
+    <div class="ap-stat">
+      <p class="ap-stat-val" style="color:{{ $available > 0 ? 'var(--a-green)' : 'var(--a-red)' }}">{{ $available }}</p>
+      <p class="ap-stat-lbl">Dispon&iacute;veis</p>
     </div>
-    <div class="adm-stat">
-      <p class="adm-stat-val" style="color:var(--muted)">{{ $used }}</p>
-      <p class="adm-stat-lbl">Utilizados</p>
+    <div class="ap-stat">
+      <p class="ap-stat-val c-dim">{{ $used }}</p>
+      <p class="ap-stat-lbl">Utilizados</p>
     </div>
-    <div class="adm-stat">
-      <p class="adm-stat-val" style="color:var(--warning)">{{ $reserved }}</p>
-      <p class="adm-stat-lbl">Reservados</p>
+    <div class="ap-stat">
+      <p class="ap-stat-val" style="color:var(--a-amber)">{{ $reserved }}</p>
+      <p class="ap-stat-lbl">Reservados</p>
     </div>
   </div>
 
-  {{-- Per-plan stats --}}
-  <div class="adm-plan-stats">
-    @foreach($planLabels as $pid => $plabel)
+  {{-- ── Stock por plano ──────────────────────────────────── --}}
+  <div class="ap-plans">
+    @foreach(['diario','semanal','mensal'] as $pid)
       @php
         $n = $planCounts[$pid] ?? 0;
-        $cls = $n === 0 ? 'stock-out' : ($n < 5 ? 'stock-low' : 'stock-ok');
+        $cls = $n === 0 ? 'c-out' : ($n < 5 ? 'c-low' : 'c-ok');
       @endphp
-      <div class="adm-plan-stat {{ $pid }}">
-        <div class="adm-plan-icon">{{ $planIcons[$pid] }}</div>
-        <p class="adm-plan-stat-name">{{ $plabel }}</p>
-        <p class="adm-plan-stat-val {{ $cls }}">{{ $n }}</p>
-        <p class="adm-plan-stat-sub">
-          @if($n === 0) <span class="stock-out">âš  Stock esgotado</span>
-          @elseif($n < 5) <span class="stock-low">âš  Stock baixo</span>
-          @else <span class="stock-ok">âœ“ DisponÃ­vel</span>
+      <div class="ap-plan ap-plan-{{ $pid }}">
+        <p class="ap-plan-name">{!! $planLabels[$pid] !!}</p>
+        <p class="ap-plan-val {{ $cls }}">{{ $n }}</p>
+        <p class="ap-plan-note {{ $cls }}">
+          @if($n === 0) &otimes; Stock esgotado
+          @elseif($n < 5) &#9651; Stock baixo
+          @else &#10003; Dispon&iacute;vel
           @endif
         </p>
       </div>
     @endforeach
   </div>
 
-  {{-- â”€â”€ IMPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
-  <p class="adm-section-title">Importar novos cÃ³digos</p>
-  <div class="adm-import-grid">
+  {{-- ── Importar codes ───────────────────────────────────── --}}
+  <p class="ap-sec">Importar novos c&oacute;digos</p>
+  <div class="ap-import-grid">
 
-    {{-- Paste --}}
-    <div class="adm-icard adm-icard-paste">
-      <div class="adm-icard-head">
-        <div class="adm-icard-icon">âœï¸</div>
-        <div class="adm-icard-head-text">
-          <h3>Colar lista de cÃ³digos</h3>
-          <p>Um por linha, ou separados por vÃ­rgula</p>
-        </div>
-      </div>
+    {{-- Colar lista --}}
+    <div class="ap-card">
+      <p class="ap-card-title">Colar lista de c&oacute;digos</p>
+      <p class="ap-card-sub">Um por linha, ou separados por v&iacute;rgula &mdash; duplicados ignorados</p>
       <form method="POST" action="{{ route('admin.wifi_codes.import_paste') }}">
         @csrf
-        <div class="adm-form-body">
-          <div class="adm-field">
-            <label class="adm-label" for="paste_plan_id">Plano <sup>*</sup></label>
-            <select id="paste_plan_id" name="plan_id" required class="adm-ctrl">
-              <option value="">â€” Escolha o plano â€”</option>
-              @foreach($planLabels as $pid => $plabel)
-                <option value="{{ $pid }}" @selected(old('plan_id') === $pid)>{{ $planIcons[$pid] }} {{ $plabel }}</option>
+        <div class="ap-card-body">
+          <div class="ap-field">
+            <label class="ap-label" for="paste_plan_id">Plano <sup>*</sup></label>
+            <select id="paste_plan_id" name="plan_id" required class="ap-ctrl">
+              <option value="">&mdash; Escolha o plano &mdash;</option>
+              @foreach(['diario','semanal','mensal'] as $pid)
+                <option value="{{ $pid }}" @selected(old('plan_id') === $pid)>{{ $planText[$pid] }}</option>
               @endforeach
             </select>
           </div>
-          <div class="adm-field" style="flex:1;display:flex;flex-direction:column;">
-            <label class="adm-label">CÃ³digos <sup>*</sup></label>
-            <textarea name="codes_text" rows="6" required
+          <div class="ap-field">
+            <label class="ap-label">C&oacute;digos <sup>*</sup></label>
+            <textarea name="codes_text" rows="7" required
               placeholder="ABC123DEF4&#10;XYZ789GHJ1&#10;QWE456RTY7&#10;..."
-              class="adm-ctrl adm-ctrl-mono" style="flex:1;min-height:130px;"></textarea>
+              class="ap-ctrl ap-ctrl-mono" style="resize:vertical;"></textarea>
           </div>
         </div>
-        <div class="adm-form-foot">
-          <button type="submit" class="adm-btn adm-btn-primary adm-btn-full">
-            â†‘ Importar CÃ³digos
-          </button>
+        <div class="ap-foot">
+          <button type="submit" class="ap-btn ap-btn-primary">Importar C&oacute;digos</button>
         </div>
       </form>
     </div>
 
-    {{-- CSV --}}
-    <div class="adm-icard adm-icard-csv">
-      <div class="adm-icard-head">
-        <div class="adm-icard-icon">ðŸ“„</div>
-        <div class="adm-icard-head-text">
-          <h3>Carregar ficheiro CSV / TXT</h3>
-          <p>Um cÃ³digo por linha Â· mÃ¡x. 500 MB</p>
-        </div>
-      </div>
-      <form method="POST" action="{{ route('admin.wifi_codes.import_csv') }}" enctype="multipart/form-data" id="csvForm">
+    {{-- Ficheiro CSV --}}
+    <div class="ap-card">
+      <p class="ap-card-title">Carregar ficheiro CSV / TXT</p>
+      <p class="ap-card-sub">Um c&oacute;digo por linha &middot; m&aacute;x. 500&thinsp;MB</p>
+      <form method="POST" action="{{ route('admin.wifi_codes.import_csv') }}" enctype="multipart/form-data">
         @csrf
-        <div class="adm-form-body" style="display:flex;flex-direction:column;gap:.85rem;">
-          <div class="adm-field" style="margin-bottom:0;">
-            <label class="adm-label" for="csv_plan_id">Plano <sup>*</sup></label>
-            <select id="csv_plan_id" name="plan_id" required class="adm-ctrl">
-              <option value="">â€” Escolha o plano â€”</option>
-              @foreach($planLabels as $pid => $plabel)
-                <option value="{{ $pid }}" @selected(old('plan_id') === $pid)>{{ $planIcons[$pid] }} {{ $plabel }}</option>
+        <div class="ap-card-body">
+          <div class="ap-field">
+            <label class="ap-label" for="csv_plan_id">Plano <sup>*</sup></label>
+            <select id="csv_plan_id" name="plan_id" required class="ap-ctrl">
+              <option value="">&mdash; Escolha o plano &mdash;</option>
+              @foreach(['diario','semanal','mensal'] as $pid)
+                <option value="{{ $pid }}" @selected(old('plan_id') === $pid)>{{ $planText[$pid] }}</option>
               @endforeach
             </select>
           </div>
-          <div class="adm-dropzone-wrap" style="flex:1;min-height:130px;">
-            <label class="adm-dropzone" id="dropLabel" for="csv_file_input">
-              <span class="dz-icon">ðŸ“‚</span>
-              <span class="dz-text">Clique para seleccionar ou arraste o ficheiro</span>
-              <span class="dz-hint">.csv ou .txt â€” mÃ¡ximo 500 MB</span>
-              <span class="dz-chosen" id="chosenFile"></span>
-              <input type="file" id="csv_file_input" name="csv_file" accept=".csv,.txt,text/plain" required
+          <div class="ap-field">
+            <label class="ap-label">Ficheiro <sup>*</sup></label>
+            <label class="ap-file-zone" id="dropZone" for="csvFileInput">
+              <p class="ap-file-label">Clique para seleccionar ou arraste o ficheiro</p>
+              <p class="ap-file-hint">.csv ou .txt &mdash; m&aacute;ximo 500 MB</p>
+              <p class="ap-file-chosen" id="chosenName"></p>
+              <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt,text/plain" required
                      onchange="
-                       var n=this.files[0]?.name;
-                       document.getElementById('chosenFile').style.display=n?'block':'none';
-                       document.getElementById('chosenFile').textContent='âœ“ '+n;
-                       document.getElementById('dropLabel').classList.toggle('has-file',!!n);">
+                       var n = this.files[0] ? this.files[0].name : '';
+                       var cn = document.getElementById('chosenName');
+                       cn.textContent = n ? '&#10003; ' + n : '';
+                       cn.style.display = n ? 'block' : 'none';
+                       document.getElementById('dropZone').classList.toggle('ready', !!n);">
             </label>
           </div>
         </div>
-        <div class="adm-form-foot">
-          <button type="submit" class="adm-btn adm-btn-primary adm-btn-full">
-            â†‘ Carregar Ficheiro
-          </button>
+        <div class="ap-foot">
+          <button type="submit" class="ap-btn ap-btn-primary">Carregar Ficheiro</button>
         </div>
       </form>
     </div>
   </div>
 
-  {{-- â”€â”€ FILTER BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
-  <p class="adm-section-title">Pesquisar e filtrar stock</p>
-  <form method="get" class="adm-filterbar">
-    <div class="adm-fg" style="min-width:150px;">
-      <label class="adm-label" for="filter_plan">Plano</label>
-      <select id="filter_plan" name="plan_id" class="adm-ctrl" style="min-width:140px;">
+  {{-- ── Filtrar ────────────────────────────────────────────── --}}
+  <p class="ap-sec">Pesquisar e filtrar stock</p>
+  <form method="get" class="ap-filters">
+    <div class="ap-fg" style="min-width:140px;">
+      <label class="ap-label" for="fPlan">Plano</label>
+      <select id="fPlan" name="plan_id" class="ap-ctrl">
         <option value="">Todos os planos</option>
-        @foreach($planLabels as $pid => $plabel)
-          <option value="{{ $pid }}" @selected(request('plan_id') === $pid)>{{ $plabel }}</option>
+        @foreach(['diario','semanal','mensal'] as $pid)
+          <option value="{{ $pid }}" @selected(request('plan_id') === $pid)>{{ $planText[$pid] }}</option>
         @endforeach
       </select>
     </div>
-    <div class="adm-fg" style="min-width:140px;">
-      <label class="adm-label" for="f_status">Estado</label>
-      <select id="f_status" name="status" class="adm-ctrl" style="min-width:130px;">
+    <div class="ap-fg" style="min-width:130px;">
+      <label class="ap-label" for="fStatus">Estado</label>
+      <select id="fStatus" name="status" class="ap-ctrl">
         <option value="">Todos</option>
-        <option value="available" @selected(request('status') === 'available')>âœ“ DisponÃ­vel</option>
-        <option value="used"      @selected(request('status') === 'used')>â— Utilizado</option>
-        <option value="reserved"  @selected(request('status') === 'reserved')>â—‡ Reservado</option>
+        <option value="available" @selected(request('status') === 'available')>Dispon&iacute;vel</option>
+        <option value="used"      @selected(request('status') === 'used')>Utilizado</option>
+        <option value="reserved"  @selected(request('status') === 'reserved')>Reservado</option>
       </select>
     </div>
-    <div class="adm-fg grow">
-      <label class="adm-label" for="f_q">Pesquisar cÃ³digo</label>
-      <input id="f_q" name="q" value="{{ request('q') }}" class="adm-ctrl" placeholder="Ex: ABC123DEF4â€¦">
+    <div class="ap-fg grow">
+      <label class="ap-label" for="fQ">Pesquisar c&oacute;digo</label>
+      <input id="fQ" name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Ex: ABC123DEF4&hellip;">
     </div>
-    <div style="display:flex;gap:.5rem;align-items:center;">
-      <button type="submit" class="adm-btn adm-btn-primary">Filtrar</button>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+      <button type="submit" class="ap-btn ap-btn-primary ap-btn-sm" style="width:auto;">Filtrar</button>
       @if(request()->hasAny(['plan_id','status','q']))
-        <a href="{{ route('admin.wifi_codes.index') }}" class="adm-btn adm-btn-ghost">âœ• Limpar</a>
+        <a href="{{ route('admin.wifi_codes.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
       @endif
     </div>
   </form>
 
-  {{-- â”€â”€ TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
-  <div class="adm-tcard">
+  {{-- ── Tabela ─────────────────────────────────────────────── --}}
+  <div class="ap-tcard">
     <div style="overflow-x:auto;">
-      <table class="adm-table">
+      <table class="ap-table">
         <thead>
           <tr>
             <th>#</th>
             <th>Plano</th>
-            <th>CÃ³digo</th>
+            <th>C&oacute;digo</th>
             <th>Estado</th>
             <th>Ordem</th>
             <th>Utilizado em</th>
@@ -343,43 +311,44 @@
         </thead>
         <tbody>
           @forelse($codes as $code)
-            @php
-              $planBadge = ['diario' => 'badge-blue', 'semanal' => 'badge-purple', 'mensal' => 'badge-gold'];
-              $planLabel = ['diario' => 'â˜€ï¸ DiÃ¡rio', 'semanal' => 'ðŸ“… Semanal', 'mensal' => 'ðŸ—“ï¸ Mensal'];
-            @endphp
             <tr>
-              <td class="col-dim">#{{ $code->id }}</td>
+              <td class="dim">#{{ $code->id }}</td>
               <td>
-                @if($code->plan_id && isset($planBadge[$code->plan_id]))
-                  <span class="adm-badge {{ $planBadge[$code->plan_id] }}">{{ $planLabel[$code->plan_id] }}</span>
+                @if($code->plan_id === 'diario')
+                  <span class="badge bg-blue">Di&aacute;rio</span>
+                @elseif($code->plan_id === 'semanal')
+                  <span class="badge bg-purple">Semanal</span>
+                @elseif($code->plan_id === 'mensal')
+                  <span class="badge bg-amber">Mensal</span>
                 @else
-                  <span class="adm-badge badge-warn">âš  sem plano</span>
+                  <span class="badge bg-orange">sem plano</span>
                 @endif
               </td>
-              <td class="col-mono">{{ $code->code }}</td>
+              <td class="mono">{{ $code->code }}</td>
               <td>
                 @if($code->status === 'available')
-                  <span class="adm-badge badge-green">â— DisponÃ­vel</span>
+                  <span class="badge bg-green">Dispon&iacute;vel</span>
                 @elseif($code->status === 'used')
-                  <span class="adm-badge badge-gray">â— Utilizado</span>
+                  <span class="badge bg-gray">Utilizado</span>
                 @else
-                  <span class="adm-badge badge-amber">â—‡ Reservado</span>
+                  <span class="badge bg-orange">Reservado</span>
                 @endif
               </td>
-              <td class="col-link">
+              <td>
                 @if($code->autovenda_order_id)
-                  <a href="{{ route('admin.autovenda.index', ['q' => $code->autovenda_order_id]) }}">#{{ $code->autovenda_order_id }}</a>
-                @else <span class="col-dim">â€”</span>
+                  <a href="{{ route('admin.autovenda.index', ['q' => $code->autovenda_order_id]) }}"
+                     style="color:var(--a-indigo);font-weight:600;text-decoration:none;">#{{ $code->autovenda_order_id }}</a>
+                @else <span class="dim">&mdash;</span>
                 @endif
               </td>
-              <td class="col-dim">{{ optional($code->used_at)->format('d/m/Y H:i') ?: 'â€”' }}</td>
-              <td class="col-dim">{{ optional($code->created_at)->format('d/m/Y H:i') }}</td>
+              <td class="dim">{{ optional($code->used_at)->format('d/m/Y H:i') ?: '&mdash;' }}</td>
+              <td class="dim">{{ optional($code->created_at)->format('d/m/Y H:i') }}</td>
               <td>
                 @if($code->status === 'available')
                   <form method="POST" action="{{ route('admin.wifi_codes.destroy', $code) }}"
-                        onsubmit="return confirm('Eliminar o cÃ³digo {{ $code->code }}?')">
+                        onsubmit="return confirm('Eliminar o c\u00f3digo {{ $code->code }}?')">
                     @csrf @method('DELETE')
-                    <button type="submit" class="adm-btn adm-btn-danger-ghost" title="Eliminar">ðŸ—‘</button>
+                    <button type="submit" class="ap-btn-del" title="Eliminar">&#128465;</button>
                   </form>
                 @endif
               </td>
@@ -387,10 +356,9 @@
           @empty
             <tr>
               <td colspan="8">
-                <div class="adm-empty">
-                  <div class="adm-empty-icon">ðŸ“­</div>
-                  <p><strong>Nenhum cÃ³digo encontrado</strong></p>
-                  <p>Importe cÃ³digos acima para comeÃ§ar</p>
+                <div class="ap-empty">
+                  <p class="ap-empty-title">Nenhum c&oacute;digo encontrado</p>
+                  <p class="ap-empty-sub">Importe c&oacute;digos acima para come&ccedil;ar</p>
                 </div>
               </td>
             </tr>
@@ -399,11 +367,10 @@
       </table>
     </div>
     @if($codes->hasPages())
-      <div class="adm-pager">{{ $codes->links() }}</div>
+      <div class="ap-pager">{{ $codes->links() }}</div>
     @endif
   </div>
 
-</div>{{-- /wrap --}}
-</div>{{-- /page --}}
-</div>{{-- /adm --}}
+</div>{{-- /ap-wrap --}}
+</div>{{-- /ap --}}
 @endsection
