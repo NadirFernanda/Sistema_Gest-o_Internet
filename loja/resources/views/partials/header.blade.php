@@ -42,8 +42,6 @@
         </div>
       </div>
 
-      <a href="/painel-revendedor" class="store-link store-link--highlight" style="font-weight:600; color:#0d9488;">Painel do Revendedor</a>
-
       <a href="{{ route('equipment.index') }}" class="{{ request()->is('equipamentos*') ? 'store-link active' : 'store-link' }}">Equipamentos</a>
       <a href="/minha-conta" class="{{ request()->is('minha-conta') ? 'store-link active' : 'store-link' }}">A minha conta</a>
 
@@ -82,7 +80,7 @@
 
       <div class="store-actions">
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
-        <a href="/#planos-empresariais" class="store-cta" aria-label="Ver soluções empresariais">Ver soluções</a>
+        <a href="/painel-revendedor" class="store-cta" aria-label="Aceder ao painel do revendedor">Painel do Revendedor</a>
         <a href="/solicitar-plano" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
           <span class="mobile-menu-icon"></span>
@@ -97,10 +95,9 @@
       <input id="mobile-search-input" class="search-input" type="search" autocomplete="off" name="mobile-search" placeholder="Pesquisar planos…" aria-label="Pesquisar planos" style="width: 100%; max-width: 260px;">
     </div>
     <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-mobile-link store-mobile-cta">Ver planos</a>
-    <a href="/#planos-empresariais" class="store-mobile-link store-mobile-cta">Ver soluções</a>
+    <a href="/painel-revendedor" class="store-mobile-link store-mobile-cta">Painel do Revendedor</a>
     <a href="/solicitar-plano" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
     <a href="/" class="store-mobile-link">Início</a>
-    <a href="/painel-revendedor" class="store-mobile-link" style="font-weight:600; color:#0d9488;">Painel do Revendedor</a>
     <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
     <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
     <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
