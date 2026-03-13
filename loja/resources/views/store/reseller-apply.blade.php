@@ -7,17 +7,25 @@
     <div class="reseller-layout">
       <section class="reseller-intro">
         <span class="reseller-badge">Programa de Revenda</span>
-        <h1 class="reseller-title">Quero ser revendedor AngolaWiFi</h1>
+        <h1 class="reseller-title">Torne-se Parceiro Oficial da AngolaWiFi</h1>
         <p class="reseller-lead">
-          Torne-se parceiro oficial AngolaWiFi e ofereça internet de qualidade aos seus clientes
-          com margens atrativas e suporte dedicado.
+          Ofereça internet de qualidade aos seus clientes e transforme o seu estabelecimento num ponto
+          de acesso Wi-Fi rentável, com margens de lucro atrativas e suporte dedicado da nossa equipa.
         </p>
 
+        <p style="font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin:0 0 0.6rem;">Vantagens para os Parceiros AngolaWiFi</p>
         <ul class="reseller-points">
-          <li>Descontos progressivos por volume de compra.</li>
-          <li>Acesso a códigos em formato digital para revenda rápida.</li>
-          <li>Suporte técnico e comercial da equipa AngolaWiFi.</li>
+          <li>Descontos progressivos de acordo com o volume de compra de vouchers.</li>
+          <li>Códigos de acesso em formato digital, permitindo uma revenda rápida e simples aos seus clientes.</li>
+          <li>Suporte técnico e comercial permanente da equipa AngolaWiFi para garantir o bom funcionamento do serviço.</li>
+          <li>Modelo de negócio acessível, ideal para lojas, bares, restaurantes, salões, mercados, escolas e outros estabelecimentos.</li>
         </ul>
+
+        <p style="margin:1.1rem 0 0.35rem;font-size:0.88rem;color:var(--text-muted);line-height:1.65;">
+          Com a AngolaWiFi, o seu espaço pode tornar-se um ponto estratégico de acesso à internet,
+          gerando receitas adicionais todos os dias.
+        </p>
+        <p style="margin:0;font-size:0.82rem;font-weight:700;color:var(--text-dark);">AngolaWiFi — Internet acessível, oportunidades reais de negócio.</p>
       </section>
 
       <section class="reseller-form-card">
