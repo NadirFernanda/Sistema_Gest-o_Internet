@@ -9,11 +9,13 @@ class Kernel extends ConsoleKernel
 {
     protected $commands = [
         \App\Console\Commands\ImportWifiCodes::class,
+        \App\Console\Commands\AlertResellers::class,
     ];
 
     protected function schedule(Schedule $schedule): void
     {
-        // ...existing code...
+        // Run daily at 08:00 — sends maintenance/target alerts on the 1st of each relevant month
+        $schedule->command('resellers:alert')->dailyAt('08:00');
     }
 
     protected function commands(): void

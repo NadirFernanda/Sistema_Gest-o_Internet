@@ -15,12 +15,10 @@ class ResellerPanelController extends Controller
         $resellerId = $request->session()->get('reseller_id');
 
         $application = null;
-        $purchases = collect();
-        $totals = [
-            'total_gross' => 0,
-            'total_net' => 0,
-            'codes_total' => 0,
-        ];
+        $purchases   = collect();
+        $totals      = ['total_gross' => 0, 'total_net' => 0, 'codes_total' => 0];
+        $monthlySpend     = 0;
+        $estimatedProfit  = 0;
 
         if ($resellerId) {
             $application = ResellerApplication::find($resellerId);
@@ -32,33 +30,39 @@ class ResellerPanelController extends Controller
 
                 foreach ($purchases as $purchase) {
                     $totals['total_gross'] += $purchase->gross_amount_aoa;
-                    $totals['total_net'] += $purchase->net_amount_aoa;
+                    $totals['total_net']   += $purchase->net_amount_aoa;
                     $totals['codes_total'] += $purchase->codes_count;
+                    // Lucro = diferença entre valor bruto e líquido (desconto obtido)
+                    $estimatedProfit += ($purchase->gross_amount_aoa - $purchase->net_amount_aoa);
                 }
+
+                $monthlySpend = $application->monthlySpendings();
             } else {
                 $request->session()->forget('reseller_id');
             }
         }
 
         return view('reseller.panel', [
-            'application' => $application,
-            'purchases' => $purchases,
-            'totals' => $totals,
+            'application'     => $application,
+            'purchases'       => $purchases,
+            'totals'          => $totals,
+            'monthlySpend'    => $monthlySpend,
+            'estimatedProfit' => $estimatedProfit,
+            'minPurchase'     => (int) config('reseller.min_purchase_aoa', 10000),
         ]);
     }
 
     public function login(Request $request)
     {
-        $data = $request->validate([
-            'email' => ['required', 'email'],
-        ]);
+        $data = $request->validate(['email' => ['required', 'email']]);
 
         $application = ResellerApplication::where('email', $data['email'])
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
 
         if (!$application) {
-            return redirect()->route('reseller.panel')->with('status', 'Nenhum revendedor aprovado encontrado para este email.');
+            return redirect()->route('reseller.panel')
+                ->with('status', 'Nenhum revendedor aprovado encontrado para este e-mail.');
         }
 
         $request->session()->put('reseller_id', $application->id);
@@ -69,47 +73,47 @@ class ResellerPanelController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget('reseller_id');
-
         return redirect()->route('reseller.panel');
     }
 
     public function storePurchase(Request $request)
     {
         $resellerId = $request->session()->get('reseller_id');
-        if (!$resellerId) {
-            return redirect()->route('reseller.panel');
-        }
+        if (!$resellerId) return redirect()->route('reseller.panel');
 
         $application = ResellerApplication::findOrFail($resellerId);
 
+        $minPurchase = (int) config('reseller.min_purchase_aoa', 10000);
+        $unitPrice   = (int) config('reseller.code_unit_price_aoa', 1000);
+
         $data = $request->validate([
-            'codes_count' => ['required', 'integer', 'min:1', 'max:1000'],
+            'gross_amount_aoa' => [
+                'required', 'integer',
+                'min:' . $minPurchase,
+            ],
         ]);
 
-        $unitPrice = (int) config('reseller.code_unit_price_aoa');
-        $gross = $unitPrice * $data['codes_count'];
-        $discountPercent = $this->calculateDiscountPercent($gross);
-        $net = (int) round($gross * (100 - $discountPercent) / 100);
+        $gross           = (int) $data['gross_amount_aoa'];
+        $discountPercent = $application->discountPercentFor($gross);
+        $net             = (int) round($gross * (100 - $discountPercent) / 100);
+        $codesCount      = max(1, (int) floor($gross / $unitPrice));
 
-        $codes = $this->generateCodes($data['codes_count']);
-
+        $codes    = $this->generateCodes($codesCount);
         $purchase = new ResellerPurchase();
         $purchase->reseller_application_id = $application->id;
-        $purchase->gross_amount_aoa = $gross;
-        $purchase->discount_percent = $discountPercent;
-        $purchase->net_amount_aoa = $net;
-        $purchase->codes_count = $data['codes_count'];
+        $purchase->gross_amount_aoa  = $gross;
+        $purchase->discount_percent  = $discountPercent;
+        $purchase->net_amount_aoa    = $net;
+        $purchase->codes_count       = $codesCount;
 
-        $path = 'resellers/'.$application->id.'/purchase_'.now()->format('Ymd_His').'_'.Str::random(6).'.csv';
-        $csv = $this->buildCsv($codes);
-        Storage::disk('local')->put($path, $csv);
+        $path = 'resellers/' . $application->id . '/purchase_' . now()->format('Ymd_His') . '_' . Str::random(6) . '.csv';
+        Storage::disk('local')->put($path, $this->buildCsv($codes));
         $purchase->csv_path = $path;
-        $purchase->meta = [
-            'generated_codes_preview' => array_slice($codes, 0, 3),
-        ];
+        $purchase->meta     = ['generated_codes_preview' => array_slice($codes, 0, 3)];
         $purchase->save();
 
-        return redirect()->route('reseller.panel')->with('status', 'Compra registada com sucesso. O ficheiro CSV está disponível para download.');
+        return redirect()->route('reseller.panel')
+            ->with('status', "Compra de {$gross} Kz registada com {$discountPercent}% de desconto ({$codesCount} códigos). CSV disponível para download.");
     }
 
     public function downloadCsv(Request $request, ResellerPurchase $purchase)
@@ -123,45 +127,28 @@ class ResellerPanelController extends Controller
             abort(404, 'CSV não encontrado.');
         }
 
-        $filename = 'codigos_revenda_'.$purchase->id.'.csv';
-
         return response()->streamDownload(function () use ($purchase) {
             echo Storage::disk('local')->get($purchase->csv_path);
-        }, $filename, [
+        }, 'codigos_revenda_' . $purchase->id . '.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
-    }
-
-    private function calculateDiscountPercent(int $gross): int
-    {
-        $tiers = config('reseller.discount_tiers', []);
-        ksort($tiers);
-
-        $discount = 0;
-        foreach ($tiers as $min => $percent) {
-            if ($gross >= $min) {
-                $discount = $percent;
-            }
-        }
-
-        return $discount;
     }
 
     private function generateCodes(int $count): array
     {
         $codes = [];
         for ($i = 0; $i < $count; $i++) {
-            $codes[] = strtoupper(Str::random(4)).'-'.strtoupper(Str::random(4)).'-'.strtoupper(Str::random(4));
+            $codes[] = strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4));
         }
         return $codes;
     }
 
     private function buildCsv(array $codes): string
     {
-        $lines = ["codigo"];
+        $lines = ['codigo'];
         foreach ($codes as $code) {
             $lines[] = $code;
         }
-        return implode("\n", $lines)."\n";
+        return implode("\n", $lines) . "\n";
     }
 }
