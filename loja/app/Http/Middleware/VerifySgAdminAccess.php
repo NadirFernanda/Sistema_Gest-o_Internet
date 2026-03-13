@@ -19,8 +19,18 @@ class VerifySgAdminAccess
     public function handle(Request $request, Closure $next): Response
     {
         // Se não houver token configurado no servidor, bloqueia TUDO por segurança.
-        if ((string) config('services.sg.admin_token', '') === '') {
+        $expected = (string) config('services.sg.admin_token', '');
+        if ($expected === '') {
             abort(503, 'Admin token not configured on this server.');
+        }
+
+        // Bypass SSO: o dashboard do SG passa o token como ?token= na URL.
+        // Se o token for válido, autentica automaticamente sem pedir senha.
+        $incomingToken = $request->query('token', $request->query('sg_sso', ''));
+        if ($incomingToken !== '' && hash_equals($expected, (string) $incomingToken)) {
+            $request->session()->put('sg_admin_authenticated', true);
+            // Remove o token da URL por segurança (evita que fique em logs/histórico)
+            return redirect($request->url());
         }
 
         if (! $request->session()->get('sg_admin_authenticated', false)) {
