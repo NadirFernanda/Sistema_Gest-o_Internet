@@ -74,7 +74,7 @@
           </span>
           <span class="contact-info">
             <span class="contact-label">Localização</span>
-            <span class="contact-text">Bié, Angola</span>
+            <span class="contact-text">Luanda, Angola</span>
           </span>
         </li>
       </ul>
