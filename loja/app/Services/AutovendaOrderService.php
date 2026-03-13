@@ -48,10 +48,12 @@ class AutovendaOrderService
             $order->status = AutovendaOrder::STATUS_PAID;
             $order->paid_at = $now;
 
-            // Retira um código WiFi disponível do stock da loja.
+            // Retira um código WiFi disponível do stock da loja, para o plano correcto.
             // O stock é gerido localmente na tabela wifi_codes — não é consultado o SG.
+            // Cada plano (diario, semanal, mensal) tem o seu próprio stock de códigos.
             if (empty($order->wifi_code)) {
                 $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)
+                    ->where('plan_id', $order->plan_id)  // seleccionar apenas códigos do plano correcto
                     ->lockForUpdate()   // bloqueia a linha; impede outro pedido de a seleccionar
                     ->first();
                 if ($wifiCode) {
@@ -61,8 +63,8 @@ class AutovendaOrderService
                     $wifiCode->save();
                     $order->wifi_code = $wifiCode->code;
                 } else {
-                    Log::error('Sem códigos WiFi disponíveis no estoque para ordem ' . $order->id);
-                    throw new \Exception('Sem códigos WiFi disponíveis no estoque.');
+                    Log::error('Sem códigos WiFi disponíveis para o plano "' . $order->plan_id . '" — ordem ' . $order->id);
+                    throw new \Exception('Sem códigos WiFi disponíveis para o plano "' . $order->plan_id . '". Tente mais tarde ou contacte o suporte.');
                 }
             }
 

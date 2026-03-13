@@ -10,6 +10,7 @@ class WifiCode extends Model
 
     protected $fillable = [
         'code',
+        'plan_id',
         'status',
         'autovenda_order_id',
         'used_at',

@@ -173,6 +173,7 @@ php artisan migrate --force
 
 php artisan optimize:clear
 php artisan optimize
+php artisan config:clear
 
 sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx

@@ -79,6 +79,13 @@ class AdminDashboardController extends Controller
         $availableWifiCodes = WifiCode::where('status', WifiCode::STATUS_AVAILABLE)->count();
         $usedWifiCodes      = WifiCode::where('status', WifiCode::STATUS_USED)->count();
 
+        // Disponíveis por plano individual
+        $wifiCodesByPlan = WifiCode::selectRaw('plan_id, COUNT(*) as total')
+            ->where('status', WifiCode::STATUS_AVAILABLE)
+            ->whereIn('plan_id', ['diario', 'semanal', 'mensal'])
+            ->groupBy('plan_id')
+            ->pluck('total', 'plan_id');
+
         return view('admin.dashboard', [
             'totalOrders'        => $totalOrders,
             'paidOrders'         => $paidOrders,
@@ -93,6 +100,7 @@ class AdminDashboardController extends Controller
             'totalEquipRevenue'  => $totalEquipRevenue,
             'availableWifiCodes'     => $availableWifiCodes,
             'usedWifiCodes'          => $usedWifiCodes,
+            'wifiCodesByPlan'        => $wifiCodesByPlan,
             'pendingFamilyRequests'  => $pendingFamilyRequests,
         ]);
     }

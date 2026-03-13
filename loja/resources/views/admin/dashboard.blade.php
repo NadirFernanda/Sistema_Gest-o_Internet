@@ -54,8 +54,20 @@
 
       <div class="info-card">
         <h3>🔑 Stock de Códigos WiFi</h3>
-        <p>Disponíveis: <strong>{{ $availableWifiCodes }}</strong></p>
-        <p>Utilizados: <strong>{{ $usedWifiCodes }}</strong></p>
+        <p>Disponíveis (total): <strong>{{ $availableWifiCodes }}</strong></p>
+        @php
+          $wifiPlanLabels = ['diario' => 'Diário', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
+        @endphp
+        <ul style="font-size:0.85rem;margin:.4rem 0 .6rem;padding-left:1.1rem;">
+          @foreach($wifiPlanLabels as $pid => $plabel)
+            @php $n = $wifiCodesByPlan[$pid] ?? 0; @endphp
+            <li style="color:{{ $n === 0 ? '#dc2626' : ($n < 5 ? '#d97706' : '#166534') }}">
+              {{ $plabel }}: <strong>{{ $n }}</strong>
+              @if($n === 0) ⚠ esgotado @elseif($n < 5) ⚠ baixo @endif
+            </li>
+          @endforeach
+        </ul>
+        <p style="font-size:0.82rem;color:#64748b;">Utilizados: {{ $usedWifiCodes }}</p>
         @if($availableWifiCodes === 0)
           <p style="color:#dc2626;font-weight:700;margin-top:.5rem;">⚠️ Sem stock! Importe para poder vender.</p>
         @elseif($availableWifiCodes < 10)
