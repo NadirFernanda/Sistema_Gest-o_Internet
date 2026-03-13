@@ -33,7 +33,7 @@
       <div class="plan-card-modern" style="max-width:100%;">
         <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">Dados da encomenda</h3>
         <p><strong>Estado:</strong>
-          <span style="background:#f1f5f9;border-radius:0.4rem;padding:0.15rem 0.5rem;font-size:0.9rem;font-weight:700;">{{ $order->status }}</span>
+          <span style="background:#f1f5f9;border-radius:0.4rem;padding:0.15rem 0.5rem;font-size:0.9rem;font-weight:700;">{{ $order->statusLabel() }}</span>
         </p>
         <p><strong>Pagamento:</strong>
           @if ($order->payment_method === 'multicaixa_express') Multicaixa Express
@@ -69,8 +69,8 @@
             style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
         @csrf @method('PATCH')
         <select name="status" style="padding:0.6rem;border:1.5px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;">
-          @foreach ($statuses as $st)
-            <option value="{{ $st }}" {{ $order->status === $st ? 'selected' : '' }}>{{ ucfirst($st) }}</option>
+          @foreach (\App\Models\EquipmentOrder::statusLabels() as $st => $label)
+            <option value="{{ $st }}" {{ $order->status === $st ? 'selected' : '' }}>{{ $label }}</option>
           @endforeach
         </select>
         <button type="submit" class="btn-modern">Guardar estado</button>

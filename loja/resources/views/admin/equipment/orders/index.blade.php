@@ -14,10 +14,10 @@
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;" role="group" aria-label="Filtrar por estado">
       <a href="{{ route('admin.equipment.orders.index') }}"
          class="plan-feature {{ !request('status') ? 'plan-feature--active' : '' }}">Todos</a>
-      @foreach ($statuses as $st)
+      @foreach (\App\Models\EquipmentOrder::statusLabels() as $st => $label)
         <a href="{{ route('admin.equipment.orders.index', ['status' => $st]) }}"
            class="plan-feature {{ request('status') === $st ? 'plan-feature--active' : '' }}">
-          {{ ucfirst($st) }}
+          {{ $label }}
         </a>
       @endforeach
     </div>
@@ -46,7 +46,7 @@
                 <td style="padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;">{{ $order->customer_phone }}</td>
                 <td style="padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;">{{ number_format($order->total_aoa, 0, ',', '.') }}</td>
                 <td style="padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;text-align:center;">
-                  <span style="background:#f1f5f9;border-radius:0.4rem;padding:0.2rem 0.6rem;font-size:0.88rem;font-weight:600;">{{ $order->status }}</span>
+                  <span style="background:#f1f5f9;border-radius:0.4rem;padding:0.2rem 0.6rem;font-size:0.88rem;font-weight:600;">{{ $order->statusLabel() }}</span>
                 </td>
                 <td style="padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;font-size:0.9rem;color:#64748b;">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                 <td style="padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;">

@@ -49,4 +49,20 @@ class EquipmentOrder extends Model
             self::STATUS_CANCELLED,
         ];
     }
+
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_PENDING   => 'Pendente',
+            self::STATUS_CONFIRMED => 'Confirmada',
+            self::STATUS_SHIPPED   => 'Enviada',
+            self::STATUS_DELIVERED => 'Entregue',
+            self::STATUS_CANCELLED => 'Cancelada',
+        ];
+    }
+
+    public function statusLabel(): string
+    {
+        return self::statusLabels()[$this->status] ?? ucfirst($this->status);
+    }
 }
