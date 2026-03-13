@@ -19,7 +19,9 @@ class PlanTemplateCatalogController extends Controller
     {
         $query = PlanTemplate::query()
             ->where(function ($q) {
-                $q->whereIn('estado', ['ativo', 'active', 'Ativo', 'Active', ''])
+                // Aceita as variantes ortográficas pt-BR ('Ativo') e pt-PT ('Activo'),
+                // maiúsculas e minúsculas, string vazia, e NULL.
+                $q->whereRaw("LOWER(estado) IN ('ativo','activo','active','')")
                   ->orWhereNull('estado');
             })
             ->orderBy('preco');
