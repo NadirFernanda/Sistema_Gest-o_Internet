@@ -40,7 +40,8 @@
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Nome</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">E-mail</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Telefone</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Modo</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;" title="Pedido pelo candidato">Internet solicitada</th>
+            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;" title="Modo configurado pelo admin">Modo admin</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Manutenção</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Estado</th>
             <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Criado em</th>
@@ -57,6 +58,15 @@
               </td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->email }}</td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->phone }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
+                @if($app->internet_type === 'own')
+                  <span style="font-size:.85rem;">🏠 Própria</span>
+                @elseif($app->internet_type === 'angolawifi')
+                  <span style="font-size:.85rem;">📡 AngolaWiFi</span>
+                @else
+                  <span style="color:#94a3b8;font-size:.85rem;">—</span>
+                @endif
+              </td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
                 @if($app->reseller_mode === 'own')
                   <span style="background:#dbeafe;color:#1d4ed8;padding:.15rem .45rem;border-radius:.3rem;font-size:.8rem;">Modo 1</span>

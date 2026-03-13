@@ -89,11 +89,25 @@
 
           <div class="form-row">
             <label for="reseller_mode">Modo de revenda</label>
+            @php
+              // Pré-seleccionar com base no internet_type do candidato se o admin ainda não configurou
+              $modeDefault = old('reseller_mode', $application->reseller_mode ?? $application->internet_type);
+            @endphp
             <select id="reseller_mode" name="reseller_mode" class="newsletter-input">
               <option value="">-- Não definido --</option>
-              <option value="own"         @selected($application->reseller_mode === 'own')        >Modo 1 – Internet Própria (70% desconto fixo)</option>
-              <option value="angolawifi"  @selected($application->reseller_mode === 'angolawifi') >Modo 2 – Internet AngolaWiFi (escalonado)</option>
+              <option value="own"        @selected($modeDefault === 'own')       >Modo 1 – Internet Própria (70% desconto fixo)</option>
+              <option value="angolawifi" @selected($modeDefault === 'angolawifi')>Modo 2 – Internet AngolaWiFi (escalonado)</option>
             </select>
+            <p style="font-size:.8rem;color:#64748b;margin-top:.25rem;">
+              O candidato solicitou:
+              @if($application->internet_type === 'own')
+                <strong>🏠 Tenho internet própria no local de instalação</strong>
+              @elseif($application->internet_type === 'angolawifi')
+                <strong>📡 Necessito de internet fornecida pela AngolaWiFi</strong>
+              @else
+                <em>não especificado</em>
+              @endif
+            </p>
             @error('reseller_mode')<p style="color:#dc2626;font-size:.85rem;">{{ $message }}</p>@enderror
           </div>
 
@@ -158,7 +172,18 @@
         <div><dt style="color:#64748b;">BI / NIF</dt><dd>{{ $application->document_number }}</dd></div>
         <div><dt style="color:#64748b;">Endereço</dt><dd>{{ $application->address }}</dd></div>
         <div><dt style="color:#64748b;">Local de instalação</dt><dd>{{ $application->installation_location }}</dd></div>
-        <div><dt style="color:#64748b;">Tipo de internet</dt><dd>{{ $application->internet_type }}</dd></div>
+        <div>
+          <dt style="color:#64748b;">Internet solicitada</dt>
+          <dd>
+            @if($application->internet_type === 'own')
+              🏠 Tenho internet própria no local de instalação
+            @elseif($application->internet_type === 'angolawifi')
+              📡 Necessito de internet fornecida pela AngolaWiFi
+            @else
+              <span style="color:#94a3b8;">—</span>
+            @endif
+          </dd>
+        </div>
         <div><dt style="color:#64748b;">Candidatura enviada</dt><dd>{{ optional($application->created_at)->format('d/m/Y H:i') }}</dd></div>
         <div><dt style="color:#64748b;">Bónus de arranque</dt><dd>{{ number_format($application->bonus_vouchers_aoa ?? 0, 0, ',', '.') }} Kz</dd></div>
       </dl>
