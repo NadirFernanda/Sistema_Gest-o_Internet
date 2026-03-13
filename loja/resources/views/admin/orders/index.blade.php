@@ -52,19 +52,43 @@
         <tbody>
           @forelse($orders as $order)
             <tr>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">#{{ $order->id }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $order->plan_name ?? $order->plan_id }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ number_format($order->amount_aoa, 0, ',', '.') }} AOA</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $order->status }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $order->payment_method ?? '—' }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;font-weight:700;color:var(--brand);">#{{ $order->id }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;font-weight:600;">{{ $order->plan_name ?? $order->plan_id }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;color:#1b1b18;">{{ number_format($order->amount_aoa, 0, ',', '.') }} AOA</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
+                @if($order->status === 'paid')
+                  <span class="badge bg-amber">Pago</span>
+                @elseif($order->status === 'awaiting_payment')
+                  <span class="badge bg-orange">Aguarda</span>
+                @elseif($order->status === 'pending')
+                  <span class="badge bg-gray">Pendente</span>
+                @elseif($order->status === 'cancelled')
+                  <span class="badge bg-gray">Cancelado</span>
+                @elseif($order->status === 'failed')
+                  <span class="badge bg-red">Falhou</span>
+                @elseif($order->status === 'expired')
+                  <span class="badge bg-gray">Expirado</span>
+                @else
+                  <span class="badge bg-gray">{{ $order->status }}</span>
+                @endif
+              </td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
+                @if($order->payment_method === 'multicaixa')
+                  <span class="badge bg-amber">Multicaixa Express</span>
+                @elseif($order->payment_method === 'paypal')
+                  <span class="badge bg-gray">PayPal</span>
+                @else
+                  <span class="badge bg-gray">—</span>
+                @endif
+              </td>
               <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
                 @if($order->customer_email || $order->customer_phone)
-                  {{ $order->customer_email }} @if($order->customer_phone) / {{ $order->customer_phone }} @endif
+                  {{ $order->customer_email }} @if($order->customer_phone) <span style="color:#706f6c;font-size:.92em;">/ {{ $order->customer_phone }}</span> @endif
                 @else
                   <span class="muted">Sem dados (plano rápido)</span>
                 @endif
               </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ optional($order->created_at)->format('d/m/Y H:i') }}</td>
+              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;color:#706f6c;">{{ optional($order->created_at)->format('d/m/Y H:i') }}</td>
             </tr>
           @empty
             <tr>
