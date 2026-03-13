@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Planos Familiares &amp; Empresariais &mdash; Admin')
+@section('title', 'Planos Familiares, Empresariais e Institucionais &mdash; Admin')
 
 @section('content')
 <style>
@@ -45,7 +45,7 @@
 
   <div class="ap-topbar">
     <div>
-      <h1>Planos Familiares &amp; Empresariais</h1>
+      <h1>Planos Familiares, Empresariais e Institucionais</h1>
       <p class="ap-sub">Admin &rsaquo; Pedidos de planos com gest&atilde;o via SG</p>
     </div>
     <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
