@@ -7,6 +7,13 @@ use GuzzleHttp\Client;
 
 class StoreProxyController extends Controller
 {
+    /** Strip UTF-8 BOM bytes emitted by the SG dev server, then json_decode. */
+    private function decodeBody($body): ?array
+    {
+        $raw = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $body));
+        return json_decode($raw, true) ?: null;
+    }
+
     protected function getToken(): ?string
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
@@ -27,7 +34,7 @@ class StoreProxyController extends Controller
                 'http_errors' => false,
                 'timeout' => 8,
             ]);
-            $body = json_decode((string) $res->getBody(), true);
+            $body = $this->decodeBody($res->getBody());
             return $body['access_token'] ?? null;
         } catch (\Exception $e) {
             return null;
@@ -75,8 +82,9 @@ class StoreProxyController extends Controller
                 'timeout' => 8,
             ]);
 
-            return response($res->getBody(), $res->getStatusCode())
-                ->header('Content-Type', $res->getHeaderLine('Content-Type') ?: 'application/json');
+            $clean = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+            return response($clean, $res->getStatusCode())
+                ->header('Content-Type', 'application/json');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -99,8 +107,9 @@ class StoreProxyController extends Controller
                 'timeout' => 8,
             ]);
 
-            return response($res->getBody(), $res->getStatusCode())
-                ->header('Content-Type', $res->getHeaderLine('Content-Type') ?: 'application/json');
+            $clean = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+            return response($clean, $res->getStatusCode())
+                ->header('Content-Type', 'application/json');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -159,7 +168,7 @@ class StoreProxyController extends Controller
             ]);
 
             if ($res->getStatusCode() === 200) {
-                $body = json_decode((string) $res->getBody(), true);
+                $body = $this->decodeBody($res->getBody());
                 return $body ?? ['found' => false];
             }
         } catch (\Exception $e) {
@@ -198,7 +207,7 @@ class StoreProxyController extends Controller
                 'timeout'     => 12,
             ]);
 
-            $body = json_decode((string) $res->getBody(), true);
+            $body = $this->decodeBody($res->getBody());
 
             if ($res->getStatusCode() >= 200 && $res->getStatusCode() < 300) {
                 return ['success' => true, 'data' => $body, 'error' => null];
@@ -221,3 +230,4 @@ class StoreProxyController extends Controller
         }
     }
 }
+
