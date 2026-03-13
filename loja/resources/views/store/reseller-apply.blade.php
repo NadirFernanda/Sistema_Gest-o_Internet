@@ -88,10 +88,8 @@
 
           <div class="reseller-fixed-message">
             <p class="reseller-fixed-title">Mensagem a enviar</p>
-            <p class="reseller-fixed-body">
-Saudações prezados,
-Venho pelo intermédio deste manifestar o interesse para ser agente revendedor do serviço AngolaWiFi.
-            </p>
+            <p class="reseller-fixed-body">Saudações prezados,
+Venho pelo intermédio deste manifestar o interesse para ser agente revendedor do serviço AngolaWiFi.</p>
           </div>
 
           <div class="reseller-form-actions">

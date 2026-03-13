@@ -1697,7 +1697,7 @@ main { display: block; }
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  font-weight: 500 !important;
+  font-weight: 500;
   cursor: pointer;
   padding: 0.55rem 0.75rem;
   border-radius: 8px;
