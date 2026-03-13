@@ -395,17 +395,6 @@ main { display: block; }
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(247, 181, 0, 0.35);
 }
-button, .btn, .btn-primary, .btn-modern, .ap-btn-primary, input[type="submit"], a.btn-primary {
-  background: var(--brand) !important;
-  color: var(--text-dark) !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 8px 20px rgba(247,181,0,0.12) !important;
-  text-transform:none !important;
-}
-button:hover, .btn-primary:hover, .btn-modern:hover, .ap-btn-primary:hover, a.btn-primary:hover {
-  filter: brightness(0.95);
-  transform: translateY(-2px);
-}
 
 .btn-ghost {
   background: transparent;
