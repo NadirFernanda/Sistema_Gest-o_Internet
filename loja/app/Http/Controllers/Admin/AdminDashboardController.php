@@ -9,9 +9,47 @@ use App\Models\FamilyPlanRequest;
 use App\Models\Product;
 use App\Models\ResellerApplication;
 use App\Models\WifiCode;
+use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
+    /** Página de login do painel admin. */
+    public function showLogin()
+    {
+        // Já autenticado? Redireciona directamente para o dashboard.
+        if (request()->session()->get('sg_admin_authenticated', false)) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('admin.login');
+    }
+
+    /** Processa o formulário de login. */
+    public function processLogin(Request $request)
+    {
+        $request->validate(['password' => 'required|string']);
+
+        $expected = (string) config('services.sg.admin_token', '');
+
+        if ($expected !== '' && hash_equals($expected, $request->input('password'))) {
+            $request->session()->regenerate();
+            $request->session()->put('sg_admin_authenticated', true);
+
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        return back()->with('error', 'Palavra-passe incorrecta. Tente novamente.');
+    }
+
+    /** Terminar sessão admin. */
+    public function logout(Request $request)
+    {
+        $request->session()->forget('sg_admin_authenticated');
+        $request->session()->regenerate();
+
+        return redirect()->route('admin.login');
+    }
+
     public function index()
     {
         $totalOrders = AutovendaOrder::count();

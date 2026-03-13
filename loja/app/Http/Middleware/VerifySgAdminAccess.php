@@ -9,32 +9,24 @@ use Symfony\Component\HttpFoundation\Response;
 class VerifySgAdminAccess
 {
     /**
-     * Verifica se o acesso ao painel da loja veio do SG (ou de quem conhece o token partilhado).
+     * Protege o painel Admin da loja.
+     *
+     * Autenticação exclusivamente por formulário de login (/admin/login).
+     * A sessão guarda apenas um flag booleano — nunca o valor do token.
+     * Tokens NUNCA são aceites em URLs ou cabeçalhos HTTP (evita fuga via logs,
+     * histórico do browser e cabeçalhos Referer).
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $expected = (string) config('services.sg.admin_token', '');
-
-        // Se não houver token configurado, bloqueia por segurança
-        if ($expected === '') {
-            abort(403, 'Admin token not configured.');
+        // Se não houver token configurado no servidor, bloqueia TUDO por segurança.
+        if ((string) config('services.sg.admin_token', '') === '') {
+            abort(503, 'Admin token not configured on this server.');
         }
 
-        // Token pode vir via query string (?token=...), header (X-SG-Admin-Token)
-        // ou sinalizado na sessão (autenticado anteriormente).
-        // SEGURANÇA: a sessão guarda apenas um flag booleano, nunca o token em si.
-        $sessionAuth = $request->session()->get('sg_admin_authenticated', false);
-
-        $provided = (string) ($request->query('token')
-            ?: $request->header('X-SG-Admin-Token', '')
-            ?: ($sessionAuth ? $expected : ''));
-
-        if ($provided === '' || ! hash_equals($expected, $provided)) {
-            abort(403, 'Unauthorized access to loja admin.');
+        if (! $request->session()->get('sg_admin_authenticated', false)) {
+            return redirect()->route('admin.login')
+                ->with('error', 'Por favor faça login para aceder ao painel.');
         }
-
-        // Persiste flag booleano na sessão — nunca o valor do token.
-        $request->session()->put('sg_admin_authenticated', true);
 
         return $next($request);
     }

@@ -3,7 +3,16 @@
 @section('content')
 <section class="planos-section" aria-label="Painel administrativo da loja">
   <div class="container">
-    <h2>Visão geral da loja</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:.25rem;">
+      <h2 style="margin:0;">Visão geral da loja</h2>
+      <form method="POST" action="{{ route('admin.logout') }}" style="margin:0;">
+        @csrf
+        <button type="submit" class="btn-modern"
+                style="font-size:.85rem;padding:.4rem .9rem;background:#f3f4f6;color:#374151;border:1px solid #d1d5db;">
+          Sair (logout)
+        </button>
+      </form>
+    </div>
     <p class="lead">Resumo rápido das vendas de autovenda e pedidos de revenda.</p>
 
     <div class="info-grid" style="margin-top:1.5rem;">
@@ -19,7 +28,10 @@
         <h3>Revenda</h3>
         <p>Pedidos pendentes: <strong>{{ $pendingResellers }}</strong></p>
         <p>Total de pedidos: <strong>{{ $totalResellers }}</strong></p>
-        <p class="plan-note" style="margin-top:.5rem;">Use o menu Administração &rarr; Revendedores para ver os detalhes.</p>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
+          <a href="{{ route('admin.resellers.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Candidaturas</a>
+          <a href="{{ route('admin.resellers.purchases.index') }}" class="btn-modern" style="font-size:0.88rem;padding:0.4rem 0.9rem;">Compras em Bloco</a>
+        </div>
       </div>
 
       <div class="info-card">

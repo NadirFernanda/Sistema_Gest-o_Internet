@@ -3,8 +3,13 @@
 @section('content')
 <section class="planos-section" aria-label="Gestão de pedidos de revenda">
   <div class="container">
-    <h2>Pedidos de Revendedor</h2>
-    <p class="lead">Candidaturas ao programa de revenda AngolaWiFi.</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:.5rem;">
+      <div>
+        <h2 style="margin:0;">Pedidos de Revendedor</h2>
+        <p class="lead" style="margin:.25rem 0 0;">Candidaturas ao programa de revenda AngolaWiFi.</p>
+      </div>
+      <a href="{{ route('admin.resellers.purchases.index') }}" class="btn-modern" style="font-size:.85rem;padding:.4rem .9rem;">Ver Compras em Bloco →</a>
+    </div>
 
     <form method="get" class="howto-hero" style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
       <div class="form-row" style="max-width:200px;">
