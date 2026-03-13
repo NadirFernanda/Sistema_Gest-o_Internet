@@ -315,9 +315,9 @@
               <td class="dim">#{{ $code->id }}</td>
               <td>
                 @if($code->plan_id === 'diario')
-                  <span class="badge bg-blue">Di&aacute;rio</span>
+                  <span class="badge bg-amber">Di&aacute;rio</span>
                 @elseif($code->plan_id === 'semanal')
-                  <span class="badge bg-purple">Semanal</span>
+                  <span class="badge bg-amber">Semanal</span>
                 @elseif($code->plan_id === 'mensal')
                   <span class="badge bg-amber">Mensal</span>
                 @else

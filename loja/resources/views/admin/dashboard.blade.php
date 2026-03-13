@@ -183,7 +183,7 @@
       <h3>Revenda</h3>
       <p>Pendentes:
         @if($pendingResellers > 0)
-          <span class="badge bg-amber">{{ $pendingResellers }}</span>
+            <span class="badge bg-amber">{{ $pendingResellers }}</span>
         @else <strong>0</strong>
         @endif
       </p>
@@ -210,7 +210,7 @@
       <h3>Planos Familiares / Empresariais</h3>
       <p>Pendentes:
         @if($pendingFamilyRequests > 0)
-          <span class="badge bg-amber">{{ $pendingFamilyRequests }}</span>
+            <span class="badge bg-amber">{{ $pendingFamilyRequests }}</span>
         @else <strong>0</strong>
         @endif
       </p>
@@ -248,9 +248,9 @@
               <td style="font-weight:700;">{{ number_format($order->amount_aoa, 0, ',', '.') }} <span class="dim">AOA</span></td>
               <td>
                 @if($order->status === 'paid')
-                  <span class="badge bg-green">Pago</span>
+                    <span class="badge bg-amber">Pago</span>
                 @elseif($order->status === 'awaiting_payment')
-                  <span class="badge bg-amber">Aguarda</span>
+                    <span class="badge bg-amber">Aguarda</span>
                 @else
                   <span class="badge bg-gray">{{ $order->status }}</span>
                 @endif
