@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AutovendaOrderAdminController;
+use App\Http\Controllers\Admin\InstallationAppointmentAdminController;
 use App\Http\Controllers\Admin\ResellerAdminController;
 use App\Http\Controllers\Admin\ResellerPurchaseAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FamilyPlanPaymentController;
 use App\Http\Controllers\FamilyPlanRequestController;
+use App\Http\Controllers\InstallationAppointmentController;
 use App\Http\Controllers\ResellerPanelController;
 
 Route::get('/', function () {
@@ -57,6 +59,10 @@ Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController
 // Protótipo de callback de pagamento (para testes sem gateway real)
 Route::get('/autovenda/callback/simulate/{order}', [\App\Http\Controllers\PaymentCallbackController::class, 'simulateSuccess'])
     ->name('autovenda.callback.simulate');
+
+// Agendamento de instalação (Família, Empresa, Instituição)
+Route::get('/agendar-instalacao', [InstallationAppointmentController::class, 'show'])->name('appointment.show');
+Route::post('/agendar-instalacao', [InstallationAppointmentController::class, 'store'])->middleware('throttle:5,1')->name('appointment.store');
 
 // Static page: Quem Somos
 Route::view('/quem-somos', 'pages.about');
@@ -125,4 +131,8 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/pedidos-planos-familiares', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'index'])->name('admin.family_requests.index');
     Route::post('/pedidos-planos-familiares/{familyPlanRequest}/confirmar', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'confirmar'])->name('admin.family_requests.confirmar');
     Route::post('/pedidos-planos-familiares/{familyPlanRequest}/cancelar', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'cancelar'])->name('admin.family_requests.cancelar');
+
+    // Agendamentos de instalação
+    Route::get('/agendamentos-instalacao', [InstallationAppointmentAdminController::class, 'index'])->name('admin.appointments.index');
+    Route::patch('/agendamentos-instalacao/{appointment}/estado', [InstallationAppointmentAdminController::class, 'updateStatus'])->name('admin.appointments.status');
 });

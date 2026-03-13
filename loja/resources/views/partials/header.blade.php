@@ -73,6 +73,12 @@
               <span class="store-dropdown-item__title">Encomendas</span>
             </span>
           </a>
+          <a href="{{ route('admin.appointments.index') }}" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">📅</span>
+            <span class="store-dropdown-item__body">
+              <span class="store-dropdown-item__title">Agendamentos</span>
+            </span>
+          </a>
         </div>
       </div>
       @endauth
@@ -81,7 +87,7 @@
       <div class="store-actions">
         <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-cta" aria-label="Ver planos individuais e começar a comprar">Ver planos</a>
         <a href="/painel-revendedor" class="store-cta" aria-label="Aceder ao painel do revendedor">Painel do Revendedor</a>
-        <a href="/solicitar-plano" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
+        <a href="{{ route('appointment.show') }}" class="store-cta" aria-label="Agendar instalação">Agendar instalação</a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
           <span class="mobile-menu-icon"></span>
         </button>
@@ -96,7 +102,7 @@
     </div>
     <a href="/{{ request()->is('/') ? '#planos' : '#planos' }}" class="store-mobile-link store-mobile-cta">Ver planos</a>
     <a href="/painel-revendedor" class="store-mobile-link store-mobile-cta">Painel do Revendedor</a>
-    <a href="/solicitar-plano" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
+    <a href="{{ route('appointment.show') }}" class="store-mobile-link store-mobile-cta">Agendar instalação</a>
     <a href="/" class="store-mobile-link">Início</a>
     <a href="/quem-somos" class="store-mobile-link">Quem Somos</a>
     <a href="/como-comprar" class="store-mobile-link">Como Comprar</a>
@@ -110,6 +116,7 @@
       <a href="/admin/relatorios" class="store-mobile-link">Relatórios</a>
       <a href="{{ route('admin.equipment.products.index') }}" class="store-mobile-link">Produtos</a>
       <a href="{{ route('admin.equipment.orders.index') }}" class="store-mobile-link">Encomendas</a>
+      <a href="{{ route('admin.appointments.index') }}" class="store-mobile-link">Agendamentos</a>
     </div>
     @endauth
   </div>
