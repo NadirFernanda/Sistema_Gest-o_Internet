@@ -1,107 +1,164 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="planos-section" aria-label="Gestão de pedidos de revenda">
-  <div class="container">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:.5rem;">
-      <div>
-        <h2 style="margin:0;">Pedidos de Revendedor</h2>
-        <p class="lead" style="margin:.25rem 0 0;">Candidaturas ao programa de revenda AngolaWiFi.</p>
-      </div>
-      <a href="{{ route('admin.resellers.purchases.index') }}" class="btn-modern" style="font-size:.85rem;padding:.4rem .9rem;">Ver Compras em Bloco →</a>
+<style>
+:root{--a-bg:#f4f6f9;--a-surf:#fff;--a-border:#dde2ea;--a-text:#1a202c;--a-muted:#64748b;--a-faint:#9aa5b4;--a-brand:#f7b500;--a-green:#16a34a;--a-amber:#d97706;--a-red:#dc2626;}
+.ap{font-family:Inter,system-ui,sans-serif;background:var(--a-bg);min-height:60vh;padding:2rem 0 4rem;color:var(--a-text);}
+.ap-wrap{max-width:1140px;margin:0 auto;padding:0 1.5rem;}
+.ap-topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:1.75rem;}
+.ap-topbar h1{font-size:1.35rem;font-weight:800;margin:0 0 .15rem;letter-spacing:-.02em;}
+.ap-topbar .ap-sub{font-size:.78rem;color:var(--a-faint);}
+.ap-back{font-size:.82rem;font-weight:600;color:var(--a-muted);text-decoration:none;padding:.4rem .85rem;border:1px solid var(--a-border);border-radius:7px;background:var(--a-surf);transition:background .15s;}
+.ap-back:hover{background:var(--a-border);}
+.ap-ok{background:#f0fdf4;border:1px solid #86efac;border-left:4px solid var(--a-green);color:#166534;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
+.ap-err{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--a-red);color:#7f1d1d;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
+.ap-label{display:block;font-size:.77rem;font-weight:600;color:#374151;margin-bottom:.3rem;}
+.ap-ctrl{width:100%;box-sizing:border-box;padding:.55rem .75rem;border:1.5px solid var(--a-border);border-radius:8px;font-size:.875rem;color:var(--a-text);background:#f8fafc;font-family:inherit;outline:none;transition:border-color .15s;}
+.ap-ctrl:focus{border-color:var(--a-brand);background:#fff;}
+.ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.2rem;border-radius:8px;font-size:.875rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:filter .15s;text-decoration:none;white-space:nowrap;}
+.ap-btn-primary{background:#f7b500;color:#1a202c;}.ap-btn-primary:hover{filter:brightness(.95);}
+.ap-btn-outline{background:var(--a-surf);color:var(--a-muted);border:1.5px solid var(--a-border);}.ap-btn-outline:hover{background:var(--a-border);}
+.ap-btn-sm{padding:.35rem .75rem;font-size:.8rem;}
+.ap-filters{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;padding:.9rem 1.1rem;display:flex;flex-wrap:wrap;gap:.65rem;align-items:flex-end;margin-bottom:1.25rem;}
+.ap-fg{display:flex;flex-direction:column;gap:.25rem;}
+.ap-fg.grow{flex:1;min-width:170px;}
+.ap-tcard{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;overflow:hidden;}
+.ap-table{width:100%;border-collapse:collapse;font-size:.845rem;}
+.ap-table thead{background:#f8fafc;}
+.ap-table th{text-align:left;padding:.65rem 1rem;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a-faint);border-bottom:1px solid var(--a-border);white-space:nowrap;}
+.ap-table td{padding:.6rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
+.ap-table tbody tr:last-child td{border-bottom:none;}
+.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table .dim{color:var(--a-faint);font-size:.82rem;}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
+.bg-amber{background:#fef3c7;color:#b45309;}.bg-green{background:#dcfce7;color:#15803d;}
+.bg-gray{background:#f1f5f9;color:#475569;}.bg-red{background:#fee2e2;color:#b91c1c;}
+.ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
+.ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
+.ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
+.ap-empty-s{font-size:.82rem;margin:0;}
+</style>
+
+<div class="ap"><div class="ap-wrap">
+
+  <div class="ap-topbar">
+    <div>
+      <h1>Revendedores</h1>
+      <p class="ap-sub">Admin &rsaquo; Candidaturas ao programa de revenda AngolaWiFi</p>
     </div>
-
-    <form method="get" class="howto-hero" style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
-      <div class="form-row" style="max-width:200px;">
-        <label for="status">Estado</label>
-        <select id="status" name="status" class="newsletter-input">
-          <option value="">Todos</option>
-          @foreach([\App\Models\ResellerApplication::STATUS_PENDING => 'Pendente', \App\Models\ResellerApplication::STATUS_APPROVED => 'Aprovado', \App\Models\ResellerApplication::STATUS_REJECTED => 'Rejeitado'] as $value => $label)
-            <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="form-row" style="flex:1;min-width:200px;">
-        <label for="q">Pesquisa</label>
-        <input id="q" name="q" value="{{ request('q') }}" class="newsletter-input" placeholder="ID, nome, e-mail ou telefone">
-      </div>
-
-      <div class="form-actions" style="margin-top:0;">
-        <button type="submit" class="btn-primary">Filtrar</button>
-      </div>
-    </form>
-
-    <div class="plans-table" style="margin-top:1rem;overflow-x:auto;">
-      <table class="w-full text-sm" style="border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">#</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Nome</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">E-mail</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Telefone</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;" title="Pedido pelo candidato">Internet solicitada</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;" title="Modo configurado pelo admin">Modo admin</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Manutenção</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Estado</th>
-            <th style="text-align:left;padding:.4rem;border-bottom:1px solid #e5e7eb;">Criado em</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($applications as $app)
-            <tr>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
-                <a href="{{ route('admin.resellers.show', $app) }}" style="color:inherit;">#{{ $app->id }}</a>
-              </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
-                <a href="{{ route('admin.resellers.show', $app) }}" style="color:inherit;font-weight:600;">{{ $app->full_name }}</a>
-              </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->email }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->phone }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
-                @if($app->internet_type === 'own')
-                  <span style="font-size:.85rem;">🏠 Própria</span>
-                @elseif($app->internet_type === 'angolawifi')
-                  <span style="font-size:.85rem;">📡 AngolaWiFi</span>
-                @else
-                  <span style="color:#94a3b8;font-size:.85rem;">—</span>
-                @endif
-              </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
-                @if($app->reseller_mode === 'own')
-                  <span style="background:#dbeafe;color:#1d4ed8;padding:.15rem .45rem;border-radius:.3rem;font-size:.8rem;">Modo 1</span>
-                @elseif($app->reseller_mode === 'angolawifi')
-                  <span style="background:#fef3c7;color:#92400e;padding:.15rem .45rem;border-radius:.3rem;font-size:.8rem;">Modo 2</span>
-                @else
-                  <span style="color:#94a3b8;font-size:.85rem;">—</span>
-                @endif
-              </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">
-                @if($app->maintenance_status === 'ok')
-                  <span style="color:#16a34a;font-size:.85rem;">✅ OK</span>
-                @elseif($app->maintenance_status === 'overdue')
-                  <span style="color:#dc2626;font-size:.85rem;">⚠️ Atraso</span>
-                @elseif($app->maintenance_status === 'pending')
-                  <span style="color:#f59e0b;font-size:.85rem;">⏳ Pendente</span>
-                @else
-                  <span style="color:#94a3b8;font-size:.85rem;">—</span>
-                @endif
-              </td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ $app->status }}</td>
-              <td style="padding:.4rem;border-bottom:1px solid #f3f4f6;">{{ optional($app->created_at)->format('d/m/Y H:i') }}</td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="8" style="padding:.6rem;text-align:center;" class="muted">Nenhum pedido encontrado para os filtros atuais.</td>
-            </tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-
-    <div style="margin-top:1rem;">
-      {{ $applications->links() }}
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <a href="{{ route('admin.resellers.purchases.index') }}" class="ap-btn ap-btn-primary ap-btn-sm">Compras em bloco &rarr;</a>
+      <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
     </div>
   </div>
-</section>
+
+  @if(session('success'))
+    <div class="ap-ok">{{ session('success') }}</div>
+  @endif
+
+  <form method="get" class="ap-filters">
+    <div class="ap-fg">
+      <label class="ap-label">Estado</label>
+      <select name="status" class="ap-ctrl" style="min-width:150px;">
+        <option value="">Todos os estados</option>
+        @foreach([\App\Models\ResellerApplication::STATUS_PENDING => 'Pendente', \App\Models\ResellerApplication::STATUS_APPROVED => 'Aprovado', \App\Models\ResellerApplication::STATUS_REJECTED => 'Rejeitado'] as $value => $label)
+          <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+        @endforeach
+      </select>
+    </div>
+    <div class="ap-fg grow">
+      <label class="ap-label">Pesquisa</label>
+      <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="ID, nome, e-mail ou telefone">
+    </div>
+    <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
+    @if(request()->hasAny(['status','q']))
+      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
+    @endif
+  </form>
+
+  <div class="ap-tcard">
+    <table class="ap-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Contacto</th>
+          <th title="Pedido pelo candidato">Internet</th>
+          <th title="Modo configurado pelo admin">Modo</th>
+          <th>Manuten&ccedil;&atilde;o</th>
+          <th>Estado</th>
+          <th>Criado em</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($applications as $app)
+          <tr>
+            <td class="dim">
+              <a href="{{ route('admin.resellers.show', $app) }}" style="color:var(--a-amber);font-weight:700;">#{{ $app->id }}</a>
+            </td>
+            <td>
+              <a href="{{ route('admin.resellers.show', $app) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">{{ $app->full_name }}</a>
+            </td>
+            <td>
+              <span style="font-size:.85rem;">{{ $app->email }}</span>
+              @if($app->phone)
+                <br><span class="dim">{{ $app->phone }}</span>
+              @endif
+            </td>
+            <td>
+              @if($app->internet_type === 'own')
+                <span class="badge bg-gray">Pr&oacute;pria</span>
+              @elseif($app->internet_type === 'angolawifi')
+                <span class="badge bg-amber">AngolaWiFi</span>
+              @else
+                <span class="dim">&mdash;</span>
+              @endif
+            </td>
+            <td>
+              @if($app->reseller_mode === 'own')
+                <span class="badge bg-gray">Modo 1</span>
+              @elseif($app->reseller_mode === 'angolawifi')
+                <span class="badge bg-amber">Modo 2</span>
+              @else
+                <span class="dim">&mdash;</span>
+              @endif
+            </td>
+            <td>
+              @if($app->maintenance_status === 'ok')
+                <span class="badge bg-green">OK</span>
+              @elseif($app->maintenance_status === 'overdue')
+                <span class="badge bg-red">Atraso</span>
+              @elseif($app->maintenance_status === 'pending')
+                <span class="badge bg-amber">Pendente</span>
+              @else
+                <span class="dim">&mdash;</span>
+              @endif
+            </td>
+            <td>
+              @if($app->status === 'approved')
+                <span class="badge bg-green">Aprovado</span>
+              @elseif($app->status === 'rejected')
+                <span class="badge bg-red">Rejeitado</span>
+              @else
+                <span class="badge bg-amber">Pendente</span>
+              @endif
+            </td>
+            <td class="dim">{{ optional($app->created_at)->format('d/m/Y H:i') }}</td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="8">
+              <div class="ap-empty">
+                <p class="ap-empty-t">Nenhuma candidatura encontrada</p>
+                <p class="ap-empty-s">Ajuste os filtros ou aguarde novos pedidos.</p>
+              </div>
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+    <div class="ap-pager">{{ $applications->links() }}</div>
+  </div>
+
+</div></div>
 @endsection

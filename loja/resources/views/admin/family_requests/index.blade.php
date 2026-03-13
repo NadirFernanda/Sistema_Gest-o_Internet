@@ -1,156 +1,173 @@
 @extends('layouts.app')
 
-@section('title', 'Pedidos de Planos Familiares — Admin')
+@section('title', 'Planos Familiares &amp; Empresariais &mdash; Admin')
 
 @section('content')
-<section class="planos-section" aria-label="Pedidos de planos familiares e empresariais">
-  <div class="container">
+<style>
+:root{--a-bg:#f4f6f9;--a-surf:#fff;--a-border:#dde2ea;--a-text:#1a202c;--a-muted:#64748b;--a-faint:#9aa5b4;--a-brand:#f7b500;--a-green:#16a34a;--a-amber:#d97706;--a-red:#dc2626;}
+.ap{font-family:Inter,system-ui,sans-serif;background:var(--a-bg);min-height:60vh;padding:2rem 0 4rem;color:var(--a-text);}
+.ap-wrap{max-width:1140px;margin:0 auto;padding:0 1.5rem;}
+.ap-topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;}
+.ap-topbar h1{font-size:1.35rem;font-weight:800;margin:0 0 .15rem;letter-spacing:-.02em;}
+.ap-topbar .ap-sub{font-size:.78rem;color:var(--a-faint);}
+.ap-back{font-size:.82rem;font-weight:600;color:var(--a-muted);text-decoration:none;padding:.4rem .85rem;border:1px solid var(--a-border);border-radius:7px;background:var(--a-surf);transition:background .15s;}
+.ap-back:hover{background:var(--a-border);}
+.ap-ok{background:#f0fdf4;border:1px solid #86efac;border-left:4px solid var(--a-green);color:#166534;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
+.ap-err{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--a-red);color:#7f1d1d;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;}
+.ap-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.65rem;margin-bottom:1.5rem;}
+.ap-stat{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;padding:.85rem 1rem;text-decoration:none;transition:border-color .15s;}
+.ap-stat:hover{border-color:var(--a-brand);}
+.ap-stat-val{font-size:1.6rem;font-weight:800;line-height:1;margin:0 0 .2rem;}
+.ap-stat-lbl{font-size:.75rem;color:var(--a-muted);font-weight:500;}
+.ap-stat.active{border-color:var(--a-brand);}
+.ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:filter .15s;text-decoration:none;white-space:nowrap;}
+.ap-btn-primary{background:#f7b500;color:#1a202c;}.ap-btn-primary:hover{filter:brightness(.95);}
+.ap-btn-danger{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;}.ap-btn-danger:hover{background:#fecaca;}
+.ap-tcard{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;overflow:hidden;}
+.ap-table{width:100%;border-collapse:collapse;font-size:.845rem;}
+.ap-table thead{background:#f8fafc;}
+.ap-table th{text-align:left;padding:.65rem 1rem;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a-faint);border-bottom:1px solid var(--a-border);white-space:nowrap;}
+.ap-table td{padding:.6rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
+.ap-table tbody tr:last-child td{border-bottom:none;}
+.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table .dim{color:var(--a-faint);font-size:.82rem;}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
+.bg-amber{background:#fef3c7;color:#b45309;}.bg-green{background:#dcfce7;color:#15803d;}
+.bg-gray{background:#f1f5f9;color:#475569;}.bg-red{background:#fee2e2;color:#b91c1c;}.bg-blue{background:#dbeafe;color:#1d4ed8;}
+.ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
+.ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
+.ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
+.ap-empty-s{font-size:.82rem;margin:0;}
+</style>
 
-    <h2>Pedidos de Planos Familiares &amp; Empresariais</h2>
-    <p class="lead">
-      A janela de acesso é adicionada <strong>automaticamente no SG</strong> quando o cliente submete o formulário.
-      O seu papel aqui é <strong>verificar se o pagamento foi recebido</strong> e cancelar casos em que não foi.
-      O botão "Activar no SG" só aparece quando a activação automática falhou.
-    </p>
+<div class="ap"><div class="ap-wrap">
 
-    {{-- Alertas --}}
-    @if(session('success'))
-      <div class="checkout-errors" style="background:#f0fdf4;border-color:#86efac;color:#166534;margin-bottom:1rem;">
-        <p>{{ session('success') }}</p>
-      </div>
-    @endif
-    @if(session('error'))
-      <div class="checkout-errors" style="margin-bottom:1rem;">
-        <p>{{ session('error') }}</p>
-      </div>
-    @endif
-
-    {{-- Contadores por estado --}}
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
-      @php
-        $filterLabels = [
-          'pending'   => ['label' => 'Pendentes',   'color' => '#f59e0b'],
-          'confirmed' => ['label' => 'Confirmados', 'color' => '#3b82f6'],
-          'activated' => ['label' => 'Activados',   'color' => '#22c55e'],
-          'cancelled' => ['label' => 'Cancelados',  'color' => '#ef4444'],
-        ];
-      @endphp
-      @foreach($filterLabels as $key => $meta)
-        <a href="{{ route('admin.family_requests.index', ['status' => $key]) }}"
-           class="checkout-summary-card"
-           style="flex:1;min-width:110px;text-align:center;padding:0.9rem;text-decoration:none;
-                  {{ $status === $key ? 'border-color:'.$meta['color'].';' : 'opacity:0.65;' }}">
-          <p class="total" style="font-size:1.5rem;margin:0;color:{{ $meta['color'] }};">{{ $counts[$key] }}</p>
-          <p style="font-size:0.78rem;color:#64748b;margin:0;">{{ $meta['label'] }}</p>
-        </a>
-      @endforeach
-      <a href="{{ route('admin.family_requests.index') }}"
-         class="checkout-summary-card"
-         style="flex:1;min-width:110px;text-align:center;padding:0.9rem;text-decoration:none;
-                {{ $status === 'all' ? '' : 'opacity:0.65;' }}">
-        <p class="total" style="font-size:1.5rem;margin:0;">{{ array_sum($counts) }}</p>
-        <p style="font-size:0.78rem;color:#64748b;margin:0;">Todos</p>
-      </a>
+  <div class="ap-topbar">
+    <div>
+      <h1>Planos Familiares &amp; Empresariais</h1>
+      <p class="ap-sub">Admin &rsaquo; Pedidos de planos com gest&atilde;o via SG</p>
     </div>
+    <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
+  </div>
 
-    {{-- Tabela de pedidos --}}
-    @if($requests->count() === 0)
-      <p style="color:#64748b;">Nenhum pedido encontrado para o filtro selecionado.</p>
-    @else
-    <div style="overflow-x:auto;">
-      <table class="admin-table" style="width:100%;border-collapse:collapse;font-size:0.88rem;">
-        <thead>
-          <tr style="background:#f8fafc;text-align:left;">
-            <th style="padding:0.6rem 0.8rem;">#</th>
-            <th style="padding:0.6rem 0.8rem;">Plano</th>
-            <th style="padding:0.6rem 0.8rem;">Cliente</th>
-            <th style="padding:0.6rem 0.8rem;">Contato</th>
-            <th style="padding:0.6rem 0.8rem;">Pagamento</th>
-            <th style="padding:0.6rem 0.8rem;">Estado</th>
-            <th style="padding:0.6rem 0.8rem;">Data</th>
-            <th style="padding:0.6rem 0.8rem;">Acções</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($requests as $req)
-          @php
-            $statusColor = match($req->status) {
-              'pending'   => '#f59e0b',
-              'confirmed' => '#3b82f6',
-              'activated' => '#22c55e',
-              'cancelled' => '#ef4444',
-              default     => '#64748b',
-            };
-            $statusLabel = match($req->status) {
-              'pending'   => 'Pendente',
-              'confirmed' => 'Confirmado',
-              'activated' => 'Activado',
-              'cancelled' => 'Cancelado',
-              default     => $req->status,
-            };
-          @endphp
-          <tr style="border-bottom:1px solid #f1f5f9;">
-            <td style="padding:0.6rem 0.8rem;color:#94a3b8;">{{ $req->id }}</td>
-            <td style="padding:0.6rem 0.8rem;font-weight:600;">{{ $req->plan_name }}</td>
-            <td style="padding:0.6rem 0.8rem;">
+  @if(session('success'))
+    <div class="ap-ok">{{ session('success') }}</div>
+  @endif
+  @if(session('error'))
+    <div class="ap-err">{{ session('error') }}</div>
+  @endif
+
+  <div class="ap-note">
+    A janela de acesso &eacute; adicionada <strong>automaticamente no SG</strong> quando o cliente submete o formul&aacute;rio.
+    O seu papel aqui &eacute; <strong>verificar se o pagamento foi recebido</strong> e cancelar casos em que n&atilde;o foi.
+    O bot&atilde;o &ldquo;Activar no SG&rdquo; s&oacute; aparece quando a activa&ccedil;&atilde;o autom&aacute;tica falhou.
+  </div>
+
+  {{-- Contadores por estado --}}
+  @php
+    $filterLabels = [
+      'pending'   => ['label' => 'Pendentes',   'val' => $counts['pending']   ?? 0],
+      'confirmed' => ['label' => 'Confirmados', 'val' => $counts['confirmed'] ?? 0],
+      'activated' => ['label' => 'Activados',   'val' => $counts['activated'] ?? 0],
+      'cancelled' => ['label' => 'Cancelados',  'val' => $counts['cancelled'] ?? 0],
+    ];
+    $total = array_sum(array_column($filterLabels, 'val'));
+  @endphp
+  <div class="ap-stats">
+    @foreach($filterLabels as $key => $meta)
+      <a href="{{ route('admin.family_requests.index', ['status' => $key]) }}"
+         class="ap-stat {{ $status === $key ? 'active' : '' }}" style="display:block;color:inherit;">
+        <p class="ap-stat-val">{{ $meta['val'] }}</p>
+        <p class="ap-stat-lbl">{{ $meta['label'] }}</p>
+      </a>
+    @endforeach
+    <a href="{{ route('admin.family_requests.index') }}"
+       class="ap-stat {{ $status === 'all' ? 'active' : '' }}" style="display:block;color:inherit;">
+      <p class="ap-stat-val">{{ $total }}</p>
+      <p class="ap-stat-lbl">Todos</p>
+    </a>
+  </div>
+
+  <div class="ap-tcard">
+    <table class="ap-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Plano</th>
+          <th>Cliente</th>
+          <th>Contacto</th>
+          <th>Pagamento</th>
+          <th>Estado</th>
+          <th>Data</th>
+          <th>Ac&ccedil;&otilde;es</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($requests as $req)
+          <tr>
+            <td class="dim">{{ $req->id }}</td>
+            <td style="font-weight:600;">{{ $req->plan_name }}</td>
+            <td>
               {{ $req->customer_name }}
               @if($req->customer_email)
-                <br><span style="color:#64748b;font-size:0.8rem;">{{ $req->customer_email }}</span>
+                <br><span class="dim">{{ $req->customer_email }}</span>
               @endif
             </td>
-            <td style="padding:0.6rem 0.8rem;">{{ $req->customer_phone }}</td>
-            <td style="padding:0.6rem 0.8rem;text-transform:capitalize;">
-              {{ str_replace('_', ' ', $req->payment_method) }}
+            <td>{{ $req->customer_phone }}</td>
+            <td>{{ str_replace('_', ' ', $req->payment_method) }}</td>
+            <td>
+              @if($req->status === 'activated')
+                <span class="badge bg-green">Activado</span>
+              @elseif($req->status === 'confirmed')
+                <span class="badge bg-blue">Confirmado</span>
+              @elseif($req->status === 'pending')
+                <span class="badge bg-amber">Pendente</span>
+              @elseif($req->status === 'cancelled')
+                <span class="badge bg-red">Cancelado</span>
+              @else
+                <span class="badge bg-gray">{{ $req->status }}</span>
+              @endif
             </td>
-            <td style="padding:0.6rem 0.8rem;">
-              <span style="background:{{ $statusColor }}22;color:{{ $statusColor }};padding:0.2rem 0.6rem;border-radius:999px;font-size:0.78rem;font-weight:700;">
-                {{ $statusLabel }}
-              </span>
-            </td>
-            <td style="padding:0.6rem 0.8rem;white-space:nowrap;color:#64748b;">
-              {{ $req->created_at->format('d/m/Y H:i') }}
-            </td>
-            <td style="padding:0.6rem 0.8rem;">
+            <td class="dim" style="white-space:nowrap;">{{ $req->created_at->format('d/m/Y H:i') }}</td>
+            <td>
               @if(in_array($req->status, ['pending', 'confirmed']))
-                {{-- Activation failed automatically — manual fallback --}}
                 <form method="POST" action="{{ route('admin.family_requests.confirmar', $req) }}"
                       style="display:inline;"
                       onsubmit="return confirm('Activar pedido #{{ $req->id }} manualmente no SG?');">
                   @csrf
-                  <button type="submit" class="btn-primary"
-                          style="padding:0.25rem 0.75rem;font-size:0.8rem;border:none;cursor:pointer;">
-                    ⚡ Activar no SG
-                  </button>
+                  <button type="submit" class="ap-btn ap-btn-primary">Activar no SG</button>
                 </form>
                 <form method="POST" action="{{ route('admin.family_requests.cancelar', $req) }}"
-                      style="display:inline;margin-left:0.4rem;"
+                      style="display:inline;margin-left:.35rem;"
                       onsubmit="return confirm('Cancelar pedido #{{ $req->id }}?');">
                   @csrf
-                  <button type="submit"
-                          style="padding:0.25rem 0.75rem;font-size:0.8rem;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;">
-                    ✖ Cancelar
-                  </button>
+                  <button type="submit" class="ap-btn ap-btn-danger">Cancelar</button>
                 </form>
               @elseif($req->status === 'activated')
-                <span style="color:#22c55e;font-size:0.82rem;">✅ Janela adicionada no SG</span>
+                <span class="badge bg-green">Janela adicionada no SG</span>
                 @if($req->notes)
-                  <br><small style="color:#94a3b8;font-size:0.75rem;">{{ $req->notes }}</small>
+                  <br><span class="dim" style="font-size:.75rem;">{{ $req->notes }}</span>
                 @endif
               @else
-                <span style="color:#94a3b8;font-size:0.82rem;">—</span>
+                <span class="dim">&mdash;</span>
               @endif
             </td>
           </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
-
-    <div style="margin-top:1rem;">
-      {{ $requests->links() }}
-    </div>
-    @endif
-
+        @empty
+          <tr>
+            <td colspan="8">
+              <div class="ap-empty">
+                <p class="ap-empty-t">Nenhum pedido encontrado</p>
+                <p class="ap-empty-s">Nenhum resultado para o filtro seleccionado.</p>
+              </div>
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+    <div class="ap-pager">{{ $requests->links() }}</div>
   </div>
-</section>
+
+</div></div>
 @endsection
