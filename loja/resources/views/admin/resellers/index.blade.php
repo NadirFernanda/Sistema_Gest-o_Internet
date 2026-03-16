@@ -87,6 +87,7 @@
           <th>Manuten&ccedil;&atilde;o</th>
           <th>Estado</th>
           <th>Criado em</th>
+          <th>A&ccedil;&otilde;es</th>
         </tr>
       </thead>
       <tbody>
@@ -140,10 +141,25 @@
               @endif
             </td>
             <td class="dim">{{ optional($app->created_at)->format('d/m/Y H:i') }}</td>
+            <td style="white-space:nowrap;">
+              <a href="{{ route('admin.resellers.show', $app) }}" class="ap-btn ap-btn-outline ap-btn-sm">Ver</a>
+              @if($app->status === 'pending')
+                <form action="{{ route('admin.resellers.status', $app) }}" method="POST" style="display:inline;">
+                  @csrf @method('PATCH')
+                  <input type="hidden" name="status" value="approved">
+                  <button type="submit" class="ap-btn ap-btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;">Aprovar</button>
+                </form>
+                <form action="{{ route('admin.resellers.status', $app) }}" method="POST" style="display:inline;">
+                  @csrf @method('PATCH')
+                  <input type="hidden" name="status" value="rejected">
+                  <button type="submit" class="ap-btn ap-btn-sm" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;">Rejeitar</button>
+                </form>
+              @endif
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="7">
+            <td colspan="8">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma candidatura encontrada</p>
                 <p class="ap-empty-s">Ajuste os filtros ou aguarde novos pedidos.</p>
