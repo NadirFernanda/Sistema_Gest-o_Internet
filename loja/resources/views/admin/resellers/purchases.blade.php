@@ -74,48 +74,35 @@
     <table class="ap-table">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Revendedor</th>
-          <th>C&oacute;digos</th>
-          <th>Desconto</th>
+          <th>Nome do Revendedor</th>
+          <th>N.&ordm; Telem&oacute;vel</th>
           <th>Valor bruto</th>
+          <th>Desconto</th>
           <th>Valor l&iacute;quido</th>
-          <th>CSV</th>
-          <th>Data</th>
+          <th>Data da &uacute;ltima compra</th>
         </tr>
       </thead>
       <tbody>
         @forelse($purchases as $purchase)
           <tr>
-            <td style="font-weight:700;color:var(--a-amber);">#{{ $purchase->id }}</td>
             <td>
               @if($purchase->application)
                 <a href="{{ route('admin.resellers.show', $purchase->application) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">
                   {{ $purchase->application->full_name }}
                 </a>
-                <br><span class="dim">ID {{ $purchase->reseller_application_id }}</span>
               @else
                 <span class="dim">ID {{ $purchase->reseller_application_id }}</span>
               @endif
             </td>
-            <td style="font-weight:600;">{{ $purchase->codes_count }}</td>
-            <td style="color:var(--a-green);font-weight:600;">{{ $purchase->discount_percent }}%</td>
+            <td>{{ $purchase->application->phone ?? '—' }}</td>
             <td class="dim">{{ number_format($purchase->gross_amount_aoa, 0, ',', '.') }} AOA</td>
+            <td style="color:var(--a-green);font-weight:600;">{{ $purchase->discount_percent }}%</td>
             <td style="font-weight:700;">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} AOA</td>
-            <td>
-              @if($purchase->csv_path)
-                <a href="{{ route('reseller.panel.purchase.csv', $purchase->id) }}" class="ap-btn ap-btn-outline ap-btn-sm">
-                  &darr; CSV
-                </a>
-              @else
-                <span class="dim">&mdash;</span>
-              @endif
-            </td>
             <td class="dim">{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="8">
+            <td colspan="6">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma compra registada</p>
                 <p class="ap-empty-s">Ainda n&atilde;o existem compras em bloco de revendedores.</p>
