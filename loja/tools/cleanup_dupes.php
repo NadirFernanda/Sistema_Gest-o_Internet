@@ -13,7 +13,7 @@ use App\Models\ResellerApplication;
 use Illuminate\Support\Facades\DB;
 
 // 1. Find duplicates
-$dupes = DB::select('SELECT email, COUNT(*) as cnt FROM reseller_applications GROUP BY email HAVING cnt > 1');
+$dupes = DB::select('SELECT email, COUNT(*) as cnt FROM reseller_applications GROUP BY email HAVING COUNT(*) > 1');
 echo "Emails duplicados: " . count($dupes) . "\n";
 
 foreach ($dupes as $dupe) {
