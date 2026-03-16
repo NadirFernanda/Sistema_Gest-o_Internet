@@ -86,7 +86,12 @@
         </select>
       </div>
       <button type="submit" class="ap-btn ap-btn-primary">Guardar estado</button>
+      @if($application->status === 'pending')
+        <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary">Aprovar</button>
+        <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary">Rejeitar</button>
+      @endif
     </form>
+    <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary" style="margin-top:.75rem;">&#8592; Voltar</a>
   </div>
 
   {{-- Resumo financeiro --}}
