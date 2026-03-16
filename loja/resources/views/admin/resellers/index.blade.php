@@ -84,7 +84,6 @@
           <th>Contacto</th>
           <th title="Pedido pelo candidato">Internet</th>
           <th title="Modo configurado pelo admin">Modo</th>
-          <th>Manuten&ccedil;&atilde;o</th>
           <th>Estado</th>
           <th>Criado em</th>
           <th>A&ccedil;&otilde;es</th>
@@ -121,17 +120,6 @@
               @endif
             </td>
             <td>
-              @if($app->maintenance_status === 'ok')
-                <span class="badge bg-green">OK</span>
-              @elseif($app->maintenance_status === 'overdue')
-                <span class="badge bg-red">Atraso</span>
-              @elseif($app->maintenance_status === 'pending')
-                <span class="badge bg-amber">Pendente</span>
-              @else
-                <span class="dim">&mdash;</span>
-              @endif
-            </td>
-            <td>
               @if($app->status === 'approved')
                 <span class="badge bg-green">Aprovado</span>
               @elseif($app->status === 'rejected')
@@ -159,7 +147,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="8">
+            <td colspan="7">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma candidatura encontrada</p>
                 <p class="ap-empty-s">Ajuste os filtros ou aguarde novos pedidos.</p>
