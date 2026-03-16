@@ -30,18 +30,21 @@ class ResellerController extends Controller
         $subject = 'Quero ser agente revendedor';
         $message = "Saudações prezados,\nVenho pelo intermédio deste manifestar o interesse para ser agente revendedor do serviço AngolaWiFi.";
 
-        $application = ResellerApplication::create([
-            'full_name' => $validated['full_name'],
-            'document_number' => $validated['document_number'],
-            'address' => $validated['address'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'installation_location' => $validated['installation_location'],
-            'internet_type' => $validated['internet_type'],
-            'subject' => $subject,
-            'message' => $message,
-            'status' => ResellerApplication::STATUS_PENDING,
-        ]);
+        $application = ResellerApplication::updateOrCreate(
+            ['email' => $validated['email']],
+            [
+                'full_name' => $validated['full_name'],
+                'document_number' => $validated['document_number'],
+                'address' => $validated['address'],
+                'phone' => $validated['phone'],
+                'installation_location' => $validated['installation_location'],
+                'internet_type' => $validated['internet_type'],
+                'reseller_mode' => $validated['internet_type'],
+                'subject' => $subject,
+                'message' => $message,
+                'status' => ResellerApplication::STATUS_PENDING,
+            ]
+        );
 
         // E-mail para o administrador
         $adminEmail = config('mail.from.address');
