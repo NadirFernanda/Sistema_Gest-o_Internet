@@ -80,7 +80,6 @@
     <table class="ap-table">
       <thead>
         <tr>
-          <th>#</th>
           <th>Nome</th>
           <th>Contacto</th>
           <th title="Pedido pelo candidato">Internet</th>
@@ -93,9 +92,6 @@
       <tbody>
         @forelse($applications as $app)
           <tr>
-            <td class="dim">
-              <a href="{{ route('admin.resellers.show', $app) }}" style="color:var(--a-amber);font-weight:700;">#{{ $app->id }}</a>
-            </td>
             <td>
               <a href="{{ route('admin.resellers.show', $app) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">{{ $app->full_name }}</a>
             </td>
@@ -147,7 +143,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="8">
+            <td colspan="7">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma candidatura encontrada</p>
                 <p class="ap-empty-s">Ajuste os filtros ou aguarde novos pedidos.</p>
