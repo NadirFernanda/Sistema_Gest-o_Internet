@@ -80,9 +80,10 @@ Route::post('/equipamentos/checkout', [EquipmentController::class, 'processCheck
 Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confirmation'])->name('equipment.confirmation');
 // Must be last to avoid shadowing named routes above
 Route::get('/equipamentos/{slug}', [EquipmentController::class, 'show'])->name('equipment.show');
-// Área do Cliente (histórico de compras via e-mail)
+// Área do Cliente (histórico de compras via e-mail + OTP)
 Route::get('/minha-conta', [CustomerAccountController::class, 'index'])->name('account.index');
-Route::post('/minha-conta/login', [CustomerAccountController::class, 'login'])->middleware('throttle:10,1')->name('account.login');
+Route::post('/minha-conta/login', [CustomerAccountController::class, 'login'])->middleware('throttle:5,1')->name('account.login');
+Route::post('/minha-conta/verify', [CustomerAccountController::class, 'verify'])->middleware('throttle:10,1')->name('account.verify');
 Route::post('/minha-conta/logout', [CustomerAccountController::class, 'logout'])->name('account.logout');
 Route::post('/minha-conta/orders/{order}/resend-email', [CustomerAccountController::class, 'resendEmail'])->middleware('throttle:5,1')->name('account.orders.resend-email');
 Route::get('/minha-conta/orders/{order}/whatsapp', [CustomerAccountController::class, 'openWhatsapp'])->name('account.orders.whatsapp');
