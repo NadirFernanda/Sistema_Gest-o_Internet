@@ -99,7 +99,7 @@
     <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
     <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
     <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
-    <a href="{{ route('admin.family_requests.index') }}">Planos Fam.</a>
+    <a href="{{ route('admin.family_requests.index') }}">Planos</a>
     <a href="{{ route('admin.site_stats.index') }}">Estat&iacute;sticas</a>
     <a href="{{ route('admin.reports') }}">Relat&oacute;rios</a>
   </nav>
