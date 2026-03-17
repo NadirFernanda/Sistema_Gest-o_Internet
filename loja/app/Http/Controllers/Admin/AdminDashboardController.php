@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ResellerApplication;
 use App\Models\WifiCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminDashboardController extends Controller
 {
@@ -85,6 +86,9 @@ class AdminDashboardController extends Controller
         // Family/business plan requests
         $pendingFamilyRequests = FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_PENDING)->count();
 
+        // Active store visitors in the last 5 minutes
+        $activeUsers = count(Cache::get('store_online_visitors', []));
+
         // WiFi code stock
         $availableWifiCodes = WifiCode::where('status', WifiCode::STATUS_AVAILABLE)->count();
         $usedWifiCodes      = WifiCode::where('status', WifiCode::STATUS_USED)->count();
@@ -112,6 +116,7 @@ class AdminDashboardController extends Controller
             'usedWifiCodes'          => $usedWifiCodes,
             'wifiCodesByPlan'        => $wifiCodesByPlan,
             'pendingFamilyRequests'  => $pendingFamilyRequests,
+            'activeUsers'            => $activeUsers,
         ]);
     }
 

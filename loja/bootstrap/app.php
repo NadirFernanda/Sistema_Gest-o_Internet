@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'sg-admin' => \App\Http\Middleware\VerifySgAdminAccess::class,
         ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackOnlineVisitors::class,
+        ]);
         // Gateway de pagamento não pode enviar token CSRF — isentar o webhook
         $middleware->validateCsrfTokens(except: [
             'payment/familia/webhook',

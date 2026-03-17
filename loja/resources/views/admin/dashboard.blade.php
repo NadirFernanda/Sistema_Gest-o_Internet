@@ -37,6 +37,7 @@
 .ap-kpi.k-amber  { border-left-color: var(--a-amber); }
 .ap-kpi.k-purple { border-left-color: var(--a-purple); }
 .ap-kpi.k-rose   { border-left-color: var(--a-rose); }
+.ap-kpi.k-teal   { border-left-color: #0d9488; }
 .ap-kpi-val { font-size: 1.75rem; font-weight: 800; line-height: 1; margin: 0 0 .2rem; }
 .ap-kpi-lbl { font-size: .75rem; color: var(--a-muted); font-weight: 500; line-height: 1.3; }
 .ap-kpi-sub { font-size: .72rem; color: var(--a-faint); margin: .35rem 0 0; padding-top: .35rem; border-top: 1px solid var(--a-border); }
@@ -139,6 +140,14 @@
       <p class="ap-kpi-val">{{ $newEquipOrders }}</p>
       <p class="ap-kpi-lbl">Encomendas novas</p>
       <p class="ap-kpi-sub">{{ $totalEquipOrders }} total &middot; {{ number_format($totalEquipRevenue,0,',','.') }} AOA</p>
+    </div>
+    <div class="ap-kpi k-teal">
+      <p class="ap-kpi-val" style="display:flex;align-items:center;gap:.45rem;">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0d9488;flex-shrink:0;"></span>
+        {{ $activeUsers }}
+      </p>
+      <p class="ap-kpi-lbl">Utilizadores activos</p>
+      <p class="ap-kpi-sub">Sess&otilde;es &uacute;nicas &middot; &uacute;lt. 5&nbsp;min</p>
     </div>
   </div>
 
