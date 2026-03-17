@@ -9,11 +9,12 @@ class TrustProxies extends Middleware
 {
     /**
      * The trusted proxies for this application.
-     * Set to '*' to trust all proxies or set specific IPs.
+     * Set specific reverse-proxy IPs via TRUSTED_PROXIES env variable (comma-separated).
+     * Never use '*' in production as it allows IP spoofing via X-Forwarded-For.
      *
      * @var array|string|null
      */
-    protected $proxies = '*';
+    protected $proxies = null;
 
     /**
      * The headers that should be used to detect proxies.
@@ -21,4 +22,12 @@ class TrustProxies extends Middleware
      * @var int
      */
     protected $headers = Request::HEADER_X_FORWARDED_ALL;
+
+    public function __construct()
+    {
+        $envProxies = env('TRUSTED_PROXIES');
+        if (!empty($envProxies)) {
+            $this->proxies = array_map('trim', explode(',', $envProxies));
+        }
+    }
 }

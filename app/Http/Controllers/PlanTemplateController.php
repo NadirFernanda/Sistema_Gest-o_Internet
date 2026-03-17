@@ -66,30 +66,16 @@ class PlanTemplateController extends Controller
         return redirect()->route('plan-templates.index')->with('success', 'Plano atualizado com sucesso');
     }
 
-    public function destroy($plan_template)
+    public function destroy(PlanTemplate $plan_template)
     {
-        if (!$plan_template || $plan_template === 'null' || $plan_template === null) {
-            return redirect()->route('plan-templates.index')->with('error', 'Plano inválido');
-        }
-        $tpl = PlanTemplate::find($plan_template);
-        if (!$tpl) {
-            return redirect()->route('plan-templates.index')->with('error', 'Plano não encontrado');
-        }
-        $tpl->delete();
+        $plan_template->delete();
         return redirect()->route('plan-templates.index')->with('success', 'Plano removido com sucesso');
     }
 
     // JSON endpoint for frontend prefilling
-    public function json($plan_template)
+    public function json(PlanTemplate $plan_template)
     {
-        if (!$plan_template || $plan_template === 'null' || $plan_template === null) {
-            return response()->json(['error' => 'Plano não encontrado'], 404);
-        }
-        $tpl = PlanTemplate::find($plan_template);
-        if (!$tpl) {
-            return response()->json(['error' => 'Plano não encontrado'], 404);
-        }
-        return response()->json($tpl);
+        return response()->json($plan_template);
     }
 
     // list all templates as JSON (lightweight)

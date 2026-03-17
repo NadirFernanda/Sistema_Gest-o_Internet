@@ -33,8 +33,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Garante que o CorsMiddleware seja aplicado ao grupo 'api'
-        $this->app['router']->pushMiddlewareToGroup('api', \App\Http\Middleware\CorsMiddleware::class);
+        // (CorsMiddleware handled by HandleCors via config/cors.php — no duplicate push needed)
         // (AuditServiceProvider removed) — legacy audit observers unregistered
         // Register generic model observer for critical models
         Cliente::observe(new ModelAuditObserver());

@@ -46,7 +46,7 @@ class UserController extends Controller
         // route is protected by 'permission:users.create' middleware
 
         // normalize email: if user provided only local-part, append default domain
-        $defaultDomain = 'sgmrtexas.angolawifi.ao';
+        $defaultDomain = config('app.default_user_email_domain', env('DEFAULT_USER_EMAIL_DOMAIN', 'sgmrtexas.angolawifi.ao'));
         $emailInput = (string) $request->input('email', '');
         if (strpos($emailInput, '@') === false) {
             $emailNormalized = $emailInput . '@' . $defaultDomain;
@@ -81,7 +81,7 @@ class UserController extends Controller
             $user->assignRole($data['role']);
         }
 
-        return redirect()->route('dashboard')->with('status', 'Usuário criado com sucesso');
+        return redirect()->route('admin.users.index')->with('status', 'Usuário criado com sucesso');
     }
 
     // Show edit form

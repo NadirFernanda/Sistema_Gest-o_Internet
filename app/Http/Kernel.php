@@ -30,7 +30,6 @@ class Kernel extends HttpKernel
 
         'api' => [
             // ...existing Laravel api middleware...
-            \Illuminate\Http\Middleware\HandleCors::class,
         ],
     ];
 

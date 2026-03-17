@@ -16,7 +16,11 @@ class ClienteCompensacaoController extends Controller
     public function index($clienteId)
     {
         $cliente = Cliente::findOrFail($clienteId);
-        $compensacoes = Compensacao::where('cliente_id', $cliente->id)->orderBy('created_at', 'desc')->get();
+        // compensacoes table has no cliente_id column — query via plan IDs
+        $planoIds = $cliente->planos()->pluck('id')->toArray();
+        $compensacoes = Compensacao::whereIn('plano_id', $planoIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('clientes.compensacoes', compact('cliente', 'compensacoes'));
     }
 
@@ -132,14 +136,12 @@ class ClienteCompensacaoController extends Controller
 
         // Regista detalhe da compensação na mesma tabela de histórico usada por adicionarJanela
         try {
-            \DB::table('compensacoes')->insert([
-                'plano_id' => $plano->id,
-                'user_id' => $user->id,
+            Compensacao::create([
+                'plano_id'        => $plano->id,
+                'user_id'         => $user->id,
                 'dias_compensados' => $diasComp,
-                'anterior' => $anterior,
-                'novo' => $novo,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'anterior'        => $anterior,
+                'novo'            => $novo,
             ]);
         } catch (\Exception $e) {
             \Log::warning('compensarDias (store): falha ao gravar registro de compensacao', [

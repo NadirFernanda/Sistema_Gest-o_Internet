@@ -131,14 +131,12 @@ class AutovendaJanelaController extends Controller
             $plano->estado = 'Ativo';
             $plano->save();
 
-            \DB::table('compensacoes')->insert([
+            \App\Models\Compensacao::create([
                 'plano_id'         => $plano->id,
                 'user_id'          => null,
                 'dias_compensados' => $ciclo,
                 'anterior'         => $base->toDateString(),
                 'novo'             => $novaRenovacao,
-                'created_at'       => now(),
-                'updated_at'       => now(),
             ]);
 
             return response()->json([

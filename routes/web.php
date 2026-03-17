@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\PasswordController;
 
 // Login routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Redirecionar / para login ou dashboard
@@ -59,7 +59,6 @@ Route::middleware('auth')->group(function () {
         ->name('relatorios.gerais.gerar');
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
-    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
     // Only users with the 'Administrador' role can access the planos create/store web routes
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
@@ -150,8 +149,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/plan-templates/list.json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson']);
     Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 
-    // Debug route: show total and active plano counts per template (only when APP_DEBUG=true)
-    Route::get('/debug/plan-template-counts', [\App\Http\Controllers\PlanTemplateController::class, 'debugCounts'])->name('debug.plan-template-counts');
+    // Debug routes only available when APP_DEBUG=true
+    if (config('app.debug')) {
+        Route::get('/debug/plan-template-counts', [\App\Http\Controllers\PlanTemplateController::class, 'debugCounts'])->name('debug.plan-template-counts');
+    }
 
     
     // Export routes removed per request

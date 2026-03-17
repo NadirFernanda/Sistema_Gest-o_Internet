@@ -15,9 +15,9 @@ class VerifyApiToken
     {
         $token = config('app.api_clientes_token');
 
-        // If no token configured, allow public access
+        // Fail-closed: if API_CLIENTES_TOKEN is not configured, block all access
         if (empty($token)) {
-            return $next($request);
+            return response()->json(['message' => 'API not available'], 503);
         }
 
         $provided = null;

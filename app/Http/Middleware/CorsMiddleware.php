@@ -8,6 +8,8 @@ class CorsMiddleware
 {
     /**
      * Handle an incoming request.
+     * CORS is handled by Laravel's built-in HandleCors middleware configured in config/cors.php.
+     * This middleware only adds headers for the custom loja origin from env.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
@@ -15,26 +17,25 @@ class CorsMiddleware
      */
     public function handle($request, Closure $next)
     {
-        \Log::info('CorsMiddleware executado', [
-            'method' => $request->getMethod(),
-            'path' => $request->path(),
-            'headers' => $request->headers->all()
-        ]);
+        $allowedOrigin = config('app.loja_url', env('LOJA_URL', 'http://localhost:3000'));
+        $origin = $request->header('Origin', '');
 
         if ($request->getMethod() === 'OPTIONS') {
             $response = response('', 204);
-            $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3000');
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-            \Log::info('CorsMiddleware resposta OPTIONS', ['headers' => $response->headers->all()]);
+            if ($origin === $allowedOrigin) {
+                $response->headers->set('Access-Control-Allow-Origin', $origin);
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-TOKEN');
+            }
             return $response;
         }
 
         $response = $next($request);
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3000');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        \Log::info('CorsMiddleware resposta', ['headers' => $response->headers->all()]);
+        if ($origin === $allowedOrigin) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-TOKEN');
+        }
         return $response;
     }
 }

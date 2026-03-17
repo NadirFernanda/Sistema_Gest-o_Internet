@@ -86,14 +86,12 @@ class ClienteController extends Controller
 
         // Registra compensação em tabela dedicada
         try {
-            \DB::table('compensacoes')->insert([
-                'plano_id' => $plano->id,
-                'user_id' => auth()->id() ?? null,
+            \App\Models\Compensacao::create([
+                'plano_id'         => $plano->id,
+                'user_id'          => auth()->id() ?? null,
                 'dias_compensados' => (int) $request->dias_compensados,
-                'anterior' => $anterior,
-                'novo' => $novo,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'anterior'         => $anterior,
+                'novo'             => $novo,
             ]);
         } catch (\Exception $e) {
             \Log::warning('compensarDias: falha ao gravar registro de compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);
@@ -170,14 +168,12 @@ class ClienteController extends Controller
 
         // registra em compensacoes para histórico (reusa tabela existente)
         try {
-            \DB::table('compensacoes')->insert([
-                'plano_id' => $plano->id,
-                'user_id' => auth()->id() ?? null,
+            \App\Models\Compensacao::create([
+                'plano_id'         => $plano->id,
+                'user_id'          => auth()->id() ?? null,
                 'dias_compensados' => $dias,
-                'anterior' => $anterior,
-                'novo' => $novo,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'anterior'         => $anterior,
+                'novo'             => $novo,
             ]);
         } catch (\Exception $e) {
             \Log::warning('adicionarJanela: falha ao gravar compensacao', ['err' => $e->getMessage(), 'plano_id' => $plano->id]);

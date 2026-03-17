@@ -65,12 +65,14 @@ class AuditLog extends Model
 
     public function getResourceTypeAttribute($value)
     {
-        return $value ?? $this->resource_type ?? $this->auditable_type ?? null;
+        // Use $value (the raw column value passed by Eloquent) to avoid infinite recursion
+        return $value ?? ($this->attributes['auditable_type'] ?? null);
     }
 
     public function getResourceIdAttribute($value)
     {
-        return $value ?? $this->resource_id ?? $this->auditable_id ?? null;
+        // Use $value (the raw column value passed by Eloquent) to avoid infinite recursion
+        return $value ?? ($this->attributes['auditable_id'] ?? null);
     }
     // Prevent deletion through Eloquent by default
     public function delete()
