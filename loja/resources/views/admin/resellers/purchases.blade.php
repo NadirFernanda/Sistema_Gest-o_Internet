@@ -38,6 +38,7 @@
 .ap-empty-s{font-size:.82rem;margin:0;}
 .ap-rank-bar{background:#e5e7eb;border-radius:9999px;height:7px;overflow:hidden;margin-top:.3rem;min-width:80px;}
 .ap-rank-fill{height:7px;border-radius:9999px;background:var(--a-brand);}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
