@@ -42,8 +42,8 @@
       <p class="ap-sub">Admin &rsaquo; Cat&aacute;logo de produtos dispon&iacute;veis na loja</p>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center;">
-      <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
       <a href="{{ route('admin.equipment.products.create') }}" class="ap-btn ap-btn-primary">+ Novo Produto</a>
+      <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
     </div>
   </div>
 
