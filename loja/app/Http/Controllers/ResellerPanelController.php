@@ -54,15 +54,22 @@ class ResellerPanelController extends Controller
 
     public function login(Request $request)
     {
-        $data = $request->validate(['email' => ['required', 'email']]);
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'phone' => ['required', 'string', 'max:30'],
+        ]);
 
         $application = ResellerApplication::where('email', $data['email'])
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
 
-        if (!$application) {
+        // Normalise phones (digits only) for comparison — prevents format mismatch
+        $inputPhone  = preg_replace('/\D/', '', $data['phone']);
+        $storedPhone = $application ? preg_replace('/\D/', '', $application->phone ?? '') : '';
+
+        if (!$application || empty($inputPhone) || $inputPhone !== $storedPhone) {
             return redirect()->route('reseller.panel')
-                ->with('status', 'Nenhum revendedor aprovado encontrado para este e-mail.');
+                ->with('status', 'Credenciais inválidas. Verifique o e-mail e o número de telemóvel.');
         }
 
         $request->session()->put('reseller_id', $application->id);

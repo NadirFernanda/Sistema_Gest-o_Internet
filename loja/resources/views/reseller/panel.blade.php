@@ -76,8 +76,8 @@
 }
 .rv-field input:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  border-color: #f7b500;
+  box-shadow: 0 0 0 3px rgba(247,181,0,.15);
   background: #fff;
 }
 .rv-login-note {
@@ -90,8 +90,8 @@
   display: block;
   width: 100%;
   padding: .8rem 1.5rem;
-  background: #0d9488;
-  color: #fff;
+  background: #f7b500;
+  color: #1a202c;
   border: none;
   border-radius: .65rem;
   font-size: 1rem;
@@ -100,7 +100,7 @@
   transition: background .2s, transform .15s;
   text-align: center;
 }
-.rv-btn-login:hover { background: #0f766e; transform: translateY(-1px); }
+.rv-btn-login:hover { background: #e0a800; transform: translateY(-1px); }
 
 /* Dashboard */
 .rv-dash {
@@ -284,8 +284,8 @@
 .rv-purchase-form .rv-field { flex: 1; min-width: 200px; margin-bottom: 0; }
 .rv-btn-buy {
   padding: .72rem 1.5rem;
-  background: #0d9488;
-  color: #fff;
+  background: #f7b500;
+  color: #1a202c;
   border: none;
   border-radius: .65rem;
   font-size: .97rem;
@@ -294,7 +294,7 @@
   transition: background .2s, transform .15s;
   white-space: nowrap;
 }
-.rv-btn-buy:hover { background: #0f766e; transform: translateY(-1px); }
+.rv-btn-buy:hover { background: #e0a800; transform: translateY(-1px); }
 .rv-field-error { color: #dc2626; font-size: .85rem; margin-top: .4rem; }
 
 /* History table */
@@ -341,7 +341,7 @@
   text-decoration: none;
   transition: border-color .2s, color .2s, background .2s;
 }
-.rv-csv-btn:hover { border-color: #0d9488; color: #0d9488; background: #f0fdfa; }
+.rv-csv-btn:hover { border-color: #f7b500; color: #92400e; background: #fffbeb; }
 .rv-empty { color: #94a3b8; font-size: .95rem; text-align: center; padding: 2rem 0; }
 .rv-pagination { margin-top: .75rem; }
 
@@ -391,14 +391,20 @@
         <form action="{{ route('reseller.panel.login') }}" method="POST" novalidate>
           @csrf
           <div class="rv-field">
-            <label for="rev-email">E-mail de revendedor</label>
+            <label for="rev-email">E-mail</label>
             <input id="rev-email" name="email" type="email"
                    placeholder="revendedor@exemplo.ao"
                    value="{{ old('email') }}" required autocomplete="email" />
           </div>
+          <div class="rv-field">
+            <label for="rev-phone">Número de telemóvel</label>
+            <input id="rev-phone" name="phone" type="tel"
+                   placeholder="9XX XXX XXX"
+                   value="{{ old('phone') }}" required autocomplete="tel" />
+          </div>
           <p class="rv-login-note">
-            Use o mesmo e-mail com que se candidatou no formulário<br>
-            <em>"Quero ser revendedor"</em>.
+            Use o e-mail e o número de telemóvel com que se candidatou.<br>
+            Acesso restrito a revendedores com candidatura <strong>aprovada</strong>.
           </p>
           <button type="submit" class="rv-btn-login">Entrar →</button>
         </form>
