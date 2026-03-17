@@ -37,6 +37,7 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -56,16 +57,12 @@
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
 
-  <div class="ap-note" style="margin-bottom:1rem;">
-    <strong>Como funciona o programa de revenda?</strong>
-    <ol style="margin:.4rem 0 0 1.1rem;padding:0;line-height:1.7;font-size:.875rem;">
-      <li>O candidato preenche o formulário de candidatura no site público e escolhe o modo de operação (agente de campo, loja física, etc.).</li>
-      <li>O admin analisa a candidatura e carrega em <strong>Aprovar</strong> (o revendedor fica activo) ou <strong>Rejeitar</strong>.</li>
-      <li>Após aprovação, o revendedor pode efectuar <strong>compras em bloco</strong> de códigos Wi-Fi. Cada compra é registada em <em>Compras em bloco</em> e os códigos são atribuídos automaticamente.</li>
-    </ol>
-    <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--a-muted);">
-      Use <strong>Compras em bloco &rarr;</strong> (canto superior direito) para ver e gerir todas as compras de revendedores.
-    </p>
+  <div class="ap-note">
+    <strong>Como funciona:</strong><br>
+    1. O candidato preenche o formul&aacute;rio no site p&uacute;blico e escolhe o modo de opera&ccedil;&atilde;o &rarr; candidatura fica <strong>Pendente</strong>.<br>
+    2. O admin analisa e carrega em <strong>Aprovar</strong> (revendedor fica activo) ou <strong>Rejeitar</strong>.<br>
+    3. Ap&oacute;s aprova&ccedil;&atilde;o, o revendedor pode efectuar <strong>compras em bloco</strong> de c&oacute;digos Wi-Fi &mdash; geridas em <strong>Compras em bloco &rarr;</strong> (canto superior direito).<br>
+    <strong>Clique no nome do revendedor</strong> para ver os detalhes completos da candidatura e tomar ac&ccedil;&atilde;o.
   </div>
 
   <form method="get" class="ap-filters">
