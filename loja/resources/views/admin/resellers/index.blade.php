@@ -56,6 +56,18 @@
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
 
+  <div class="ap-note" style="margin-bottom:1rem;">
+    <strong>Como funciona o programa de revenda?</strong>
+    <ol style="margin:.4rem 0 0 1.1rem;padding:0;line-height:1.7;font-size:.875rem;">
+      <li>O candidato preenche o formulário de candidatura no site público e escolhe o modo de operação (agente de campo, loja física, etc.).</li>
+      <li>O admin analisa a candidatura e carrega em <strong>Aprovar</strong> (o revendedor fica activo) ou <strong>Rejeitar</strong>.</li>
+      <li>Após aprovação, o revendedor pode efectuar <strong>compras em bloco</strong> de códigos Wi-Fi. Cada compra é registada em <em>Compras em bloco</em> e os códigos são atribuídos automaticamente.</li>
+    </ol>
+    <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--a-muted);">
+      Use <strong>Compras em bloco &rarr;</strong> (canto superior direito) para ver e gerir todas as compras de revendedores.
+    </p>
+  </div>
+
   <form method="get" class="ap-filters">
     <div class="ap-fg">
       <label class="ap-label">Estado</label>

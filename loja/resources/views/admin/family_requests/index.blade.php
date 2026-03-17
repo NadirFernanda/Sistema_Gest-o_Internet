@@ -228,7 +228,12 @@
                   </form>
                 </div>
               @elseif($req->status === 'awaiting_payment')
-                <span class="dim" style="font-size:.78rem;">A aguardar pagamento</span>
+                <form method="POST" action="{{ route('admin.family_requests.cancelar', $req) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('Cancelar pedido #{{ $req->id }}? O pagamento ainda não foi confirmado.');">
+                  @csrf
+                  <button type="submit" class="ap-btn ap-btn-danger ap-btn-sm">Cancelar</button>
+                </form>
               @elseif($req->status === 'activated')
                 <span class="badge bg-green" style="font-size:.75rem;">Janela adicionada</span>
                 @if($req->notes)
