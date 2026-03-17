@@ -45,8 +45,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{cliente}/ficha/pdf', [\App\Http\Controllers\ClienteController::class, 'fichaPdf'])->name('clientes.ficha.pdf');
     Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
     Route::post('/clientes/{cliente}/ficha/send', [\App\Http\Controllers\ClienteController::class, 'sendFichaEmail'])->name('clientes.ficha.send');
-    // AÃ§Ã£o combinada: envia a ficha por e-mail e retorna o PDF para download em um Ãºnico clique
-    Route::get('/clientes/{cliente}/ficha/download-send', [\App\Http\Controllers\ClienteController::class, 'fichaPdfAndSend'])->name('clientes.ficha.download_send');
     // Gera uma URL assinada temporÃ¡ria para download sem sessÃ£o
     Route::get('/clientes/{cliente}/ficha/signed-url', [\App\Http\Controllers\ClienteController::class, 'createSignedUrl'])->name('clientes.ficha.signed.url');
     
@@ -62,7 +60,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos');
-    // Backwards-compatible alias: some views/compiled templates reference "planos.index"
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
     // Only users with the 'Administrador' role can access the planos create/store web routes
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])

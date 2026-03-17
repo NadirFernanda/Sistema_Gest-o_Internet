@@ -28,7 +28,6 @@ Route::middleware([\App\Http\Middleware\VerifyApiToken::class])->group(function 
     // Client lookup by phone — used by loja checkout form to pre-fill fields for returning clients
     Route::get('/cliente-lookup', [\App\Http\Controllers\AutovendaJanelaController::class, 'lookup']);
 });
-Route::post('/login', [AuthController::class, 'login']);
 // Clients endpoints: protect with VerifyApiToken middleware + rate limiting.
 // Use fully-qualified class name to avoid relying on route middleware alias resolution.
 Route::middleware([\App\Http\Middleware\VerifyApiToken::class, 'throttle:60,1'])->group(function () {
