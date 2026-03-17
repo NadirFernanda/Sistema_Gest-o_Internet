@@ -123,6 +123,81 @@ Se o número existir na base de dados (de um pedido anterior), o formulário é 
 
 ---
 
+## Configuração Inicial do Servidor VPS (fresh install)
+
+> Use este processo quando configurar um **novo servidor** a partir do zero.
+> Para actualizações de código num servidor já configurado, veja a secção **Fluxo de Deploy** abaixo.
+
+### Infra-estrutura de produção
+
+| Item | Valor |
+|---|---|
+| Fornecedor | Hetzner Cloud |
+| Plano | CX23 |
+| IP | `89.167.23.38` |
+| OS | Ubuntu 22.04 / 24.04 LTS |
+| Utilizador SSH | `root` |
+| Directório da loja | `/var/www/sgmrtexas/loja` |
+
+### Stack instalada pelo script
+
+| Componente | Versão |
+|---|---|
+| PHP | 8.4 (php8.4-fpm) |
+| Servidor web | Nginx |
+| Base de dados | MySQL 8.x |
+| Node.js | 20 LTS |
+| Gestor de pacotes PHP | Composer |
+
+### Passo a passo
+
+**1. Aceder ao servidor por SSH**
+
+```bash
+ssh root@89.167.23.38
+```
+
+**2. Descarregar e executar o script de configuração**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NadirFernanda/Sistema_Gest-o_Internet/main/loja/tools/setup-vps.sh -o setup-vps.sh
+bash setup-vps.sh
+```
+
+O script vai pedir de forma interactiva:
+- IP/domínio do servidor
+- Nome da base de dados, utilizador e password MySQL
+- Password root do MySQL (para criar a BD)
+- URL e credenciais do SG (Sistema de Gestão)
+- Token de acesso ao painel admin da loja (`SG_LOJA_ADMIN_TOKEN`)
+- Configurações de e-mail SMTP
+
+No final instala todas as dependências, clona o repositório, gera a `APP_KEY`, corre as migrações e configura o Nginx + php-fpm.
+
+**3. Verificar que está tudo a funcionar**
+
+```bash
+systemctl status nginx
+systemctl status php8.4-fpm
+curl -s -o /dev/null -w "%{http_code}" http://89.167.23.38
+# Deve devolver 200
+```
+
+**4. (Opcional) Configurar domínio e certificado SSL**
+
+Se tiver um domínio apontado para o servidor:
+
+```bash
+apt install -y certbot python3-certbot-nginx
+certbot --nginx -d loja.seudominio.com
+# Editar APP_URL no .env:
+nano /var/www/sgmrtexas/loja/.env
+# APP_URL=https://loja.seudominio.com
+php artisan optimize:clear && php artisan optimize
+```
+
+---
+
 ## Fluxo de Deploy — Local → GitHub → Servidor de Produção
 
 ### 1. Publicar alterações do local para o GitHub
