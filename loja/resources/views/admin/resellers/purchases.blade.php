@@ -118,10 +118,26 @@
 
   <div class="ap-note">
     <strong>O que é esta página?</strong> Registo consolidado de todas as compras em bloco feitas por todos os revendedores aprovados.<br><br>
+
     <strong>O que é uma compra em bloco?</strong> Um revendedor aprovado compra um lote de códigos Wi-Fi a preço de revendedor (com desconto sobre o preço de tabela). Os códigos são atribuídos e entregues automaticamente após confirmação do pagamento.<br><br>
-    <strong>Colunas importantes:</strong><br>
-    &bull; <strong>Valor bruto</strong>: total antes do desconto &nbsp;&bull;&nbsp; <strong>Desconto</strong>: redução aplicada ao revendedor &nbsp;&bull;&nbsp; <strong>Valor líquido</strong>: receita real da AngolaWiFi &nbsp;&bull;&nbsp; <strong>Códigos</strong>: número de vouchers entregues nesta compra.<br><br>
-    <strong>Para ver o detalhe de um revendedor específico</strong> (historial individual, dados da candidatura, estado), clique no nome dele para ir à sua ficha.
+
+    <strong>📊 Ranking por volume de vendas</strong> — aparece automaticamente no topo quando há pelo menos uma compra registada. Colunas:<br>
+    &bull; <strong>#</strong> — posição no ranking (🥇🥈🥉 para o top 3, número simples a partir do 4.º lugar).<br>
+    &bull; <strong>Revendedor</strong> — nome clicável que abre a ficha completa do revendedor + número de telemóvel.<br>
+    &bull; <strong>Compras</strong> — número de vezes que esse revendedor fez uma compra em bloco.<br>
+    &bull; <strong>Códigos</strong> — total de vouchers Wi-Fi adquiridos em todas as compras somadas.<br>
+    &bull; <strong>Receita líquida</strong> — total em AOA já com o desconto de revendedor descontado (o que a AngolaWiFi recebeu efectivamente).<br>
+    &bull; <strong>Quota</strong> — percentagem da receita líquida total gerada por esse revendedor, com barra visual proporcional.<br><br>
+
+    <strong>📋 Tabela de transacções</strong> — lista individual de cada compra em bloco. Colunas:<br>
+    &bull; <strong>Valor bruto</strong> — total antes de qualquer desconto.<br>
+    &bull; <strong>Desconto</strong> — redução aplicada ao preço de revendedor.<br>
+    &bull; <strong>Valor líquido</strong> — receita real recebida pela AngolaWiFi (bruto − desconto).<br>
+    &bull; <strong>Códigos</strong> — número de vouchers entregues nessa compra específica.<br><br>
+
+    <strong>KPI "Revendedores activos"</strong> no topo da página mostra quantos revendedores distintos já fizeram pelo menos uma compra em bloco.<br><br>
+
+    <strong>Para ver o historial individual de um revendedor</strong> (candidatura, estado, todas as compras), clique no nome dele em qualquer linha da tabela.
   </div>
 
   <form method="get" class="ap-filters">
