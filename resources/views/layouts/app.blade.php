@@ -15,10 +15,12 @@
     {{-- Carregar assets apenas se não for a tela de login --}}
     @if (!request()->is('login'))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
+        @php $styleVer = file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1; @endphp
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ $styleVer }}">
     @else
         {{-- Apenas o mínimo necessário para o login --}}
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
+        @php $styleVer = file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1; @endphp
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ $styleVer }}">
     @endif
 
     @stack('styles')

@@ -24,16 +24,41 @@ class FamilyPlanRequestAdminController extends Controller
         $status = $request->get('status', 'all');
 
         $query = FamilyPlanRequest::orderByDesc('created_at');
+
         if ($status !== 'all') {
             $query->where('status', $status);
         }
 
-        $requests  = $query->paginate(25)->withQueryString();
-        $counts    = [
-            'pending'   => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_PENDING)->count(),
-            'confirmed' => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CONFIRMED)->count(),
-            'activated' => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_ACTIVATED)->count(),
-            'cancelled' => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CANCELLED)->count(),
+        if ($search = trim((string) $request->get('q', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%")
+                  ->orWhere('customer_email', 'like', "%{$search}%")
+                  ->orWhere('plan_name', 'like', "%{$search}%")
+                  ->orWhere('payment_reference', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->input('payment_method'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        }
+
+        $requests = $query->paginate(25)->withQueryString();
+
+        $counts = [
+            'awaiting_payment' => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_AWAITING_PAYMENT)->count(),
+            'pending'          => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_PENDING)->count(),
+            'confirmed'        => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CONFIRMED)->count(),
+            'activated'        => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_ACTIVATED)->count(),
+            'cancelled'        => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CANCELLED)->count(),
         ];
 
         return view('admin.family_requests.index', compact('requests', 'counts', 'status'));
