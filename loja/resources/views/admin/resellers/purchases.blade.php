@@ -36,7 +36,8 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
-.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
+.ap-rank-bar{background:#e5e7eb;border-radius:9999px;height:7px;overflow:hidden;margin-top:.3rem;min-width:80px;}
+.ap-rank-fill{height:7px;border-radius:9999px;background:var(--a-brand);}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -58,7 +59,62 @@
       <p class="ap-stat-val">{{ number_format($totalCodes, 0, ',', '.') }}</p>
       <p class="ap-stat-lbl">C&oacute;digos vendidos</p>
     </div>
+    <div class="ap-stat">
+      <p class="ap-stat-val">{{ $totalResellers }}</p>
+      <p class="ap-stat-lbl">Revendedores activos</p>
+    </div>
   </div>
+
+  {{-- ── Ranking por volume de vendas ──────────────────── --}}
+  @if($ranking->isNotEmpty())
+  <div class="ap-tcard" style="margin-bottom:1.25rem;">
+    <div style="padding:.85rem 1rem .6rem;border-bottom:1px solid var(--a-border);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.9rem;font-weight:700;">Ranking por Volume de Vendas</span>
+      <span class="dim" style="font-size:.78rem;">ordenado por receita l&iacute;quida total</span>
+    </div>
+    <table class="ap-table">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>Revendedor</th>
+          <th>Compras</th>
+          <th>C&oacute;digos</th>
+          <th>Receita l&iacute;quida</th>
+          <th style="min-width:120px;">Quota</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($ranking as $i => $row)
+          @php
+            $medals  = ['🥇','🥈','🥉'];
+            $medal   = $medals[$i] ?? '';
+            $pct     = $totalRevenue > 0 ? round(($row->total_net / $totalRevenue) * 100, 1) : 0;
+          @endphp
+          <tr>
+            <td style="font-weight:700;font-size:.95rem;text-align:center;">{{ $medal ?: ($i + 1) }}</td>
+            <td>
+              @if($row->application)
+                <a href="{{ route('admin.resellers.show', $row->application) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">
+                  {{ $row->application->full_name }}
+                </a>
+                <br><span class="dim">{{ $row->application->phone }}</span>
+              @else
+                <span class="dim">ID {{ $row->reseller_application_id }}</span>
+              @endif
+            </td>
+            <td style="font-weight:600;">{{ $row->purchases_count }}</td>
+            <td style="font-weight:600;">{{ number_format($row->total_codes, 0, ',', '.') }}</td>
+            <td style="font-weight:700;">{{ number_format($row->total_net, 0, ',', '.') }} AOA</td>
+            <td>
+              <span style="font-size:.8rem;font-weight:600;">{{ $pct }}%</span>
+              <div class="ap-rank-bar"><div class="ap-rank-fill" style="width:{{ $pct }}%;"></div></div>
+            </td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
+  </div>
+  @endif
 
   <div class="ap-note">
     <strong>O que é esta página?</strong> Registo consolidado de todas as compras em bloco feitas por todos os revendedores aprovados.<br><br>

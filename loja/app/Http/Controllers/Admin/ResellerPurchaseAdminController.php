@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ResellerPurchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ResellerPurchaseAdminController extends Controller
 {
@@ -35,9 +36,24 @@ class ResellerPurchaseAdminController extends Controller
 
         $purchases = $query->paginate(25)->withQueryString();
 
-        $totalRevenue = ResellerPurchase::sum('net_amount_aoa');
-        $totalCodes   = ResellerPurchase::sum('codes_count');
+        $totalRevenue   = ResellerPurchase::sum('net_amount_aoa');
+        $totalCodes     = ResellerPurchase::sum('codes_count');
+        $totalResellers = ResellerPurchase::distinct('reseller_application_id')->count('reseller_application_id');
 
-        return view('admin.resellers.purchases', compact('purchases', 'totalRevenue', 'totalCodes'));
+        $ranking = ResellerPurchase::with('application')
+            ->select(
+                'reseller_application_id',
+                DB::raw('SUM(net_amount_aoa)   as total_net'),
+                DB::raw('SUM(gross_amount_aoa) as total_gross'),
+                DB::raw('SUM(codes_count)      as total_codes'),
+                DB::raw('COUNT(*)              as purchases_count')
+            )
+            ->groupBy('reseller_application_id')
+            ->orderByDesc('total_net')
+            ->get();
+
+        return view('admin.resellers.purchases', compact(
+            'purchases', 'totalRevenue', 'totalCodes', 'totalResellers', 'ranking'
+        ));
     }
 }
