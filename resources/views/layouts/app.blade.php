@@ -9,7 +9,7 @@
     {{-- CSRF token for JS (used by modal delete fallbacks and AJAX) --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
     {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
 
     {{-- Carregar assets apenas se não for a tela de login --}}
