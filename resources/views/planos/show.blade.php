@@ -61,18 +61,21 @@
         @endphp
 
         <div class="plan-show-grid" style="margin-top:18px;">
-            <!-- Toolbar visual igual ao estoque, mas sem barra de pesquisa -->
             <div class="clientes-toolbar" style="margin-bottom:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-                <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
                 <button type="button" onclick="location.href='{{ $plano->cliente_id ? route('clientes.compensacoes', $plano->cliente_id) : '#' }}'" class="btn btn-cta" style="min-width:220px;white-space:normal;">Compensações</button>
                 <button id="compensar-dias-btn" class="btn btn-cta">Compensar Dias</button>
+                <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                @can('planos.delete')
                 <form action="{{ route('planos.destroy', $plano->id) }}" method="POST" onsubmit="return confirm('Apagar plano?');" style="margin:0;display:inline;">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-secondary" type="submit">Apagar</button>
                 </form>
-                <button id="adicionar-janela-btn" class="btn btn-cta">Adicionar Janela</button>
+                @endcan
+                @can('planos.edit')
                 <a href="{{ route('planos.edit', $plano->id) }}" class="btn btn-warning">Editar</a>
+                @endcan
+                <a href="{{ route('planos.index') }}" class="btn btn-ghost">Voltar</a>
             </div>
             <div class="estoque-tabela-moderna" style="margin-bottom:24px;">
                 <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
@@ -140,7 +143,8 @@
                 </table>
             </div>
 
-            <!-- Botões de ação agora estão na toolbar acima -->
+        </div>
+    </div>
 
         <!-- Modal para compensar dias -->
         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
@@ -181,7 +185,7 @@
                                     @endphp
                                     <div class="muted">Ativação: {{ $pl->data_ativacao ? \Carbon\Carbon::parse($pl->data_ativacao)->format('d/m/Y') : '—' }} • Ciclo: {{ $pl->ciclo ?? '—' }} dias • Próx: {{ $proximaDisplay }}</div>
                                 </div>
-                            </label>
+            </label>
                         @endforeach
                         @if(empty($plano->cliente->planos) || $plano->cliente->planos->isEmpty())
                             <p class="p-2 muted">Nenhum plano encontrado para este cliente.</p>
@@ -194,13 +198,11 @@
                 </form>
             </div>
         </div>
-    </div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    // Modal logic for Compensar Dias
     const btnCompensar = document.getElementById('compensar-dias-btn');
     const modal = document.getElementById('modal-compensar-dias');
     const fechar = document.getElementById('fechar-modal-compensar');
@@ -209,8 +211,6 @@ document.addEventListener('DOMContentLoaded', function(){
         fechar.onclick = () => { modal.style.display = 'none'; };
         modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
     }
-
-    // Modal logic for Adicionar Janela
     const btnJanela = document.getElementById('adicionar-janela-btn');
     const modalJanela = document.getElementById('modal-adicionar-janela');
     const fecharJanela = document.getElementById('fechar-modal-janela');
