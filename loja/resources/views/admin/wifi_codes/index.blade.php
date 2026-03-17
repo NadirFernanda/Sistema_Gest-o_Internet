@@ -121,6 +121,7 @@
 
 /* pager */
 .ap-pager { padding: .7rem 1rem; border-top: 1px solid var(--a-border); background: #f8fafc; }
+.ap-note { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid var(--a-amber); color: #78350f; padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1.25rem; line-height: 1.55; }
 </style>
 
 <div class="ap">
@@ -144,6 +145,17 @@
       @foreach($errors->all() as $e)<div>&#10007; {{ $e }}</div>@endforeach
     </div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Gestão do stock de vouchers (códigos de acesso) Wi-Fi para os planos individuais (Diário, Semanal, Mensal). <strong>Sem códigos em stock, os clientes não conseguem comprar &mdash; o sistema recusa automaticamente a venda.</strong><br><br>
+    <strong>Tipos de estado de um código:</strong><br>
+    &bull; <strong>Disponível</strong>: pronto para venda. Quando um cliente paga, o sistema retira um código deste pool automaticamente e envia-o por e-mail.<br>
+    &bull; <strong>Reservado</strong>: temporariamente bloqueado para uma compra em curso (a aguardar confirmação de pagamento).<br>
+    &bull; <strong>Utilizado</strong>: já foi vendido e entregue. Não pode ser reutilizado.<br><br>
+    <strong>Como importar códigos novos:</strong> Use os cartões de importação abaixo (um por tipo de plano &mdash; Diário, Semanal, Mensal). Cole os códigos no campo de texto <em>um código por linha</em> e clique "Importar". Os códigos podem ser obtidos no Sistema de Gestão (SG) ou fornecidos pela equipa técnica.<br>
+    <strong>Como apagar:</strong> Só é possível apagar códigos com estado "Disponível" (ex: duplicados ou inválidos). Clique no ícone do lixo na tabela.<br>
+    <strong>Alerta de stock:</strong> Verifique o stock regularmente, especialmente antes de fins-de-semana e campanhas. Se o stock de um plano chegar a zero, os clientes verão erro ao tentar comprar esse plano.
+  </div>
 
   {{-- ── Contadores globais ───────────────────────────────── --}}
   @php

@@ -69,11 +69,19 @@
   @endif
 
   <div class="ap-note">
-    <strong>Como funciona:</strong><br>
-    1. O cliente escolhe um plano (Familiar, Empresarial ou Institucional) e preenche os seus dados &rarr; pedido fica <strong>A aguardar pagamento</strong>.<br>
-    2. O cliente paga via Multicaixa Express ou PayPal &rarr; o gateway confirma o pagamento e o plano &eacute; <strong>activado automaticamente no SG</strong> (estado: <strong>Activado</strong>).<br>
-    3. Se a activa&ccedil;&atilde;o autom&aacute;tica falhar ap&oacute;s pagamento, o estado fica <strong>Pendente</strong> &mdash; use o bot&atilde;o &ldquo;Activar no SG&rdquo; para resolver.<br>
-    <strong>S&oacute; precisa de intervir nos pedidos Pendentes.</strong> Os pedidos &ldquo;A aguardar pagamento&rdquo; est&atilde;o &agrave; espera do cliente pagar.
+    <strong>O que é esta página?</strong> Lista dos pedidos de planos Familiares, Empresariais e Institucionais (planos mensais de 30 dias). São diferentes das recargas individuais (Diário/Semanal/Mensal) &mdash; estes são activados directamente no Sistema de Gestão (SG).<br><br>
+    <strong>Fluxo completo de um pedido:</strong><br>
+    1. O cliente escolhe o plano e preenche os dados (nome, telefone, NIF) &rarr; pedido criado com estado <strong>A aguardar pagamento</strong>.<br>
+    2. O cliente paga (Multicaixa Express ou PayPal) &rarr; o gateway confirma automaticamente &rarr; o sistema activa o plano no SG &rarr; estado muda para <strong>Activado</strong>. <em>Nenhuma intervenção do admin é necessária neste caso.</em><br>
+    3. Se o pagamento foi confirmado mas o SG devolveu erro (ex: SG em manutenção, timeout), o estado fica <strong>Pendente</strong>. Clique em <strong>"Activar no SG"</strong> para retentar a activação manualmente.<br><br>
+    <strong>Estados e o que fazer:</strong><br>
+    &bull; <strong>A aguardar pagamento</strong>: cliente ainda não pagou. Não precisa de fazer nada &mdash; aguarde. Se suspeitar de spam ou engano, use o botão <strong>Cancelar</strong>.<br>
+    &bull; <strong>Pendente ⚠</strong>: pagamento confirmado mas activação no SG falhou. <em>Precisa de intervenção.</em> Clique em <strong>"Activar no SG"</strong> para resolver.<br>
+    &bull; <strong>Confirmado</strong>: a ser processado (estado transitório breve).<br>
+    &bull; <strong>Activado</strong>: tudo concluído, cliente com acesso activo no SG. Nenhuma acção necessária.<br>
+    &bull; <strong>Cancelado</strong>: pedido cancelado. Se o cliente já tinha pago, o reembolso tem de ser feito manualmente fora do sistema.<br><br>
+    <strong>Botão "Activar no SG"</strong>: aparece nos estados Pendente e Confirmado. Envia os dados do cliente para o SG e cria a janela de acesso.<br>
+    <strong>Botão "Cancelar"</strong>: disponível em Aguarda pagamento, Pendente e Confirmado. Cancela o pedido no sistema mas <em>não</em> faz reembolso automaticamente.
   </div>
 
   {{-- Contadores por estado --}}

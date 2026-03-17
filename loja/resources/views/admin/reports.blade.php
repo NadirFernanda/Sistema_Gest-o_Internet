@@ -18,6 +18,7 @@
 .ap-list li:last-child{border-bottom:none;}
 .badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
 .bg-amber{background:#fef3c7;color:#b45309;}.bg-green{background:#dcfce7;color:#15803d;}.bg-gray{background:#f1f5f9;color:#475569;}.bg-red{background:#fee2e2;color:#b91c1c;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -28,6 +29,13 @@
       <p class="ap-sub">Admin &rsaquo; Resumo por estado e por dia</p>
     </div>
     <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
+  </div>
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Resumo estatístico das recargas Wi-Fi individuais (Diário, Semanal, Mensal). É uma página de <em>consulta apenas</em> &mdash; não há acções disponíveis aqui.<br><br>
+    <strong>"Por estado"</strong>: mostra o total acumulado de ordens em cada estado desde o início (Pago, A aguardar pagamento, Falhado, etc.).<br>
+    <strong>"Últimos dias"</strong>: mostra a actividade recente (últimos 30 dias) &mdash; útil para acompanhar o volume diário de vendas e detectar anomalias.<br><br>
+    Para gerir ordens individualmente, pesquisar por cliente ou verificar o estado de uma compra específica, vá a <strong>Recargas WiFi</strong> no menu do Dashboard.
   </div>
 
   <div class="ap-cards">

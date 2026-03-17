@@ -49,6 +49,7 @@
 .ap-btn-sm{padding:.3rem .7rem;font-size:.78rem;}
 .ap-toggle{background:none;border:1px solid var(--a-border);border-radius:7px;padding:.25rem .65rem;font-size:.78rem;font-weight:600;color:var(--a-muted);cursor:pointer;font-family:inherit;transition:border-color .15s;}
 .ap-toggle:hover{border-color:var(--a-brand);color:var(--a-text);}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -67,6 +68,20 @@
   @if(session('error'))
     <div class="ap-err">{{ session('error') }}</div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Lista dos pedidos de agendamento de instalação do serviço AngolaWiFi submetidos pelos clientes no site público. Cada pedido é de um cliente que quer instalar o serviço em casa ou na empresa.<br><br>
+    <strong>Como gerir um agendamento (passo a passo):</strong><br>
+    1. Clique no botão <strong>"Gerir"</strong> à direita do pedido &mdash; abre um formulário inline sem mudar de página.<br>
+    2. Altere o <strong>estado</strong> conforme o progresso e adicione uma <strong>nota interna</strong> (ex: "agendado para 20/03 às 10h, técnico João", "cliente não atendeu, ligar de novo").<br>
+    3. Clique <strong>"Guardar"</strong> para registar as alterações. O formulário fecha automaticamente.<br><br>
+    <strong>Estados de um agendamento:</strong><br>
+    &bull; <strong>Pendente</strong>: pedido novo, ainda não foi contactado o cliente.<br>
+    &bull; <strong>Contactado</strong>: já falou com o cliente, a confirmar data e hora da visita.<br>
+    &bull; <strong>Concluído</strong>: instalação realizada com sucesso.<br>
+    &bull; <strong>Cancelado</strong>: pedido cancelado (cliente desistiu ou outro motivo).<br><br>
+    <strong>Tipos de instalação:</strong> <strong>Residencial</strong> = habitação particular &nbsp;&bull;&nbsp; <strong>Empresarial</strong> = escritório, loja ou empresa.
+  </div>
 
   {{-- Contadores por estado --}}
   @php

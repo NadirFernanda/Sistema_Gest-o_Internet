@@ -42,6 +42,7 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -57,6 +58,17 @@
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Registo de todas as compras de planos individuais de Wi-Fi (Diário 200 Kz, Semanal 500 Kz, Mensal 1.000 Kz) feitas pelos clientes via autovenda no site público.<br><br>
+    <strong>Atenção: este processo é totalmente automático.</strong> O cliente escolhe o plano, paga e o sistema entrega o código Wi-Fi por e-mail sem qualquer intervenção do admin. <em>Normalmente não precisa de fazer nada aqui.</em><br><br>
+    <strong>Estados:</strong><br>
+    &bull; <strong>A aguardar pagamento</strong>: cliente iniciou a compra mas ainda não pagou. Expira automaticamente ao fim de algum tempo.<br>
+    &bull; <strong>Pago</strong>: pagamento confirmado e código Wi-Fi entregue ao cliente. Processo concluído com sucesso.<br>
+    &bull; <strong>Pendente</strong>: pagamento em verificação (estado transitório muito breve).<br>
+    &bull; <strong>Cancelado / Falhado / Expirado</strong>: compra não concluída. Nenhum código foi entregue ao cliente.<br><br>
+    <strong>Quando usar esta lista?</strong> Para auditoria e resolução de problemas. Se um cliente disser que pagou mas não recebeu o código, pesquise aqui pelo nome/telefone e verifique o estado da compra.
+  </div>
 
   <form method="get" class="ap-filters">
     <div class="ap-fg">

@@ -52,6 +52,7 @@
 .ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
 .ap-tcard-head{display:flex;justify-content:space-between;align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--a-border);}
 .ap-tcard-head-title{font-size:.9rem;font-weight:700;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -70,6 +71,15 @@
   @if(session('error'))
     <div class="ap-err">{{ session('error') }}</div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que posso fazer nesta página?</strong> Esta é a ficha completa de um candidato a revendedor. Todas as acções de gestão da candidatura são feitas aqui.<br><br>
+    <strong>Secção "Estado da candidatura":</strong><br>
+    &bull; Seleccione o estado no menu pendente e clique <strong>Guardar estado</strong> para registar.<br>
+    &bull; Ou use os botões rápidos: <strong>Aprovar</strong> (o revendedor fica activo imediatamente e passa a poder fazer compras em bloco de códigos Wi-Fi) ou <strong>Rejeitar</strong> (candidatura recusada, sem acesso ao programa).<br><br>
+    <strong>Campo "Notas internas":</strong> Use para anotações privadas do admin (ex: "aguarda documentos", "contactado a 15/03", "não atendeu telefone"). As notas <em>nunca são visíveis para o candidato</em>.<br>
+    <strong>Historial de compras:</strong> Na parte inferior da página estão listadas todas as compras em bloco efectuadas por este revendedor, com valores brutos, descontos e datas.
+  </div>
 
   {{-- Estado --}}
   <div class="ap-card">

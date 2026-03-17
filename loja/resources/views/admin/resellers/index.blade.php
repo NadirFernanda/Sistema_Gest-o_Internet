@@ -58,11 +58,13 @@
   @endif
 
   <div class="ap-note">
-    <strong>Como funciona:</strong><br>
-    1. O candidato preenche o formul&aacute;rio no site p&uacute;blico e escolhe o modo de opera&ccedil;&atilde;o &rarr; candidatura fica <strong>Pendente</strong>.<br>
-    2. O admin analisa e carrega em <strong>Aprovar</strong> (revendedor fica activo) ou <strong>Rejeitar</strong>.<br>
-    3. Ap&oacute;s aprova&ccedil;&atilde;o, o revendedor pode efectuar <strong>compras em bloco</strong> de c&oacute;digos Wi-Fi &mdash; geridas em <strong>Compras em bloco &rarr;</strong> (canto superior direito).<br>
-    <strong>Clique no nome do revendedor</strong> para ver os detalhes completos da candidatura e tomar ac&ccedil;&atilde;o.
+    <strong>O que é esta página?</strong> Lista de todas as candidaturas ao programa de revenda AngolaWiFi. Cada linha é um candidato que se registou no site público.<br><br>
+    <strong>Fluxo completo:</strong><br>
+    1. O candidato preenche o formulário no site público &rarr; candidatura aparece aqui com estado <strong>Pendente</strong>.<br>
+    2. <strong>Clique no nome do candidato</strong> na tabela para abrir a ficha completa &mdash; é <em>obrigatório</em> entrar na ficha para poder aprovar ou rejeitar. Não há botões de acção directa nesta lista.<br>
+    3. Após aprovação, o revendedor pode comprar códigos Wi-Fi em bloco. As compras ficam registadas em <strong>Compras em bloco &rarr;</strong> (canto superior direito).<br><br>
+    <strong>Estados:</strong> <strong>Pendente</strong> = candidatura nova por analisar &nbsp;&bull;&nbsp; <strong>Aprovado</strong> = revendedor activo, pode comprar &nbsp;&bull;&nbsp; <strong>Rejeitado</strong> = candidatura recusada.<br>
+    <strong>Atenção:</strong> Para aprovar, rejeitar ou adicionar notas, clique no nome do candidato primeiro. Só dentro da ficha é que os botões estão disponíveis.
   </div>
 
   <form method="get" class="ap-filters">

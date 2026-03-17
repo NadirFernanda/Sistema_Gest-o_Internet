@@ -40,6 +40,7 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -58,6 +59,17 @@
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Catálogo de equipamentos disponíveis na loja online. O que aparecer aqui (e estiver activo) fica visível para os clientes encomendarem no site público.<br><br>
+    <strong>Acções disponíveis:</strong><br>
+    &bull; <strong>"+ Novo Produto"</strong>: adicionar um produto ao catálogo (nome, preço, categoria, stock disponível, imagem e descrição).<br>
+    &bull; <strong>"Editar"</strong>: alterar qualquer dado do produto, incluindo preço e stock.<br>
+    &bull; <strong>"Eliminar"</strong>: remove o produto <em>permanentemente</em> da base de dados. <strong>Esta acção não pode ser desfeita.</strong><br><br>
+    <strong>Campos importantes:</strong><br>
+    &bull; <strong>Activo</strong>: se "Sim", o produto aparece na loja pública. Se "Não", fica oculto mas mantido na base de dados (útil para produtos temporariamente indisponíveis).<br>
+    &bull; <strong>Stock</strong>: número de unidades disponíveis. Quando chega a zero, o produto aparece como "Esgotado" na loja e os clientes não conseguem encomendá-lo até o stock ser reposto.
+  </div>
 
   <form method="get" class="ap-filters">
     <div class="ap-fg grow">

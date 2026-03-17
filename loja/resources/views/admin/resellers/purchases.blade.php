@@ -36,6 +36,7 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -57,6 +58,14 @@
       <p class="ap-stat-val">{{ number_format($totalCodes, 0, ',', '.') }}</p>
       <p class="ap-stat-lbl">C&oacute;digos vendidos</p>
     </div>
+  </div>
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Registo consolidado de todas as compras em bloco feitas por todos os revendedores aprovados.<br><br>
+    <strong>O que é uma compra em bloco?</strong> Um revendedor aprovado compra um lote de códigos Wi-Fi a preço de revendedor (com desconto sobre o preço de tabela). Os códigos são atribuídos e entregues automaticamente após confirmação do pagamento.<br><br>
+    <strong>Colunas importantes:</strong><br>
+    &bull; <strong>Valor bruto</strong>: total antes do desconto &nbsp;&bull;&nbsp; <strong>Desconto</strong>: redução aplicada ao revendedor &nbsp;&bull;&nbsp; <strong>Valor líquido</strong>: receita real da AngolaWiFi &nbsp;&bull;&nbsp; <strong>Códigos</strong>: número de vouchers entregues nesta compra.<br><br>
+    <strong>Para ver o detalhe de um revendedor específico</strong> (historial individual, dados da candidatura, estado), clique no nome dele para ir à sua ficha.
   </div>
 
   <form method="get" class="ap-filters">

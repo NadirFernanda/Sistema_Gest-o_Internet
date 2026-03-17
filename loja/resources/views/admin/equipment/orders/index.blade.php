@@ -40,6 +40,7 @@
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}
 .ap-empty-t{font-size:.95rem;font-weight:700;color:var(--a-muted);margin:0 0 .3rem;}
 .ap-empty-s{font-size:.82rem;margin:0;}
+.ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -55,6 +56,17 @@
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
+
+  <div class="ap-note">
+    <strong>O que é esta página?</strong> Lista de todas as encomendas de equipamento físico (routers, cabos, antenas, acessórios) feitas pelos clientes na loja online.<br><br>
+    <strong>Estados e o que fazer:</strong><br>
+    &bull; <strong>Pendente</strong>: encomenda nova, ainda não processada. Confirme a disponibilidade do produto e use <strong>"Ver →"</strong> para processar.<br>
+    &bull; <strong>Confirmado</strong>: encomenda aceite e em preparação para envio.<br>
+    &bull; <strong>Enviado</strong>: produto despachado para o endereço do cliente. A aguardar recepção.<br>
+    &bull; <strong>Entregue</strong>: cliente recebeu o equipamento. Encomenda concluída com sucesso.<br>
+    &bull; <strong>Cancelado</strong>: encomenda cancelada. Nenhum produto foi enviado.<br><br>
+    <strong>Como gerir uma encomenda:</strong> Clique em <strong>"Ver →"</strong> (coluna da direita) para abrir os detalhes completos &mdash; aí encontrará os dados do cliente, produtos encomendados, endereço de entrega e a opção de actualizar o estado do pedido.
+  </div>
 
   @php
     $statusColors = [
