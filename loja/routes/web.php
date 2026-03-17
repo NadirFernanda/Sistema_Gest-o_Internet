@@ -52,6 +52,7 @@ Route::get('/quero-ser-revendedor/obrigado', [\App\Http\Controllers\ResellerCont
 // Área do Revendedor (pós-aprovação)
 Route::get('/painel-revendedor', [ResellerPanelController::class, 'index'])->name('reseller.panel');
 Route::post('/painel-revendedor/login', [ResellerPanelController::class, 'login'])->middleware('throttle:5,1')->name('reseller.panel.login');
+Route::post('/painel-revendedor/verify', [ResellerPanelController::class, 'verify'])->middleware('throttle:10,1')->name('reseller.panel.verify');
 Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logout'])->name('reseller.panel.logout');
 Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');

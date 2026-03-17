@@ -376,7 +376,7 @@
   @endif
 
   @if(!$application)
-    {{-- ════════════════ LOGIN ════════════════ --}}
+    {{-- ════════════════ LOGIN / OTP ════════════════ --}}
     <div class="rv-login-wrap">
       <div class="rv-login-card">
         <div class="rv-brand">
@@ -386,28 +386,49 @@
             <span>Portal de Revendedores</span>
           </div>
         </div>
-        <h2>Entrar no painel</h2>
-        <p class="rv-sub">Acesso exclusivo para revendedores aprovados.</p>
-        <form action="{{ route('reseller.panel.login') }}" method="POST" novalidate>
-          @csrf
-          <div class="rv-field">
-            <label for="rev-email">E-mail</label>
-            <input id="rev-email" name="email" type="email"
-                   placeholder="revendedor@exemplo.ao"
-                   value="{{ old('email') }}" required autocomplete="email" />
-          </div>
-          <div class="rv-field">
-            <label for="rev-phone">Número de telemóvel</label>
-            <input id="rev-phone" name="phone" type="tel"
-                   placeholder="9XX XXX XXX"
-                   value="{{ old('phone') }}" required autocomplete="tel" />
-          </div>
-          <p class="rv-login-note">
-            Use o e-mail e o número de telemóvel com que se candidatou.<br>
-            Acesso restrito a revendedores com candidatura <strong>aprovada</strong>.
+
+        @if($otpPending)
+          {{-- PASSO 2: introduzir código --}}
+          <h2>Verificação por email</h2>
+          <p class="rv-sub">
+            Enviámos um código de <strong>6 dígitos</strong> para <strong>{{ $otpEmail }}</strong>.<br>
+            Verifique a caixa de entrada (e o spam). Válido durante <strong>10 minutos</strong>.
           </p>
-          <button type="submit" class="rv-btn-login">Entrar →</button>
-        </form>
+          <form action="{{ route('reseller.panel.verify') }}" method="POST" novalidate autocomplete="off">
+            @csrf
+            <div class="rv-field">
+              <label for="rev-otp">Código de verificação</label>
+              <input id="rev-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]{6}"
+                     maxlength="6" placeholder="_ _ _ _ _ _" required autofocus
+                     style="font-size:1.6rem;letter-spacing:.35em;text-align:center;font-family:monospace;" />
+            </div>
+            <button type="submit" class="rv-btn-login">Confirmar código →</button>
+          </form>
+          <form action="{{ route('reseller.panel.logout') }}" method="POST" style="margin-top:.75rem;">
+            @csrf
+            <button type="submit" class="rv-logout-btn" style="width:100%;text-align:center;">← Usar outro email</button>
+          </form>
+
+        @else
+          {{-- PASSO 1: introduzir email --}}
+          <h2>Entrar no painel</h2>
+          <p class="rv-sub">Acesso exclusivo para revendedores aprovados.</p>
+          <form action="{{ route('reseller.panel.login') }}" method="POST" novalidate>
+            @csrf
+            <div class="rv-field">
+              <label for="rev-email">Email de revendedor</label>
+              <input id="rev-email" name="email" type="email"
+                     placeholder="revendedor@exemplo.ao"
+                     value="{{ old('email') }}" required autocomplete="email" />
+            </div>
+            <p class="rv-login-note">
+              Receberá um código de verificação neste endereço.<br>
+              Acesso restrito a revendedores com candidatura <strong>aprovada</strong>.
+            </p>
+            <button type="submit" class="rv-btn-login">Enviar código →</button>
+          </form>
+        @endif
+
       </div>
     </div>
 

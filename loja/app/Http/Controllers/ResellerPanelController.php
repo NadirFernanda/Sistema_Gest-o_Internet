@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AccountOtpMail;
 use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ResellerPanelController extends Controller
 {
+    private const OTP_TTL = 10;
+
     public function index(Request $request)
     {
         $resellerId = $request->session()->get('reseller_id');
@@ -42,6 +47,9 @@ class ResellerPanelController extends Controller
             }
         }
 
+        $otpEmail   = $request->session()->get('reseller_otp_email');
+        $otpPending = !$application && $otpEmail;
+
         return view('reseller.panel', [
             'application'     => $application,
             'purchases'       => $purchases,
@@ -49,27 +57,83 @@ class ResellerPanelController extends Controller
             'monthlySpend'    => $monthlySpend,
             'estimatedProfit' => $estimatedProfit,
             'minPurchase'     => (int) config('reseller.min_purchase_aoa', 10000),
+            'otpPending'      => $otpPending,
+            'otpEmail'        => $otpEmail,
         ]);
     }
 
+    /**
+     * Passo 1 — recebe o email, gera OTP e envia. Não revela se o email existe.
+     */
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => ['required', 'email'],
-            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['required', 'email', 'max:254'],
         ]);
 
-        $application = ResellerApplication::where('email', $data['email'])
+        $email = strtolower(trim($data['email']));
+
+        // Only send OTP if there is an approved reseller for this email,
+        // but always show the same response to avoid email enumeration.
+        $application = ResellerApplication::where('email', $email)
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
 
-        // Normalise phones (digits only) for comparison — prevents format mismatch
-        $inputPhone  = preg_replace('/\D/', '', $data['phone']);
-        $storedPhone = $application ? preg_replace('/\D/', '', $application->phone ?? '') : '';
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        if (!$application || empty($inputPhone) || $inputPhone !== $storedPhone) {
+        $request->session()->put('reseller_otp_email',      $email);
+        $request->session()->put('reseller_otp_code',       $otp);
+        $request->session()->put('reseller_otp_expires_at', now()->addMinutes(self::OTP_TTL)->toIso8601String());
+        $request->session()->forget('reseller_id');
+
+        if ($application) {
+            Mail::to($email)->send(new AccountOtpMail($otp));
+        }
+        // If no reseller found, we still show the same page (no email sent silently)
+
+        return redirect()->route('reseller.panel')
+            ->with('status', 'Se o endereço indicado corresponde a um revendedor aprovado, receberá um código de verificação em breve.');
+    }
+
+    /**
+     * Passo 2 — valida o OTP introduzido pelo revendedor.
+     */
+    public function verify(Request $request)
+    {
+        $data = $request->validate([
+            'otp' => ['required', 'string', 'digits:6'],
+        ]);
+
+        $sessionEmail   = $request->session()->get('reseller_otp_email');
+        $sessionCode    = $request->session()->get('reseller_otp_code');
+        $sessionExpires = $request->session()->get('reseller_otp_expires_at');
+
+        if (!$sessionEmail || !$sessionCode || !$sessionExpires) {
             return redirect()->route('reseller.panel')
-                ->with('status', 'Credenciais inválidas. Verifique o e-mail e o número de telemóvel.');
+                ->with('error', 'Sessão expirada. Introduza novamente o seu email.');
+        }
+
+        if (Carbon::parse($sessionExpires)->isPast()) {
+            $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
+            return redirect()->route('reseller.panel')
+                ->with('error', 'O código expirou. Introduza o seu email de novo para receber outro código.');
+        }
+
+        if (!hash_equals($sessionCode, $data['otp'])) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'Código incorreto. Verifique o email e tente novamente.');
+        }
+
+        // OTP válido — autentica
+        $application = ResellerApplication::where('email', $sessionEmail)
+            ->where('status', ResellerApplication::STATUS_APPROVED)
+            ->first();
+
+        $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
+
+        if (!$application) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'Nenhum revendedor aprovado encontrado para este endereço de email.');
         }
 
         $request->session()->put('reseller_id', $application->id);
@@ -79,7 +143,7 @@ class ResellerPanelController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->forget('reseller_id');
+        $request->session()->forget(['reseller_id', 'reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
         return redirect()->route('reseller.panel');
     }
 
