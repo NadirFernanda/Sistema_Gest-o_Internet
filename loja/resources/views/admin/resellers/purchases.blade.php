@@ -61,11 +61,19 @@
 
   <form method="get" class="ap-filters">
     <div class="ap-fg grow">
-      <label class="ap-label">ID do Revendedor</label>
-      <input name="reseller_id" value="{{ request('reseller_id') }}" class="ap-ctrl" placeholder="ex: 3">
+      <label class="ap-label">Pesquisa</label>
+      <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Nome, telefone ou e-mail do revendedor">
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">De</label>
+      <input type="date" name="date_from" value="{{ request('date_from') }}" class="ap-ctrl" style="min-width:140px;">
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">At&eacute;</label>
+      <input type="date" name="date_to" value="{{ request('date_to') }}" class="ap-ctrl" style="min-width:140px;">
     </div>
     <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
-    @if(request('reseller_id'))
+    @if(request()->hasAny(['q','date_from','date_to','reseller_id']))
       <a href="{{ route('admin.resellers.purchases.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
     @endif
   </form>

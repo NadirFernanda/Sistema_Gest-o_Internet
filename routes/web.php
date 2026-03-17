@@ -12,10 +12,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Redirecionar / para login ou dashboard
-// Corrige erro 500: rota clientes.index nÃ£o definida
 use App\Http\Controllers\ClienteController;
 
-Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });
@@ -210,21 +208,12 @@ Route::middleware('auth')->group(function () {
 
 // Dev helper routes removed. For local testing use the `diagnose:stock` command and feature branches.
 
-// Temporary probe route - remove after testing
-Route::get('/_probe/hasroles', function () {
-    return response()->json([
-        'trait_exists' => trait_exists(\Spatie\Permission\Traits\HasRoles::class),
-        'php_sapi' => php_sapi_name(),
-        'app_env' => env('APP_ENV'),
-    ]);
-});
+
 
 // Rota pÃºblica apenas via URL assinada para permitir download temporÃ¡rio sem sessÃ£o
 Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfSigned'])
     ->name('clientes.ficha.signed')
     ->middleware('signed');
 
-// TEMPORARY public download for testing (no auth, remove after testing)
-Route::get('/clientes/{cliente}/ficha/public-download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfPublic'])
-    ->name('clientes.ficha.public');
+
 

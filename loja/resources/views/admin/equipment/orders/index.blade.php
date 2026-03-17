@@ -13,10 +13,15 @@
 .ap-back{font-size:.82rem;font-weight:600;color:var(--a-muted);text-decoration:none;padding:.4rem .85rem;border:1px solid var(--a-border);border-radius:7px;background:var(--a-surf);transition:background .15s;}
 .ap-back:hover{background:var(--a-border);}
 .ap-ok{background:#f0fdf4;border:1px solid #86efac;border-left:4px solid var(--a-green);color:#166534;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
-.ap-filters{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.25rem;}
-.ap-pill{font-size:.8rem;font-weight:600;padding:.35rem .85rem;border-radius:999px;border:1.5px solid var(--a-border);background:var(--a-surf);color:var(--a-muted);text-decoration:none;transition:all .15s;cursor:pointer;}
-.ap-pill:hover{border-color:var(--a-brand);color:var(--a-text);}
-.ap-pill.active{background:#f7b500;border-color:#f7b500;color:#1a202c;}
+.ap-label{display:block;font-size:.77rem;font-weight:600;color:#374151;margin-bottom:.3rem;}
+.ap-ctrl{width:100%;box-sizing:border-box;padding:.55rem .75rem;border:1.5px solid var(--a-border);border-radius:8px;font-size:.875rem;color:var(--a-text);background:#f8fafc;font-family:inherit;outline:none;transition:border-color .15s;}
+.ap-ctrl:focus{border-color:var(--a-brand);background:#fff;}
+.ap-btn-primary{background:#f7b500;color:#1a202c;}.ap-btn-primary:hover{filter:brightness(.95);}
+.ap-btn-outline{background:var(--a-surf);color:var(--a-muted);border:1.5px solid var(--a-border);}.ap-btn-outline:hover{background:var(--a-border);}
+.ap-btn-sm{padding:.35rem .75rem;font-size:.8rem;}
+.ap-filters{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;padding:.9rem 1.1rem;display:flex;flex-wrap:wrap;gap:.65rem;align-items:flex-end;margin-bottom:1.25rem;}
+.ap-fg{display:flex;flex-direction:column;gap:.25rem;}
+.ap-fg.grow{flex:1;min-width:170px;}
 .ap-tcard{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;overflow:hidden;}
 .ap-table{width:100%;border-collapse:collapse;font-size:.845rem;}
 .ap-table thead{background:#f8fafc;}
@@ -51,7 +56,6 @@
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
 
-  {{-- Filtros de estado --}}
   @php
     $statusColors = [
       'pending'   => 'bg-amber',
@@ -61,14 +65,44 @@
       'cancelled' => 'bg-red',
     ];
   @endphp
-  <div class="ap-filters">
-    <a href="{{ route('admin.equipment.orders.index') }}"
-       class="ap-pill {{ !request('status') ? 'active' : '' }}">Todos</a>
-    @foreach(\App\Models\EquipmentOrder::statusLabels() as $st => $label)
-      <a href="{{ route('admin.equipment.orders.index', ['status' => $st]) }}"
-         class="ap-pill {{ request('status') === $st ? 'active' : '' }}">{{ $label }}</a>
-    @endforeach
-  </div>
+
+  {{-- Filtros --}}
+  <form method="get" class="ap-filters">
+    <div class="ap-fg">
+      <label class="ap-label">Estado</label>
+      <select name="status" class="ap-ctrl" style="min-width:160px;">
+        <option value="">Todos os estados</option>
+        @foreach(\App\Models\EquipmentOrder::statusLabels() as $value => $label)
+          <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+        @endforeach
+      </select>
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">M&eacute;todo</label>
+      <select name="payment_method" class="ap-ctrl" style="min-width:175px;">
+        <option value="">Todos os m&eacute;todos</option>
+        <option value="multicaixa_express" @selected(request('payment_method') === 'multicaixa_express')>Multicaixa Express</option>
+        <option value="paypal"             @selected(request('payment_method') === 'paypal')>PayPal</option>
+        <option value="cash"               @selected(request('payment_method') === 'cash')>Dinheiro</option>
+      </select>
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">De</label>
+      <input type="date" name="date_from" value="{{ request('date_from') }}" class="ap-ctrl" style="min-width:140px;">
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">At&eacute;</label>
+      <input type="date" name="date_to" value="{{ request('date_to') }}" class="ap-ctrl" style="min-width:140px;">
+    </div>
+    <div class="ap-fg grow">
+      <label class="ap-label">Pesquisa</label>
+      <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="ID, nome, telefone, e-mail...">
+    </div>
+    <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
+    @if(request()->hasAny(['status','payment_method','date_from','date_to','q']))
+      <a href="{{ route('admin.equipment.orders.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
+    @endif
+  </form>
 
   <div class="ap-tcard">
     <table class="ap-table">

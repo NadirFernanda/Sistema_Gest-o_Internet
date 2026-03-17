@@ -17,6 +17,22 @@ class ResellerPurchaseAdminController extends Controller
             $query->where('reseller_application_id', $resellerId);
         }
 
+        if ($search = trim((string) $request->get('q', ''))) {
+            $query->whereHas('application', function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        }
+
         $purchases = $query->paginate(25)->withQueryString();
 
         $totalRevenue = ResellerPurchase::sum('net_amount_aoa');
