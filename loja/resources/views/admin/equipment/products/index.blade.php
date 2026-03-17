@@ -16,7 +16,15 @@
 .ap-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap;transition:filter .15s;}
 .ap-btn-primary{background:#f7b500;color:#1a202c;}.ap-btn-primary:hover{filter:brightness(.95);}
 .ap-btn-danger{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;}.ap-btn-danger:hover{background:#fecaca;}
+.ap-btn-outline{background:var(--a-surf);color:var(--a-muted);border:1.5px solid var(--a-border);}.ap-btn-outline:hover{background:var(--a-border);}
 .ap-btn-sm{padding:.32rem .75rem;font-size:.78rem;}
+.ap-label{display:block;font-size:.77rem;font-weight:600;color:#374151;margin-bottom:.3rem;}
+.ap-ctrl{width:100%;box-sizing:border-box;padding:.55rem .75rem;border:1.5px solid var(--a-border);border-radius:8px;font-size:.875rem;color:var(--a-text);background:#f8fafc;font-family:inherit;outline:none;transition:border-color .15s;}
+.ap-ctrl:focus{border-color:var(--a-brand);background:#fff;}
+.ap-filters{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;padding:.9rem 1.1rem;display:flex;flex-wrap:wrap;gap:.65rem;align-items:flex-end;margin-bottom:1.25rem;}
+.ap-fg{display:flex;flex-direction:column;gap:.25rem;}
+.ap-fg.grow{flex:1;min-width:170px;}
+.ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
 .ap-tcard{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;overflow:hidden;}
 .ap-table{width:100%;border-collapse:collapse;font-size:.845rem;}
 .ap-table thead{background:#f8fafc;}
@@ -50,6 +58,42 @@
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
+
+  <form method="get" class="ap-filters">
+    <div class="ap-fg grow">
+      <label class="ap-label">Pesquisa</label>
+      <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Nome ou categoria...">
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">Categoria</label>
+      <select name="category" class="ap-ctrl" style="min-width:160px;">
+        <option value="">Todas</option>
+        @foreach($categories as $cat)
+          <option value="{{ $cat }}" @selected(request('category') === $cat)>{{ $cat }}</option>
+        @endforeach
+      </select>
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">Estado</label>
+      <select name="active" class="ap-ctrl" style="min-width:130px;">
+        <option value="">Todos</option>
+        <option value="1" @selected(request('active') === '1')>Activo</option>
+        <option value="0" @selected(request('active') === '0')>Inactivo</option>
+      </select>
+    </div>
+    <div class="ap-fg">
+      <label class="ap-label">Stock</label>
+      <select name="stock" class="ap-ctrl" style="min-width:130px;">
+        <option value="">Todos</option>
+        <option value="in"  @selected(request('stock') === 'in')>Com stock</option>
+        <option value="out" @selected(request('stock') === 'out')>Esgotado</option>
+      </select>
+    </div>
+    <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
+    @if(request()->hasAny(['q','category','active','stock']))
+      <a href="{{ route('admin.equipment.products.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
+    @endif
+  </form>
 
   <div class="ap-tcard">
     <table class="ap-table">
@@ -105,6 +149,7 @@
         @endforelse
       </tbody>
     </table>
+    <div class="ap-pager">{{ $products->links() }}</div>
   </div>
 
 </div></div>

@@ -9,11 +9,37 @@ use Illuminate\Support\Str;
 
 class ProductAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderByDesc('id')->get();
+        $query = Product::orderByDesc('id');
 
-        return view('admin.equipment.products.index', compact('products'));
+        if ($search = trim((string) $request->get('q', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        if ($request->filled('active')) {
+            $query->where('active', $request->input('active') === '1');
+        }
+
+        if ($request->filled('stock')) {
+            if ($request->input('stock') === 'in') {
+                $query->where('stock', '>', 0);
+            } elseif ($request->input('stock') === 'out') {
+                $query->where('stock', '<=', 0);
+            }
+        }
+
+        $products   = $query->paginate(25)->withQueryString();
+        $categories = Product::whereNotNull('category')->distinct()->orderBy('category')->pluck('category');
+
+        return view('admin.equipment.products.index', compact('products', 'categories'));
     }
 
     public function create()
