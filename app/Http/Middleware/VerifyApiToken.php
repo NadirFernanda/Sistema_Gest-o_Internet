@@ -13,7 +13,7 @@ class VerifyApiToken
      */
     public function handle(Request $request, Closure $next)
     {
-        $token = env('API_CLIENTES_TOKEN');
+        $token = config('app.api_clientes_token');
 
         // If no token configured, allow public access
         if (empty($token)) {

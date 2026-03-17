@@ -110,6 +110,19 @@ return [
     */
     'audit_key' => env('AUDIT_HMAC_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | API Clients Token
+    |--------------------------------------------------------------------------
+    |
+    | Shared secret used by VerifyApiToken to authenticate external systems
+    | (loja, tools) that access the /api/clientes and /api/planos endpoints.
+    | If empty, the API endpoints are publicly accessible (dev/testing only).
+    |
+    */
+    'api_clientes_token' => env('API_CLIENTES_TOKEN'),
+
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
