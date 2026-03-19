@@ -12,71 +12,103 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- ALERTAS ---
     if (document.getElementById('alertasLista')) {
         const _alertasToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
+        let _alertasData = [];
+
+        function applyFiltersAndRender() {
+            const lista = document.getElementById('alertasLista');
+            const busca = (document.getElementById('buscaAlerta')?.value || '').toLowerCase().trim();
+            const estado = document.getElementById('estadoAlerta')?.value || '';
+
+            let alertas = _alertasData.filter(a => {
+                if (busca) {
+                    const nome = (a.nome || '').toLowerCase();
+                    const plano = (a.plano || '').toLowerCase();
+                    const contato = (a.contato || '').toLowerCase();
+                    if (!nome.includes(busca) && !plano.includes(busca) && !contato.includes(busca)) return false;
+                }
+                if (estado === 'vencido' && a.diasRestantes >= 0) return false;
+                if (estado === 'hoje' && a.diasRestantes !== 0) return false;
+                if (estado === 'avencer' && a.diasRestantes < 0) return false;
+                return true;
+            });
+
+            if (!alertas.length) {
+                lista.innerHTML = '<p>Nenhum alerta encontrado com os filtros aplicados.</p>';
+                return;
+            }
+
+            // Use the same styled table wrapper and classes as Estoque de Equipamentos
+            let html = `<div class="estoque-tabela-moderna">` +
+                `<table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;min-width:640px;font-size:1.07em;">` +
+                `<thead>` +
+                `<tr>` +
+                `<th style="text-align:center;vertical-align:middle;"><input type="checkbox" id="selecionarTodosAlertas"></th>` +
+                `<th style="text-align:center;vertical-align:middle;">Cliente</th>` +
+                `<th style="text-align:center;vertical-align:middle;">Plano</th>` +
+                `<th style="text-align:center;vertical-align:middle;">Contacto</th>` +
+                `<th style="text-align:center;vertical-align:middle;">Termina em</th>` +
+                `<th style="text-align:center;vertical-align:middle;">Data de Término</th>` +
+                /* Removida a coluna de ações para alertas (não necessária) */
+                `</tr>` +
+                `</thead><tbody>`;
+
+            alertas.forEach(a => {
+                let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
+                // No image column for alerts; keep row minimal
+                html += `<tr data-plano-id="${a.id}"${destaque}>` +
+                    `<td style="text-align:center;vertical-align:middle;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}" data-email="${a.email}"></td>` +
+                    `<td style="text-align:center;vertical-align:middle;"><span style="font-weight:500;">${a.nome}</span></td>` +
+                    
+                    `<td style="text-align:center;vertical-align:middle;">${a.plano}</td>` +
+                    `<td style="text-align:center;vertical-align:middle;">${a.contato}</td>` +
+                    `<td style="text-align:center;vertical-align:middle;"><b>${a.diasRestantes} dias</b></td>` +
+                    `<td style="text-align:center;vertical-align:middle;">${a.dataTermino}</td>` +
+                    `</tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            lista.innerHTML = html;
+
+            const chkTodos = document.getElementById('selecionarTodosAlertas');
+            if (chkTodos) {
+                chkTodos.addEventListener('change', function() {
+                    const itens = document.querySelectorAll('#alertasLista .chk-alerta');
+                    itens.forEach(cb => { cb.checked = chkTodos.checked; });
+                });
+            }
+        }
+
         function renderAlertas() {
             const lista = document.getElementById('alertasLista');
             const diasAlertaInput = document.getElementById('diasAlerta');
             const DIAS_ALERTA = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
+            lista.innerHTML = '<p>A carregar…</p>';
             fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { headers: { 'X-API-TOKEN': _alertasToken } })
                 .then(async res => {
-                    let alertas = [];
                     try {
-                        alertas = await res.json();
+                        _alertasData = await res.json();
                     } catch (err) {
-                        alertas = [];
+                        _alertasData = [];
                     }
-                    if (!alertas.length) {
-                        lista.innerHTML = '<p>Nenhum alerta ativo no momento.</p>';
-                        return;
-                    }
-
-                    // Use the same styled table wrapper and classes as Estoque de Equipamentos
-                    let html = `<div class="estoque-tabela-moderna">` +
-                        `<table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;min-width:640px;font-size:1.07em;">` +
-                        `<thead>` +
-                        `<tr>` +
-                        `<th style="text-align:center;vertical-align:middle;"><input type="checkbox" id="selecionarTodosAlertas"></th>` +
-                        `<th style="text-align:center;vertical-align:middle;">Cliente</th>` +
-                        `<th style="text-align:center;vertical-align:middle;">Plano</th>` +
-                        `<th style="text-align:center;vertical-align:middle;">Contacto</th>` +
-                        `<th style="text-align:center;vertical-align:middle;">Termina em</th>` +
-                        `<th style="text-align:center;vertical-align:middle;">Data de Término</th>` +
-                        /* Removida a coluna de ações para alertas (não necessária) */
-                        `</tr>` +
-                        `</thead><tbody>`;
-
-                    alertas.forEach(a => {
-                        let destaque = a.diasRestantes <= 2 ? ' style="background:#ffeaea;color:#c0392b;"' : '';
-                        // No image column for alerts; keep row minimal
-                        html += `<tr data-plano-id="${a.id}"${destaque}>` +
-                            `<td style="text-align:center;vertical-align:middle;"><input type="checkbox" class="chk-alerta" data-plano-id="${a.id}" data-nome="${a.nome}" data-contato="${a.contato}" data-email="${a.email}"></td>` +
-                            `<td style="text-align:center;vertical-align:middle;"><span style="font-weight:500;">${a.nome}</span></td>` +
-                            
-                            `<td style="text-align:center;vertical-align:middle;">${a.plano}</td>` +
-                            `<td style="text-align:center;vertical-align:middle;">${a.contato}</td>` +
-                            `<td style="text-align:center;vertical-align:middle;"><b>${a.diasRestantes} dias</b></td>` +
-                            `<td style="text-align:center;vertical-align:middle;">${a.dataTermino}</td>` +
-                            `</tr>`;
-                    });
-
-                    html += '</tbody></table></div>';
-                    lista.innerHTML = html;
-
-                    const chkTodos = document.getElementById('selecionarTodosAlertas');
-                    if (chkTodos) {
-                        chkTodos.addEventListener('change', function() {
-                            const itens = document.querySelectorAll('#alertasLista .chk-alerta');
-                            itens.forEach(cb => { cb.checked = chkTodos.checked; });
-                        });
-                    }
+                    applyFiltersAndRender();
                 })
                 .catch(() => {
                     lista.innerHTML = '<p>Erro ao carregar alertas.</p>';
                 });
         }
-        // Atualiza ao mudar o campo de dias
+        // Refaz o fetch ao mudar os dias
         const diasAlertaInput = document.getElementById('diasAlerta');
         if (diasAlertaInput) {
             diasAlertaInput.addEventListener('input', renderAlertas);
+        }
+        // Filtra localmente ao escrever ou mudar estado
+        const buscaAlertaInput = document.getElementById('buscaAlerta');
+        if (buscaAlertaInput) {
+            buscaAlertaInput.addEventListener('input', applyFiltersAndRender);
+        }
+        const estadoAlertaSelect = document.getElementById('estadoAlerta');
+        if (estadoAlertaSelect) {
+            estadoAlertaSelect.addEventListener('change', applyFiltersAndRender);
         }
         renderAlertas();
     }

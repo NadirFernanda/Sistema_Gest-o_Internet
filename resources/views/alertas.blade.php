@@ -10,11 +10,20 @@
             'title' => 'Alertas Ativos',
             'subtitle' => ''
         ])
-        {{-- Toolbar abaixo do header: busca, dias e CTAs --}}
-        <div class="alertas-toolbar">
-            <div class="alertas-toolbar-left">
-                <label for="diasAlerta">Exibir alertas até</label>
-                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="30" class="dias-input">
+        {{-- Toolbar abaixo do header: busca, filtros, dias e CTAs --}}
+        <div class="alertas-toolbar" style="flex-wrap:wrap;gap:10px;">
+            <div class="alertas-toolbar-left" style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                <input type="search" id="buscaAlerta" placeholder="Pesquisar cliente, plano ou contacto…"
+                       class="search-input" style="flex:1;min-width:220px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
+                <select id="estadoAlerta" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                    <option value="">Todos os estados</option>
+                    <option value="vencido">Vencidos</option>
+                    <option value="hoje">Vence hoje</option>
+                    <option value="avencer">A vencer</option>
+                </select>
+                <label for="diasAlerta" style="white-space:nowrap;font-size:0.95rem;">Dias:</label>
+                <input type="number" id="diasAlerta" value="5" name="dias" min="1" max="365" class="dias-input"
+                       style="width:72px;height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
             </div>
             <div class="alertas-toolbar-actions">
                 <button id="btnDispararAlertas" class="btn btn-cta">Disparar</button>
@@ -28,11 +37,6 @@
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const _apiToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
-        const _apiHeaders = { 'Content-Type': 'application/json', 'X-API-TOKEN': _apiToken };
-
-        // A listagem de alertas é gerida por main.js (com token e tabela completa).
-        // Aqui apenas tratamos o botão Disparar.
         const btn = document.getElementById('btnDispararAlertas');
         if (btn) {
             btn.addEventListener('click', async function() {
@@ -54,7 +58,7 @@
                 try {
                     const res = await fetch('/api/alertas/disparar', {
                         method: 'POST',
-                        headers: _apiHeaders,
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ dias, planos: selecionados })
                     });
 
