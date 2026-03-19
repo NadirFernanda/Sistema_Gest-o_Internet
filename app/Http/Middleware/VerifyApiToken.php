@@ -13,9 +13,16 @@ class VerifyApiToken
      */
     public function handle(Request $request, Closure $next)
     {
-        // Allow authenticated web sessions (SG frontend internal calls)
-        if (auth()->guard('web')->check()) {
-            return $next($request);
+        // Allow requests from the SG's own frontend: the JS sends X-CSRF-TOKEN
+        // which is only valid for an authenticated browser session.
+        // StartSession is appended to the API middleware group so session() is available.
+        try {
+            $csrfHeader = $request->header('X-CSRF-TOKEN');
+            if ($csrfHeader && hash_equals(session()->token(), $csrfHeader)) {
+                return $next($request);
+            }
+        } catch (\Exception $e) {
+            // Session not available — fall through to token check
         }
 
         $token = config('app.api_clientes_token');
