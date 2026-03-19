@@ -386,8 +386,9 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         const lista = document.getElementById('planosLista');
         if(!input || !lista) return;
 
-        const __csrfForPlanos = (document.querySelector('meta[name="csrf-token"]') || {}).getAttribute ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
-        const headers = { 'X-Requested-With':'XMLHttpRequest', 'X-CSRF-TOKEN': __csrfForPlanos };
+        const __apiTokenMeta = document.querySelector('meta[name="api-token"]');
+        const __apiToken = __apiTokenMeta ? __apiTokenMeta.getAttribute('content') : '';
+        const headers = { 'X-Requested-With':'XMLHttpRequest', 'X-API-TOKEN': __apiToken };
         function updateHistory(q){ try{ const url = new URL(window.location.href); if(q) url.searchParams.set('q', q); else url.searchParams.delete('q'); window.history.replaceState({}, '', url.toString()); }catch(_){ } }
 
         function renderPlans(plans){

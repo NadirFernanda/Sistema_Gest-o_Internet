@@ -8,6 +8,8 @@
 
     {{-- CSRF token for JS (used by modal delete fallbacks and AJAX) --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Internal API token for SG frontend AJAX calls --}}
+    <meta name="api-token" content="{{ config('app.api_clientes_token', '') }}">
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
     {{-- Vite-built assets (CSS/JS) — app.css includes project styles and Choices.js overrides --}}
