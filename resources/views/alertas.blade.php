@@ -28,6 +28,32 @@
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const _apiToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
+        const _apiHeaders = { 'Content-Type': 'application/json', 'X-API-TOKEN': _apiToken };
+
+        // Carregar lista de alertas dinamicamente
+        const diasInput = document.getElementById('diasAlerta');
+        const alertasLista = document.getElementById('alertasLista');
+        function loadAlertas() {
+            const dias = diasInput ? parseInt(diasInput.value) || 5 : 5;
+            fetch('/api/alertas?dias=' + dias, { headers: { 'X-API-TOKEN': _apiToken } })
+                .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                .then(data => {
+                    if (!Array.isArray(data) || !data.length) {
+                        alertasLista.innerHTML = '<p>Nenhum alerta ativo no momento.</p>';
+                        return;
+                    }
+                    alertasLista.innerHTML = data.map(a => `
+                        <div class="alerta-item">
+                            <input type="checkbox" class="chk-alerta" data-plano-id="${a.plano_id||a.id||''}" data-nome="${a.nome||''}" data-contato="${a.contato||''}" data-email="${a.email||''}">
+                            <span>${a.nome||''} — ${a.dias_restantes != null ? a.dias_restantes + ' dias' : ''}</span>
+                        </div>`).join('');
+                })
+                .catch(() => { alertasLista.innerHTML = '<p>Erro ao carregar alertas.</p>'; });
+        }
+        loadAlertas();
+        if (diasInput) diasInput.addEventListener('change', loadAlertas);
+
         const btn = document.getElementById('btnDispararAlertas');
         if (btn) {
             btn.addEventListener('click', async function() {
@@ -49,7 +75,7 @@
                 try {
                     const res = await fetch('/api/alertas/disparar', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: _apiHeaders,
                         body: JSON.stringify({ dias, planos: selecionados })
                     });
 
