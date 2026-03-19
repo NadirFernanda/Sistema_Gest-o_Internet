@@ -100,8 +100,8 @@
         <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary">Aprovar</button>
         <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary">Rejeitar</button>
       @endif
-      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary">&#8592; Voltar</a>
     </form>
+    <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary">&#8592; Voltar</a>
   </div>
 
   {{-- Resumo financeiro --}}

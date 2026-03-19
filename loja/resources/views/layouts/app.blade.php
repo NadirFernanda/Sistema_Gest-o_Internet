@@ -15,6 +15,7 @@
     @else
       <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     @endif
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
   </head>
