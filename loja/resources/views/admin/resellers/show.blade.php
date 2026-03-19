@@ -96,13 +96,13 @@
             <option value="rejected" @selected($application->status === 'rejected')>Rejeitado</option>
           </select>
         </div>
-        <button type="submit" class="ap-btn ap-btn-primary">Guardar estado</button>
+        <button type="submit" class="ap-btn ap-btn-primary" style="width:140px;height:42px;">Guardar estado</button>
         @if($application->status === 'pending')
-          <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary">Aprovar</button>
-          <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary">Rejeitar</button>
+          <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary" style="width:140px;height:42px;">Aprovar</button>
+          <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary" style="width:140px;height:42px;">Rejeitar</button>
         @endif
       </form>
-      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary">&#8592; Voltar</a>
+      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary" style="width:140px;height:42px;display:inline-flex;align-items:center;justify-content:center;">Voltar</a>
     </div>
   </div>
 
