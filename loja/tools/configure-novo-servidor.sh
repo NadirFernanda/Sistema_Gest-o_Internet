@@ -6,7 +6,7 @@
 #
 #  Pré-requisitos no servidor:
 #    - git pull já feito nos dois projectos
-#    - /var/www/sgmrtexas/.env já configurado (SG)
+#    - /var/www/sgmr/.env já configurado (SG)
 #    - PHP 8.4, Nginx, PostgreSQL, Node 20, Composer já instalados
 #
 #  Executar como root (ou utilizador sudo):
@@ -23,8 +23,8 @@ hdr()  { echo -e "\n${CYAN}══ $* ══${NC}"; }
 [[ $EUID -ne 0 ]] && err "Execute como root: sudo bash configure-novo-servidor.sh"
 
 # ── Caminhos ───────────────────────────────────────────────────────────────
-SG_DIR="/var/www/sgmrtexas"
-LOJA_DIR="/var/www/sgmrtexas/loja"
+SG_DIR="/var/www/sgmr"
+LOJA_DIR="/var/www/sgmr/loja"
 PHP_VERSION="8.4"
 
 [[ -d "$SG_DIR" ]]   || err "Directório $SG_DIR não encontrado. Certifique-se de que o repositório foi clonado."

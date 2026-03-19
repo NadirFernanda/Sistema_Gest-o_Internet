@@ -136,8 +136,11 @@ Se o número existir na base de dados (de um pedido anterior), o formulário é 
 | Plano | CX23 |
 | IP | `89.167.23.38` |
 | OS | Ubuntu 22.04 / 24.04 LTS |
-| Utilizador SSH | `root` |
-| Directório da loja | `/var/www/sgmrtexas/loja` |
+| Utilizador SSH | `fernanda` |
+| Directório do SG | `/var/www/sgmr` |
+| Directório da loja | `/var/www/sgmr/loja` |
+| Loja (domínio) | `https://angolawifi.ao` |
+| SG (domínio) | `https://sg.angolawifi.ao` |
 
 ### Stack instalada pelo script
 
@@ -154,7 +157,7 @@ Se o número existir na base de dados (de um pedido anterior), o formulário é 
 **1. Aceder ao servidor por SSH**
 
 ```bash
-ssh root@89.167.23.38
+ssh fernanda@89.167.23.38
 ```
 
 **2. Descarregar e executar o script de configuração**
@@ -216,7 +219,7 @@ git push origin main
 
 ```bash
 # No servidor de produção (SSH) — directório raiz do SG
-cd /var/www/sgmrtexas
+cd /var/www/sgmr
 git fetch origin
 git reset --hard origin/main
 
@@ -235,7 +238,7 @@ sudo systemctl reload nginx
 
 ```bash
 # No servidor de produção (SSH)
-cd /var/www/sgmrtexas/loja
+cd /var/www/sgmr/loja
 git fetch origin
 git reset --hard origin/main
 
@@ -263,7 +266,61 @@ sudo systemctl reload nginx
 Para que o deploy não fique bloqueado a pedir password do sudo, execute **uma única vez** no servidor:
 
 ```bash
-echo 'usuario ALL=(ALL) NOPASSWD: /bin/systemctl restart php8.4-fpm, /bin/systemctl reload nginx' | sudo tee /etc/sudoers.d/deploy-loja
+echo 'fernanda ALL=(ALL) NOPASSWD: /bin/systemctl restart php8.4-fpm, /bin/systemctl reload nginx' | sudo tee /etc/sudoers.d/deploy-angolawifi
 ```
 
-Substitua `usuario` pelo nome de utilizador SSH real. Verifique com `sudo systemctl restart php8.4-fpm` — não deve pedir password.
+Verifique com `sudo systemctl restart php8.4-fpm` — não deve pedir password.
+
+---
+
+## Migração para servidor já configurado (código já clonado)
+
+> Use este processo quando o servidor já tem o código clonado (`git pull` feito) e o `.env` do SG configurado, mas falta configurar a loja e o Nginx.
+
+### O que o script `configure-novo-servidor.sh` faz
+
+1. Pede as credenciais da loja de forma interactiva
+2. Cria `/var/www/sgmrtexas/loja/.env` com `APP_URL=https://angolawifi.ao`
+3. Corre `composer install`, `key:generate`, `npm run build`, migrações e `optimize`
+4. Cria dois virtual hosts Nginx:
+   - `angolawifi.ao` → `/var/www/sgmrtexas/loja/public`
+   - `sg.angolawifi.ao` → `/var/www/sgmrtexas/public`
+5. Instala certbot e obtém certificados SSL (Let's Encrypt) para ambos os domínios
+6. Configura `sudo` sem password para deploys futuros
+
+### Pré-requisitos
+
+- PHP 8.4, Nginx, PostgreSQL, Node 20, Composer já instalados (use `setup-vps.sh` numa instalação limpa)
+- Código clonado em `/var/www/sgmr` e `/var/www/sgmr/loja`
+- `.env` do SG (`/var/www/sgmr/.env`) já configurado
+- Base de dados PostgreSQL já migrada do servidor antigo
+- DNS dos domínios `angolawifi.ao` e `sg.angolawifi.ao` já a apontar para o IP `89.167.23.38`
+
+### Executar
+
+```bash
+ssh fernanda@89.167.23.38
+sudo -i
+
+curl -fsSL https://raw.githubusercontent.com/NadirFernanda/Sistema_Gest-o_Internet/main/loja/tools/configure-novo-servidor.sh -o configure-novo-servidor.sh
+bash configure-novo-servidor.sh
+```
+
+### Verificar após o script
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" https://angolawifi.ao
+# Deve devolver 200
+curl -s -o /dev/null -w "%{http_code}" https://sg.angolawifi.ao
+# Deve devolver 200
+
+systemctl status nginx
+systemctl status php8.4-fpm
+```
+
+### Se o certbot falhar (DNS ainda a propagar)
+
+```bash
+certbot --nginx -d angolawifi.ao -d www.angolawifi.ao
+certbot --nginx -d sg.angolawifi.ao
+```
