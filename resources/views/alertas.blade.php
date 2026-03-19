@@ -31,29 +31,8 @@
         const _apiToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
         const _apiHeaders = { 'Content-Type': 'application/json', 'X-API-TOKEN': _apiToken };
 
-        // Carregar lista de alertas dinamicamente
-        const diasInput = document.getElementById('diasAlerta');
-        const alertasLista = document.getElementById('alertasLista');
-        function loadAlertas() {
-            const dias = diasInput ? parseInt(diasInput.value) || 5 : 5;
-            fetch('/api/alertas?dias=' + dias, { headers: { 'X-API-TOKEN': _apiToken } })
-                .then(r => r.ok ? r.json() : Promise.reject(r.status))
-                .then(data => {
-                    if (!Array.isArray(data) || !data.length) {
-                        alertasLista.innerHTML = '<p>Nenhum alerta ativo no momento.</p>';
-                        return;
-                    }
-                    alertasLista.innerHTML = data.map(a => `
-                        <div class="alerta-item">
-                            <input type="checkbox" class="chk-alerta" data-plano-id="${a.id||''}" data-nome="${a.nome||''}" data-contato="${a.contato||''}" data-email="${a.email||''}">
-                            <span><strong>${a.nome||''}</strong> — ${a.plano||''} — ${a.diasRestantes != null ? a.diasRestantes + ' dias' : ''} (${a.dataTermino||''})</span>
-                        </div>`).join('');
-                })
-                .catch(() => { alertasLista.innerHTML = '<p>Erro ao carregar alertas.</p>'; });
-        }
-        loadAlertas();
-        if (diasInput) diasInput.addEventListener('change', loadAlertas);
-
+        // A listagem de alertas é gerida por main.js (com token e tabela completa).
+        // Aqui apenas tratamos o botão Disparar.
         const btn = document.getElementById('btnDispararAlertas');
         if (btn) {
             btn.addEventListener('click', async function() {

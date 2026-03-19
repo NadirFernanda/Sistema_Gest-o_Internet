@@ -11,11 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // --- ALERTAS ---
     if (document.getElementById('alertasLista')) {
+        const _alertasToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
         function renderAlertas() {
             const lista = document.getElementById('alertasLista');
             const diasAlertaInput = document.getElementById('diasAlerta');
             const DIAS_ALERTA = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
-            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { credentials: 'include' })
+            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { headers: { 'X-API-TOKEN': _alertasToken } })
                 .then(async res => {
                     let alertas = [];
                     try {
