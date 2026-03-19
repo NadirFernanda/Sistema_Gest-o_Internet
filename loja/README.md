@@ -68,9 +68,9 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 #### Planos Individuais
 | Plano | Preço | Duração | Velocidade | Download | Descrição |
 |---|---|---|---|---|---|
-| Diário | 200 Kz | 24 horas | Até 100 Mbps | Ilimitado | Internet para o dia inteiro, perfeito para quem precisa de conectividade contínua durante 24h. |
-| Semanal | 500 Kz | 7 dias | Até 100 Mbps | Ilimitado | Plano de 7 dias para utilização recorrente, ideal para estudantes e profissionais. |
-| Mensal | 1.000 Kz | 30 dias | Até 100 Mbps | Ilimitado | Plano de 30 dias com acesso estável e previsível, para uso contínuo em casa ou no escritório. |
+| Diário | 200 Kz | 24 horas | Até 10 Mbps | Ilimitado | Internet para o dia inteiro, perfeito para quem precisa de conectividade contínua durante 24h. |
+| Semanal | 500 Kz | 7 dias | Até 10 Mbps | Ilimitado | Plano de 7 dias para utilização recorrente, ideal para estudantes e profissionais. |
+| Mensal | 1.000 Kz | 30 dias | Até 10 Mbps | Ilimitado | Plano de 30 dias com acesso estável e previsível, para uso contínuo em casa ou no escritório. |
 
 #### Planos Familiares
 | Plano | Preço | Duração | Velocidade | Descrição |
