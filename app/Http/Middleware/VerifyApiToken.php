@@ -13,20 +13,19 @@ class VerifyApiToken
      */
     public function handle(Request $request, Closure $next)
     {
+        // Allow authenticated web sessions (SG frontend internal calls)
+        if (auth()->guard('web')->check()) {
+            return $next($request);
+        }
+
         $token = config('app.api_clientes_token');
 
-        // Fail-closed: if API_CLIENTES_TOKEN is not configured, block all access
+        // Fail-closed: if API_CLIENTES_TOKEN is not configured, block external access
         if (empty($token)) {
             return response()->json(['message' => 'API not available'], 503);
         }
 
-        $provided = null;
-        // Bearer token
-        if ($request->bearerToken()) {
-            $provided = $request->bearerToken();
-        } elseif ($request->header('X-API-TOKEN')) {
-            $provided = $request->header('X-API-TOKEN');
-        }
+        $provided = $request->bearerToken() ?? $request->header('X-API-TOKEN');
 
         if ($provided && hash_equals($token, $provided)) {
             return $next($request);
