@@ -84,24 +84,26 @@
   {{-- Estado --}}
   <div class="ap-card">
     <p class="ap-card-title">Estado da candidatura</p>
-    <form action="{{ route('admin.resellers.status', $application) }}" method="POST"
-          style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
-      @csrf @method('PATCH')
-      <div style="display:flex;flex-direction:column;gap:.25rem;min-width:180px;">
-        <label class="ap-label" for="status">Estado</label>
-        <select id="status" name="status" class="ap-ctrl" style="width:auto;">
-          <option value="pending"  @selected($application->status === 'pending') >Pendente</option>
-          <option value="approved" @selected($application->status === 'approved')>Aprovado</option>
-          <option value="rejected" @selected($application->status === 'rejected')>Rejeitado</option>
-        </select>
-      </div>
-      <button type="submit" class="ap-btn ap-btn-primary">Guardar estado</button>
-      @if($application->status === 'pending')
-        <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary">Aprovar</button>
-        <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary">Rejeitar</button>
-      @endif
-    </form>
-    <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary">&#8592; Voltar</a>
+    <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
+      <form action="{{ route('admin.resellers.status', $application) }}" method="POST"
+            style="display:contents;">
+        @csrf @method('PATCH')
+        <div style="display:flex;flex-direction:column;gap:.25rem;min-width:180px;">
+          <label class="ap-label" for="status">Estado</label>
+          <select id="status" name="status" class="ap-ctrl" style="width:auto;">
+            <option value="pending"  @selected($application->status === 'pending') >Pendente</option>
+            <option value="approved" @selected($application->status === 'approved')>Aprovado</option>
+            <option value="rejected" @selected($application->status === 'rejected')>Rejeitado</option>
+          </select>
+        </div>
+        <button type="submit" class="ap-btn ap-btn-primary">Guardar estado</button>
+        @if($application->status === 'pending')
+          <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary">Aprovar</button>
+          <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary">Rejeitar</button>
+        @endif
+      </form>
+      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary">&#8592; Voltar</a>
+    </div>
   </div>
 
   {{-- Resumo financeiro --}}
