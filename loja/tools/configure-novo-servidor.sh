@@ -30,17 +30,38 @@ PHP_VERSION="8.4"
 [[ -d "$SG_DIR" ]]   || err "Directório $SG_DIR não encontrado. Certifique-se de que o repositório foi clonado."
 [[ -d "$LOJA_DIR" ]] || err "Directório $LOJA_DIR não encontrado."
 
+SG_ENV="${SG_DIR}/.env"
+
+# ── Função auxiliar: lê valor de uma variável do .env ──────────────────────
+env_get() {
+    local key="$1" file="$2"
+    grep -E "^${key}=" "$file" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'"
+}
+
 # =============================================================================
 # 1. Recolher dados
 # =============================================================================
 hdr "Configuração da Loja — .env"
 echo ""
 
-read -rp  "Nome da base de dados PostgreSQL da loja [loja_angolawifi]: " DB_NAME
-DB_NAME=${DB_NAME:-loja_angolawifi}
-read -rp  "Utilizador PostgreSQL da loja [lojauser]: " DB_USER
-DB_USER=${DB_USER:-lojauser}
-read -rsp "Password PostgreSQL do utilizador '$DB_USER': " DB_PASS; echo ""
+# ── Ler BD do .env do SG (evitar erros de digitação) ──────────────────────
+if [[ -f "$SG_ENV" ]]; then
+    SG_DB_NAME=$(env_get DB_DATABASE "$SG_ENV")
+    SG_DB_USER=$(env_get DB_USERNAME "$SG_ENV")
+    SG_DB_PASS=$(env_get DB_PASSWORD "$SG_ENV")
+    echo -e "${CYAN}Valores lidos do .env do SG (${SG_ENV}):${NC}"
+    echo -e "  DB_DATABASE = ${GREEN}${SG_DB_NAME}${NC}"
+    echo -e "  DB_USERNAME = ${GREEN}${SG_DB_USER}${NC}"
+    echo -e "  DB_PASSWORD = ${GREEN}(preenchido)${NC}"
+    echo ""
+fi
+
+read -rp  "Nome da base de dados PostgreSQL da loja [${SG_DB_NAME:-loja_angolawifi}]: " DB_NAME
+DB_NAME=${DB_NAME:-${SG_DB_NAME:-loja_angolawifi}}
+read -rp  "Utilizador PostgreSQL da loja [${SG_DB_USER:-lojauser}]: " DB_USER
+DB_USER=${DB_USER:-${SG_DB_USER:-lojauser}}
+read -rsp "Password PostgreSQL do utilizador '$DB_USER' [enter para usar o do .env do SG]: " DB_PASS; echo ""
+DB_PASS=${DB_PASS:-$SG_DB_PASS}
 
 echo ""
 read -rp  "URL do SG (Sistema de Gestão) [https://sg.angolawifi.ao]: " SG_URL
