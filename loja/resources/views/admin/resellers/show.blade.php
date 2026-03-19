@@ -28,7 +28,7 @@
 .ap-ctrl:focus{border-color:var(--a-brand);background:#fff;}
 .ap-hint{font-size:.77rem;color:var(--a-faint);margin-top:.2rem;}
 .ap-err-inline{font-size:.8rem;color:var(--a-red);margin-top:.2rem;}
-.ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.2rem;border-radius:8px;font-size:.875rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:filter .15s;text-decoration:none;white-space:nowrap;}
+.ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.2rem;border-radius:8px;font-size:.875rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:filter .15s;text-decoration:none;white-space:nowrap;box-sizing:border-box;line-height:1.25;}
 .ap-btn-primary{background:#f7b500;color:#1a202c;}.ap-btn-primary:hover{filter:brightness(.95);}
 .ap-btn-sm{padding:.35rem .8rem;font-size:.8rem;}
 .badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
@@ -102,7 +102,7 @@
           <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary" style="width:140px;">Rejeitar</button>
         @endif
       </form>
-      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary" style="width:140px;display:inline-flex;align-items:center;justify-content:center;">Voltar</a>
+      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary" style="width:140px;">Voltar</a>
     </div>
   </div>
 
