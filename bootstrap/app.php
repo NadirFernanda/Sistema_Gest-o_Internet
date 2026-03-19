@@ -12,11 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Add session handling to API routes so the SG frontend (authenticated via
-        // web session) can call internal API endpoints without a token.
-        $middleware->api(append: [
-            \Illuminate\Session\Middleware\StartSession::class,
-        ]);
+        // API routes use X-API-TOKEN header for internal SG frontend calls.
+        // Do NOT add StartSession here — it would overwrite the web session cookie
+        // and log the user out on every API call made by the frontend JS.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

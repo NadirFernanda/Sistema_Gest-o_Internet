@@ -45,8 +45,8 @@
                     }
                     alertasLista.innerHTML = data.map(a => `
                         <div class="alerta-item">
-                            <input type="checkbox" class="chk-alerta" data-plano-id="${a.plano_id||a.id||''}" data-nome="${a.nome||''}" data-contato="${a.contato||''}" data-email="${a.email||''}">
-                            <span>${a.nome||''} — ${a.dias_restantes != null ? a.dias_restantes + ' dias' : ''}</span>
+                            <input type="checkbox" class="chk-alerta" data-plano-id="${a.id||''}" data-nome="${a.nome||''}" data-contato="${a.contato||''}" data-email="${a.email||''}">
+                            <span><strong>${a.nome||''}</strong> — ${a.plano||''} — ${a.diasRestantes != null ? a.diasRestantes + ' dias' : ''} (${a.dataTermino||''})</span>`,
                         </div>`).join('');
                 })
                 .catch(() => { alertasLista.innerHTML = '<p>Erro ao carregar alertas.</p>'; });
