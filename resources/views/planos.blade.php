@@ -98,7 +98,7 @@
                 <input type="number" id="filtroDias" value="5" min="1" max="365"
                        style="display:none;width:72px;height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
 
-                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
+                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;width:auto;flex-shrink:0;align-self:center;">✕ Limpar</button>
             </div>
             <div class="alertas-toolbar-actions">
                 <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
