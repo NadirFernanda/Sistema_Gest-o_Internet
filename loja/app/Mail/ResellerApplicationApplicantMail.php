@@ -4,10 +4,11 @@ namespace App\Mail;
 
 
 use App\Models\ResellerApplication;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResellerApplicationApplicantMail extends Mailable
 {
@@ -23,10 +24,16 @@ class ResellerApplicationApplicantMail extends Mailable
     public function build(): self
     {
         // Gerar PDF personalizado do contrato
-        $pdf = Pdf::loadView('pdf.contrato-revendedor', [
-            'application' => $this->application
-        ]);
-        $pdfContent = $pdf->output();
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $html = view('pdf.contrato-revendedor', ['application' => $this->application])->render();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $pdfContent = $dompdf->output();
 
         return $this
             ->subject('Recebemos o seu pedido de revenda AngolaWiFi')
