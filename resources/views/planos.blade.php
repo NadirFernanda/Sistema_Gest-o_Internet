@@ -62,12 +62,24 @@
             </div>
         @endif
 
-        {{-- Toolbar: pesquisa, filtros e CTAs — mesmo padrão do alertas --}}
-        <div class="planos-toolbar" style="flex-wrap:wrap;gap:10px;">
-            <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+        {{-- Linha 1: pesquisa + botões (igual ao alertas) --}}
+        <div class="planos-toolbar">
+            <div class="alertas-toolbar-left">
                 <input type="search" id="buscaPlanos" placeholder="Pesquisar cliente ou plano…"
                        class="search-input" style="flex:1;min-width:220px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
+            </div>
+            <div class="alertas-toolbar-actions">
+                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
+                @if(auth()->user() && auth()->user()->hasRole('Administrador'))
+                    <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
+                @endif
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
+            </div>
+        </div>
 
+        {{-- Linha 2: filtros por baixo da toolbar --}}
+        <div class="planos-toolbar" style="flex-wrap:wrap;gap:8px;margin-top:0;">
+            <div class="alertas-toolbar-left" style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
                 <select id="filtroEstado" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
                     <option value="">Todos os estados</option>
                     <option value="Ativo">Ativo</option>
@@ -117,14 +129,8 @@
                     <option value="data_desc">Activação recente</option>
                     <option value="data_asc">Activação antiga</option>
                 </select>
-            </div>
-            <div class="toolbar-actions">
-                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
-                @if(auth()->user() && auth()->user()->hasRole('Administrador'))
-                    <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
-                @endif
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
-                <button id="btnLimparFiltros" class="btn btn-ghost">✕ Limpar</button>
+
+                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
             </div>
         </div>
 
