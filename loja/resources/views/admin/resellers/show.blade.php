@@ -252,6 +252,70 @@
     @endif
   </div>
 
+  {{-- Bónus --}}
+  <div class="ap-card">
+    <p class="ap-card-title">B&oacute;nus de desempenho</p>
+
+    {{-- Saldo actual --}}
+    <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--a-border);">
+      <div>
+        <p class="ap-stat-lbl">Saldo actual</p>
+        <p class="ap-stat-val" style="color:var(--a-brand);font-size:1.65rem;">
+          {{ number_format($application->saldo_bonus_aoa ?? 0, 0, ',', '.') }}
+          <span style="font-size:.85rem;font-weight:500;color:var(--a-muted);">Kz</span>
+        </p>
+      </div>
+    </div>
+
+    {{-- Formulário de envio --}}
+    <form action="{{ route('admin.resellers.bonus', $application) }}" method="POST"
+          style="max-width:520px;">
+      @csrf
+      <div class="ap-grid-2" style="margin-bottom:.85rem;">
+        <div>
+          <label class="ap-label" for="amount_aoa">Valor do b&oacute;nus (Kz)</label>
+          <input id="amount_aoa" name="amount_aoa" type="number" min="1" step="100"
+                 class="ap-ctrl" value="{{ old('amount_aoa') }}" placeholder="ex: 5000"
+                 required>
+          @error('amount_aoa')<p class="ap-err-inline">{{ $message }}</p>@enderror
+        </div>
+        <div>
+          <label class="ap-label" for="reason">Motivo (opcional)</label>
+          <input id="reason" name="reason" type="text" maxlength="500"
+                 class="ap-ctrl" value="{{ old('reason') }}"
+                 placeholder="ex: Meta de Março atingida">
+          @error('reason')<p class="ap-err-inline">{{ $message }}</p>@enderror
+        </div>
+      </div>
+      <button type="submit" class="ap-btn ap-btn-primary">Enviar b&oacute;nus</button>
+    </form>
+
+    {{-- Histórico de transações de bónus --}}
+    @if($bonusTransactions->count())
+      <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--a-border);">
+        <p style="font-size:.82rem;font-weight:700;color:var(--a-muted);margin:0 0 .6rem;">Hist&oacute;rico de b&oacute;nus</p>
+        <table class="ap-table" style="font-size:.82rem;">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th class="r">Valor (Kz)</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($bonusTransactions->take(10) as $bt)
+              <tr>
+                <td class="dim">{{ optional($bt->created_at)->format('d/m/Y H:i') }}</td>
+                <td class="r" style="font-weight:700;color:var(--a-green);">{{ number_format($bt->amount_aoa, 0, ',', '.') }}</td>
+                <td>{{ $bt->reason ?? '—' }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @endif
+  </div>
+
   {{-- Hist&oacute;rico de compras --}}
   <div class="ap-tcard">
     <div class="ap-tcard-head">

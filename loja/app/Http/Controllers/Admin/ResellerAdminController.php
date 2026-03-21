@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResellerApplication;
+use App\Models\ResellerBonusTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ResellerAdminController extends Controller
 {
@@ -39,13 +41,14 @@ class ResellerAdminController extends Controller
 
     public function show(ResellerApplication $application)
     {
-        $purchases     = $application->purchases()->orderByDesc('id')->paginate(10);
-        $monthlySpend  = $application->monthlySpendings();
-        $totalRevenue  = $application->purchases()->sum('net_amount_aoa');
-        $totalProfit   = $application->purchases()->selectRaw('SUM(gross_amount_aoa - net_amount_aoa) as profit')->value('profit') ?? 0;
+        $purchases         = $application->purchases()->orderByDesc('id')->paginate(10);
+        $monthlySpend      = $application->monthlySpendings();
+        $totalRevenue      = $application->purchases()->sum('net_amount_aoa');
+        $totalProfit       = $application->purchases()->selectRaw('SUM(gross_amount_aoa - net_amount_aoa) as profit')->value('profit') ?? 0;
+        $bonusTransactions = $application->bonusTransactions()->orderByDesc('id')->limit(20)->get();
 
         return view('admin.resellers.show', compact(
-            'application', 'purchases', 'monthlySpend', 'totalRevenue', 'totalProfit'
+            'application', 'purchases', 'monthlySpend', 'totalRevenue', 'totalProfit', 'bonusTransactions'
         ));
     }
 
@@ -85,5 +88,26 @@ class ResellerAdminController extends Controller
         $application->update(['status' => $request->status]);
 
         return back()->with('status', 'Estado atualizado.');
+    }
+
+    public function sendBonus(Request $request, ResellerApplication $application)
+    {
+        $data = $request->validate([
+            'amount_aoa' => 'required|integer|min:1|max:100000000',
+            'reason'     => 'nullable|string|max:500',
+        ]);
+
+        DB::transaction(function () use ($application, $data) {
+            ResellerBonusTransaction::create([
+                'reseller_application_id' => $application->id,
+                'amount_aoa'              => $data['amount_aoa'],
+                'reason'                  => $data['reason'] ?? null,
+            ]);
+
+            $application->increment('saldo_bonus_aoa', $data['amount_aoa']);
+        });
+
+        return redirect()->route('admin.resellers.show', $application)
+            ->with('status', 'Bónus de ' . number_format($data['amount_aoa'], 0, ',', '.') . ' Kz enviado com sucesso.');
     }
 }

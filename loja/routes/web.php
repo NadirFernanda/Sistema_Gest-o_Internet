@@ -105,6 +105,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/revendedores/{application}', [ResellerAdminController::class, 'show'])->name('admin.resellers.show');
     Route::put('/revendedores/{application}', [ResellerAdminController::class, 'update'])->name('admin.resellers.update');
     Route::patch('/revendedores/{application}/status', [ResellerAdminController::class, 'updateStatus'])->name('admin.resellers.status');
+    Route::post('/revendedores/{application}/bonus', [ResellerAdminController::class, 'sendBonus'])->name('admin.resellers.bonus');
 
     // Gestão de produtos (equipamentos)
     Route::get('/equipamentos', [ProductAdminController::class, 'index'])->name('admin.equipment.products.index');

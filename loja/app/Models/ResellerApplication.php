@@ -18,6 +18,7 @@ class ResellerApplication extends Model
         'reseller_mode',
         'installation_fee_aoa',
         'bonus_vouchers_aoa',
+        'saldo_bonus_aoa',
         'monthly_target_aoa',
         'maintenance_paid_year',
         'maintenance_status',
@@ -34,6 +35,7 @@ class ResellerApplication extends Model
         'meta'                 => 'array',
         'installation_fee_aoa' => 'integer',
         'bonus_vouchers_aoa'   => 'integer',
+        'saldo_bonus_aoa'      => 'integer',
         'monthly_target_aoa'   => 'integer',
         'maintenance_paid_year'=> 'integer',
     ];
@@ -56,6 +58,11 @@ class ResellerApplication extends Model
     public function purchases()
     {
         return $this->hasMany(ResellerPurchase::class, 'reseller_application_id');
+    }
+
+    public function bonusTransactions()
+    {
+        return $this->hasMany(ResellerBonusTransaction::class, 'reseller_application_id');
     }
 
     // ─── Business logic helpers ───────────────────────────────────────────────
