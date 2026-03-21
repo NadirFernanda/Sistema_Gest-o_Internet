@@ -98,26 +98,6 @@
                 <input type="number" id="filtroDias" value="5" min="1" max="365"
                        style="display:none;width:72px;height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
 
-                <select id="filtroPreco" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
-                    <option value="">Todos os preços</option>
-                    <option value="0-5000">Até Kz 5.000</option>
-                    <option value="5001-15000">Kz 5.001 – 15.000</option>
-                    <option value="15001-30000">Kz 15.001 – 30.000</option>
-                    <option value="30001-9999999">Acima de Kz 30.000</option>
-                </select>
-
-                <select id="filtroOrdenar" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
-                    <option value="cliente_asc">Cliente A–Z</option>
-                    <option value="nome_asc">Nome plano A–Z</option>
-                    <option value="nome_desc">Nome plano Z–A</option>
-                    <option value="preco_asc">Preço ↑</option>
-                    <option value="preco_desc">Preço ↓</option>
-                    <option value="venc_asc">Vencimento ↑</option>
-                    <option value="venc_desc">Vencimento ↓</option>
-                    <option value="data_desc">Activação recente</option>
-                    <option value="data_asc">Activação antiga</option>
-                </select>
-
                 <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
             </div>
             <div class="alertas-toolbar-actions">

@@ -398,8 +398,6 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             const tipo       = (document.getElementById('filtroTipo')?.value       || '');
             const vencimento = (document.getElementById('filtroVencimento')?.value || '');
             const dias       = parseInt(document.getElementById('filtroDias')?.value || '5') || 5;
-            const preco      = (document.getElementById('filtroPreco')?.value      || '');
-            const ordenar    = (document.getElementById('filtroOrdenar')?.value    || 'cliente_asc');
             const templateId = _activeTemplateId;
 
             let plans = _planosData.filter(function(p){
@@ -424,26 +422,12 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                     if(vencimento === 'avencer'  && (dr === null || dr < 0 || dr > dias)) return false;
                     if(vencimento === 'vigente'  && (dr === null || dr <= 0)) return false;
                 }
-                // preço
-                if(preco){
-                    const parts = preco.split('-').map(Number);
-                    const pr = p.preco ? Number(p.preco) : 0;
-                    if(pr < parts[0] || pr > parts[1]) return false;
-                }
                 return true;
             });
 
-            // ordenação
+            // ordenação: cliente A–Z por defeito
             try{
-                if(ordenar === 'nome_asc')   plans.sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'}); });
-                else if(ordenar === 'nome_desc')  plans.sort(function(a,b){ return (b.nome||'').localeCompare(a.nome||'','pt',{sensitivity:'base'}); });
-                else if(ordenar === 'preco_asc')  plans.sort(function(a,b){ return Number(a.preco||0) - Number(b.preco||0); });
-                else if(ordenar === 'preco_desc') plans.sort(function(a,b){ return Number(b.preco||0) - Number(a.preco||0); });
-                else if(ordenar === 'venc_asc')   plans.sort(function(a,b){ return ((a.diasRestantes!==null?Number(a.diasRestantes):99999)) - ((b.diasRestantes!==null?Number(b.diasRestantes):99999)); });
-                else if(ordenar === 'venc_desc')  plans.sort(function(a,b){ return ((b.diasRestantes!==null?Number(b.diasRestantes):-99999)) - ((a.diasRestantes!==null?Number(a.diasRestantes):-99999)); });
-                else if(ordenar === 'data_asc')   plans.sort(function(a,b){ return (a.data_ativacao||'') < (b.data_ativacao||'') ? -1 : 1; });
-                else if(ordenar === 'data_desc')  plans.sort(function(a,b){ return (b.data_ativacao||'') < (a.data_ativacao||'') ? -1 : 1; });
-                else plans.sort(function(a,b){
+                plans.sort(function(a,b){
                     const na = (a.cliente&&(a.cliente.nome||a.cliente.name)?String(a.cliente.nome||a.cliente.name):'').normalize('NFD').toLowerCase();
                     const nb = (b.cliente&&(b.cliente.nome||b.cliente.name)?String(b.cliente.nome||b.cliente.name):'').normalize('NFD').toLowerCase();
                     return na.localeCompare(nb,'pt',{sensitivity:'base'});
@@ -592,10 +576,8 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         function clearAllFilters(){
             _activeTemplateId = null;
             input.value = '';
-            var ids = ['filtroEstado','filtroTipo','filtroVencimento','filtroPreco'];
+            var ids = ['filtroEstado','filtroTipo','filtroVencimento'];
             ids.forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
-            var fOrdenar = document.getElementById('filtroOrdenar');
-            if(fOrdenar) fOrdenar.value = 'cliente_asc';
             var fDias = document.getElementById('filtroDias');
             if(fDias) fDias.value = 5;
             var labelDias = document.getElementById('labelDias');
@@ -636,7 +618,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         });
 
         // Todos os outros selects filtram localmente sem nova chamada API
-        ['filtroEstado','filtroTipo','filtroPreco','filtroOrdenar'].forEach(function(id){
+        ['filtroEstado','filtroTipo'].forEach(function(id){
             var el = document.getElementById(id);
             if(el) el.addEventListener('change', applyFiltersAndRender);
         });
