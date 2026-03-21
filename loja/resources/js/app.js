@@ -21,8 +21,10 @@ function renderFamilyCard(plan) {
 			+ '</span><span class="plan-currency">Kz</span></div>';
 	}
 	if (plan.ciclo) {
-		body += '<div class="plan-features"><span class="plan-feature plan-feature--active"><strong>'
-			+ esc(plan.ciclo) + ' dias</strong></span></div>';
+		body += '<div class="plan-features">'
+			+ '<span class="plan-feature plan-feature--active"><strong>' + esc(plan.ciclo) + ' dias</strong></span>'
+			+ '<span class="plan-feature">Downloads Ilimitados</span>'
+			+ '</div>';
 	}
 	if (plan.description) {
 		body += '<p class="plan-desc">' + esc(plan.description) + '</p>';

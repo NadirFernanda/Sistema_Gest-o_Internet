@@ -51,7 +51,8 @@
         <hr class="checkout-divider">
         <p><span class="label">Plano:</span> {{ $plan['name'] }}</p>
         <p><span class="label">Duração:</span> {{ $plan['duration_label'] }}</p>
-        <p><span class="label">Velocidade:</span> {{ $plan['speed'] }}</p>
+        <p><span class="label">Velocidade:</span> {{ $plan['max_speed'] ?? $plan['speed'] }}</p>
+        <p><span class="label">Download:</span> {{ $plan['download'] ?? 'Downloads Ilimitados' }}</p>
         <p><span class="label">Quantidade:</span> 1 código</p>
         <p class="total">Total pago: {{ number_format($plan['price_kwanza'], 0, ',', '.') }} AOA</p>
       @endif
