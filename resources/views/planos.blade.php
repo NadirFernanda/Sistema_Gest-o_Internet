@@ -62,33 +62,13 @@
             </div>
         @endif
 
-        <div class="planos-toolbar" style="max-width:1100px;margin:18px auto 0;">
-            {{-- Linha 1: pesquisa + botões de acção --}}
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                <form class="search-form-inline" style="flex:1;display:flex;gap:8px;align-items:center;min-width:200px;" onsubmit="return false;">
-                    <input type="search" name="busca" id="buscaPlanos" value="{{ request('busca') }}" class="search-input"
-                           placeholder="Pesquise por plano ou cliente…" aria-label="Pesquisar planos"
-                           style="flex:1;padding:9px 12px;border-radius:7px;border:2px solid #e6a248;height:40px;font-size:0.97rem;" />
-                    <button type="button" id="btnBuscarPlanos" class="btn btn-search" style="height:40px;padding:0 16px;">Pesquisar</button>
-                </form>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
-                    @if(auth()->user() && auth()->user()->hasRole('Administrador'))
-                        <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
-                    @endif
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
-                </div>
-            </div>
+        {{-- Toolbar: pesquisa, filtros e CTAs — mesmo padrão do alertas --}}
+        <div class="planos-toolbar" style="flex-wrap:wrap;gap:10px;">
+            <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                <input type="search" id="buscaPlanos" placeholder="Pesquisar cliente ou plano…"
+                       class="search-input" style="flex:1;min-width:220px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
 
-            {{-- Linha 2: filtros detalhados --}}
-            <div id="planosFiltrosRow"
-                 style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;padding:12px 14px;background:#fafafa;border:1px solid #e8eaf0;border-radius:9px;">
-                <span style="font-size:0.83rem;font-weight:700;color:#777;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;">Filtros</span>
-
-                {{-- Estado --}}
-                <select id="filtroEstado"
-                        style="height:36px;padding:4px 10px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;background:#fff;cursor:pointer;"
-                        aria-label="Filtrar por estado">
+                <select id="filtroEstado" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
                     <option value="">Todos os estados</option>
                     <option value="Ativo">Ativo</option>
                     <option value="Em aviso">Em aviso</option>
@@ -98,10 +78,7 @@
                     <option value="Agente Autorizado">Agente Autorizado</option>
                 </select>
 
-                {{-- Tipo --}}
-                <select id="filtroTipo"
-                        style="height:36px;padding:4px 10px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;background:#fff;cursor:pointer;"
-                        aria-label="Filtrar por tipo de plano">
+                <select id="filtroTipo" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
                     <option value="">Todos os tipos</option>
                     <option value="familiar">Familiar</option>
                     <option value="institucional">Institucional</option>
@@ -109,66 +86,45 @@
                     <option value="site">Site</option>
                 </select>
 
-                {{-- Vencimento --}}
-                <select id="filtroVencimento"
-                        style="height:36px;padding:4px 10px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;background:#fff;cursor:pointer;min-width:155px;"
-                        aria-label="Filtrar por vencimento">
+                <select id="filtroVencimento" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
                     <option value="">Qualquer vencimento</option>
                     <option value="vencido">Vencidos</option>
                     <option value="hoje">Vence hoje</option>
-                    <option value="avencer">A vencer em X dias</option>
-                    <option value="vigente">Vigentes (≥ 1 dia)</option>
+                    <option value="avencer">A vencer</option>
+                    <option value="vigente">Vigentes</option>
                 </select>
 
-                {{-- Dias (só visível quando vencimento = "avencer") --}}
-                <span id="diasFiltroWrapper" style="display:none;align-items:center;gap:5px;">
-                    <label for="filtroDias" style="font-size:0.91rem;white-space:nowrap;color:#555;">em até</label>
-                    <input type="number" id="filtroDias" value="5" min="1" max="365"
-                           style="width:64px;height:36px;padding:4px 8px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;" />
-                    <span style="font-size:0.91rem;color:#555;">dias</span>
-                </span>
+                <label for="filtroDias" id="labelDias" style="display:none;white-space:nowrap;font-size:0.95rem;">Dias:</label>
+                <input type="number" id="filtroDias" value="5" min="1" max="365"
+                       style="display:none;width:72px;height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
 
-                {{-- Faixa de preço --}}
-                <select id="filtroPreco"
-                        style="height:36px;padding:4px 10px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;background:#fff;cursor:pointer;min-width:168px;"
-                        aria-label="Filtrar por faixa de preço">
-                    <option value="">Todas as faixas de preço</option>
+                <select id="filtroPreco" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                    <option value="">Todos os preços</option>
                     <option value="0-5000">Até Kz 5.000</option>
                     <option value="5001-15000">Kz 5.001 – 15.000</option>
                     <option value="15001-30000">Kz 15.001 – 30.000</option>
                     <option value="30001-9999999">Acima de Kz 30.000</option>
                 </select>
 
-                {{-- Ordenação --}}
-                <select id="filtroOrdenar"
-                        style="height:36px;padding:4px 10px;border-radius:7px;border:1px solid #dde3ec;font-size:0.93rem;background:#fff;cursor:pointer;min-width:190px;"
-                        aria-label="Ordenar resultados">
-                    <option value="cliente_asc">Ordenar: Cliente A–Z</option>
-                    <option value="nome_asc">Ordenar: Nome plano A–Z</option>
-                    <option value="nome_desc">Ordenar: Nome plano Z–A</option>
-                    <option value="preco_asc">Ordenar: Preço ↑ menor–maior</option>
-                    <option value="preco_desc">Ordenar: Preço ↓ maior–menor</option>
-                    <option value="venc_asc">Ordenar: Vencimento ↑ próximo</option>
-                    <option value="venc_desc">Ordenar: Vencimento ↓ longe</option>
-                    <option value="data_asc">Ordenar: Activação ↑ mais antigo</option>
-                    <option value="data_desc">Ordenar: Activação ↓ mais recente</option>
+                <select id="filtroOrdenar" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                    <option value="cliente_asc">Cliente A–Z</option>
+                    <option value="nome_asc">Nome plano A–Z</option>
+                    <option value="nome_desc">Nome plano Z–A</option>
+                    <option value="preco_asc">Preço ↑</option>
+                    <option value="preco_desc">Preço ↓</option>
+                    <option value="venc_asc">Vencimento ↑</option>
+                    <option value="venc_desc">Vencimento ↓</option>
+                    <option value="data_desc">Activação recente</option>
+                    <option value="data_asc">Activação antiga</option>
                 </select>
-
-                <button id="btnLimparFiltros" class="btn btn-ghost"
-                        style="height:36px;padding:0 14px;font-size:0.91rem;white-space:nowrap;border:1px solid #dde3ec;background:#fff;">
-                    ✕ Limpar filtros
-                </button>
             </div>
-
-            {{-- Linha 3: resumo dos filtros activos --}}
-            <div id="planosFiltrosAtivos"
-                 style="display:none;margin-top:8px;padding:8px 14px;background:#fff8e1;border:1px solid #f7b500;border-radius:8px;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span style="font-size:0.86rem;font-weight:700;color:#555;">Filtros activos:</span>
-                <span id="planosFiltrosAtivosTexto" style="font-size:0.91rem;color:#333;display:flex;gap:6px;flex-wrap:wrap;"></span>
-                <button id="btnLimparFiltros2"
-                        style="margin-left:auto;background:transparent;border:1px solid #bbb;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.88rem;color:#555;">
-                    ✕ Limpar
-                </button>
+            <div class="toolbar-actions">
+                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
+                @if(auth()->user() && auth()->user()->hasRole('Administrador'))
+                    <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
+                @endif
+                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
+                <button id="btnLimparFiltros" class="btn btn-ghost">✕ Limpar</button>
             </div>
         </div>
 

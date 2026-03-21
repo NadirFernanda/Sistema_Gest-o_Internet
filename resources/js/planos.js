@@ -378,25 +378,86 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         })();
     })();
 
-    // AJAX search and rendering
+    // Carregamento + filtragem de planos — mesmo padrão do alertas
     (function(){
-        const btn = document.getElementById('btnBuscarPlanos');
-        const input = document.getElementById('buscaPlanos');
-        const clear = document.getElementById('clearSearch');
-        const lista = document.getElementById('planosLista');
+        const input  = document.getElementById('buscaPlanos');
+        const lista  = document.getElementById('planosLista');
         if(!input || !lista) return;
 
         const __apiTokenMeta = document.querySelector('meta[name="api-token"]');
         const __apiToken = __apiTokenMeta ? __apiTokenMeta.getAttribute('content') : '';
         const headers = { 'X-Requested-With':'XMLHttpRequest', 'X-API-TOKEN': __apiToken };
-        function updateHistory(q){ try{ const url = new URL(window.location.href); if(q) url.searchParams.set('q', q); else url.searchParams.delete('q'); window.history.replaceState({}, '', url.toString()); }catch(_){ } }
+
+        // Todos os dados carregados uma só vez
+        let _planosData = [];
+
+        // Aplica todos os filtros localmente e renderiza — igual ao applyFiltersAndRender() do alertas
+        function applyFiltersAndRender(){
+            const busca      = (input.value || '').toLowerCase().trim();
+            const estado     = (document.getElementById('filtroEstado')?.value     || '');
+            const tipo       = (document.getElementById('filtroTipo')?.value       || '');
+            const vencimento = (document.getElementById('filtroVencimento')?.value || '');
+            const dias       = parseInt(document.getElementById('filtroDias')?.value || '5') || 5;
+            const preco      = (document.getElementById('filtroPreco')?.value      || '');
+            const ordenar    = (document.getElementById('filtroOrdenar')?.value    || 'cliente_asc');
+            const templateId = _activeTemplateId;
+
+            let plans = _planosData.filter(function(p){
+                // busca textual
+                if(busca){
+                    const nome     = (p.nome || '').toLowerCase();
+                    const cliente  = (p.cliente && (p.cliente.nome || p.cliente.name) ? String(p.cliente.nome || p.cliente.name) : '').toLowerCase();
+                    const descr    = (p.descricao || p.description || '').toLowerCase();
+                    if(!nome.includes(busca) && !cliente.includes(busca) && !descr.includes(busca)) return false;
+                }
+                // estado
+                if(estado && (p.estado || '') !== estado) return false;
+                // tipo
+                if(tipo && (p.tipo || '') !== tipo) return false;
+                // template
+                if(templateId && String(p.template_id) !== String(templateId)) return false;
+                // vencimento
+                if(vencimento){
+                    const dr = (p.diasRestantes !== undefined && p.diasRestantes !== null) ? Number(p.diasRestantes) : null;
+                    if(vencimento === 'vencido'  && (dr === null || dr >= 0)) return false;
+                    if(vencimento === 'hoje'     && (dr === null || dr !== 0)) return false;
+                    if(vencimento === 'avencer'  && (dr === null || dr < 0 || dr > dias)) return false;
+                    if(vencimento === 'vigente'  && (dr === null || dr <= 0)) return false;
+                }
+                // preço
+                if(preco){
+                    const parts = preco.split('-').map(Number);
+                    const pr = p.preco ? Number(p.preco) : 0;
+                    if(pr < parts[0] || pr > parts[1]) return false;
+                }
+                return true;
+            });
+
+            // ordenação
+            try{
+                if(ordenar === 'nome_asc')   plans.sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'}); });
+                else if(ordenar === 'nome_desc')  plans.sort(function(a,b){ return (b.nome||'').localeCompare(a.nome||'','pt',{sensitivity:'base'}); });
+                else if(ordenar === 'preco_asc')  plans.sort(function(a,b){ return Number(a.preco||0) - Number(b.preco||0); });
+                else if(ordenar === 'preco_desc') plans.sort(function(a,b){ return Number(b.preco||0) - Number(a.preco||0); });
+                else if(ordenar === 'venc_asc')   plans.sort(function(a,b){ return ((a.diasRestantes!==null?Number(a.diasRestantes):99999)) - ((b.diasRestantes!==null?Number(b.diasRestantes):99999)); });
+                else if(ordenar === 'venc_desc')  plans.sort(function(a,b){ return ((b.diasRestantes!==null?Number(b.diasRestantes):-99999)) - ((a.diasRestantes!==null?Number(a.diasRestantes):-99999)); });
+                else if(ordenar === 'data_asc')   plans.sort(function(a,b){ return (a.data_ativacao||'') < (b.data_ativacao||'') ? -1 : 1; });
+                else if(ordenar === 'data_desc')  plans.sort(function(a,b){ return (b.data_ativacao||'') < (a.data_ativacao||'') ? -1 : 1; });
+                else plans.sort(function(a,b){
+                    const na = (a.cliente&&(a.cliente.nome||a.cliente.name)?String(a.cliente.nome||a.cliente.name):'').normalize('NFD').toLowerCase();
+                    const nb = (b.cliente&&(b.cliente.nome||b.cliente.name)?String(b.cliente.nome||b.cliente.name):'').normalize('NFD').toLowerCase();
+                    return na.localeCompare(nb,'pt',{sensitivity:'base'});
+                });
+            }catch(_){}
+
+            renderPlans(plans);
+        }
 
         function renderPlans(plans){
             if(!Array.isArray(plans) || !plans.length){
                 lista.innerHTML = `<div style="padding:24px;text-align:center;color:#666"><p style="margin:0 0 8px 0">Nenhum plano encontrado.</p><a href="${window.planosConfig.planosCreateRoute||'/planos/create'}" class="btn btn-cta">Cadastrar Primeiro Plano</a></div>`;
                 return;
             }
-            // Sorting is handled by applyClientFilters() before renderPlans is called
             function esc(s){ if(s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
             let html = '<div class="plan-grid">';
             plans.forEach(p => {
@@ -498,265 +559,115 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             }));
         }
 
-        function fetchAndUpdate(){
-            const base = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos');
-            const params = [];
-            if (_filters.q)          params.push('busca='       + encodeURIComponent(_filters.q));
-            if (_filters.templateId) params.push('template_id=' + encodeURIComponent(_filters.templateId));
-            if (_filters.estado)     params.push('estado='      + encodeURIComponent(_filters.estado));
-            if (_filters.tipo)       params.push('tipo='        + encodeURIComponent(_filters.tipo));
-            const apiUrl = base + (params.length ? '?' + params.join('&') : '');
-            const prev = lista.innerHTML;
-            lista.innerHTML = '<div style="padding:12px 0">Carregando resultados...</div>';
-            fetch(apiUrl, { headers: Object.assign({}, headers), credentials: 'same-origin' })
-                .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
-                .then(function(json){
-                    const processed = applyClientFilters(json);
-                    renderPlans(processed);
-                    updateHistory(_filters.q);
-                    updateFiltrosAtivos();
-                })
-                .catch(function(){ lista.innerHTML = prev; });
-        }
+        // Estado do filtro de template (clique nos cards de resumo)
+        let _activeTemplateId = null;
 
-        // ──── State object for all active filters ────
-        const _filters = {
-            q:          '',
-            templateId: null,
-            estado:     '',
-            tipo:       '',
-            vencimento: '',
-            dias:       5,
-            preco:      '',
-            ordenar:    'cliente_asc'
-        };
-
-        // ──── Client-side filter + sort (applied after API response) ────
-        function applyClientFilters(plans) {
-            let result = Array.isArray(plans) ? plans : [];
-
-            // Vencimento filter
-            if (_filters.vencimento) {
-                const maxDias = parseInt(_filters.dias) || 5;
-                result = result.filter(function(p) {
-                    const dr = (p.diasRestantes !== undefined && p.diasRestantes !== null) ? Number(p.diasRestantes) : null;
-                    if (_filters.vencimento === 'vencido')  return dr !== null && dr < 0;
-                    if (_filters.vencimento === 'hoje')     return dr !== null && dr === 0;
-                    if (_filters.vencimento === 'avencer')  return dr !== null && dr >= 0 && dr <= maxDias;
-                    if (_filters.vencimento === 'vigente')  return dr !== null && dr > 0;
-                    return true;
-                });
-            }
-
-            // Price range filter
-            if (_filters.preco) {
-                const parts = _filters.preco.split('-').map(Number);
-                const pMin = parts[0] || 0;
-                const pMax = parts[1] || 9999999;
-                result = result.filter(function(p) {
-                    const pr = p.preco ? Number(p.preco) : 0;
-                    return pr >= pMin && pr <= pMax;
-                });
-            }
-
-            // Sort
-            try {
-                const ord = _filters.ordenar || 'cliente_asc';
-                result = result.slice();
-                if (ord === 'nome_asc') {
-                    result.sort(function(a, b){ return (a.nome||'').localeCompare(b.nome||'', 'pt', {sensitivity:'base'}); });
-                } else if (ord === 'nome_desc') {
-                    result.sort(function(a, b){ return (b.nome||'').localeCompare(a.nome||'', 'pt', {sensitivity:'base'}); });
-                } else if (ord === 'preco_asc') {
-                    result.sort(function(a, b){ return Number(a.preco||0) - Number(b.preco||0); });
-                } else if (ord === 'preco_desc') {
-                    result.sort(function(a, b){ return Number(b.preco||0) - Number(a.preco||0); });
-                } else if (ord === 'venc_asc') {
-                    result.sort(function(a, b){
-                        const da = (a.diasRestantes !== null && a.diasRestantes !== undefined) ? Number(a.diasRestantes) : 99999;
-                        const db = (b.diasRestantes !== null && b.diasRestantes !== undefined) ? Number(b.diasRestantes) : 99999;
-                        return da - db;
-                    });
-                } else if (ord === 'venc_desc') {
-                    result.sort(function(a, b){
-                        const da = (a.diasRestantes !== null && a.diasRestantes !== undefined) ? Number(a.diasRestantes) : -99999;
-                        const db = (b.diasRestantes !== null && b.diasRestantes !== undefined) ? Number(b.diasRestantes) : -99999;
-                        return db - da;
-                    });
-                } else if (ord === 'data_asc') {
-                    result.sort(function(a, b){ return (a.data_ativacao||'') < (b.data_ativacao||'') ? -1 : 1; });
-                } else if (ord === 'data_desc') {
-                    result.sort(function(a, b){ return (b.data_ativacao||'') < (a.data_ativacao||'') ? -1 : 1; });
-                } else {
-                    // Default: by client name
-                    result.sort(function(a, b) {
-                        const na = (a.cliente && (a.cliente.nome || a.cliente.name) ? String(a.cliente.nome || a.cliente.name) : '').normalize('NFD').toLowerCase();
-                        const nb = (b.cliente && (b.cliente.nome || b.cliente.name) ? String(b.cliente.nome || b.cliente.name) : '').normalize('NFD').toLowerCase();
-                        return na.localeCompare(nb, 'pt', {sensitivity:'base'});
-                    });
-                }
-            } catch(_) { /* keep original order on sort failure */ }
-
-            return result;
-        }
-
-        // ──── Show active filter summary bar ────
-        function updateFiltrosAtivos() {
-            const bar = document.getElementById('planosFiltrosAtivos');
-            const txt = document.getElementById('planosFiltrosAtivosTexto');
-            if (!bar || !txt) return;
-            const tags = [];
-            if (_filters.templateId) {
-                const el = document.querySelector('.tpl-item[data-template-id="' + _filters.templateId + '"]');
-                tags.push('Plano: ' + (el ? el.getAttribute('data-template-name') : _filters.templateId));
-            }
-            if (_filters.estado)     tags.push('Estado: ' + _filters.estado);
-            if (_filters.tipo)       tags.push('Tipo: ' + _filters.tipo);
-            if (_filters.vencimento) {
-                const vLabels = {vencido:'Vencidos', hoje:'Vence hoje', avencer:'A vencer em ' + (_filters.dias||5) + ' dia(s)', vigente:'Vigentes'};
-                tags.push('Vencimento: ' + (vLabels[_filters.vencimento] || _filters.vencimento));
-            }
-            if (_filters.preco) {
-                const pLabels = {'0-5000':'até Kz 5.000', '5001-15000':'Kz 5.001–15.000', '15001-30000':'Kz 15.001–30.000', '30001-9999999':'acima de Kz 30.000'};
-                tags.push('Preço: ' + (pLabels[_filters.preco] || _filters.preco));
-            }
-            if (_filters.ordenar && _filters.ordenar !== 'cliente_asc') {
-                const oLabels = {nome_asc:'Nome A–Z', nome_desc:'Nome Z–A', preco_asc:'Preço ↑', preco_desc:'Preço ↓', venc_asc:'Venc. próximo', venc_desc:'Venc. longe', data_asc:'Activação ↑', data_desc:'Activação ↓'};
-                tags.push('Ordenar: ' + (oLabels[_filters.ordenar] || _filters.ordenar));
-            }
-            if (tags.length) {
-                txt.innerHTML = tags.map(function(t){ return '<span style="background:#f7b500;color:#fff;border-radius:4px;padding:2px 8px;font-size:0.87rem;">' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>'; }).join('');
-                bar.style.display = 'flex';
-            } else {
-                bar.style.display = 'none';
-            }
-        }
-
-        // ──── Template card filter helpers ────
         function setTemplateFilter(id, name){
-            _filters.templateId = id;
-            document.querySelectorAll('.tpl-item').forEach(function(el) {
-                const isActive = el.getAttribute('data-template-id') == id;
-                el.style.borderColor = isActive ? '#f7b500' : 'rgba(231,214,137,0.4)';
-                el.style.boxShadow   = isActive ? '0 0 0 2px rgba(247,181,0,0.35)' : '';
-                el.style.background  = isActive ? '#fffbe7' : '#fff';
+            _activeTemplateId = id;
+            document.querySelectorAll('.tpl-item').forEach(function(el){
+                const active = el.getAttribute('data-template-id') == id;
+                el.style.borderColor = active ? '#f7b500' : 'rgba(231,214,137,0.4)';
+                el.style.boxShadow   = active ? '0 0 0 2px rgba(247,181,0,0.35)' : '';
+                el.style.background  = active ? '#fffbe7' : '#fff';
             });
-            const filterBar  = document.getElementById('activePlanFilter');
-            const filterName = document.getElementById('activePlanFilterName');
-            if (filterBar)  filterBar.style.display = 'flex';
-            if (filterName) filterName.textContent  = name;
-            fetchAndUpdate();
+            const bar  = document.getElementById('activePlanFilter');
+            const nm   = document.getElementById('activePlanFilterName');
+            if(bar)  bar.style.display = 'flex';
+            if(nm)   nm.textContent    = name;
+            applyFiltersAndRender();
         }
 
         function clearTemplateFilter(){
-            _filters.templateId = null;
+            _activeTemplateId = null;
             document.querySelectorAll('.tpl-item').forEach(function(el){
                 el.style.borderColor = 'rgba(231,214,137,0.4)';
                 el.style.boxShadow   = '';
                 el.style.background  = '#fff';
             });
-            const filterBar = document.getElementById('activePlanFilter');
-            if (filterBar) filterBar.style.display = 'none';
-            fetchAndUpdate();
+            const bar = document.getElementById('activePlanFilter');
+            if(bar) bar.style.display = 'none';
+            applyFiltersAndRender();
         }
 
-        // ──── Clear ALL filters ────
-        function clearAllFilters() {
-            _filters.q          = '';
-            _filters.templateId = null;
-            _filters.estado     = '';
-            _filters.tipo       = '';
-            _filters.vencimento = '';
-            _filters.dias       = 5;
-            _filters.preco      = '';
-            _filters.ordenar    = 'cliente_asc';
-            if (input) input.value = '';
-            const fEstado     = document.getElementById('filtroEstado');
-            const fTipo       = document.getElementById('filtroTipo');
-            const fVenc       = document.getElementById('filtroVencimento');
-            const fDias       = document.getElementById('filtroDias');
-            const fPreco      = document.getElementById('filtroPreco');
-            const fOrdenar    = document.getElementById('filtroOrdenar');
-            const diasWrapper = document.getElementById('diasFiltroWrapper');
-            if (fEstado)     fEstado.value     = '';
-            if (fTipo)       fTipo.value       = '';
-            if (fVenc)       fVenc.value       = '';
-            if (fDias)       fDias.value       = 5;
-            if (fPreco)      fPreco.value      = '';
-            if (fOrdenar)    fOrdenar.value    = 'cliente_asc';
-            if (diasWrapper) diasWrapper.style.display = 'none';
-            // also reset template card highlights
+        function clearAllFilters(){
+            _activeTemplateId = null;
+            input.value = '';
+            var ids = ['filtroEstado','filtroTipo','filtroVencimento','filtroPreco'];
+            ids.forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+            var fOrdenar = document.getElementById('filtroOrdenar');
+            if(fOrdenar) fOrdenar.value = 'cliente_asc';
+            var fDias = document.getElementById('filtroDias');
+            if(fDias) fDias.value = 5;
+            var labelDias = document.getElementById('labelDias');
+            if(labelDias) labelDias.style.display = 'none';
+            if(fDias) fDias.style.display = 'none';
             document.querySelectorAll('.tpl-item').forEach(function(el){
                 el.style.borderColor = 'rgba(231,214,137,0.4)';
                 el.style.boxShadow   = '';
                 el.style.background  = '#fff';
             });
-            const filterBar = document.getElementById('activePlanFilter');
-            if (filterBar) filterBar.style.display = 'none';
-            fetchAndUpdate();
+            var bar = document.getElementById('activePlanFilter');
+            if(bar) bar.style.display = 'none';
+            applyFiltersAndRender();
         }
 
-        // ──── Template summary card click handlers ────
-        document.querySelectorAll('.tpl-item').forEach(function(el) {
+        // Cards de resumo: clique filtra por template
+        document.querySelectorAll('.tpl-item').forEach(function(el){
             el.addEventListener('click', function(){
-                const tid   = this.getAttribute('data-template-id');
-                const tname = this.getAttribute('data-template-name');
-                if (!tid) return;
-                if (_filters.templateId == tid) {
-                    clearTemplateFilter();
-                } else {
-                    setTemplateFilter(tid, tname);
-                }
+                var tid   = this.getAttribute('data-template-id');
+                var tname = this.getAttribute('data-template-name');
+                if(!tid) return;
+                if(_activeTemplateId == tid) clearTemplateFilter();
+                else setTemplateFilter(tid, tname);
             });
         });
+        var clearFilterBtn = document.getElementById('clearPlanFilter');
+        if(clearFilterBtn) clearFilterBtn.addEventListener('click', clearTemplateFilter);
 
-        const clearFilterBtn = document.getElementById('clearPlanFilter');
-        if (clearFilterBtn) clearFilterBtn.addEventListener('click', clearTemplateFilter);
+        // Mostrar/ocultar campo dias consoante vencimento = avencer
+        var fVencEl = document.getElementById('filtroVencimento');
+        if(fVencEl) fVencEl.addEventListener('change', function(){
+            var show = this.value === 'avencer';
+            var lbl  = document.getElementById('labelDias');
+            var inp2 = document.getElementById('filtroDias');
+            if(lbl)  lbl.style.display  = show ? 'inline' : 'none';
+            if(inp2) inp2.style.display = show ? 'inline-block' : 'none';
+            applyFiltersAndRender();
+        });
 
-        // ──── New filter control event listeners ────
-        const fEstadoEl  = document.getElementById('filtroEstado');
-        const fTipoEl    = document.getElementById('filtroTipo');
-        const fVencEl    = document.getElementById('filtroVencimento');
-        const fDiasEl    = document.getElementById('filtroDias');
-        const fPrecoEl   = document.getElementById('filtroPreco');
-        const fOrdenarEl = document.getElementById('filtroOrdenar');
-        const diasWrpEl  = document.getElementById('diasFiltroWrapper');
-        const btnLimpar1 = document.getElementById('btnLimparFiltros');
-        const btnLimpar2 = document.getElementById('btnLimparFiltros2');
+        // Todos os outros selects filtram localmente sem nova chamada API
+        ['filtroEstado','filtroTipo','filtroPreco','filtroOrdenar'].forEach(function(id){
+            var el = document.getElementById(id);
+            if(el) el.addEventListener('change', applyFiltersAndRender);
+        });
+        var fDiasEl = document.getElementById('filtroDias');
+        if(fDiasEl) fDiasEl.addEventListener('input', applyFiltersAndRender);
 
-        function showHideDiasWrapper() {
-            if (diasWrpEl) diasWrpEl.style.display = (_filters.vencimento === 'avencer') ? 'inline-flex' : 'none';
+        // Botão limpar
+        var btnLimpar = document.getElementById('btnLimparFiltros');
+        if(btnLimpar) btnLimpar.addEventListener('click', clearAllFilters);
+
+        // Pesquisa textual: filtra localmente (mesmo padrão que alertas)
+        function debounce(fn, wait){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, wait); }; }
+        input.addEventListener('input', debounce(applyFiltersAndRender, 250));
+        input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); applyFiltersAndRender(); } });
+
+        // Carrega todos os planos uma vez e depois filtra cliente-side
+        function loadPlanos(){
+            const base = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos');
+            lista.innerHTML = '<div style="padding:12px 0">A carregar…</div>';
+            fetch(base, { headers: headers, credentials: 'same-origin' })
+                .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+                .then(function(json){
+                    _planosData = Array.isArray(json) ? json : [];
+                    applyFiltersAndRender();
+                })
+                .catch(function(){ lista.innerHTML = '<p>Erro ao carregar planos.</p>'; });
         }
 
-        if (fEstadoEl)  fEstadoEl.addEventListener('change',  function(){ _filters.estado = this.value; fetchAndUpdate(); });
-        if (fTipoEl)    fTipoEl.addEventListener('change',    function(){ _filters.tipo   = this.value; fetchAndUpdate(); });
-        if (fVencEl)    fVencEl.addEventListener('change',    function(){ _filters.vencimento = this.value; showHideDiasWrapper(); fetchAndUpdate(); });
-        if (fPrecoEl)   fPrecoEl.addEventListener('change',   function(){ _filters.preco  = this.value; fetchAndUpdate(); });
-        if (fOrdenarEl) fOrdenarEl.addEventListener('change', function(){ _filters.ordenar = this.value; fetchAndUpdate(); });
-        if (btnLimpar1) btnLimpar1.addEventListener('click',  clearAllFilters);
-        if (btnLimpar2) btnLimpar2.addEventListener('click',  clearAllFilters);
-
-        function debounce(fn, wait){ let t; return function(){ var args = arguments; clearTimeout(t); t = setTimeout(function(){ fn.apply(this, args); }, wait); }; }
-
-        if (fDiasEl) {
-            const debouncedDias = debounce(function(){
-                _filters.dias = parseInt(fDiasEl.value) || 5;
-                if (_filters.vencimento === 'avencer') fetchAndUpdate();
-            }, 350);
-            fDiasEl.addEventListener('input', debouncedDias);
-        }
-
-        // ──── Search input listeners ────
-        const debouncedSearch = debounce(function(){ _filters.q = input.value.trim(); fetchAndUpdate(); }, 300);
-        input.addEventListener('input', debouncedSearch);
-        input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); _filters.q = input.value.trim(); fetchAndUpdate(); } });
-        if(clear){ clear.addEventListener('click', function(){ input.value = ''; _filters.q = ''; input.focus(); fetchAndUpdate(); }); }
-        if(btn){   btn.addEventListener('click',  function(e){ e.preventDefault(); _filters.q = input.value.trim(); fetchAndUpdate(); }); }
-
-        // ──── Debug helper + initial load ────
         try{
-            window.__refreshPlanos = function(){ try{ fetchAndUpdate(); }catch(_){ } };
-            fetchAndUpdate();
+            window.__refreshPlanos = function(){ loadPlanos(); };
+            loadPlanos();
         }catch(_){ }
     })();
 
