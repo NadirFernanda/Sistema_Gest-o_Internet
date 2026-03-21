@@ -205,4 +205,13 @@
   </div>
 </section>
 
+@push('styles')
+<style>
+  .planos-section--individual .plan-features {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+</style>
+@endpush
+
 

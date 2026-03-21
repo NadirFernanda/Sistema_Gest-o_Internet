@@ -218,7 +218,7 @@ git push origin main
 > ⚠️ **Fazer SEMPRE antes do deploy da loja.** O SG expõe as APIs que a loja consome (planos, templates, equipamentos, clientes). Se o SG tiver código novo mas migrações por aplicar, as APIs devolvem 500 e as secções da loja mostram ⚠️.
 
 ```bash
-# No servidor de produção (SSH) — directório raiz do SG
+
 cd /var/www/sgmr
 git fetch origin
 git reset --hard origin/main
