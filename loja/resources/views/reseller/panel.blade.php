@@ -297,6 +297,103 @@
 .rv-btn-buy:hover { background: #e0a800; transform: translateY(-1px); }
 .rv-field-error { color: #dc2626; font-size: .85rem; margin-top: .4rem; }
 
+/* Plan catalog grid */
+.rv-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.1rem;
+}
+.rv-plan-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: .9rem;
+  padding: 1.2rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  transition: box-shadow .2s, border-color .2s;
+}
+.rv-plan-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.09); border-color: #f7b500; }
+.rv-plan-card--out { opacity: .55; }
+.rv-plan-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.rv-plan-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.rv-plan-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+.rv-badge {
+  display: inline-block;
+  padding: .15rem .55rem;
+  border-radius: 9999px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.rv-badge-validity { background: #eff6ff; color: #1d4ed8; }
+.rv-badge-speed    { background: #f0fdf4; color: #15803d; }
+.rv-plan-prices { display: flex; flex-direction: column; gap: .3rem; }
+.rv-plan-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .88rem;
+}
+.rv-price-label { color: #64748b; }
+.rv-price-public   { font-weight: 600; color: #374151; }
+.rv-price-reseller { font-weight: 800; color: #0f172a; font-size: 1rem; }
+.rv-price-profit   { font-weight: 700; color: #16a34a; }
+.rv-plan-price-row--reseller { background: #fffbeb; padding: .25rem .5rem; border-radius: .4rem; margin: .1rem 0; }
+.rv-plan-price-row--profit   { color: #16a34a; }
+.rv-plan-stock { font-size: .8rem; font-weight: 600; }
+.rv-plan-stock.ok { color: #15803d; }
+.rv-plan-stock.out { color: #dc2626; }
+.rv-plan-add-form { display: flex; gap: .5rem; align-items: center; margin-top: .25rem; }
+.rv-qty-input {
+  width: 70px;
+  padding: .5rem .65rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: .5rem;
+  font-size: .92rem;
+  color: #0f172a;
+  background: #f8fafc;
+  text-align: center;
+}
+.rv-qty-input:focus { outline: none; border-color: #f7b500; }
+.rv-btn-add {
+  flex: 1;
+  padding: .5rem .85rem;
+  background: #f7b500;
+  color: #1a202c;
+  border: none;
+  border-radius: .5rem;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.rv-btn-add:hover { background: #e0a800; }
+
+/* Cart panel */
+.rv-cart-panel { border: 1.5px solid #fde68a; }
+.rv-cart-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1rem;
+  padding-top: .85rem;
+  border-top: 1.5px solid #f1f5f9;
+}
+.rv-cart-totals { display: flex; flex-direction: column; gap: .2rem; font-size: .95rem; color: #374151; }
+.rv-cart-actions { display: flex; gap: .65rem; align-items: center; flex-wrap: wrap; }
+
 /* History table */
 .rv-hist-wrap { overflow-x: auto; }
 .rv-hist-table {
@@ -484,17 +581,16 @@
         <div class="rv-stat-card green">
           <div class="rv-stat-icon">💰</div>
           <div class="rv-stat-label">Lucro estimado</div>
-          <div class="rv-stat-value green">{{ number_format($estimatedProfit, 0, ',', '.') }} Kz</div>
-          <div class="rv-stat-sub">Soma dos descontos obtidos</div>
+          <div class="rv-stat-value green">{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }} Kz</div>
+          <div class="rv-stat-sub">Total de lucro nas compras</div>
         </div>
 
         <div class="rv-stat-card blue">
           <div class="rv-stat-icon">📦</div>
           <div class="rv-stat-label">Vouchers adquiridos</div>
-          <div class="rv-stat-value">{{ number_format($totals['codes_total'], 0, ',', '.') }}</div>
+          <div class="rv-stat-value">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</div>
           <div class="rv-stat-sub">
-            Bruto: {{ number_format($totals['total_gross'], 0, ',', '.') }} Kz ·
-            Líquido: {{ number_format($totals['total_net'], 0, ',', '.') }} Kz
+            Investido: {{ number_format($totals['total_invested'], 0, ',', '.') }} Kz
           </div>
         </div>
 
@@ -566,28 +662,119 @@
         @endif
       </div>
 
-      {{-- Comprar vouchers --}}
+      {{-- ── Catálogo de planos ── --}}
       <div class="rv-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">🛒</span> Comprar vouchers</div>
-        <p style="font-size:.9rem;color:#64748b;margin-bottom:1.1rem;">
-          Valor mínimo de compra: <strong>{{ number_format($minPurchase, 0, ',', '.') }} Kz</strong> ·
-          1 voucher = {{ number_format(config('reseller.code_unit_price_aoa', 1000), 0, ',', '.') }} Kz ·
-          Os códigos são gerados automaticamente após a confirmação.
-        </p>
-        <form action="{{ route('reseller.panel.purchase') }}" method="POST" class="rv-purchase-form">
-          @csrf
-          <div class="rv-field">
-            <label for="gross_amount_aoa">Valor a investir (Kz)</label>
-            <input id="gross_amount_aoa" name="gross_amount_aoa" type="number"
-                   min="{{ $minPurchase }}" step="1000"
-                   value="{{ old('gross_amount_aoa', $minPurchase) }}" required />
+        <div class="rv-panel-title"><span class="rv-panel-icon">📦</span> Planos disponíveis</div>
+
+        @if($voucherPlans->isEmpty())
+          <p class="rv-empty">Nenhum plano disponível de momento.</p>
+        @else
+          <div class="rv-plan-grid">
+            @foreach($voucherPlans as $plan)
+              @php $stock = $plan->availableStock(); @endphp
+              <div class="rv-plan-card {{ $stock === 0 ? 'rv-plan-card--out' : '' }}">
+                <div class="rv-plan-card-header">
+                  <span class="rv-plan-name">{{ $plan->name }}</span>
+                  <span class="rv-plan-badges">
+                    <span class="rv-badge rv-badge-validity">{{ $plan->validity_label }}</span>
+                    <span class="rv-badge rv-badge-speed">{{ $plan->speed_label }}</span>
+                  </span>
+                </div>
+
+                <div class="rv-plan-prices">
+                  <div class="rv-plan-price-row">
+                    <span class="rv-price-label">Preço público</span>
+                    <span class="rv-price-public">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} Kz</span>
+                  </div>
+                  <div class="rv-plan-price-row rv-plan-price-row--reseller">
+                    <span class="rv-price-label">O seu preço</span>
+                    <span class="rv-price-reseller">{{ number_format($plan->price_reseller_aoa, 0, ',', '.') }} Kz</span>
+                  </div>
+                  <div class="rv-plan-price-row rv-plan-price-row--profit">
+                    <span class="rv-price-label">Lucro / voucher</span>
+                    <span class="rv-price-profit">+{{ number_format($plan->profitPerVoucher(), 0, ',', '.') }} Kz ({{ $plan->marginPercent() }}%)</span>
+                  </div>
+                </div>
+
+                <div class="rv-plan-stock {{ $stock > 0 ? 'ok' : 'out' }}">
+                  {{ $stock > 0 ? "✅ {$stock} em stock" : '❌ Sem stock' }}
+                </div>
+
+                @if($stock > 0)
+                  <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form">
+                    @csrf
+                    <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
+                    <input type="number" name="quantity" min="1" max="{{ min($stock, 500) }}" value="1"
+                           class="rv-qty-input" required aria-label="Quantidade">
+                    <button type="submit" class="rv-btn-add">Adicionar ao carrinho</button>
+                  </form>
+                @endif
+              </div>
+            @endforeach
           </div>
-          <button type="submit" class="rv-btn-buy">Gerar vouchers</button>
-        </form>
-        @error('gross_amount_aoa')
-          <p class="rv-field-error">{{ $message }}</p>
-        @enderror
+        @endif
       </div>
+
+      {{-- ── Carrinho ── --}}
+      @if(!empty($cartItems))
+      <div class="rv-panel rv-cart-panel">
+        <div class="rv-panel-title"><span class="rv-panel-icon">🛒</span> Carrinho
+          <span style="font-size:.85rem;font-weight:500;color:#64748b;margin-left:.5rem;">{{ $cartVouchers }} voucher(s)</span>
+        </div>
+
+        <div class="rv-hist-wrap">
+          <table class="rv-hist-table">
+            <thead>
+              <tr>
+                <th>Plano</th>
+                <th class="r">Qtd.</th>
+                <th class="r">Preço unit. (Kz)</th>
+                <th class="r">Subtotal (Kz)</th>
+                <th class="r">Lucro potencial (Kz)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($cartItems as $item)
+              <tr>
+                <td><strong>{{ $item['plan']->name }}</strong>
+                    <small class="muted" style="display:block;">{{ $item['plan']->validity_label }} · {{ $item['plan']->speed_label }}</small>
+                </td>
+                <td class="r">{{ $item['qty'] }}</td>
+                <td class="r">{{ number_format($item['plan']->price_reseller_aoa, 0, ',', '.') }}</td>
+                <td class="r bold">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($item['profit'], 0, ',', '.') }}</td>
+                <td>
+                  <form action="{{ route('reseller.cart.remove') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="plan_slug" value="{{ $item['plan']->slug }}">
+                    <button type="submit" class="rv-csv-btn" style="color:#dc2626;border-color:#fecaca;">✕</button>
+                  </form>
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rv-cart-footer">
+          <div class="rv-cart-totals">
+            <span>Total a pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
+            <span style="color:#16a34a;">Lucro potencial: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
+          </div>
+          <div class="rv-cart-actions">
+            <form action="{{ route('reseller.cart.clear') }}" method="POST" style="display:inline;">
+              @csrf
+              <button type="submit" class="rv-csv-btn">Limpar carrinho</button>
+            </form>
+            <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">
+              @csrf
+              <button type="submit" class="rv-btn-buy">✅ Finalizar compra</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      @endif
 
       {{-- Histórico --}}
       <div class="rv-panel" style="margin-bottom:0;">
@@ -599,10 +786,10 @@
                 <tr>
                   <th>#</th>
                   <th>Data</th>
-                  <th class="r">Bruto (Kz)</th>
-                  <th class="r">Desconto</th>
-                  <th class="r">Líquido (Kz)</th>
-                  <th class="r">Vouchers</th>
+                  <th>Plano</th>
+                  <th class="r">Qtd.</th>
+                  <th class="r">Pago (Kz)</th>
+                  <th class="r">Lucro (Kz)</th>
                   <th></th>
                 </tr>
               </thead>
@@ -611,13 +798,19 @@
                   <tr>
                     <td class="muted">#{{ $purchase->id }}</td>
                     <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
-                    <td class="r">{{ number_format($purchase->gross_amount_aoa, 0, ',', '.') }}</td>
-                    <td class="r disc">{{ $purchase->discount_percent }}%</td>
-                    <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
+                    <td>{{ $purchase->plan_name ?? '—' }}</td>
                     <td class="r">{{ $purchase->codes_count }}</td>
+                    <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
+                    <td class="r" style="color:#16a34a;font-weight:700;">
+                      @if($purchase->profit_aoa)
+                        +{{ number_format($purchase->profit_aoa, 0, ',', '.') }}
+                      @else
+                        —
+                      @endif
+                    </td>
                     <td>
-                      <a href="{{ route('reseller.panel.purchase.csv', ['purchase' => $purchase->id]) }}"
-                         class="rv-csv-btn">⬇ CSV</a>
+                      <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
+                         class="rv-csv-btn">⬇ Vouchers</a>
                     </td>
                   </tr>
                 @endforeach

@@ -5,25 +5,57 @@ namespace App\Http\Controllers;
 use App\Mail\AccountOtpMail;
 use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
+use App\Models\VoucherPlan;
+use App\Models\WifiCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ResellerPanelController extends Controller
 {
-    private const OTP_TTL = 10;
+    private const OTP_TTL      = 10;
+    private const CART_SESSION = 'reseller_cart'; // [ plan_slug => quantity ]
 
+    // ─────────────────────────────────────────────────────────────
+    //  Panel index
+    // ─────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
-        $resellerId = $request->session()->get('reseller_id');
-
+        $resellerId  = $request->session()->get('reseller_id');
         $application = null;
         $purchases   = collect();
-        $totals      = ['total_gross' => 0, 'total_net' => 0, 'codes_total' => 0];
-        $monthlySpend     = 0;
-        $estimatedProfit  = 0;
+        $totals      = ['total_invested' => 0, 'vouchers_total' => 0, 'profit_total' => 0];
+        $monthlySpend    = 0;
+        $estimatedProfit = 0;
+
+        $voucherPlans = VoucherPlan::active()->get();
+        $cart         = $request->session()->get(self::CART_SESSION, []);
+
+        // Enrich cart with plan objects and computed totals
+        $cartItems     = [];
+        $cartTotal     = 0;
+        $cartProfit    = 0;
+        $cartVouchers  = 0;
+        foreach ($cart as $slug => $qty) {
+            $plan = $voucherPlans->firstWhere('slug', $slug);
+            if ($plan && $qty > 0) {
+                $subtotal        = $plan->price_reseller_aoa * $qty;
+                $subtotalPublic  = $plan->price_public_aoa  * $qty;
+                $cartItems[]     = [
+                    'plan'           => $plan,
+                    'qty'            => $qty,
+                    'subtotal'       => $subtotal,
+                    'subtotalPublic' => $subtotalPublic,
+                    'profit'         => $subtotalPublic - $subtotal,
+                ];
+                $cartTotal    += $subtotal;
+                $cartProfit   += ($subtotalPublic - $subtotal);
+                $cartVouchers += $qty;
+            }
+        }
 
         if ($resellerId) {
             $application = ResellerApplication::find($resellerId);
@@ -33,12 +65,11 @@ class ResellerPanelController extends Controller
                     ->orderByDesc('id')
                     ->paginate(10);
 
-                foreach ($purchases as $purchase) {
-                    $totals['total_gross'] += $purchase->gross_amount_aoa;
-                    $totals['total_net']   += $purchase->net_amount_aoa;
-                    $totals['codes_total'] += $purchase->codes_count;
-                    // Lucro = diferença entre valor bruto e líquido (desconto obtido)
-                    $estimatedProfit += ($purchase->gross_amount_aoa - $purchase->net_amount_aoa);
+                foreach ($purchases as $p) {
+                    $totals['total_invested'] += $p->net_amount_aoa;
+                    $totals['vouchers_total'] += $p->codes_count;
+                    $totals['profit_total']   += ($p->profit_aoa ?? 0);
+                    $estimatedProfit          += ($p->profit_aoa ?? ($p->gross_amount_aoa - $p->net_amount_aoa));
                 }
 
                 $monthlySpend = $application->monthlySpendings();
@@ -56,25 +87,24 @@ class ResellerPanelController extends Controller
             'totals'          => $totals,
             'monthlySpend'    => $monthlySpend,
             'estimatedProfit' => $estimatedProfit,
-            'minPurchase'     => (int) config('reseller.min_purchase_aoa', 10000),
+            'voucherPlans'    => $voucherPlans,
+            'cartItems'       => $cartItems,
+            'cartTotal'       => $cartTotal,
+            'cartProfit'      => $cartProfit,
+            'cartVouchers'    => $cartVouchers,
             'otpPending'      => $otpPending,
             'otpEmail'        => $otpEmail,
         ]);
     }
 
-    /**
-     * Passo 1 — recebe o email, gera OTP e envia. Não revela se o email existe.
-     */
+    // ─────────────────────────────────────────────────────────────
+    //  OTP login
+    // ─────────────────────────────────────────────────────────────
     public function login(Request $request)
     {
-        $data = $request->validate([
-            'email' => ['required', 'email', 'max:254'],
-        ]);
-
+        $data  = $request->validate(['email' => ['required', 'email', 'max:254']]);
         $email = strtolower(trim($data['email']));
 
-        // Only send OTP if there is an approved reseller for this email,
-        // but always show the same response to avoid email enumeration.
         $application = ResellerApplication::where('email', $email)
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
@@ -89,42 +119,31 @@ class ResellerPanelController extends Controller
         if ($application) {
             Mail::to($email)->send(new AccountOtpMail($otp));
         }
-        // If no reseller found, we still show the same page (no email sent silently)
 
         return redirect()->route('reseller.panel')
             ->with('status', 'Se o endereço indicado corresponde a um revendedor aprovado, receberá um código de verificação em breve.');
     }
 
-    /**
-     * Passo 2 — valida o OTP introduzido pelo revendedor.
-     */
     public function verify(Request $request)
     {
-        $data = $request->validate([
-            'otp' => ['required', 'string', 'digits:6'],
-        ]);
-
+        $data           = $request->validate(['otp' => ['required', 'string', 'digits:6']]);
         $sessionEmail   = $request->session()->get('reseller_otp_email');
         $sessionCode    = $request->session()->get('reseller_otp_code');
         $sessionExpires = $request->session()->get('reseller_otp_expires_at');
 
         if (!$sessionEmail || !$sessionCode || !$sessionExpires) {
-            return redirect()->route('reseller.panel')
-                ->with('error', 'Sessão expirada. Introduza novamente o seu email.');
+            return redirect()->route('reseller.panel')->with('error', 'Sessão expirada. Introduza novamente o seu email.');
         }
 
         if (Carbon::parse($sessionExpires)->isPast()) {
             $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
-            return redirect()->route('reseller.panel')
-                ->with('error', 'O código expirou. Introduza o seu email de novo para receber outro código.');
+            return redirect()->route('reseller.panel')->with('error', 'O código expirou. Introduza o seu email de novo para receber outro código.');
         }
 
         if (!hash_equals($sessionCode, $data['otp'])) {
-            return redirect()->route('reseller.panel')
-                ->with('error', 'Código incorreto. Verifique o email e tente novamente.');
+            return redirect()->route('reseller.panel')->with('error', 'Código incorreto. Verifique o email e tente novamente.');
         }
 
-        // OTP válido — autentica
         $application = ResellerApplication::where('email', $sessionEmail)
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
@@ -132,94 +151,220 @@ class ResellerPanelController extends Controller
         $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
 
         if (!$application) {
-            return redirect()->route('reseller.panel')
-                ->with('error', 'Nenhum revendedor aprovado encontrado para este endereço de email.');
+            return redirect()->route('reseller.panel')->with('error', 'Nenhum revendedor aprovado encontrado para este endereço de email.');
         }
 
         $request->session()->put('reseller_id', $application->id);
-
         return redirect()->route('reseller.panel');
     }
 
     public function logout(Request $request)
     {
-        $request->session()->forget(['reseller_id', 'reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
+        $request->session()->forget(['reseller_id', 'reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at', self::CART_SESSION]);
         return redirect()->route('reseller.panel');
     }
 
-    public function storePurchase(Request $request)
+    // ─────────────────────────────────────────────────────────────
+    //  Carrinho
+    // ─────────────────────────────────────────────────────────────
+    public function cartAdd(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate([
+            'plan_slug' => ['required', 'string', 'exists:voucher_plans,slug'],
+            'quantity'  => ['required', 'integer', 'min:1', 'max:500'],
+        ]);
+
+        $cart = $request->session()->get(self::CART_SESSION, []);
+        $cart[$data['plan_slug']] = ($cart[$data['plan_slug']] ?? 0) + (int) $data['quantity'];
+        $request->session()->put(self::CART_SESSION, $cart);
+
+        return redirect()->route('reseller.panel')->with('status', 'Plano adicionado ao carrinho.');
+    }
+
+    public function cartRemove(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate(['plan_slug' => ['required', 'string']]);
+        $cart = $request->session()->get(self::CART_SESSION, []);
+        unset($cart[$data['plan_slug']]);
+        $request->session()->put(self::CART_SESSION, $cart);
+
+        return redirect()->route('reseller.panel');
+    }
+
+    public function cartClear(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $request->session()->forget(self::CART_SESSION);
+        return redirect()->route('reseller.panel');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Checkout — aloca vouchers reais do stock
+    // ─────────────────────────────────────────────────────────────
+    public function checkout(Request $request)
     {
         $resellerId = $request->session()->get('reseller_id');
         if (!$resellerId) return redirect()->route('reseller.panel');
 
         $application = ResellerApplication::findOrFail($resellerId);
+        $cart        = $request->session()->get(self::CART_SESSION, []);
 
-        $minPurchase = (int) config('reseller.min_purchase_aoa', 10000);
-        $unitPrice   = (int) config('reseller.code_unit_price_aoa', 1000);
+        if (empty($cart)) {
+            return redirect()->route('reseller.panel')->with('error', 'O carrinho está vazio.');
+        }
 
-        $data = $request->validate([
-            'gross_amount_aoa' => [
-                'required', 'integer',
-                'min:' . $minPurchase,
-            ],
-        ]);
+        $voucherPlans = VoucherPlan::active()->get()->keyBy('slug');
 
-        $gross           = (int) $data['gross_amount_aoa'];
-        $discountPercent = $application->discountPercentFor($gross);
-        $net             = (int) round($gross * (100 - $discountPercent) / 100);
-        $codesCount      = max(1, (int) floor($gross / $unitPrice));
+        // Pre-validation: verify stock for each plan
+        foreach ($cart as $slug => $qty) {
+            $plan = $voucherPlans->get($slug);
+            if (!$plan) {
+                return redirect()->route('reseller.panel')->with('error', "Plano \"$slug\" não encontrado.");
+            }
+            $stock = WifiCode::where('plan_id', $slug)->where('status', 'available')->count();
+            if ($stock < $qty) {
+                return redirect()->route('reseller.panel')
+                    ->with('error', "Stock insuficiente para \"{$plan->name}\": pediu {$qty}, disponível {$stock}.");
+            }
+        }
 
-        $codes    = $this->generateCodes($codesCount);
-        $purchase = new ResellerPurchase();
-        $purchase->reseller_application_id = $application->id;
-        $purchase->gross_amount_aoa  = $gross;
-        $purchase->discount_percent  = $discountPercent;
-        $purchase->net_amount_aoa    = $net;
-        $purchase->codes_count       = $codesCount;
+        // Allocate codes in a transaction
+        $purchases = [];
+        try {
+            DB::transaction(function () use ($cart, $voucherPlans, $application, &$purchases) {
+                foreach ($cart as $slug => $qty) {
+                    $plan = $voucherPlans->get($slug);
+                    $qty  = (int) $qty;
 
-        $path = 'resellers/' . $application->id . '/purchase_' . now()->format('Ymd_His') . '_' . Str::random(6) . '.csv';
-        Storage::disk('local')->put($path, $this->buildCsv($codes));
-        $purchase->csv_path = $path;
-        $purchase->meta     = ['generated_codes_preview' => array_slice($codes, 0, 3)];
-        $purchase->save();
+                    // Lock and fetch codes
+                    $codes = WifiCode::where('plan_id', $slug)
+                        ->where('status', 'available')
+                        ->lockForUpdate()
+                        ->limit($qty)
+                        ->get();
 
+                    if ($codes->count() < $qty) {
+                        throw new \RuntimeException("Stock insuficiente para {$plan->name} no momento do checkout.");
+                    }
+
+                    $unitPrice  = $plan->price_reseller_aoa;
+                    $netAmount  = $unitPrice * $qty;
+                    $grossAmt   = $plan->price_public_aoa * $qty;
+                    $profit     = $grossAmt - $netAmount;
+                    $discPct    = $plan->price_public_aoa > 0
+                        ? round((1 - $unitPrice / $plan->price_public_aoa) * 100, 1)
+                        : 0;
+
+                    // Build CSV content
+                    $codeLines = ['plano,codigo,validade'];
+                    foreach ($codes as $wc) {
+                        $codeLines[] = "{$plan->name},{$wc->code},{$plan->validity_label}";
+                    }
+                    $csvContent = implode("\n", $codeLines) . "\n";
+
+                    $path = 'resellers/' . $application->id . '/purchase_' . $slug . '_' . now()->format('Ymd_His') . '_' . Str::random(6) . '.csv';
+                    Storage::disk('local')->put($path, $csvContent);
+
+                    $purchase = ResellerPurchase::create([
+                        'reseller_application_id' => $application->id,
+                        'voucher_plan_id'          => $plan->id,
+                        'plan_slug'                => $slug,
+                        'plan_name'                => $plan->name,
+                        'quantity'                 => $qty,
+                        'unit_price_aoa'           => $unitPrice,
+                        'gross_amount_aoa'         => $grossAmt,
+                        'discount_percent'         => $discPct,
+                        'net_amount_aoa'           => $netAmount,
+                        'codes_count'              => $qty,
+                        'profit_aoa'               => $profit,
+                        'csv_path'                 => $path,
+                        'status'                   => 'completed',
+                        'meta'                     => ['code_preview' => $codes->take(3)->pluck('code')->toArray()],
+                    ]);
+
+                    // Mark codes as used, link to this purchase
+                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                        'status'              => 'used',
+                        'reseller_purchase_id' => $purchase->id,
+                        'used_at'             => now(),
+                    ]);
+
+                    $purchases[] = $purchase;
+                }
+            });
+        } catch (\Throwable $e) {
+            return redirect()->route('reseller.panel')->with('error', $e->getMessage());
+        }
+
+        $request->session()->forget(self::CART_SESSION);
+
+        $totalVouchers = array_sum(array_column($purchases, 'codes_count'));
         return redirect()->route('reseller.panel')
-            ->with('status', "Compra de {$gross} Kz registada com {$discountPercent}% de desconto ({$codesCount} códigos). CSV disponível para download.");
+            ->with('status', "Compra concluída! {$totalVouchers} voucher(s) alocados. Faça download na tabela abaixo.");
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  Compra legacy (mantida para compatibilidade)
+    // ─────────────────────────────────────────────────────────────
+    public function storePurchase(Request $request)
+    {
+        // Redirect to new checkout flow
+        return redirect()->route('reseller.panel')->with('error', 'Por favor use o novo sistema de carrinho para comprar vouchers.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Download CSV
+    // ─────────────────────────────────────────────────────────────
     public function downloadCsv(Request $request, ResellerPurchase $purchase)
     {
         $resellerId = $request->session()->get('reseller_id');
-        if (!$resellerId || $purchase->reseller_application_id !== $resellerId) {
-            abort(403);
-        }
+        if (!$resellerId || $purchase->reseller_application_id !== $resellerId) abort(403);
 
-        if (!Storage::disk('local')->exists($purchase->csv_path)) {
-            abort(404, 'CSV não encontrado.');
-        }
+        if (!Storage::disk('local')->exists($purchase->csv_path)) abort(404, 'CSV não encontrado.');
 
         return response()->streamDownload(function () use ($purchase) {
             echo Storage::disk('local')->get($purchase->csv_path);
-        }, 'codigos_revenda_' . $purchase->id . '.csv', [
+        }, 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 
-    private function generateCodes(int $count): array
+    // ─────────────────────────────────────────────────────────────
+    //  Download vouchers como lista de texto simples
+    // ─────────────────────────────────────────────────────────────
+    public function downloadVouchers(Request $request, ResellerPurchase $purchase)
     {
-        $codes = [];
-        for ($i = 0; $i < $count; $i++) {
-            $codes[] = strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4));
-        }
-        return $codes;
-    }
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId || $purchase->reseller_application_id !== $resellerId) abort(403);
 
-    private function buildCsv(array $codes): string
-    {
-        $lines = ['codigo'];
-        foreach ($codes as $code) {
-            $lines[] = $code;
+        // Fetch the actual wifi codes linked to this purchase
+        $codes = WifiCode::where('reseller_purchase_id', $purchase->id)->get();
+
+        if ($codes->isEmpty() && Storage::disk('local')->exists($purchase->csv_path ?? '')) {
+            // Fallback to CSV file for legacy purchases
+            return $this->downloadCsv($request, $purchase);
         }
-        return implode("\n", $lines) . "\n";
+
+        $lines = ['Plano,Código,Validade'];
+        foreach ($codes as $wc) {
+            $validityLabel = $purchase->plan_name ?? ($purchase->plan_slug ?? 'N/A');
+            $lines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
+        }
+
+        $filename = 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.csv';
+        return response(implode("\n", $lines) . "\n")
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename=\"$filename\"");
     }
 }

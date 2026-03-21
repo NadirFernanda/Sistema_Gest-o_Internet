@@ -56,6 +56,13 @@ Route::post('/painel-revendedor/verify', [ResellerPanelController::class, 'verif
 Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logout'])->name('reseller.panel.logout');
 Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');
+Route::get('/painel-revendedor/compras/{purchase}/vouchers', [ResellerPanelController::class, 'downloadVouchers'])->name('reseller.panel.purchase.vouchers');
+
+// Carrinho de vouchers do revendedor
+Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
+Route::post('/painel-revendedor/carrinho/remover', [ResellerPanelController::class, 'cartRemove'])->name('reseller.cart.remove');
+Route::post('/painel-revendedor/carrinho/limpar', [ResellerPanelController::class, 'cartClear'])->name('reseller.cart.clear');
+Route::post('/painel-revendedor/checkout', [ResellerPanelController::class, 'checkout'])->name('reseller.panel.checkout');
 
 // Protótipo de callback de pagamento (para testes sem gateway real)
 Route::get('/autovenda/callback/simulate/{order}', [\App\Http\Controllers\PaymentCallbackController::class, 'simulateSuccess'])
