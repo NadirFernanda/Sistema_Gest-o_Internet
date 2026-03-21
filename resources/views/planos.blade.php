@@ -62,24 +62,26 @@
             </div>
         @endif
 
-        {{-- Linha 1: pesquisa + botões (igual ao alertas) --}}
-        <div class="planos-toolbar">
-            <div class="alertas-toolbar-left">
-                <input type="search" id="buscaPlanos" placeholder="Pesquisar cliente ou plano…"
-                       class="search-input" style="flex:1;min-width:220px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
-            </div>
-            <div class="alertas-toolbar-actions">
-                <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
-                @if(auth()->user() && auth()->user()->hasRole('Administrador'))
-                    <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
-                @endif
-                <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
-            </div>
-        </div>
+        {{-- Toolbar: linha 1 pesquisa+botões, linha 2 filtros --}}
+        <div style="width:100%;max-width:1100px;margin:18px auto 0;display:flex;flex-direction:column;gap:10px;">
 
-        {{-- Linha 2: filtros por baixo da toolbar --}}
-        <div class="planos-toolbar" style="flex-wrap:wrap;gap:8px;margin-top:0;">
-            <div class="alertas-toolbar-left" style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            {{-- Linha 1: pesquisa + botões --}}
+            <div class="alertas-toolbar">
+                <div class="alertas-toolbar-left">
+                    <input type="search" id="buscaPlanos" placeholder="Pesquisar cliente ou plano…"
+                           class="search-input" style="flex:1;min-width:220px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
+                </div>
+                <div class="alertas-toolbar-actions">
+                    <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
+                    @if(auth()->user() && auth()->user()->hasRole('Administrador'))
+                        <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
+                    @endif
+                    <a href="{{ route('dashboard') }}" class="btn btn-ghost">Painel</a>
+                </div>
+            </div>
+
+            {{-- Linha 2: filtros --}}
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
                 <select id="filtroEstado" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
                     <option value="">Todos os estados</option>
                     <option value="Ativo">Ativo</option>
@@ -133,6 +135,7 @@
                 <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
             </div>
         </div>
+
 
         <!-- Card único: resumo com todos os planos e suas contagens de clientes -->
         <div class="plan-stats-single" style="max-width:1100px;margin:6px auto 0;">
