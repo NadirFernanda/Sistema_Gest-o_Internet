@@ -88,6 +88,27 @@
 .ap-btn-sm { padding: .35rem .75rem; font-size: .8rem; }
 .ap-btn-del { background: none; border: none; color: var(--a-red); cursor: pointer; font-size: .8rem; padding: .25rem .45rem; border-radius: 5px; font-family: inherit; }
 .ap-btn-del:hover { background: #fee2e2; }
+.ap-btn-danger { background: var(--a-red); color: #fff; }
+.ap-btn-danger:hover { background: #b91c1c; }
+.ap-btn-danger-outline { background: var(--a-surf); color: var(--a-red); border: 1.5px solid #fca5a5; }
+.ap-btn-danger-outline:hover { background: #fef2f2; border-color: var(--a-red); }
+
+/* bulk action bar */
+.ap-bulk-bar {
+  display: none;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 9px;
+  padding: .65rem 1rem;
+  margin-bottom: .75rem;
+  font-size: .88rem;
+  color: #78350f;
+  font-weight: 600;
+}
+.ap-bulk-bar.show { display: flex; }
 
 /* filter bar */
 .ap-filters { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: .9rem 1.1rem; display: flex; flex-wrap: wrap; gap: .65rem; align-items: flex-end; margin-bottom: 1.1rem; }
@@ -196,6 +217,17 @@
           @else &#10003; Dispon&iacute;vel
           @endif
         </p>
+        @if($n > 0)
+          <form method="POST" action="{{ route('admin.wifi_codes.destroy_all_available') }}"
+                style="margin-top:.75rem;"
+                onsubmit="return confirm('Eliminar TODOS os {{ $n }} código(s) disponíveis do plano {{ $planText[$pid] }}? Esta ação não pode ser desfeita.')">
+            @csrf
+            <input type="hidden" name="plan_id" value="{{ $pid }}">
+            <button type="submit" class="ap-btn ap-btn-sm ap-btn-danger-outline" style="width:100%;justify-content:center;">
+              🗑 Eliminar todos ({{ $n }})
+            </button>
+          </form>
+        @endif
       </div>
     @endforeach
   </div>
@@ -305,12 +337,32 @@
     </div>
   </form>
 
+  {{-- ── Bulk action bar ────────────────────────────────────── --}}
+  <form id="bulkForm" method="POST" action="{{ route('admin.wifi_codes.bulk_destroy') }}">
+    @csrf
+    @foreach(request()->only(['plan_id','status','q']) as $k => $v)
+      <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+
+    <div id="bulkBar" class="ap-bulk-bar">
+      <span id="bulkCount">0 selecionados</span>
+      <button type="submit" class="ap-btn ap-btn-sm ap-btn-danger"
+              onclick="return confirm('Eliminar os códigos selecionados?')">
+        🗑 Eliminar selecionados
+      </button>
+      <button type="button" class="ap-btn ap-btn-sm ap-btn-outline" onclick="clearSelection()">Cancelar</button>
+    </div>
+
   {{-- ── Tabela ─────────────────────────────────────────────── --}}
   <div class="ap-tcard">
     <div style="overflow-x:auto;">
       <table class="ap-table">
         <thead>
           <tr>
+            <th style="width:36px;">
+              <input type="checkbox" id="selectAll" title="Selecionar todos disponíveis"
+                     style="cursor:pointer;width:15px;height:15px;">
+            </th>
             <th>#</th>
             <th>Plano</th>
             <th>C&oacute;digo</th>
@@ -324,12 +376,18 @@
         <tbody>
           @forelse($codes as $code)
             <tr>
+              <td>
+                @if($code->status === 'available')
+                  <input type="checkbox" name="ids[]" value="{{ $code->id }}"
+                         class="row-checkbox" style="cursor:pointer;width:15px;height:15px;">
+                @endif
+              </td>
               <td class="dim">#{{ $code->id }}</td>
               <td>
                 @if($code->plan_id === 'diario')
-                  <span class="badge bg-amber">Di&aacute;rio</span>
+                  <span class="badge bg-blue">Di&aacute;rio</span>
                 @elseif($code->plan_id === 'semanal')
-                  <span class="badge bg-amber">Semanal</span>
+                  <span class="badge bg-purple">Semanal</span>
                 @elseif($code->plan_id === 'mensal')
                   <span class="badge bg-amber">Mensal</span>
                 @else
@@ -357,17 +415,13 @@
               <td class="dim">{{ optional($code->created_at)->format('d/m/Y H:i') }}</td>
               <td>
                 @if($code->status === 'available')
-                  <form method="POST" action="{{ route('admin.wifi_codes.destroy', $code) }}"
-                        onsubmit="return confirm('Eliminar o c\u00f3digo {{ $code->code }}?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="ap-btn-del" title="Eliminar">&#128465;</button>
-                  </form>
+                  <button type="submit" form="singleDel{{ $code->id }}" class="ap-btn-del" title="Eliminar">&#128465;</button>
                 @endif
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="8">
+              <td colspan="9">
                 <div class="ap-empty">
                   <p class="ap-empty-title">Nenhum c&oacute;digo encontrado</p>
                   <p class="ap-empty-sub">Importe c&oacute;digos acima para come&ccedil;ar</p>
@@ -382,6 +436,55 @@
       <div class="ap-pager">{{ $codes->links() }}</div>
     @endif
   </div>
+  </form>{{-- end bulkForm --}}
+
+  {{-- Hidden single-delete forms (outside bulk form to avoid nesting) --}}
+  @foreach($codes as $code)
+    @if($code->status === 'available')
+      <form id="singleDel{{ $code->id }}" method="POST"
+            action="{{ route('admin.wifi_codes.destroy', $code) }}"
+            onsubmit="return confirm('Eliminar o código {{ addslashes($code->code) }}?')">
+        @csrf @method('DELETE')
+      </form>
+    @endif
+  @endforeach
+
+<script>
+(function(){
+  var selectAll   = document.getElementById('selectAll');
+  var bulkBar     = document.getElementById('bulkBar');
+  var bulkCount   = document.getElementById('bulkCount');
+
+  function updateBar() {
+    var checked = document.querySelectorAll('.row-checkbox:checked');
+    if (checked.length > 0) {
+      bulkBar.classList.add('show');
+      bulkCount.textContent = checked.length + ' selecionado(s)';
+    } else {
+      bulkBar.classList.remove('show');
+    }
+  }
+
+  document.querySelectorAll('.row-checkbox').forEach(function(cb){
+    cb.addEventListener('change', updateBar);
+  });
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function(){
+      document.querySelectorAll('.row-checkbox').forEach(function(cb){
+        cb.checked = selectAll.checked;
+      });
+      updateBar();
+    });
+  }
+
+  window.clearSelection = function(){
+    document.querySelectorAll('.row-checkbox').forEach(function(cb){ cb.checked = false; });
+    if (selectAll) selectAll.checked = false;
+    updateBar();
+  };
+})();
+</script>
 
 </div>{{-- /ap-wrap --}}
 </div>{{-- /ap --}}

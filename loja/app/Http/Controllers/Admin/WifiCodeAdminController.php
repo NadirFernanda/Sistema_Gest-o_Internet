@@ -135,4 +135,48 @@ class WifiCodeAdminController extends Controller
             ->route('admin.wifi_codes.index')
             ->with('success', 'Código eliminado.');
     }
+
+    /**
+     * Eliminar múltiplos códigos de uma vez (apenas 'available').
+     */
+    public function destroyBulk(Request $request)
+    {
+        $request->validate([
+            'ids'   => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer'],
+        ]);
+
+        $deleted = WifiCode::whereIn('id', $request->input('ids'))
+            ->where('status', WifiCode::STATUS_AVAILABLE)
+            ->delete();
+
+        $skipped = count($request->input('ids')) - $deleted;
+
+        $msg = "{$deleted} código(s) eliminado(s).";
+        if ($skipped > 0) {
+            $msg .= " {$skipped} ignorado(s) (não estavam disponíveis).";
+        }
+
+        return redirect()
+            ->route('admin.wifi_codes.index', $request->only(['plan_id', 'status', 'q']))
+            ->with('success', $msg);
+    }
+
+    /**
+     * Eliminar todos os códigos 'available' de um plano (limpeza rápida).
+     */
+    public function destroyAllAvailable(Request $request)
+    {
+        $request->validate([
+            'plan_id' => ['required', 'string', 'in:' . implode(',', self::VALID_PLANS)],
+        ]);
+
+        $deleted = WifiCode::where('plan_id', $request->input('plan_id'))
+            ->where('status', WifiCode::STATUS_AVAILABLE)
+            ->delete();
+
+        return redirect()
+            ->route('admin.wifi_codes.index')
+            ->with('success', "Todos os {$deleted} código(s) disponíveis do plano «{$request->input('plan_id')}» foram eliminados.");
+    }
 }
