@@ -16,17 +16,17 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(79,70,229,.08), 0 1px 4px rgba(0,0,0,.06);
+  box-shadow: 0 4px 24px rgba(247,181,0,.12), 0 1px 4px rgba(0,0,0,.06);
   overflow: hidden;
 }
 .adm-login-header {
-  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   padding: 2rem 2rem 1.75rem;
   text-align: center;
 }
 .adm-login-header .adm-login-logo {
   width: 52px; height: 52px;
-  background: rgba(255,255,255,.15);
+  background: rgba(247,181,0,.20);
   border-radius: 14px;
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 1.6rem;
@@ -74,16 +74,16 @@
   font-family: inherit;
 }
 .adm-login-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+  border-color: #f7b500;
+  box-shadow: 0 0 0 3px rgba(247,181,0,.18);
   background: #fff;
 }
 .adm-login-submit {
   width: 100%;
   margin-top: 1.25rem;
   padding: .75rem;
-  background: #4f46e5;
-  color: #fff;
+  background: #f7b500;
+  color: #1a1a2e;
   border: none;
   border-radius: 9px;
   font-size: .95rem;
@@ -93,7 +93,7 @@
   transition: background .15s, transform .1s;
   font-family: inherit;
 }
-.adm-login-submit:hover  { background: #4338ca; }
+.adm-login-submit:hover  { background: #e0a800; }
 .adm-login-submit:active { transform: scale(.99); }
 .adm-login-foot {
   padding: .85rem 1.5rem;
