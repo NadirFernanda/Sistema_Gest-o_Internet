@@ -46,14 +46,14 @@
     <a href="{{ url('/') }}" class="ty-btn" id="ty-btn">Voltar à página inicial</a>
 
     <div class="ty-progress"><div class="ty-progress-bar" id="ty-bar"></div></div>
-    <p class="ty-countdown" id="ty-cd">A redirecionar em <strong>5</strong>s…</p>
+    <p class="ty-countdown" id="ty-cd">A redirecionar em <strong>15</strong>s…</p>
   </div>
 </div>
 
 @push('scripts')
 <script>
 (function(){
-  var s=5, cd=document.getElementById('ty-cd'), bar=document.getElementById('ty-bar');
+  var s=15, cd=document.getElementById('ty-cd'), bar=document.getElementById('ty-bar');
   var iv=setInterval(function(){
     s--;
     cd.innerHTML='A redirecionar em <strong>'+s+'</strong>s\u2026';
