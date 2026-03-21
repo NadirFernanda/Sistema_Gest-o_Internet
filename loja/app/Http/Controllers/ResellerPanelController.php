@@ -367,4 +367,77 @@ class ResellerPanelController extends Controller
             ->header('Content-Type', 'text/csv; charset=UTF-8')
             ->header('Content-Disposition', "attachment; filename=\"$filename\"");
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Ver e gerir códigos de uma compra (distribuição ao cliente)
+    // ─────────────────────────────────────────────────────────────
+    public function showCodes(Request $request, ResellerPurchase $purchase)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId || $purchase->reseller_application_id !== $resellerId) abort(403);
+
+        $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
+            ->orderBy('reseller_distributed_at')
+            ->orderBy('id')
+            ->get();
+
+        $totalCodes    = $codes->count();
+        $inStock       = $codes->whereNull('reseller_distributed_at')->count();
+        $distributed   = $codes->whereNotNull('reseller_distributed_at')->count();
+
+        return view('reseller.stock', [
+            'purchase'    => $purchase,
+            'codes'       => $codes,
+            'totalCodes'  => $totalCodes,
+            'inStock'     => $inStock,
+            'distributed' => $distributed,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Marcar voucher como vendido ao cliente final
+    // ─────────────────────────────────────────────────────────────
+    public function distributeVoucher(Request $request, WifiCode $wifiCode)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) abort(403);
+
+        // Verify ownership via the purchase FK
+        $purchase = ResellerPurchase::find($wifiCode->reseller_purchase_id);
+        if (!$purchase || $purchase->reseller_application_id !== $resellerId) abort(403);
+
+        if ($wifiCode->reseller_distributed_at) {
+            return back()->with('error', 'Este voucher já foi marcado como vendido.');
+        }
+
+        $data = $request->validate([
+            'customer_ref' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        $wifiCode->update([
+            'reseller_distributed_at' => now(),
+            'reseller_customer_ref'   => $data['customer_ref'] ?? null,
+        ]);
+
+        return back()->with('status', 'Voucher marcado como vendido ao cliente.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Cancelar marcação (em caso de erro)
+    // ─────────────────────────────────────────────────────────────
+    public function undistributeVoucher(Request $request, WifiCode $wifiCode)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) abort(403);
+
+        $purchase = ResellerPurchase::find($wifiCode->reseller_purchase_id);
+        if (!$purchase || $purchase->reseller_application_id !== $resellerId) abort(403);
+
+        $wifiCode->update([
+            'reseller_distributed_at' => null,
+            'reseller_customer_ref'   => null,
+        ]);
+
+        return back()->with('status', 'Marcação cancelada — voucher devolvido ao stock.');
+    }
 }

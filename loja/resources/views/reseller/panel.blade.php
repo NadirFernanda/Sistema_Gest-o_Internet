@@ -808,9 +808,11 @@
                         —
                       @endif
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
+                      <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
+                         class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
                       <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
-                         class="rv-csv-btn">⬇ Vouchers</a>
+                         class="rv-csv-btn">⬇ CSV</a>
                     </td>
                   </tr>
                 @endforeach

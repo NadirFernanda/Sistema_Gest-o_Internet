@@ -57,6 +57,9 @@ Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logou
 Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');
 Route::get('/painel-revendedor/compras/{purchase}/vouchers', [ResellerPanelController::class, 'downloadVouchers'])->name('reseller.panel.purchase.vouchers');
+Route::get('/painel-revendedor/compras/{purchase}/codigos', [ResellerPanelController::class, 'showCodes'])->name('reseller.panel.purchase.codes');
+Route::post('/painel-revendedor/voucher/{wifiCode}/distribuir', [ResellerPanelController::class, 'distributeVoucher'])->name('reseller.voucher.distribute');
+Route::post('/painel-revendedor/voucher/{wifiCode}/cancelar-distribuicao', [ResellerPanelController::class, 'undistributeVoucher'])->name('reseller.voucher.undistribute');
 
 // Carrinho de vouchers do revendedor
 Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
