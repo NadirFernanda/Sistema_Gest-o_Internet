@@ -99,7 +99,7 @@
                        style="display:none;width:64px;height:40px;padding:6px 8px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;flex-shrink:0;">
             </div>
             <div class="alertas-toolbar-actions" style="flex-shrink:0;">
-                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
+                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">Limpar</button>
                 <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
                 @if(auth()->user() && auth()->user()->hasRole('Administrador'))
                     <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
