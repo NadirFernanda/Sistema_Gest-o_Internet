@@ -84,6 +84,16 @@ class PlanoController extends Controller
                 $query->where('planos.template_id', (int) $templateId);
             }
 
+            // Filter by estado (e.g. Ativo, Suspenso, Cancelado…)
+            if ($estado = $request->query('estado')) {
+                $query->where('planos.estado', $estado);
+            }
+
+            // Filter by tipo (familiar, institucional, empresarial, site)
+            if ($tipo = $request->query('tipo')) {
+                $query->where('planos.tipo', $tipo);
+            }
+
             if ($busca = $request->query('busca')) {
             $busca = trim($busca);
             // Use LOWER(... ) LIKE ? to provide case-insensitive search that

@@ -396,20 +396,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 lista.innerHTML = `<div style="padding:24px;text-align:center;color:#666"><p style="margin:0 0 8px 0">Nenhum plano encontrado.</p><a href="${window.planosConfig.planosCreateRoute||'/planos/create'}" class="btn btn-cta">Cadastrar Primeiro Plano</a></div>`;
                 return;
             }
-            // Ordenar alfabeticamente pelo nome do plano (fallback no frontend)
-            try {
-                plans.sort((a, b) => {
-                    const getName = (p) => {
-                        try {
-                            if (p && p.cliente) return (p.cliente.nome || p.cliente.name || '').toString().normalize('NFD').toLowerCase();
-                        } catch (_) {}
-                        return '';
-                    };
-                    const na = getName(a);
-                    const nb = getName(b);
-                    return na.localeCompare(nb, 'pt', { sensitivity: 'base' });
-                });
-            } catch (_) { /* se sort falhar, seguimos com a ordem original */ }
+            // Sorting is handled by applyClientFilters() before renderPlans is called
             function esc(s){ if(s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
             let html = '<div class="plan-grid">';
             plans.forEach(p => {
@@ -511,59 +498,211 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             }));
         }
 
-        function fetchAndUpdate(q, templateId){
+        function fetchAndUpdate(){
             const base = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos');
             const params = [];
-            if (q) params.push('busca=' + encodeURIComponent(q));
-            if (templateId) params.push('template_id=' + encodeURIComponent(templateId));
+            if (_filters.q)          params.push('busca='       + encodeURIComponent(_filters.q));
+            if (_filters.templateId) params.push('template_id=' + encodeURIComponent(_filters.templateId));
+            if (_filters.estado)     params.push('estado='      + encodeURIComponent(_filters.estado));
+            if (_filters.tipo)       params.push('tipo='        + encodeURIComponent(_filters.tipo));
             const apiUrl = base + (params.length ? '?' + params.join('&') : '');
             const prev = lista.innerHTML;
             lista.innerHTML = '<div style="padding:12px 0">Carregando resultados...</div>';
             fetch(apiUrl, { headers: Object.assign({}, headers), credentials: 'same-origin' })
-                .then(r => r.ok ? r.json() : Promise.reject())
-                .then(json => { renderPlans(json); updateHistory(q); })
-                .catch(()=>{ lista.innerHTML = prev; });
+                .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+                .then(function(json){
+                    const processed = applyClientFilters(json);
+                    renderPlans(processed);
+                    updateHistory(_filters.q);
+                    updateFiltrosAtivos();
+                })
+                .catch(function(){ lista.innerHTML = prev; });
         }
 
-        // Active template filter state
-        let _activeTemplateId = null;
+        // ──── State object for all active filters ────
+        const _filters = {
+            q:          '',
+            templateId: null,
+            estado:     '',
+            tipo:       '',
+            vencimento: '',
+            dias:       5,
+            preco:      '',
+            ordenar:    'cliente_asc'
+        };
 
+        // ──── Client-side filter + sort (applied after API response) ────
+        function applyClientFilters(plans) {
+            let result = Array.isArray(plans) ? plans : [];
+
+            // Vencimento filter
+            if (_filters.vencimento) {
+                const maxDias = parseInt(_filters.dias) || 5;
+                result = result.filter(function(p) {
+                    const dr = (p.diasRestantes !== undefined && p.diasRestantes !== null) ? Number(p.diasRestantes) : null;
+                    if (_filters.vencimento === 'vencido')  return dr !== null && dr < 0;
+                    if (_filters.vencimento === 'hoje')     return dr !== null && dr === 0;
+                    if (_filters.vencimento === 'avencer')  return dr !== null && dr >= 0 && dr <= maxDias;
+                    if (_filters.vencimento === 'vigente')  return dr !== null && dr > 0;
+                    return true;
+                });
+            }
+
+            // Price range filter
+            if (_filters.preco) {
+                const parts = _filters.preco.split('-').map(Number);
+                const pMin = parts[0] || 0;
+                const pMax = parts[1] || 9999999;
+                result = result.filter(function(p) {
+                    const pr = p.preco ? Number(p.preco) : 0;
+                    return pr >= pMin && pr <= pMax;
+                });
+            }
+
+            // Sort
+            try {
+                const ord = _filters.ordenar || 'cliente_asc';
+                result = result.slice();
+                if (ord === 'nome_asc') {
+                    result.sort(function(a, b){ return (a.nome||'').localeCompare(b.nome||'', 'pt', {sensitivity:'base'}); });
+                } else if (ord === 'nome_desc') {
+                    result.sort(function(a, b){ return (b.nome||'').localeCompare(a.nome||'', 'pt', {sensitivity:'base'}); });
+                } else if (ord === 'preco_asc') {
+                    result.sort(function(a, b){ return Number(a.preco||0) - Number(b.preco||0); });
+                } else if (ord === 'preco_desc') {
+                    result.sort(function(a, b){ return Number(b.preco||0) - Number(a.preco||0); });
+                } else if (ord === 'venc_asc') {
+                    result.sort(function(a, b){
+                        const da = (a.diasRestantes !== null && a.diasRestantes !== undefined) ? Number(a.diasRestantes) : 99999;
+                        const db = (b.diasRestantes !== null && b.diasRestantes !== undefined) ? Number(b.diasRestantes) : 99999;
+                        return da - db;
+                    });
+                } else if (ord === 'venc_desc') {
+                    result.sort(function(a, b){
+                        const da = (a.diasRestantes !== null && a.diasRestantes !== undefined) ? Number(a.diasRestantes) : -99999;
+                        const db = (b.diasRestantes !== null && b.diasRestantes !== undefined) ? Number(b.diasRestantes) : -99999;
+                        return db - da;
+                    });
+                } else if (ord === 'data_asc') {
+                    result.sort(function(a, b){ return (a.data_ativacao||'') < (b.data_ativacao||'') ? -1 : 1; });
+                } else if (ord === 'data_desc') {
+                    result.sort(function(a, b){ return (b.data_ativacao||'') < (a.data_ativacao||'') ? -1 : 1; });
+                } else {
+                    // Default: by client name
+                    result.sort(function(a, b) {
+                        const na = (a.cliente && (a.cliente.nome || a.cliente.name) ? String(a.cliente.nome || a.cliente.name) : '').normalize('NFD').toLowerCase();
+                        const nb = (b.cliente && (b.cliente.nome || b.cliente.name) ? String(b.cliente.nome || b.cliente.name) : '').normalize('NFD').toLowerCase();
+                        return na.localeCompare(nb, 'pt', {sensitivity:'base'});
+                    });
+                }
+            } catch(_) { /* keep original order on sort failure */ }
+
+            return result;
+        }
+
+        // ──── Show active filter summary bar ────
+        function updateFiltrosAtivos() {
+            const bar = document.getElementById('planosFiltrosAtivos');
+            const txt = document.getElementById('planosFiltrosAtivosTexto');
+            if (!bar || !txt) return;
+            const tags = [];
+            if (_filters.templateId) {
+                const el = document.querySelector('.tpl-item[data-template-id="' + _filters.templateId + '"]');
+                tags.push('Plano: ' + (el ? el.getAttribute('data-template-name') : _filters.templateId));
+            }
+            if (_filters.estado)     tags.push('Estado: ' + _filters.estado);
+            if (_filters.tipo)       tags.push('Tipo: ' + _filters.tipo);
+            if (_filters.vencimento) {
+                const vLabels = {vencido:'Vencidos', hoje:'Vence hoje', avencer:'A vencer em ' + (_filters.dias||5) + ' dia(s)', vigente:'Vigentes'};
+                tags.push('Vencimento: ' + (vLabels[_filters.vencimento] || _filters.vencimento));
+            }
+            if (_filters.preco) {
+                const pLabels = {'0-5000':'até Kz 5.000', '5001-15000':'Kz 5.001–15.000', '15001-30000':'Kz 15.001–30.000', '30001-9999999':'acima de Kz 30.000'};
+                tags.push('Preço: ' + (pLabels[_filters.preco] || _filters.preco));
+            }
+            if (_filters.ordenar && _filters.ordenar !== 'cliente_asc') {
+                const oLabels = {nome_asc:'Nome A–Z', nome_desc:'Nome Z–A', preco_asc:'Preço ↑', preco_desc:'Preço ↓', venc_asc:'Venc. próximo', venc_desc:'Venc. longe', data_asc:'Activação ↑', data_desc:'Activação ↓'};
+                tags.push('Ordenar: ' + (oLabels[_filters.ordenar] || _filters.ordenar));
+            }
+            if (tags.length) {
+                txt.innerHTML = tags.map(function(t){ return '<span style="background:#f7b500;color:#fff;border-radius:4px;padding:2px 8px;font-size:0.87rem;">' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>'; }).join('');
+                bar.style.display = 'flex';
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        // ──── Template card filter helpers ────
         function setTemplateFilter(id, name){
-            _activeTemplateId = id;
-            // highlight active card
-            document.querySelectorAll('.tpl-item').forEach(el => {
+            _filters.templateId = id;
+            document.querySelectorAll('.tpl-item').forEach(function(el) {
                 const isActive = el.getAttribute('data-template-id') == id;
                 el.style.borderColor = isActive ? '#f7b500' : 'rgba(231,214,137,0.4)';
-                el.style.boxShadow = isActive ? '0 0 0 2px rgba(247,181,0,0.35)' : '';
-                el.style.background = isActive ? '#fffbe7' : '#fff';
+                el.style.boxShadow   = isActive ? '0 0 0 2px rgba(247,181,0,0.35)' : '';
+                el.style.background  = isActive ? '#fffbe7' : '#fff';
             });
-            // show filter badge
-            const filterBar = document.getElementById('activePlanFilter');
+            const filterBar  = document.getElementById('activePlanFilter');
             const filterName = document.getElementById('activePlanFilterName');
-            if (filterBar) filterBar.style.display = 'flex';
-            if (filterName) filterName.textContent = name;
-            fetchAndUpdate('', id);
+            if (filterBar)  filterBar.style.display = 'flex';
+            if (filterName) filterName.textContent  = name;
+            fetchAndUpdate();
         }
 
         function clearTemplateFilter(){
-            _activeTemplateId = null;
-            document.querySelectorAll('.tpl-item').forEach(el => {
+            _filters.templateId = null;
+            document.querySelectorAll('.tpl-item').forEach(function(el){
                 el.style.borderColor = 'rgba(231,214,137,0.4)';
-                el.style.boxShadow = '';
-                el.style.background = '#fff';
+                el.style.boxShadow   = '';
+                el.style.background  = '#fff';
             });
             const filterBar = document.getElementById('activePlanFilter');
             if (filterBar) filterBar.style.display = 'none';
-            fetchAndUpdate(input.value.trim());
+            fetchAndUpdate();
         }
 
-        // Attach click handlers to template summary items
-        document.querySelectorAll('.tpl-item').forEach(el => {
+        // ──── Clear ALL filters ────
+        function clearAllFilters() {
+            _filters.q          = '';
+            _filters.templateId = null;
+            _filters.estado     = '';
+            _filters.tipo       = '';
+            _filters.vencimento = '';
+            _filters.dias       = 5;
+            _filters.preco      = '';
+            _filters.ordenar    = 'cliente_asc';
+            if (input) input.value = '';
+            const fEstado     = document.getElementById('filtroEstado');
+            const fTipo       = document.getElementById('filtroTipo');
+            const fVenc       = document.getElementById('filtroVencimento');
+            const fDias       = document.getElementById('filtroDias');
+            const fPreco      = document.getElementById('filtroPreco');
+            const fOrdenar    = document.getElementById('filtroOrdenar');
+            const diasWrapper = document.getElementById('diasFiltroWrapper');
+            if (fEstado)     fEstado.value     = '';
+            if (fTipo)       fTipo.value       = '';
+            if (fVenc)       fVenc.value       = '';
+            if (fDias)       fDias.value       = 5;
+            if (fPreco)      fPreco.value      = '';
+            if (fOrdenar)    fOrdenar.value    = 'cliente_asc';
+            if (diasWrapper) diasWrapper.style.display = 'none';
+            // also reset template card highlights
+            document.querySelectorAll('.tpl-item').forEach(function(el){
+                el.style.borderColor = 'rgba(231,214,137,0.4)';
+                el.style.boxShadow   = '';
+                el.style.background  = '#fff';
+            });
+            const filterBar = document.getElementById('activePlanFilter');
+            if (filterBar) filterBar.style.display = 'none';
+            fetchAndUpdate();
+        }
+
+        // ──── Template summary card click handlers ────
+        document.querySelectorAll('.tpl-item').forEach(function(el) {
             el.addEventListener('click', function(){
-                const tid = this.getAttribute('data-template-id');
+                const tid   = this.getAttribute('data-template-id');
                 const tname = this.getAttribute('data-template-name');
                 if (!tid) return;
-                if (_activeTemplateId == tid) {
+                if (_filters.templateId == tid) {
                     clearTemplateFilter();
                 } else {
                     setTemplateFilter(tid, tname);
@@ -574,19 +713,50 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         const clearFilterBtn = document.getElementById('clearPlanFilter');
         if (clearFilterBtn) clearFilterBtn.addEventListener('click', clearTemplateFilter);
 
-        function debounce(fn, wait){ let t; return function(){ const args = arguments; clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
-        const debouncedFetch = debounce(function(){ fetchAndUpdate(input.value.trim(), _activeTemplateId); }, 300);
-        input.addEventListener('input', debouncedFetch);
-        input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); fetchAndUpdate(input.value.trim(), _activeTemplateId); } });
-        if(clear){ clear.addEventListener('click', function(){ input.value = ''; input.focus(); fetchAndUpdate('', _activeTemplateId); }); }
-        if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); fetchAndUpdate(input.value.trim(), _activeTemplateId); }); }
+        // ──── New filter control event listeners ────
+        const fEstadoEl  = document.getElementById('filtroEstado');
+        const fTipoEl    = document.getElementById('filtroTipo');
+        const fVencEl    = document.getElementById('filtroVencimento');
+        const fDiasEl    = document.getElementById('filtroDias');
+        const fPrecoEl   = document.getElementById('filtroPreco');
+        const fOrdenarEl = document.getElementById('filtroOrdenar');
+        const diasWrpEl  = document.getElementById('diasFiltroWrapper');
+        const btnLimpar1 = document.getElementById('btnLimparFiltros');
+        const btnLimpar2 = document.getElementById('btnLimparFiltros2');
 
-        // Expose a debug helper to manually refresh planos from console and
-        // perform an initial load so the list shows on page load.
+        function showHideDiasWrapper() {
+            if (diasWrpEl) diasWrpEl.style.display = (_filters.vencimento === 'avencer') ? 'inline-flex' : 'none';
+        }
+
+        if (fEstadoEl)  fEstadoEl.addEventListener('change',  function(){ _filters.estado = this.value; fetchAndUpdate(); });
+        if (fTipoEl)    fTipoEl.addEventListener('change',    function(){ _filters.tipo   = this.value; fetchAndUpdate(); });
+        if (fVencEl)    fVencEl.addEventListener('change',    function(){ _filters.vencimento = this.value; showHideDiasWrapper(); fetchAndUpdate(); });
+        if (fPrecoEl)   fPrecoEl.addEventListener('change',   function(){ _filters.preco  = this.value; fetchAndUpdate(); });
+        if (fOrdenarEl) fOrdenarEl.addEventListener('change', function(){ _filters.ordenar = this.value; fetchAndUpdate(); });
+        if (btnLimpar1) btnLimpar1.addEventListener('click',  clearAllFilters);
+        if (btnLimpar2) btnLimpar2.addEventListener('click',  clearAllFilters);
+
+        function debounce(fn, wait){ let t; return function(){ var args = arguments; clearTimeout(t); t = setTimeout(function(){ fn.apply(this, args); }, wait); }; }
+
+        if (fDiasEl) {
+            const debouncedDias = debounce(function(){
+                _filters.dias = parseInt(fDiasEl.value) || 5;
+                if (_filters.vencimento === 'avencer') fetchAndUpdate();
+            }, 350);
+            fDiasEl.addEventListener('input', debouncedDias);
+        }
+
+        // ──── Search input listeners ────
+        const debouncedSearch = debounce(function(){ _filters.q = input.value.trim(); fetchAndUpdate(); }, 300);
+        input.addEventListener('input', debouncedSearch);
+        input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); _filters.q = input.value.trim(); fetchAndUpdate(); } });
+        if(clear){ clear.addEventListener('click', function(){ input.value = ''; _filters.q = ''; input.focus(); fetchAndUpdate(); }); }
+        if(btn){   btn.addEventListener('click',  function(e){ e.preventDefault(); _filters.q = input.value.trim(); fetchAndUpdate(); }); }
+
+        // ──── Debug helper + initial load ────
         try{
-            window.__refreshPlanos = function(){ try{ fetchAndUpdate('', _activeTemplateId); }catch(_){ } };
-            // Initial fetch to populate the list when page loads
-            fetchAndUpdate('');
+            window.__refreshPlanos = function(){ try{ fetchAndUpdate(); }catch(_){ } };
+            fetchAndUpdate();
         }catch(_){ }
     })();
 
