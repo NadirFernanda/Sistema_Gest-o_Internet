@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResellerApplication;
+use App\Mail\ResellerStatusMail;
 use App\Models\ResellerBonusTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ResellerAdminController extends Controller
 {
@@ -85,7 +87,14 @@ class ResellerAdminController extends Controller
     public function updateStatus(Request $request, ResellerApplication $application)
     {
         $request->validate(['status' => 'required|in:pending,approved,rejected']);
+
+        $oldStatus = $application->status;
         $application->update(['status' => $request->status]);
+
+        // Enviar e-mail automático ao revendedor quando o estado muda para aprovado ou rejeitado
+        if ($oldStatus !== $request->status && in_array($request->status, ['approved', 'rejected'])) {
+            Mail::to($application->email)->send(new ResellerStatusMail($application));
+        }
 
         return back()->with('status', 'Estado atualizado.');
     }
