@@ -63,12 +63,12 @@
         @endif
 
         {{-- Toolbar única (padrão alertas) --}}
-        <div class="alertas-toolbar" style="flex-wrap:wrap;gap:10px;">
-            <div class="alertas-toolbar-left" style="flex:1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-                <input type="search" id="buscaPlanos" placeholder="Pesquisar cliente ou plano…"
-                       class="search-input" style="min-width:200px;flex:1 1 200px;height:40px;padding:8px 16px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
+        <div class="alertas-toolbar" style="flex-wrap:nowrap;gap:8px;">
+            <div class="alertas-toolbar-left" style="flex:1;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;min-width:0;">
+                <input type="search" id="buscaPlanos" placeholder="Pesquisar…"
+                       class="search-input" style="min-width:140px;width:160px;flex-shrink:1;height:40px;padding:8px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
 
-                <select id="filtroEstado" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                <select id="filtroEstado" style="height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.95rem;background:#fff;cursor:pointer;flex-shrink:1;min-width:0;">
                     <option value="">Todos os estados</option>
                     <option value="Ativo">Ativo</option>
                     <option value="Em aviso">Em aviso</option>
@@ -78,7 +78,7 @@
                     <option value="Agente Autorizado">Agente Autorizado</option>
                 </select>
 
-                <select id="filtroTipo" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                <select id="filtroTipo" style="height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.95rem;background:#fff;cursor:pointer;flex-shrink:1;min-width:0;">
                     <option value="">Todos os tipos</option>
                     <option value="familiar">Familiar</option>
                     <option value="institucional">Institucional</option>
@@ -86,7 +86,7 @@
                     <option value="site">Site</option>
                 </select>
 
-                <select id="filtroVencimento" style="height:40px;padding:6px 12px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;background:#fff;cursor:pointer;">
+                <select id="filtroVencimento" style="height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.95rem;background:#fff;cursor:pointer;flex-shrink:1;min-width:0;">
                     <option value="">Qualquer vencimento</option>
                     <option value="vencido">Vencidos</option>
                     <option value="hoje">Vence hoje</option>
@@ -96,11 +96,10 @@
 
                 <label for="filtroDias" id="labelDias" style="display:none;white-space:nowrap;font-size:0.95rem;">Dias:</label>
                 <input type="number" id="filtroDias" value="5" min="1" max="365"
-                       style="display:none;width:72px;height:40px;padding:6px 10px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;">
-
-                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;width:auto;flex-shrink:0;align-self:center;">✕ Limpar</button>
+                       style="display:none;width:64px;height:40px;padding:6px 8px;border-radius:8px;border:1px solid #dde3ec;font-size:0.97rem;flex-shrink:0;">
             </div>
-            <div class="alertas-toolbar-actions">
+            <div class="alertas-toolbar-actions" style="flex-shrink:0;">
+                <button id="btnLimparFiltros" class="btn btn-ghost" style="height:40px;white-space:nowrap;">✕ Limpar</button>
                 <a href="{{ route('plan-templates.index') }}" id="manageTemplatesBtn" class="btn btn-cta">Planos</a>
                 @if(auth()->user() && auth()->user()->hasRole('Administrador'))
                     <a href="{{ route('planos.create') }}" class="btn btn-cta">Cadastrar</a>
