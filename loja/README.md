@@ -241,19 +241,12 @@ sudo systemctl reload nginx
 cd /var/www/sgmr/loja
 git fetch origin
 git reset --hard origin/main
-
 composer install --no-dev --optimize-autoloader
-
 npm ci
 npm run build
-
-php artisan migrate --force
-
+php artisan migrate --force   # ← CRÍTICO: aplica migrações novas (ex: novas colunas)
 php artisan optimize:clear
-php artisan optimize
 php artisan config:clear
-
-sudo systemctl restart php8.4-fpm
 sudo systemctl reload nginx
 ```
 
@@ -270,22 +263,6 @@ echo 'fernanda ALL=(ALL) NOPASSWD: /bin/systemctl restart php8.4-fpm, /bin/syste
 ```
 
 Verifique com `sudo systemctl restart php8.4-fpm` — não deve pedir password.
-
-### Resolução de erros de permissões no deploy
-
-Se o deploy falhar com erros de `Permission denied` em `.git/objects`, `storage/` ou `bootstrap/cache/` (acontece quando um `composer install` ou `php artisan` anterior correu como `root` ou `www-data`):
-
-```bash
-# Corrigir dono e permissões de toda a pasta do projecto
-sudo chown -R fernanda:www-data /var/www/sgmr
-sudo find /var/www/sgmr -type d -exec chmod 775 {} \;
-sudo find /var/www/sgmr -type f -exec chmod 664 {} \;
-
-# Garantir escrita em storage e bootstrap/cache pelo processo web
-sudo chmod -R 775 /var/www/sgmr/storage /var/www/sgmr/bootstrap/cache
-```
-
-Depois re-correr o deploy normalmente.
 
 ---
 
