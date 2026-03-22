@@ -163,12 +163,18 @@
   <div class="sp-dl-bar">
     <span class="sp-dl-title">Exportar:</span>
     <a href="{{ route('reseller.panel.purchase.vouchers', $purchase) }}" class="sp-btn sp-btn-outline sp-btn-sm">
-      ⬇ Todos os códigos (CSV)
+      ⬇ CSV (todos)
+    </a>
+    <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}" class="sp-btn sp-btn-outline sp-btn-sm" style="border-color:#fecaca;color:#b91c1c;">
+      📄 PDF
     </a>
     <a href="{{ route('reseller.panel.purchase.codes', ['purchase' => $purchase->id, 'filter' => 'stock']) }}"
        class="sp-btn sp-btn-outline sp-btn-sm">
-      ⬇ Só por vender
+      ⬇ Só por vender (CSV)
     </a>
+    <button onclick="shareAllWhatsApp()" class="sp-btn sp-btn-sm" style="background:#25d366;color:#fff;border:none;cursor:pointer;">
+      📲 Partilhar por WhatsApp
+    </button>
   </div>
 
   {{-- Filter tabs --}}
@@ -241,6 +247,12 @@
                     <button type="submit" class="sp-btn sp-btn-sm sp-btn-green">
                       ✔ Marcar vendido
                     </button>
+                    <button type="button"
+                            onclick="shareVoucherWhatsApp('{{ $code->code }}', '{{ $purchase->plan_name }}', '{{ $purchase->plan_slug }}')"
+                            class="sp-btn sp-btn-sm" style="background:#25d366;color:#fff;border:none;cursor:pointer;"
+                            title="Enviar por WhatsApp">
+                      📲
+                    </button>
                   </form>
                 @else
                   {{-- Undo distribution --}}
@@ -288,6 +300,56 @@ function copyCode(code, btn) {
       window.getSelection().addRange(range);
     }
   });
+}
+
+function shareVoucherWhatsApp(code, planName, planSlug) {
+  var validityMap = { 'diario': '24 horas', 'semanal': '7 dias', 'mensal': '30 dias' };
+  var validity = validityMap[planSlug] || planName;
+  var msg = '🌐 *AngolaWiFi — Voucher WiFi*\n\n'
+          + '📌 Plano: *' + planName + '*\n'
+          + '⏱️ Validade: ' + validity + '\n'
+          + '🔑 Código: *' + code + '*\n\n'
+          + 'Para activar, ligue-se à rede AngolaWiFi e insira este código no portal de autenticação.\n\n'
+          + '💬 Dúvidas? Contacte o seu revendedor.';
+  var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function shareAllWhatsApp() {
+  // Collect all available (not sold) codes visible in stock tab
+  var rows = document.querySelectorAll('.badge-stock');
+  var codes = [];
+  rows.forEach(function(badge) {
+    var row = badge.closest('tr');
+    if (row) {
+      var monoEl = row.querySelector('.mono');
+      if (monoEl) codes.push(monoEl.textContent.trim());
+    }
+  });
+
+  if (codes.length === 0) {
+    alert('Não há vouchers disponíveis (por vender) para partilhar.');
+    return;
+  }
+
+  var planName = '{{ $purchase->plan_name }}';
+  var planSlug = '{{ $purchase->plan_slug }}';
+  var validityMap = { 'diario': '24 horas', 'semanal': '7 dias', 'mensal': '30 dias' };
+  var validity = validityMap[planSlug] || planName;
+
+  var msg = '🌐 *AngolaWiFi — Vouchers WiFi*\n'
+          + '📌 Plano: *' + planName + '* (' + validity + ')\n'
+          + '📦 Quantidade: ' + codes.length + ' voucher(s)\n\n';
+
+  codes.forEach(function(c, i) {
+    msg += (i + 1) + '. 🔑 *' + c + '*\n';
+  });
+
+  msg += '\nPara activar, ligue-se à rede AngolaWiFi e insira o código no portal.\n'
+       + '💬 Dúvidas? Contacte o seu revendedor.';
+
+  var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank', 'noopener,noreferrer');
 }
 </script>
 @endsection

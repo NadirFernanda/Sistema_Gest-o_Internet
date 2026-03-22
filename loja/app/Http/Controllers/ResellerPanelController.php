@@ -7,6 +7,8 @@ use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
 use App\Models\VoucherPlan;
 use App\Models\WifiCode;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +59,9 @@ class ResellerPanelController extends Controller
             }
         }
 
+        // Sales report: per-plan breakdown across all purchases
+        $salesReport = [];
+
         if ($resellerId) {
             $application = ResellerApplication::find($resellerId);
 
@@ -65,11 +70,45 @@ class ResellerPanelController extends Controller
                     ->orderByDesc('id')
                     ->paginate(10);
 
-                foreach ($purchases as $p) {
+                // Build per-plan sales report from all purchases (not just paginated)
+                $allPurchases = ResellerPurchase::where('reseller_application_id', $application->id)->get();
+                foreach ($allPurchases as $p) {
                     $totals['total_invested'] += $p->net_amount_aoa;
                     $totals['vouchers_total'] += $p->codes_count;
                     $totals['profit_total']   += ($p->profit_aoa ?? 0);
                     $estimatedProfit          += ($p->profit_aoa ?? ($p->gross_amount_aoa - $p->net_amount_aoa));
+
+                    $slug = $p->plan_slug ?? 'N/A';
+                    if (!isset($salesReport[$slug])) {
+                        $salesReport[$slug] = [
+                            'plan_name'     => $p->plan_name ?? $slug,
+                            'vouchers_bought' => 0,
+                            'vouchers_sold'   => 0,
+                            'invested_aoa'    => 0,
+                            'profit_aoa'      => 0,
+                        ];
+                    }
+                    $salesReport[$slug]['vouchers_bought'] += $p->codes_count;
+                    $salesReport[$slug]['invested_aoa']    += $p->net_amount_aoa;
+                    $salesReport[$slug]['profit_aoa']      += ($p->profit_aoa ?? 0);
+                }
+
+                // Count distributed (sold to customers) per plan
+                if (!empty($salesReport)) {
+                    $distributedCounts = WifiCode::whereIn(
+                        'reseller_purchase_id',
+                        $allPurchases->pluck('id')
+                    )->whereNotNull('reseller_distributed_at')
+                     ->selectRaw('plan_id, count(*) as cnt')
+                     ->groupBy('plan_id')
+                     ->pluck('cnt', 'plan_id')
+                     ->toArray();
+
+                    foreach ($distributedCounts as $planId => $cnt) {
+                        if (isset($salesReport[$planId])) {
+                            $salesReport[$planId]['vouchers_sold'] = $cnt;
+                        }
+                    }
                 }
 
                 $monthlySpend = $application->monthlySpendings();
@@ -94,6 +133,7 @@ class ResellerPanelController extends Controller
             'cartVouchers'    => $cartVouchers,
             'otpPending'      => $otpPending,
             'otpEmail'        => $otpEmail,
+            'salesReport'     => $salesReport,
         ]);
     }
 
@@ -225,6 +265,21 @@ class ResellerPanelController extends Controller
         }
 
         $voucherPlans = VoucherPlan::active()->get()->keyBy('slug');
+
+        // Enforce minimum purchase amount
+        $cartTotal = 0;
+        foreach ($cart as $slug => $qty) {
+            $plan = $voucherPlans->get($slug);
+            if ($plan) {
+                $cartTotal += $plan->price_reseller_aoa * (int) $qty;
+            }
+        }
+        $minPurchase = (int) config('reseller.min_purchase_aoa', 10000);
+        if ($cartTotal < $minPurchase) {
+            $formatted = number_format($minPurchase, 0, ',', '.');
+            return redirect()->route('reseller.panel')
+                ->with('error', "O valor mínimo de compra é {$formatted} Kz. O seu carrinho totaliza " . number_format($cartTotal, 0, ',', '.') . " Kz.");
+        }
 
         // Pre-validation: verify stock for each plan
         foreach ($cart as $slug => $qty) {
@@ -439,5 +494,47 @@ class ResellerPanelController extends Controller
         ]);
 
         return back()->with('status', 'Marcação cancelada — voucher devolvido ao stock.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Download PDF dos vouchers de uma compra
+    // ─────────────────────────────────────────────────────────────
+    public function downloadPdf(Request $request, ResellerPurchase $purchase)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId || $purchase->reseller_application_id !== $resellerId) abort(403);
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
+            ->orderBy('reseller_distributed_at')
+            ->orderBy('id')
+            ->get();
+
+        $totalCodes  = $codes->count();
+        $inStock     = $codes->whereNull('reseller_distributed_at')->count();
+        $distributed = $codes->whereNotNull('reseller_distributed_at')->count();
+        $voucherPlan = VoucherPlan::where('slug', $purchase->plan_slug)->first();
+
+        $html = view('pdf.vouchers-revendedor', compact(
+            'purchase', 'application', 'codes', 'voucherPlan',
+            'totalCodes', 'inStock', 'distributed'
+        ))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.pdf';
+
+        return response($dompdf->output())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }

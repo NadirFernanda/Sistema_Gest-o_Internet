@@ -97,6 +97,7 @@
     <a href="{{ route('admin.dashboard') }}" class="here">Dashboard</a>
     <a href="{{ route('admin.autovenda.index') }}">Recargas</a>
     <a href="{{ route('admin.wifi_codes.index') }}">C&oacute;digos WiFi</a>
+    <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>
     <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
     <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
     <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>

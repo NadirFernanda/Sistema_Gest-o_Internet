@@ -777,7 +777,7 @@
       @endif
 
       {{-- Histórico --}}
-      <div class="rv-panel" style="margin-bottom:0;">
+      <div class="rv-panel" style="margin-bottom:1.25rem;">
         <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Histórico de compras</div>
         @if($purchases instanceof \Illuminate\Pagination\LengthAwarePaginator && $purchases->count())
           <div class="rv-hist-wrap">
@@ -811,6 +811,8 @@
                     <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
                       <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
                          class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
+                      <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}"
+                         class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
                       <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
                          class="rv-csv-btn">⬇ CSV</a>
                     </td>
@@ -824,6 +826,70 @@
           <p class="rv-empty">Ainda não existem compras registadas.</p>
         @endif
       </div>
+
+      {{-- ── Relatório de Vendas (por plano) ── --}}
+      @if(!empty($salesReport))
+      <div class="rv-panel" style="margin-bottom:0;">
+        <div class="rv-panel-title"><span class="rv-panel-icon">📈</span> Relatório de Vendas por Plano</div>
+        <div class="rv-hist-wrap">
+          <table class="rv-hist-table">
+            <thead>
+              <tr>
+                <th>Plano</th>
+                <th class="r">Comprados</th>
+                <th class="r">Vendidos ao cliente</th>
+                <th class="r">Em stock</th>
+                <th class="r">Taxa de venda</th>
+                <th class="r">Investido (Kz)</th>
+                <th class="r">Lucro realizado (Kz)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($salesReport as $slug => $row)
+                @php
+                  $stockLeft  = $row['vouchers_bought'] - $row['vouchers_sold'];
+                  $sellRate   = $row['vouchers_bought'] > 0
+                    ? round($row['vouchers_sold'] * 100 / $row['vouchers_bought'])
+                    : 0;
+                @endphp
+                <tr>
+                  <td><strong>{{ $row['plan_name'] }}</strong></td>
+                  <td class="r">{{ $row['vouchers_bought'] }}</td>
+                  <td class="r" style="color:#16a34a;font-weight:700;">{{ $row['vouchers_sold'] }}</td>
+                  <td class="r" style="color:{{ $stockLeft > 0 ? '#2563eb' : '#94a3b8' }};font-weight:700;">{{ $stockLeft }}</td>
+                  <td class="r">
+                    <div style="display:flex;align-items:center;gap:.4rem;justify-content:flex-end;">
+                      <span>{{ $sellRate }}%</span>
+                      <div style="width:60px;height:6px;background:#e5e7eb;border-radius:9999px;overflow:hidden;">
+                        <div style="height:6px;width:{{ $sellRate }}%;background:{{ $sellRate >= 80 ? '#16a34a' : ($sellRate >= 40 ? '#f59e0b' : '#e5e7eb') }};border-radius:9999px;"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="r bold">{{ number_format($row['invested_aoa'], 0, ',', '.') }}</td>
+                  <td class="r" style="color:#16a34a;font-weight:700;">
+                    +{{ number_format($row['profit_aoa'], 0, ',', '.') }}
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+            <tfoot>
+              <tr style="background:#f8fafc;font-weight:700;">
+                <td>Total</td>
+                <td class="r">{{ array_sum(array_column($salesReport, 'vouchers_bought')) }}</td>
+                <td class="r" style="color:#16a34a;">{{ array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
+                <td class="r">{{ array_sum(array_column($salesReport, 'vouchers_bought')) - array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
+                <td class="r">—</td>
+                <td class="r">{{ number_format(array_sum(array_column($salesReport, 'invested_aoa')), 0, ',', '.') }}</td>
+                <td class="r" style="color:#16a34a;">+{{ number_format(array_sum(array_column($salesReport, 'profit_aoa')), 0, ',', '.') }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p style="font-size:.78rem;color:#94a3b8;margin-top:.65rem;">
+          * "Vendidos ao cliente" = vouchers que marcou como entregues no painel. "Taxa de venda" = % vendidos do total comprado.
+        </p>
+      </div>
+      @endif
 
     </div>
   @endif

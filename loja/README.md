@@ -123,6 +123,105 @@ Se o número existir na base de dados (de um pedido anterior), o formulário é 
 
 ---
 
+## Arquitectura do Sistema de Vouchers — Agente Revendedor
+
+### Stock Central Único
+
+Todos os vouchers WiFi são geridos numa tabela `wifi_codes` centralizada no backoffice (admin).
+Cada código tem um `plan_id` (slug do plano: `diario`, `semanal`, `mensal`) e um `status` (`available`, `used`, `reserved`).
+
+```
+BACKOFFICE (admin)
+  └── wifi_codes
+        ├── code = "ABC-123"  | plan_id = "semanal" | status = "available"
+        ├── code = "XYZ-456"  | plan_id = "mensal"  | status = "available"
+        └── ...
+```
+
+O admin importa vouchers em lote via CSV ou cola-os directamente no painel de admin (`/admin/wifi-codes/import-paste`).
+
+---
+
+### Fluxo de Compra do Agente Revendedor
+
+```
+1. LOGIN (OTP por email)
+   └── /painel-revendedor → introduz email → recebe código 6 dígitos → acesso concedido
+
+2. CATÁLOGO DE PLANOS
+   └── VoucherPlan (DB) → mostra: preço público, preço revendedor, lucro/voucher, stock actual
+
+3. CARRINHO MULTI-PLANO (sessão)
+   └── Adicionar Plano Diário × 5   →  subtotal + lucro potencial
+   └── Adicionar Plano Semanal × 10 →  subtotal + lucro potencial
+   └── Resumo: total a pagar + lucro total estimado 🔥
+
+4. CHECKOUT (DB transaction com lockForUpdate)
+   └── Valida stock antes de confirmar
+   └── Aloca automaticamente os códigos disponíveis por plano
+   └── Cria ResellerPurchase por plano com: preço, desconto, lucro, CSV backup
+   └── Marca WifiCode: status=used, reseller_purchase_id=X
+
+5. ENTREGA IMEDIATA
+   └── Vouchers aparecem no painel do agente
+   └── Download: CSV ou PDF 📄
+   └── Partilha: WhatsApp 📲 (por voucher ou em bloco)
+```
+
+---
+
+### Painel do Agente
+
+| Secção | Descrição |
+|---|---|
+| 📊 Stats | Lucro total, vouchers adquiridos, meta mensal, bónus |
+| 📦 Planos | Catálogo com stock em tempo real e formulário de adição ao carrinho |
+| 🛒 Carrinho | Lista multi-plano com subtotais e lucro potencial |
+| 📋 Histórico | Todas as compras com botões: Vender / PDF / CSV |
+| 📈 Relatório | Por plano: comprados, vendidos, em stock, taxa de venda, lucro |
+
+---
+
+### Distribuição ao Cliente Final
+
+Após comprar os vouchers, o agente entra em `/painel-revendedor/compras/{id}/codigos` e:
+
+1. Vê todos os seus códigos por compra (`Em stock` vs `Vendido`)
+2. Clica **"✔ Marcar vendido"** quando entrega o código ao cliente (regista nome/telefone opcional)
+3. Pode partilhar individualmente por **WhatsApp** (botão 📲) ou enviar todos de uma vez
+4. Pode desfazer a marcação caso tenha sido feita por engano
+
+---
+
+### Exportação
+
+| Formato | Acção |
+|---|---|
+| CSV | Download imediato — todos os códigos da compra |
+| PDF | Download PDF formatado com cabeçalho AngolaWiFi, tabela de códigos, estado de venda |
+| WhatsApp | Abre `wa.me/` com mensagem pré-formatada com o(s) código(s) |
+
+---
+
+### Rotas do Painel de Revendedor
+
+```
+GET  /painel-revendedor                              → Login / Dashboard
+POST /painel-revendedor/login                        → OTP request
+POST /painel-revendedor/verify                       → Validate OTP
+POST /painel-revendedor/carrinho/adicionar           → Add to cart
+POST /painel-revendedor/carrinho/remover             → Remove from cart
+POST /painel-revendedor/carrinho/limpar              → Clear cart
+POST /painel-revendedor/checkout                     → Confirm purchase (allocates vouchers)
+GET  /painel-revendedor/compras/{id}/codigos         → View/distribute codes
+GET  /painel-revendedor/compras/{id}/pdf             → Download PDF
+GET  /painel-revendedor/compras/{id}/vouchers        → Download CSV
+POST /painel-revendedor/voucher/{code}/distribuir    → Mark as sold to customer
+POST /painel-revendedor/voucher/{code}/cancelar-distribuicao → Undo
+```
+
+---
+
 ## Configuração Inicial do Servidor VPS (fresh install)
 
 > Use este processo quando configurar um **novo servidor** a partir do zero.

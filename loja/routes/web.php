@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ResellerPurchaseAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\EquipmentOrderAdminController;
 use App\Http\Controllers\Admin\SiteStatsAdminController;
+use App\Http\Controllers\Admin\VoucherPlanAdminController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FamilyPlanPaymentController;
@@ -57,6 +58,7 @@ Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logou
 Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');
 Route::get('/painel-revendedor/compras/{purchase}/vouchers', [ResellerPanelController::class, 'downloadVouchers'])->name('reseller.panel.purchase.vouchers');
+Route::get('/painel-revendedor/compras/{purchase}/pdf', [ResellerPanelController::class, 'downloadPdf'])->name('reseller.panel.purchase.pdf');
 Route::get('/painel-revendedor/compras/{purchase}/codigos', [ResellerPanelController::class, 'showCodes'])->name('reseller.panel.purchase.codes');
 Route::post('/painel-revendedor/voucher/{wifiCode}/distribuir', [ResellerPanelController::class, 'distributeVoucher'])->name('reseller.voucher.distribute');
 Route::post('/painel-revendedor/voucher/{wifiCode}/cancelar-distribuicao', [ResellerPanelController::class, 'undistributeVoucher'])->name('reseller.voucher.undistribute');
@@ -150,4 +152,10 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     // Agendamentos de instalação
     Route::get('/agendamentos-instalacao', [InstallationAppointmentAdminController::class, 'index'])->name('admin.appointments.index');
     Route::patch('/agendamentos-instalacao/{appointment}/estado', [InstallationAppointmentAdminController::class, 'updateStatus'])->name('admin.appointments.status');
+
+    // Planos de voucher (canal de revenda)
+    Route::get('/planos-voucher', [VoucherPlanAdminController::class, 'index'])->name('admin.voucher_plans.index');
+    Route::post('/planos-voucher', [VoucherPlanAdminController::class, 'store'])->name('admin.voucher_plans.store');
+    Route::put('/planos-voucher/{voucherPlan}', [VoucherPlanAdminController::class, 'update'])->name('admin.voucher_plans.update');
+    Route::patch('/planos-voucher/{voucherPlan}/toggle', [VoucherPlanAdminController::class, 'toggle'])->name('admin.voucher_plans.toggle');
 });
