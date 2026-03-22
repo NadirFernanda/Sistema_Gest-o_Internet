@@ -1,81 +1,96 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="planos-section" aria-label="Detalhe do produto">
-  <div class="container" style="max-width:760px;">
-    <a href="{{ route('equipment.index') }}" class="store-link" style="font-size:0.95rem;">&larr; Voltar à loja</a>
+<div class="page-hero page-hero--compact">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Navegação">
+      <a href="{{ route('equipment.index') }}">Equipamentos</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span class="breadcrumb__current">{{ $product->name }}</span>
+    </nav>
+    <h1 class="page-hero__title">{{ $product->name }}</h1>
+  </div>
+</div>
 
-    <div class="plan-card-modern" style="max-width:100%;margin-top:1.5rem;">
-      <div class="plan-card-modern-inner">
+<section class="page-body">
+  <div class="container">
+    <div class="product-detail">
 
-        @if ($product->image_path)
-          <img src="{{ asset($product->image_path) }}"
-               alt="{{ $product->name }}"
-               style="width:100%;max-height:320px;object-fit:cover;border-radius:0.75rem;margin-bottom:1rem;">
-        @else
-          <div style="width:100%;height:180px;background:#f1f5f9;border-radius:0.75rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;font-size:4rem;">📦</div>
-        @endif
-
-        <div class="plan-card-modern-header">
-          <h2 class="plan-title" style="font-size:1.6rem;">{{ $product->name }}</h2>
+      {{-- Left: Image --}}
+      <div class="product-detail__gallery">
+        <div class="product-detail__image-wrap">
+          @if ($product->image_path)
+            <img src="{{ asset($product->image_path) }}"
+                 alt="{{ $product->name }}"
+                 class="product-detail__img"
+                 loading="eager">
+          @else
+            <div class="product-detail__placeholder">📦</div>
+          @endif
         </div>
-
         @if ($product->category)
-          <span class="plan-feature" style="margin-bottom:0.75rem;">{{ $product->category }}</span>
+          <span class="product-detail__cat-badge">{{ $product->category }}</span>
         @endif
+      </div>
 
-        <div class="plan-price-row">
-          <span class="plan-price" style="font-size:2.4rem;">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
-          <span class="plan-currency">Kz</span>
+      {{-- Right: Info --}}
+      <div class="product-detail__info">
+
+        <div class="product-detail__price-block">
+          <span class="product-detail__price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
+          <span class="product-detail__currency">Kz</span>
         </div>
 
         @if ($product->description)
-          <p style="color:#334155;line-height:1.7;margin:1rem 0;">{{ $product->description }}</p>
+          <p class="product-detail__desc">{{ $product->description }}</p>
         @endif
 
+        {{-- Stock status --}}
         @if ($product->isInStock())
-          <p style="color:#16a34a;font-weight:600;font-size:0.97rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.4rem;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            Em armazém — entrega em aproximadamente 2 dias úteis
-          </p>
-
-          <form method="POST" action="{{ route('equipment.cart.add') }}" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <input type="hidden" name="order_type" value="immediate">
-            <label for="qty" style="font-weight:600;">Qtd:</label>
-            <input id="qty" type="number" name="quantity" value="1" min="1" max="99"
-                   style="width:70px;padding:0.5rem;border:1.5px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;text-align:center;">
-            <button type="submit" class="btn-buy-now">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9M9 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-              Comprar Agora
-            </button>
-          </form>
+          <div class="product-detail__stock product-detail__stock--in">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Em armazém — entrega em ~2 dias úteis
+          </div>
         @else
-          <p style="color:#d97706;font-weight:600;font-size:0.97rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Produto disponível por encomenda
-          </p>
-          <p style="font-size:0.88rem;color:#64748b;margin-bottom:1.25rem;">Prazo estimado de entrega: <strong>2 a 30 dias úteis</strong> após confirmação do pagamento.</p>
-
-          <form method="POST" action="{{ route('equipment.cart.add') }}" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <input type="hidden" name="order_type" value="backorder">
-            <label for="qty" style="font-weight:600;">Qtd:</label>
-            <input id="qty" type="number" name="quantity" value="1" min="1" max="99"
-                   style="width:70px;padding:0.5rem;border:1.5px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;text-align:center;">
-            <button type="submit" class="btn-order">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-              Encomendar
-            </button>
-          </form>
+          <div class="product-detail__stock product-detail__stock--out">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Disponível por encomenda — 2 a 30 dias úteis
+          </div>
         @endif
+
+        {{-- Add to cart --}}
+        <form method="POST" action="{{ route('equipment.cart.add') }}" class="product-detail__form">
+          @csrf
+          <input type="hidden" name="product_id" value="{{ $product->id }}">
+          <input type="hidden" name="order_type" value="{{ $product->isInStock() ? 'immediate' : 'backorder' }}">
+
+          <div class="product-detail__qty">
+            <label for="qty" class="product-detail__qty-label">Quantidade</label>
+            <input id="qty" type="number" name="quantity" value="1" min="1" max="99" class="product-detail__qty-input">
+          </div>
+
+          <button type="submit" class="{{ $product->isInStock() ? 'btn-buy-now' : 'btn-order' }} product-detail__cta">
+            @if ($product->isInStock())
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9M9 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+              Comprar Agora
+            @else
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Encomendar
+            @endif
+          </button>
+        </form>
 
         @if ($errors->any())
-          <p style="color:#ef4444;margin-top:0.5rem;font-size:0.93rem;">{{ $errors->first() }}</p>
+          <div class="alert alert-error">{{ $errors->first() }}</div>
         @endif
+
+        {{-- Back link --}}
+        <a href="{{ route('equipment.index') }}" class="product-detail__back">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Voltar ao catálogo
+        </a>
       </div>
+
     </div>
   </div>
 </section>
