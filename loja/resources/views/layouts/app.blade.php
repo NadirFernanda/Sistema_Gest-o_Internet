@@ -9,12 +9,12 @@
     {{-- Carregamento não-bloqueante das fontes — evita ERR_SOCKET_NOT_CONNECTED bloquear o render --}}
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
-    {{-- CSS com os componentes da loja (header, footer, planos, etc.) — sempre carregado --}}
-    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
-    {{-- Tailwind utilities + JS: carregados via Vite quando o build existe --}}
+    {{-- Tailwind utilities via Vite (carregado primeiro para que o fallback sobrescreva conflitos) --}}
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/css/app.css','resources/js/app.js'])
     @endif
+    {{-- CSS dos componentes da loja (header, footer, .container, etc.) — carregado por ÚLTIMO para ganhar sobre Tailwind --}}
+    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
