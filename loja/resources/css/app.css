@@ -1,7 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* minimal custom styles */
-body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+/* All component styles — imports from public/css/fallback.css so the Vite build
+   contains the complete CSS. Tailwind directives removed to avoid conflicts. */
+@import '../../public/css/fallback.css';
 
