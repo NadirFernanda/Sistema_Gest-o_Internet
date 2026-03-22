@@ -294,13 +294,25 @@ a.btn-ghost,
   transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
 
-/* Force all buttons to brand yellow (logo color) as requested */
-button, .btn, .btn-primary, .btn-ghost, input[type="submit"], a.btn-primary, a.btn-ghost {
+/* Force CTA buttons to brand yellow — excludes icon/utility buttons */
+.btn, .btn-primary, .btn-ghost, input[type="submit"], a.btn-primary, a.btn-ghost {
   background: var(--brand) !important;
   color: var(--text-dark) !important;
   border-color: var(--brand) !important;
   box-shadow: 0 8px 20px rgba(247,181,0,0.12) !important;
   text-transform:none !important;
+}
+/* Icon/utility buttons — must NOT inherit brand yellow */
+.mobile-menu-toggle,
+.search-btn,
+.hero__arrow,
+.hero__dot {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  padding: initial;
+  border-radius: initial;
 }
 .btn-ghost { background: var(--brand) !important; border: none !important; }
 button:hover, .btn-primary:hover, .btn-ghost:hover, a.btn-primary:hover, a.btn-ghost:hover {
@@ -846,6 +858,128 @@ button:hover, .btn-primary:hover, .btn-ghost:hover, a.btn-primary:hover, a.btn-g
 @keyframes family-bounce {
   from { opacity: .25; transform: translateY(0); }
   to   { opacity: 1;   transform: translateY(-7px); }
+}
+
+/* =====================================================================
+   FOOTER — missing BEM classes
+   ===================================================================== */
+.footer-top-accent {
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand) 0%, transparent 100%);
+}
+.footer-tagline {
+  margin: .5rem 0 1rem;
+  color: var(--text-muted);
+  font-size: .9rem;
+  line-height: 1.5;
+  max-width: 280px;
+}
+.contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--brand);
+  flex-shrink: 0;
+  margin-top: .1rem;
+}
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+}
+.contact-text {
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+.contact-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+/* =====================================================================
+   HEADER DROPDOWN — rich menu items (.store-dropdown-item__*)
+   ===================================================================== */
+.store-dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: #111827;
+  text-decoration: none;
+}
+.store-dropdown-item:hover { background: #f8fafc; }
+.store-dropdown-item__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.store-dropdown-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.store-dropdown-item__title {
+  font-weight: 600;
+  font-size: .9rem;
+  color: #111827;
+}
+.store-dropdown-item__desc {
+  font-size: .78rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+.dropdown-search-wrapper { padding: 12px 10px 6px; }
+
+/* =====================================================================
+   PAGE HERO — banner on inner pages (Quem Somos, Como Comprar, …)
+   ===================================================================== */
+.page-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  padding: 5rem 1rem 3rem;
+  margin-bottom: 0;
+}
+.page-hero .container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+}
+.page-hero__eyebrow {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: .5rem;
+}
+.page-hero__title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 .75rem;
+  line-height: 1.18;
+}
+.page-hero__desc {
+  font-size: 1rem;
+  color: rgba(255,255,255,.8);
+  max-width: 640px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* =====================================================================
+   PAGE BODY — content area on inner pages
+   ===================================================================== */
+.page-body {
+  padding: 3rem 1rem 4rem;
+}
+.page-body .container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
 }
 
 
