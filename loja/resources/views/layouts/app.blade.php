@@ -9,11 +9,11 @@
     {{-- Carregamento não-bloqueante das fontes — evita ERR_SOCKET_NOT_CONNECTED bloquear o render --}}
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
-    {{-- Carregar CSS de forma mutuamente exclusiva: Vite quando disponivel, fallback caso contrario. --}}
+    {{-- CSS com os componentes da loja (header, footer, planos, etc.) — sempre carregado --}}
+    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
+    {{-- Tailwind utilities + JS: carregados via Vite quando o build existe --}}
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/css/app.css','resources/js/app.js'])
-    @else
-      <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     @endif
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
