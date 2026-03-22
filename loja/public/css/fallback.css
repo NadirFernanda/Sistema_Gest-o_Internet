@@ -734,9 +734,9 @@ input[type="submit"]:hover {
 }
 .contact-icon {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; flex-shrink: 0;
+  width: 28px; height: 28px; flex-shrink: 0;
   background: rgba(247,181,0,.08); border: 1px solid rgba(247,181,0,.12);
-  border-radius: 8px; color: var(--brand); margin-top: 1px;
+  border-radius: 7px; color: var(--brand); margin-top: 2px;
 }
 .contact-info { display: flex; flex-direction: column; gap: 1px; }
 .contact-label { font-weight: 600; color: #e2e8f0; font-size: .78rem; letter-spacing: .02em; }
@@ -839,7 +839,7 @@ input[type="submit"]:hover {
   .hero__card { padding-left: calc(var(--page-gutter) + 3rem); }
   .equipment-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .equipment-card__body { padding: 1.25rem 1.35rem 1.35rem; }
-  .footer-inner { grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 2rem; }
+  .footer-inner { grid-template-columns: 1.6fr 1fr 1fr 1.4fr; gap: 2.5rem; }
   .footer-legal-inner { flex-direction: row; gap: 0; }
   .reseller-layout { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
   .reseller-form-grid { grid-template-columns: 1fr 1fr; }
@@ -852,6 +852,6 @@ input[type="submit"]:hover {
   .store-header-inner { padding-left: var(--page-gutter); padding-right: var(--page-gutter); max-width: var(--page-max-width); margin: 0 auto; }
 }
 @media (min-width: 1200px) {
-  .footer-inner { grid-template-columns: 1.5fr 1fr 1fr 1.3fr; }
+  .footer-inner { grid-template-columns: 1.6fr 1fr 1fr 1.5fr; }
   .info-grid { grid-template-columns: 1fr 1fr 1fr; }
 }
