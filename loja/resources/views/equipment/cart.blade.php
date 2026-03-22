@@ -72,15 +72,15 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:space-between;align-items:center;">
-        <div style="display:flex;gap:0.75rem;">
-          <a href="{{ route('equipment.index') }}" class="btn-ghost">← Continuar a comprar</a>
+      <div class="cart-actions">
+        <div class="cart-actions__left">
+          <a href="{{ route('equipment.index') }}" class="btn-ghost--light">← Continuar a comprar</a>
           <form method="POST" action="{{ route('equipment.cart.clear') }}">
             @csrf
-            <button type="submit" class="btn-ghost" style="color:#ef4444;border-color:#ef4444;">🗑 Limpar carrinho</button>
+            <button type="submit" class="btn-ghost--danger">🗑 Limpar carrinho</button>
           </form>
         </div>
-        <a href="{{ route('equipment.checkout') }}" class="btn-primary" style="font-size:1.05rem;padding:0.75rem 2rem;">Finalizar Encomenda →</a>
+        <a href="{{ route('equipment.checkout') }}" class="btn-primary">Finalizar Encomenda →</a>
       </div>
     @endif
   </div>

@@ -230,6 +230,21 @@ input[type="submit"]:hover {
   padding: .65rem 1.4rem; border: 1.5px solid rgba(255,255,255,.18);
 }
 .btn-ghost:hover { background: rgba(255,255,255,.15); }
+.btn-ghost--light {
+  background: #fff; color: var(--text-dark); font-size: .8rem;
+  padding: .65rem 1.4rem; border: 1.5px solid var(--border);
+}
+.btn-ghost--light:hover { background: #f8fafc; border-color: #cbd5e1; }
+.btn-ghost--danger {
+  background: #fff; color: #dc2626; font-size: .8rem;
+  padding: .65rem 1.4rem; border: 1.5px solid #fecaca;
+}
+.btn-ghost--danger:hover { background: #fef2f2; border-color: #f87171; }
+.cart-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+.cart-actions__left { display: flex; gap: .75rem; flex-wrap: wrap; }
+.cart-actions .btn-primary,
+.cart-actions .btn-ghost--light,
+.cart-actions .btn-ghost--danger { font-size: .85rem; padding: .7rem 1.5rem; }
 .btn-modern {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   background: linear-gradient(135deg, var(--brand), #e6a800);
