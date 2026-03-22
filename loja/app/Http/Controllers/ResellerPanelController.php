@@ -70,8 +70,10 @@ class ResellerPanelController extends Controller
                     ->orderByDesc('id')
                     ->paginate(10);
 
-                // Build per-plan sales report from all purchases (not just paginated)
-                $allPurchases = ResellerPurchase::where('reseller_application_id', $application->id)->get();
+                // Build per-plan sales report from completed purchases only
+                $allPurchases = ResellerPurchase::where('reseller_application_id', $application->id)
+                    ->where('status', 'completed')
+                    ->get();
                 foreach ($allPurchases as $p) {
                     $totals['total_invested'] += $p->net_amount_aoa;
                     $totals['vouchers_total'] += $p->codes_count;
@@ -250,12 +252,17 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Checkout — aloca vouchers reais do stock
+    //  Checkout — reserva vouchers do stock e aguarda pagamento
     // ─────────────────────────────────────────────────────────────
     public function checkout(Request $request)
     {
         $resellerId = $request->session()->get('reseller_id');
         if (!$resellerId) return redirect()->route('reseller.panel');
+
+        // If there's already a pending order, send to payment page
+        if ($request->session()->has('reseller_pending_order')) {
+            return redirect()->route('reseller.panel.payment');
+        }
 
         $application = ResellerApplication::findOrFail($resellerId);
         $cart        = $request->session()->get(self::CART_SESSION, []);
@@ -281,7 +288,7 @@ class ResellerPanelController extends Controller
                 ->with('error', "O valor mínimo de compra é {$formatted} Kz. O seu carrinho totaliza " . number_format($cartTotal, 0, ',', '.') . " Kz.");
         }
 
-        // Pre-validation: verify stock for each plan
+        // Pre-validation: verify available stock for each plan
         foreach ($cart as $slug => $qty) {
             $plan = $voucherPlans->get($slug);
             if (!$plan) {
@@ -294,15 +301,14 @@ class ResellerPanelController extends Controller
             }
         }
 
-        // Allocate codes in a transaction
-        $purchases = [];
+        // Reserve codes and create pending purchases (DB transaction)
+        $purchaseIds = [];
         try {
-            DB::transaction(function () use ($cart, $voucherPlans, $application, &$purchases) {
+            DB::transaction(function () use ($cart, $voucherPlans, $application, &$purchaseIds) {
                 foreach ($cart as $slug => $qty) {
                     $plan = $voucherPlans->get($slug);
                     $qty  = (int) $qty;
 
-                    // Lock and fetch codes
                     $codes = WifiCode::where('plan_id', $slug)
                         ->where('status', 'available')
                         ->lockForUpdate()
@@ -313,23 +319,15 @@ class ResellerPanelController extends Controller
                         throw new \RuntimeException("Stock insuficiente para {$plan->name} no momento do checkout.");
                     }
 
-                    $unitPrice  = $plan->price_reseller_aoa;
-                    $netAmount  = $unitPrice * $qty;
-                    $grossAmt   = $plan->price_public_aoa * $qty;
-                    $profit     = $grossAmt - $netAmount;
-                    $discPct    = $plan->price_public_aoa > 0
+                    $unitPrice = $plan->price_reseller_aoa;
+                    $netAmount = $unitPrice * $qty;
+                    $grossAmt  = $plan->price_public_aoa * $qty;
+                    $profit    = $grossAmt - $netAmount;
+                    $discPct   = $plan->price_public_aoa > 0
                         ? round((1 - $unitPrice / $plan->price_public_aoa) * 100, 1)
                         : 0;
 
-                    // Build CSV content
-                    $codeLines = ['plano,codigo,validade'];
-                    foreach ($codes as $wc) {
-                        $codeLines[] = "{$plan->name},{$wc->code},{$plan->validity_label}";
-                    }
-                    $csvContent = implode("\n", $codeLines) . "\n";
-
                     $path = 'resellers/' . $application->id . '/purchase_' . $slug . '_' . now()->format('Ymd_His') . '_' . Str::random(6) . '.csv';
-                    Storage::disk('local')->put($path, $csvContent);
 
                     $purchase = ResellerPurchase::create([
                         'reseller_application_id' => $application->id,
@@ -344,29 +342,170 @@ class ResellerPanelController extends Controller
                         'codes_count'              => $qty,
                         'profit_aoa'               => $profit,
                         'csv_path'                 => $path,
-                        'status'                   => 'completed',
+                        'status'                   => 'pending',
                         'meta'                     => ['code_preview' => $codes->take(3)->pluck('code')->toArray()],
                     ]);
 
-                    // Mark codes as used, link to this purchase
+                    // Reserve codes — linked to this purchase, not yet 'used'
                     WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                        'status'              => 'used',
+                        'status'               => 'reserved',
                         'reseller_purchase_id' => $purchase->id,
-                        'used_at'             => now(),
                     ]);
 
-                    $purchases[] = $purchase;
+                    $purchaseIds[] = $purchase->id;
                 }
             });
         } catch (\Throwable $e) {
             return redirect()->route('reseller.panel')->with('error', $e->getMessage());
         }
 
+        // Clear cart — the pending order now holds the reservation
         $request->session()->forget(self::CART_SESSION);
+        $request->session()->put('reseller_pending_order', $purchaseIds);
 
-        $totalVouchers = array_sum(array_column($purchases, 'codes_count'));
+        return redirect()->route('reseller.panel.payment');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Página de pagamento
+    // ─────────────────────────────────────────────────────────────
+    public function showPayment(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        if (empty($purchaseIds)) {
+            return redirect()->route('reseller.panel')->with('error', 'Nenhum pedido pendente encontrado.');
+        }
+
+        $application = ResellerApplication::findOrFail($resellerId);
+        $purchases   = ResellerPurchase::whereIn('id', $purchaseIds)
+            ->where('reseller_application_id', $application->id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($purchases->isEmpty()) {
+            $request->session()->forget('reseller_pending_order');
+            return redirect()->route('reseller.panel')->with('error', 'Pedido já processado ou expirado.');
+        }
+
+        $total = $purchases->sum('net_amount_aoa');
+
+        // Generate a deterministic Multicaixa reference from the first purchase ID
+        $mcxEntity = '00372';
+        $mcxRef    = str_pad($purchases->first()->id * 97 + 300000, 9, '0', STR_PAD_LEFT);
+
+        return view('reseller.checkout', compact('application', 'purchases', 'total', 'mcxEntity', 'mcxRef'));
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Confirmação de pagamento → transfere vouchers para o agente
+    // ─────────────────────────────────────────────────────────────
+    public function confirmPayment(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        if (empty($purchaseIds)) {
+            return redirect()->route('reseller.panel')->with('error', 'Nenhum pedido pendente.');
+        }
+
+        $application = ResellerApplication::findOrFail($resellerId);
+        $method      = $request->input('payment_method', 'multicaixa');
+        $reference   = trim($request->input('payment_reference', ''))
+            ?: ('SIM-' . now()->format('YmdHis') . '-' . $application->id);
+
+        // Load plan validity labels for the CSV
+        $planSlugs = ResellerPurchase::whereIn('id', $purchaseIds)->pluck('plan_slug')->toArray();
+        $planMap   = VoucherPlan::whereIn('slug', $planSlugs)->get()->keyBy('slug');
+
+        try {
+            DB::transaction(function () use ($purchaseIds, $application, $method, $reference, $planMap) {
+                $purchases = ResellerPurchase::whereIn('id', $purchaseIds)
+                    ->where('reseller_application_id', $application->id)
+                    ->where('status', 'pending')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($purchases as $purchase) {
+                    $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
+                        ->where('status', 'reserved')
+                        ->get();
+
+                    if ($codes->isEmpty()) {
+                        throw new \RuntimeException("Códigos não encontrados para o plano {$purchase->plan_name}.");
+                    }
+
+                    $validityLabel = optional($planMap->get($purchase->plan_slug))->validity_label
+                        ?? $purchase->plan_slug;
+
+                    // Build and store CSV
+                    $codeLines = ['plano,codigo,validade'];
+                    foreach ($codes as $wc) {
+                        $codeLines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
+                    }
+                    Storage::disk('local')->put($purchase->csv_path, implode("\n", $codeLines) . "\n");
+
+                    // Mark codes as used
+                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                        'status'  => 'used',
+                        'used_at' => now(),
+                    ]);
+
+                    // Finalise purchase
+                    $purchase->update([
+                        'status'            => 'completed',
+                        'payment_method'    => $method,
+                        'payment_reference' => $reference,
+                        'paid_at'           => now(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            return redirect()->route('reseller.panel.payment')->with('error', $e->getMessage());
+        }
+
+        $totalVouchers = ResellerPurchase::whereIn('id', $purchaseIds)->sum('codes_count');
+        $request->session()->forget(['reseller_pending_order']);
+
         return redirect()->route('reseller.panel')
-            ->with('status', "Compra concluída! {$totalVouchers} voucher(s) alocados. Faça download na tabela abaixo.");
+            ->with('status', "✅ Pagamento confirmado! {$totalVouchers} voucher(s) transferidos para a sua conta. Faça download na tabela abaixo.");
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Cancelar pagamento — liberta os vouchers reservados
+    // ─────────────────────────────────────────────────────────────
+    public function cancelPayment(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        if (!empty($purchaseIds)) {
+            $application = ResellerApplication::findOrFail($resellerId);
+            DB::transaction(function () use ($purchaseIds, $application) {
+                $purchases = ResellerPurchase::whereIn('id', $purchaseIds)
+                    ->where('reseller_application_id', $application->id)
+                    ->where('status', 'pending')
+                    ->get();
+
+                foreach ($purchases as $purchase) {
+                    WifiCode::where('reseller_purchase_id', $purchase->id)
+                        ->where('status', 'reserved')
+                        ->update([
+                            'status'               => 'available',
+                            'reseller_purchase_id' => null,
+                        ]);
+                    $purchase->delete();
+                }
+            });
+        }
+
+        $request->session()->forget('reseller_pending_order');
+        return redirect()->route('reseller.panel')
+            ->with('error', 'Compra cancelada. Os vouchers reservados foram libertados e o seu carrinho foi restaurado.');
     }
 
     // ─────────────────────────────────────────────────────────────

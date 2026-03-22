@@ -472,6 +472,20 @@
     </div>
   @endif
 
+  {{-- Pending payment banner --}}
+  @if(session()->has('reseller_pending_order') && $application)
+    <div style="max-width:1100px;margin:0 auto 1rem;">
+      <div class="rv-alert warning">
+        <span class="rv-alert-icon">💳</span>
+        <div>
+          <strong>Tem uma encomenda pendente de pagamento.</strong>
+          Os vouchers estão reservados aguardando confirmação do pagamento.
+          <a href="{{ route('reseller.panel.payment') }}" style="margin-left:.5rem;color:#92400e;font-weight:700;text-decoration:underline;">Completar pagamento →</a>
+        </div>
+      </div>
+    </div>
+  @endif
+
   @if(!$application)
     {{-- ════════════════ LOGIN / OTP ════════════════ --}}
     <div class="rv-login-wrap">
@@ -767,10 +781,14 @@
               @csrf
               <button type="submit" class="rv-csv-btn">Limpar carrinho</button>
             </form>
-            <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">
-              @csrf
-              <button type="submit" class="rv-btn-buy">✅ Finalizar compra</button>
-            </form>
+            @if(session()->has('reseller_pending_order'))
+              <a href="{{ route('reseller.panel.payment') }}" class="rv-btn-buy">💳 Completar pagamento pendente</a>
+            @else
+              <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="rv-btn-buy">✅ Finalizar compra &amp; pagar</button>
+              </form>
+            @endif
           </div>
         </div>
       </div>

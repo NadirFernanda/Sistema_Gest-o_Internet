@@ -15,6 +15,9 @@ class ResellerPurchase extends Model
         'unit_price_aoa',
         'profit_aoa',
         'status',
+        'payment_method',
+        'payment_reference',
+        'paid_at',
         'gross_amount_aoa',
         'discount_percent',
         'net_amount_aoa',
@@ -24,7 +27,8 @@ class ResellerPurchase extends Model
     ];
 
     protected $casts = [
-        'meta' => 'array',
+        'meta'    => 'array',
+        'paid_at' => 'datetime',
     ];
 
     public function application()
