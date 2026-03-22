@@ -338,16 +338,9 @@ sudo systemctl reload nginx
 ```bash
 # No servidor de produção (SSH)
 cd /var/www/sgmr/loja
-git fetch origin                        # ← OBRIGATÓRIO: actualiza refs remotas
-git reset --hard origin/main            # reset para o último commit do GitHub
-composer install --no-dev --optimize-autoloader
-npm ci
+git fetch origin && git reset --hard origin/main
 npm run build
-php artisan migrate --force             # ← CRÍTICO: aplica migrações novas
-php artisan db:seed --class=VoucherPlanSeeder  # ← se houver planos novos a adicionar
-php artisan optimize:clear
-php artisan optimize
-sudo systemctl reload nginx
+sudo systemctl reload php8.4-fpm nginx
 ```
 
 > ⚠️ **Erro comum:** correr `git reset --hard origin/main` **sem** `git fetch origin` antes faz com que o servidor fique no commit antigo (usa a referência local em cache). Verifique sempre que o hash mostrado (`HEAD is now at XXXXXXX`) corresponde ao último commit no GitHub.

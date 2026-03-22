@@ -201,15 +201,16 @@ a { text-decoration: none; }
   }
 }
 
-/* Ensure main content is pushed below the fixed header and avoid double gutters */
-/* Ensure main content is pushed below the fixed header and avoid double gutters */
-main.container { margin-top: 100px; padding-left: 0; padding-right: 0; }
+/* Push content below the fixed header (height ~80px) */
+main { padding-top: 82px; }
+/* Hero carousel sits flush against the header — cancel the main padding-top */
+main > #hero:first-child { margin-top: -82px; }
 
 /* Remove padding from nested containers inside main to prevent double gutters
    when templates include an additional .container wrapper */
-main.container .container {
-  padding-left: 0;
-  padding-right: 0;
+main .container {
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
   box-sizing: border-box;
 }
 
