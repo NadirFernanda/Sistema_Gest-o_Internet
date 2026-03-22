@@ -284,7 +284,7 @@ input[type="submit"] {
   align-items:center;
   justify-content:center;
   padding:0.55rem 1.05rem;
-  border-radius:999px;
+  border-radius:6px;
   font-weight:700;
   font-size:0.95rem;
   text-decoration:none;
@@ -454,7 +454,7 @@ input[type="submit"] {
 .social-link:hover { color:var(--brand); background: rgba(37,99,235,0.04); transform:translateY(-2px); }
 .newsletter-form { margin-top:.5rem; }
 .newsletter-input { padding:.6rem .75rem; border:1px solid var(--muted-border); border-radius:10px; min-width:0; flex:1; font-size:var(--body); }
-.newsletter-btn { background:var(--brand); color:var(--text-dark); padding:.6rem .95rem; border-radius:10px; border:none; font-weight:800; box-shadow: 0 10px 30px rgba(247,181,0,0.08); }
+.newsletter-btn { background:var(--brand); color:var(--text-dark); padding:.6rem .95rem; border-radius:6px; border:none; font-weight:800; box-shadow: 0 10px 30px rgba(247,181,0,0.08); }
 .newsletter-btn:hover { filter:brightness(.98); transform:translateY(-1px); }
 .newsletter-form > div { display:flex; gap:.5rem; }
 .contact-list { display:flex; flex-direction:column; gap:.5rem; margin-top:.25rem; }
@@ -836,7 +836,7 @@ input[type="submit"] {
   color: #111;
   text-align: center;
   padding: .6rem 1rem;
-  border-radius: .375rem;
+  border-radius: 6px;
   font-weight: 700;
   font-size: .9rem;
   text-decoration: none;
@@ -1039,7 +1039,7 @@ input[type="submit"] {
 .category-filter a {
   display: inline-block;
   padding: .35rem .85rem;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: .82rem;
   font-weight: 600;
   background: #f1f5f9;
@@ -1154,7 +1154,7 @@ input[type="submit"] {
 .equipment-card__kz { font-size: .78rem; font-weight: 600; color: var(--text-muted); }
 .equipment-card__cta {
   display: inline-flex; align-items: center; gap: .3rem;
-  padding: .4rem .8rem; border-radius: 999px;
+  padding: .4rem .8rem; border-radius: 6px;
   background: var(--brand); color: #111;
   font-size: .78rem; font-weight: 700;
   text-decoration: none;
@@ -1165,7 +1165,7 @@ input[type="submit"] {
 /* Buy / Order buttons (equipment detail page) */
 .btn-buy-now, .btn-order {
   display: inline-flex; align-items: center; gap: .4rem;
-  padding: .6rem 1.2rem; border-radius: .5rem;
+  padding: .6rem 1.2rem; border-radius: 6px;
   font-size: .95rem; font-weight: 700; cursor: pointer;
   border: none; transition: background .12s, transform .1s;
   text-decoration: none;
