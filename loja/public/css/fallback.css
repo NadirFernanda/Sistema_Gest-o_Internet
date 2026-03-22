@@ -418,7 +418,9 @@ button:hover, .btn-primary:hover, .btn-ghost:hover, a.btn-primary:hover, a.btn-g
 
 /* Footer styles - professional, accessible and responsive */
 /* Refined footer styles - 4-column responsive layout, refined typography */
-.site-footer { background: #0f172a; border-top: 3px solid var(--brand); color: #e2e8f0; padding: 3rem 0 1.25rem; font-size:var(--body); }
+.site-footer { background: #0f172a url('/img/carrossel3.jpg') center/cover no-repeat; position: relative; color: #e2e8f0; padding: 3rem 0 1.25rem; font-size:var(--body); border-top: 3px solid var(--brand); }
+.site-footer::before { content: ''; position: absolute; inset: 0; background: rgba(2,6,23,0.88); pointer-events: none; z-index: 0; }
+.footer-top-accent, .footer-inner, .footer-legal { position: relative; z-index: 1; }
 .site-footer a { color: #cbd5e1; text-decoration:none; }
 .site-footer a:hover { color:var(--brand); }
 .site-footer h4 { color: #f1f5f9; }
