@@ -398,11 +398,12 @@ input[type="submit"]:hover {
 .plan-card--featured .plan-desc { color: rgba(255,255,255,.55); }
 
 /* Footer / CTA */
-.plan-card-modern-footer { padding: 1.25rem 1.75rem 1.5rem; margin-top: auto; border-top: 1px solid rgba(226,232,240,.35); text-align: center; }
+.plan-card-modern-footer { padding: 1.25rem 1.75rem 1.5rem; margin-top: auto; border-top: 1px solid rgba(226,232,240,.35); display: flex; justify-content: center; }
 .plan-card--featured .plan-card-modern-footer { border-top-color: rgba(255,255,255,.08); }
-.plan-card-modern__footer { padding: 1rem 1.5rem 1.5rem; text-align: center; }
-.plan-card-modern .btn-buy-now { width: 100%; }
-.plan-card-modern .btn-modern { display: block; width: 100%; text-align: center; margin: 0 auto; }
+.plan-card-modern__footer { padding: 1rem 1.5rem 1.5rem; display: flex; justify-content: center; }
+.plan-card-modern .btn-buy-now { width: 100%; text-align: center; }
+.plan-card-modern .btn-modern,
+.plan-card-modern-footer .btn-modern { display: flex !important; justify-content: center; align-items: center; width: 100%; text-align: center; margin: 0 auto; }
 
 /* CTA overrides for featured dark card */
 .plan-card--featured .btn-modern {
