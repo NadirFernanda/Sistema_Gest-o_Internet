@@ -8,7 +8,6 @@
     {{-- ── Coluna 1: Marca ──────────────────────────────── --}}
     <div class="footer-col footer-brand-col">
       <a href="/" class="footer-brand-link" aria-label="Voltar à página inicial">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="AngolaWiFi" class="footer-logo" width="48" height="48">
         <span class="footer-brand-name">AngolaWiFi</span>
       </a>
       <p class="footer-tagline">Conectando vidas, lares e negócios em Angola.</p>

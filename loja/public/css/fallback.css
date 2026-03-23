@@ -646,13 +646,20 @@ input[type="submit"]:hover {
 /* =========================  19. FOOTER  ============================== */
 /* --- Base --- */
 .site-footer {
-  background: #0a0f1e; position: relative; color: #cbd5e1;
+  background: #0a0f1e url('../img/logo2.jpeg') no-repeat right 5% bottom 30%;
+  background-size: 220px auto;
+  position: relative; color: #cbd5e1;
   padding: 0; font-size: var(--body); overflow: hidden;
 }
 .site-footer::before {
   content: ''; position: absolute; inset: 0;
   background: radial-gradient(ellipse at 20% 0%, rgba(247,181,0,.07) 0%, transparent 55%),
-              radial-gradient(ellipse at 80% 100%, rgba(15,23,42,.95) 0%, transparent 70%);
+              radial-gradient(ellipse at 80% 100%, rgba(10,15,30,.92) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.site-footer::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(10,15,30,.82);
   pointer-events: none; z-index: 0;
 }
 
@@ -686,17 +693,8 @@ input[type="submit"]:hover {
 /* --- Brand column --- */
 .footer-brand-col { max-width: 320px; }
 .footer-brand-link {
-  display: flex; align-items: center; gap: .8rem; text-decoration: none;
+  display: inline-flex; align-items: center; text-decoration: none;
   margin-bottom: .85rem;
-}
-.footer-brand-link:hover .footer-logo {
-  transform: scale(1.05); box-shadow: 0 8px 28px rgba(247,181,0,.18);
-}
-.footer-logo {
-  width: 48px; height: 48px; object-fit: cover; border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.35);
-  border: 2px solid rgba(247,181,0,.15);
-  transition: transform .25s var(--ease), box-shadow .25s var(--ease);
 }
 .footer-brand-name {
   font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em;
@@ -859,8 +857,8 @@ input[type="submit"]:hover {
   .store-header-inner { gap: 8px; }
 
   /* Footer */
+  .site-footer { background-image: none; }
   .footer-inner { gap: 2rem; padding: 2.5rem var(--page-gutter) 2rem; }
-  .footer-logo { width: 40px; height: 40px; }
   .footer-brand-name { font-size: 1.2rem; }
   .footer-contact-list li { gap: .5rem; }
   .footer-contact-icon { width: 28px; height: 28px; }
