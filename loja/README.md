@@ -339,6 +339,10 @@ sudo systemctl reload nginx
 # No servidor de produção (SSH)
 cd /var/www/sgmr/loja
 git fetch origin && git reset --hard origin/main
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan optimize:clear
+php artisan optimize
 npm run build
 sudo systemctl reload php8.4-fpm nginx
 ```
