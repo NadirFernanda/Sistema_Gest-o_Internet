@@ -74,16 +74,41 @@ class ResellerPanelController extends Controller
                 $allPurchases = ResellerPurchase::where('reseller_application_id', $application->id)
                     ->where('status', 'completed')
                     ->get();
+
+                // Backfill plan_slug/plan_name for legacy purchases that have NULL values
+                $planMap = VoucherPlan::all()->keyBy('slug');
+                $purchasesWithNullSlug = $allPurchases->whereNull('plan_slug');
+                if ($purchasesWithNullSlug->isNotEmpty()) {
+                    $wifiCodePlanIds = WifiCode::whereIn('reseller_purchase_id', $purchasesWithNullSlug->pluck('id'))
+                        ->selectRaw('reseller_purchase_id, plan_id')
+                        ->groupBy('reseller_purchase_id', 'plan_id')
+                        ->get()
+                        ->keyBy('reseller_purchase_id');
+
+                    foreach ($purchasesWithNullSlug as $p) {
+                        $wc = $wifiCodePlanIds->get($p->id);
+                        if ($wc) {
+                            $detectedSlug = $wc->plan_id;
+                            $detectedName = optional($planMap->get($detectedSlug))->name ?? $detectedSlug;
+                            // Persist correct values so the DB is self-healing
+                            $p->update(['plan_slug' => $detectedSlug, 'plan_name' => $detectedName]);
+                            $p->plan_slug = $detectedSlug;
+                            $p->plan_name = $detectedName;
+                        }
+                    }
+                }
+
                 foreach ($allPurchases as $p) {
                     $totals['total_invested'] += $p->net_amount_aoa;
                     $totals['vouchers_total'] += $p->codes_count;
                     $totals['profit_total']   += ($p->profit_aoa ?? 0);
                     $estimatedProfit          += ($p->profit_aoa ?? ($p->gross_amount_aoa - $p->net_amount_aoa));
 
-                    $slug = $p->plan_slug ?? 'N/A';
+                    $slug = $p->plan_slug ?? 'desconhecido';
                     if (!isset($salesReport[$slug])) {
+                        $planLabel = $p->plan_name ?? optional($planMap->get($slug))->name ?? $slug;
                         $salesReport[$slug] = [
-                            'plan_name'     => $p->plan_name ?? $slug,
+                            'plan_name'       => $planLabel,
                             'vouchers_bought' => 0,
                             'vouchers_sold'   => 0,
                             'invested_aoa'    => 0,
