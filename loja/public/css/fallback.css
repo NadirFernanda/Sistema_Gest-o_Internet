@@ -430,7 +430,7 @@ input[type="submit"]:hover {
 .info-card p { font-size: .8rem; color: var(--text-muted); margin: 0; line-height: 1.65; }
 
 .howto-section { padding: 4rem 1rem; max-width: var(--page-max-width); margin: 0 auto; }
-.howto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; counter-reset: step; }
+.howto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; counter-reset: step; justify-content: center; }
 .step-card { position: relative; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 2rem 1.25rem 1.5rem; text-align: center; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
 .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.06); }
 .step-num { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: #111; font-weight: 900; font-size: .85rem; margin: 0 auto .85rem; box-shadow: 0 4px 12px rgba(247,181,0,.25); }
