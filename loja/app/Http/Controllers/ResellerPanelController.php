@@ -33,6 +33,15 @@ class ResellerPanelController extends Controller
         $monthlySpend    = 0;
         $estimatedProfit = 0;
 
+        // Pre-load application before building cart so pricing is mode-aware
+        if ($resellerId) {
+            $application = ResellerApplication::find($resellerId);
+            if (!$application) {
+                $request->session()->forget('reseller_id');
+                $resellerId = null;
+            }
+        }
+
         $voucherPlans = VoucherPlan::active()->get();
         $cart         = $request->session()->get(self::CART_SESSION, []);
 
@@ -44,7 +53,8 @@ class ResellerPanelController extends Controller
         foreach ($cart as $slug => $qty) {
             $plan = $voucherPlans->firstWhere('slug', $slug);
             if ($plan && $qty > 0) {
-                $subtotal        = $plan->price_reseller_aoa * $qty;
+                $unitPrice       = $plan->resellerPriceFor($application);
+                $subtotal        = $unitPrice * $qty;
                 $subtotalPublic  = $plan->price_public_aoa  * $qty;
                 $cartItems[]     = [
                     'plan'           => $plan,
@@ -62,11 +72,8 @@ class ResellerPanelController extends Controller
         // Sales report: per-plan breakdown across all purchases
         $salesReport = [];
 
-        if ($resellerId) {
-            $application = ResellerApplication::find($resellerId);
-
-            if ($application) {
-                $purchases = ResellerPurchase::where('reseller_application_id', $application->id)
+        if ($resellerId && $application) {
+            $purchases = ResellerPurchase::where('reseller_application_id', $application->id)
                     ->orderByDesc('id')
                     ->paginate(10);
 
@@ -139,9 +146,6 @@ class ResellerPanelController extends Controller
                 }
 
                 $monthlySpend = $application->monthlySpendings();
-            } else {
-                $request->session()->forget('reseller_id');
-            }
         }
 
         $otpEmail   = $request->session()->get('reseller_otp_email');
@@ -302,12 +306,12 @@ class ResellerPanelController extends Controller
 
         $voucherPlans = VoucherPlan::active()->get()->keyBy('slug');
 
-        // Enforce minimum purchase amount
+        // Enforce minimum purchase amount (using mode-aware pricing)
         $cartTotal = 0;
         foreach ($cart as $slug => $qty) {
             $plan = $voucherPlans->get($slug);
             if ($plan) {
-                $cartTotal += $plan->price_reseller_aoa * (int) $qty;
+                $cartTotal += $plan->resellerPriceFor($application) * (int) $qty;
             }
         }
         $minPurchase = (int) config('reseller.min_purchase_aoa', 10000);
@@ -348,7 +352,7 @@ class ResellerPanelController extends Controller
                         throw new \RuntimeException("Stock insuficiente para {$plan->name} no momento do checkout.");
                     }
 
-                    $unitPrice = $plan->price_reseller_aoa;
+                    $unitPrice = $plan->resellerPriceFor($application);
                     $netAmount = $unitPrice * $qty;
                     $grossAmt  = $plan->price_public_aoa * $qty;
                     $profit    = $grossAmt - $netAmount;

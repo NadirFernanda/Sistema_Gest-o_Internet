@@ -26,17 +26,50 @@ class VoucherPlan extends Model
         return $this->hasMany(ResellerPurchase::class, 'voucher_plan_id');
     }
 
-    /** Lucro por voucher para o revendedor */
+    /** Preço efectivo para um revendedor específico, considerando o modo (own/angolawifi) */
+    public function resellerPriceFor(?\App\Models\ResellerApplication $application): int
+    {
+        if (!$application) return $this->price_reseller_aoa;
+
+        if ($application->reseller_mode === 'own') {
+            $discount = config('reseller.mode_own_discount_percent', 70);
+            return (int) round($this->price_public_aoa * (1 - $discount / 100));
+        }
+
+        // angolawifi: escalão baseado no gasto mensal acumulado
+        $tiers        = config('reseller.mode_angolawifi_discount_tiers', []);
+        $monthlySpend = $application->monthlySpendings();
+        $discount = 0;
+        foreach ($tiers as $min => $pct) {
+            if ($monthlySpend >= $min) $discount = $pct;
+        }
+        return (int) round($this->price_public_aoa * (1 - $discount / 100));
+    }
+
+    /** Lucro por voucher para o revendedor (modo-aware) */
     public function profitPerVoucher(): int
     {
         return $this->price_public_aoa - $this->price_reseller_aoa;
     }
 
-    /** Margem em percentagem */
+    /** Lucro por voucher para um revendedor específico */
+    public function profitForReseller(?\App\Models\ResellerApplication $application): int
+    {
+        return $this->price_public_aoa - $this->resellerPriceFor($application);
+    }
+
+    /** Margem em percentagem (estática, sobre price_reseller_aoa) */
     public function marginPercent(): float
     {
         if ($this->price_public_aoa === 0) return 0;
         return round(($this->profitPerVoucher() / $this->price_public_aoa) * 100, 1);
+    }
+
+    /** Margem em percentagem para um revendedor específico */
+    public function marginPercentForReseller(?\App\Models\ResellerApplication $application): float
+    {
+        if ($this->price_public_aoa === 0) return 0;
+        return round(($this->profitForReseller($application) / $this->price_public_aoa) * 100, 1);
     }
 
     /** Conta vouchers disponíveis em stock */

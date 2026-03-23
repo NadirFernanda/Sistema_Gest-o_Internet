@@ -780,11 +780,11 @@
                 <div class="rv-plan-prices">
                   <div class="rv-plan-price-row">
                     <span class="rv-price-label">O seu preço</span>
-                    <span class="rv-price-reseller">{{ number_format($plan->price_reseller_aoa, 0, ',', '.') }} Kz</span>
+                    <span class="rv-price-reseller">{{ number_format($plan->resellerPriceFor($application), 0, ',', '.') }} Kz</span>
                   </div>
                   <div class="rv-plan-price-row">
                     <span class="rv-price-label">Lucro / voucher</span>
-                    <span class="rv-price-profit">+{{ number_format($plan->profitPerVoucher(), 0, ',', '.') }} Kz ({{ $plan->marginPercent() }}%)</span>
+                    <span class="rv-price-profit">+{{ number_format($plan->profitForReseller($application), 0, ',', '.') }} Kz ({{ $plan->marginPercentForReseller($application) }}%)</span>
                   </div>
                 </div>
 
