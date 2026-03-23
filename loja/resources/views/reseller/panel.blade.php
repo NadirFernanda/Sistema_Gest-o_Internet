@@ -311,32 +311,58 @@
   display: flex;
   flex-direction: column;
   gap: .75rem;
-  justify-content: space-between;
   transition: box-shadow .2s, border-color .2s;
 }
 .rv-plan-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.09); border-color: #f7b500; }
 .rv-plan-card--out { opacity: .55; }
-.rv-plan-card-header {
-  display: flex;
-  flex-direction: column;
-  gap: .35rem;
-}
+.rv-plan-card-header { display:flex; align-items:center; gap:.6rem; }
+.rv-plan-emoji { font-size: 1.6rem; line-height:1; }
 .rv-plan-name {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a;
 }
-.rv-plan-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
-.rv-badge {
-  display: inline-block;
-  padding: .15rem .55rem;
-  border-radius: 9999px;
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .03em;
+/* Public price — big, same prominence as main page */
+.rv-plan-price-public-big {
+  display: flex;
+  align-items: baseline;
+  gap: .25rem;
 }
-.rv-badge-validity { background: #eff6ff; color: #1d4ed8; }
-.rv-badge-speed    { background: #f0fdf4; color: #15803d; }
+.rv-price-big-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+.rv-price-big-cur {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+}
+/* Feature list — same as main page */
+.rv-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  font-size: .88rem;
+  color: #374151;
+}
+.rv-plan-features li::before { content: "✔ "; color: #16a34a; font-weight: 700; }
+.rv-plan-desc {
+  font-size: .83rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0;
+}
+/* Separator before reseller-specific section */
+.rv-plan-reseller-sep {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: .25rem 0;
+}
 .rv-plan-prices { display: flex; flex-direction: column; gap: .3rem; }
 .rv-plan-price-row {
   display: flex;
@@ -345,11 +371,8 @@
   font-size: .88rem;
 }
 .rv-price-label { color: #64748b; }
-.rv-price-public   { font-weight: 600; color: #374151; }
 .rv-price-reseller { font-weight: 800; color: #0f172a; font-size: 1rem; }
 .rv-price-profit   { font-weight: 700; color: #16a34a; }
-.rv-plan-price-row--reseller { background: #fffbeb; padding: .25rem .5rem; border-radius: .4rem; margin: .1rem 0; }
-.rv-plan-price-row--profit   { color: #16a34a; }
 .rv-plan-stock { font-size: .8rem; font-weight: 600; }
 .rv-plan-stock.ok { color: #15803d; }
 .rv-plan-stock.out { color: #dc2626; }
@@ -716,26 +739,50 @@
         @else
           <div class="rv-plan-grid">
             @foreach($voucherPlans as $plan)
-              @php $stock = $plan->availableStock(); @endphp
+              @php
+                $stock   = $plan->availableStock();
+                $pcfg    = $storePlansConfig->get($plan->slug);
+                $emoji   = $pcfg
+                  ? (str_contains(strtolower($pcfg['name']), 'dia') ? '🌞'
+                    : (str_contains(strtolower($pcfg['name']), 'semana') ? '📅'
+                    : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
+                  : '💡';
+              @endphp
               <div class="rv-plan-card {{ $stock === 0 ? 'rv-plan-card--out' : '' }}">
+
+                {{-- Cabeçalho: igual à página pública --}}
                 <div class="rv-plan-card-header">
+                  <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
                   <span class="rv-plan-name">{{ $plan->name }}</span>
-                  <span class="rv-plan-badges">
-                    <span class="rv-badge rv-badge-validity">{{ $plan->validity_label }}</span>
-                    <span class="rv-badge rv-badge-speed">{{ $plan->speed_label }}</span>
-                  </span>
                 </div>
 
+                {{-- Preço público em destaque, igual à página pública --}}
+                <div class="rv-plan-price-public-big">
+                  <span class="rv-price-big-num">{{ number_format($plan->price_public_aoa, 0, ',', '.') }}</span>
+                  <span class="rv-price-big-cur">Kz</span>
+                </div>
+
+                {{-- Features: duração, velocidade, downloads — mesmas da página pública --}}
+                <ul class="rv-plan-features">
+                  <li><strong>{{ $plan->validity_label }}</strong></li>
+                  <li>{{ $plan->speed_label }}</li>
+                  @if($pcfg && !empty($pcfg['download']))<li>{{ $pcfg['download'] }}</li>@endif
+                </ul>
+
+                @if($pcfg && !empty($pcfg['description']))
+                  <p class="rv-plan-desc">{{ $pcfg['description'] }}</p>
+                @endif
+
+                {{-- Separador antes da secção exclusiva do revendedor --}}
+                <hr class="rv-plan-reseller-sep">
+
+                {{-- Preço revendedor + lucro (info extra para o agente) --}}
                 <div class="rv-plan-prices">
                   <div class="rv-plan-price-row">
-                    <span class="rv-price-label">Preço público</span>
-                    <span class="rv-price-public">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} Kz</span>
-                  </div>
-                  <div class="rv-plan-price-row rv-plan-price-row--reseller">
                     <span class="rv-price-label">O seu preço</span>
                     <span class="rv-price-reseller">{{ number_format($plan->price_reseller_aoa, 0, ',', '.') }} Kz</span>
                   </div>
-                  <div class="rv-plan-price-row rv-plan-price-row--profit">
+                  <div class="rv-plan-price-row">
                     <span class="rv-price-label">Lucro / voucher</span>
                     <span class="rv-price-profit">+{{ number_format($plan->profitPerVoucher(), 0, ',', '.') }} Kz ({{ $plan->marginPercent() }}%)</span>
                   </div>

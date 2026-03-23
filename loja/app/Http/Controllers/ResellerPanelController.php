@@ -147,21 +147,24 @@ class ResellerPanelController extends Controller
         $otpEmail   = $request->session()->get('reseller_otp_email');
         $otpPending = !$application && $otpEmail;
 
+        $storePlansConfig = collect(config('store_plans.individual', []))->keyBy('id');
+
         return view('reseller.panel', [
-            'application'     => $application,
-            'purchases'       => $purchases,
-            'totals'          => $totals,
-            'monthlySpend'    => $monthlySpend,
-            'estimatedProfit' => $estimatedProfit,
-            'voucherPlans'    => $voucherPlans,
-            'cartItems'       => $cartItems,
-            'cartTotal'       => $cartTotal,
-            'cartProfit'      => $cartProfit,
-            'cartVouchers'    => $cartVouchers,
-            'otpPending'      => $otpPending,
-            'otpEmail'        => $otpEmail,
-            'salesReport'     => $salesReport,
-            'minPurchaseAoa'  => (int) config('reseller.min_purchase_aoa', 10000),
+            'application'      => $application,
+            'purchases'        => $purchases,
+            'totals'           => $totals,
+            'monthlySpend'     => $monthlySpend,
+            'estimatedProfit'  => $estimatedProfit,
+            'voucherPlans'     => $voucherPlans,
+            'cartItems'        => $cartItems,
+            'cartTotal'        => $cartTotal,
+            'cartProfit'       => $cartProfit,
+            'cartVouchers'     => $cartVouchers,
+            'otpPending'       => $otpPending,
+            'otpEmail'         => $otpEmail,
+            'salesReport'      => $salesReport,
+            'minPurchaseAoa'   => (int) config('reseller.min_purchase_aoa', 10000),
+            'storePlansConfig' => $storePlansConfig,
         ]);
     }
 
