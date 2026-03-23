@@ -7,9 +7,12 @@
 
       <div class="hero__slide" style="background-image:url('/img/carrossel1.webp')">
         <div class="hero__card">
-          <span class="hero__eyebrow">Internet Residencial</span>
-          <h1 class="hero__title">WiFi Ilimitada<br><strong>A partir de 6 Mbps</strong></h1>
-          <p class="hero__desc">Planos ideais para famílias que querem streaming, jogos e navegação sem interrupções. Conexão estável, velocidades reais e preços claros.</p>
+          <span class="hero__eyebrow">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
+            Internet Residencial
+          </span>
+          <h1 class="hero__title">WiFi Ilimitada<br><strong>A partir de 6&nbsp;Mbps</strong></h1>
+          <p class="hero__desc">Planos para famílias, estudantes e profissionais — streaming, jogos e navegação sem interrupções. Velocidades reais, preços claros.</p>
           <div class="hero__actions">
             <a href="#planos" class="btn-primary">Ver Planos</a>
             <a href="/como-comprar" class="btn-ghost">Saiba Mais</a>
@@ -19,24 +22,30 @@
 
       <div class="hero__slide" data-bg="/img/carrossel2.webp">
         <div class="hero__card">
-          <span class="hero__eyebrow">Soluções Empresariais</span>
-          <h1 class="hero__title">Internet<br><strong>Empresarial</strong></h1>
-          <p class="hero__desc">SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.</p>
+          <span class="hero__eyebrow">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
+            Soluções Empresariais
+          </span>
+          <h1 class="hero__title">Internet para<br><strong>o seu negócio</strong></h1>
+          <p class="hero__desc">SLA dedicado, suporte técnico prioritário e ligações estáveis para PMEs e grandes empresas. Planos de 25 a +150&nbsp;Mbps.</p>
           <div class="hero__actions">
-            <a href="#planos" class="btn-primary">Ver Soluções</a>
-            <a href="/como-comprar" class="btn-ghost">Contactar Vendas</a>
+            <a href="#planos-empresariais" class="btn-primary">Ver Soluções</a>
+            <a href="/como-comprar" class="btn-ghost">Fale Connosco</a>
           </div>
         </div>
       </div>
 
       <div class="hero__slide" data-bg="/img/carrossel3.webp">
         <div class="hero__card">
-          <span class="hero__eyebrow">Instalação Rápida</span>
-          <h1 class="hero__title">Instalamos em<br><strong>até 48 horas!</strong></h1>
-          <p class="hero__desc">Rápido, fácil e sem complicações.</p>
+          <span class="hero__eyebrow">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
+            Instalação Rápida
+          </span>
+          <h1 class="hero__title">Instalado<br><strong>em até 48 horas</strong></h1>
+          <p class="hero__desc">Técnicos especializados, equipamentos incluídos e activação imediata. Sem burocracia, sem surpresas.</p>
           <div class="hero__actions">
-            <a href="#planos" class="btn-primary">Agendar Instalação</a>
-            <a href="/como-comprar" class="btn-ghost">Fale Connosco</a>
+            <a href="#planos" class="btn-primary">Escolher Plano</a>
+            <a href="/como-comprar" class="btn-ghost">Como Funciona</a>
           </div>
         </div>
       </div>
@@ -49,6 +58,11 @@
     <button class="hero__arrow hero__arrow--next" aria-label="Próximo slide">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
+
+    {{-- Scroll hint --}}
+    <a href="#planos" class="hero__scroll-hint" aria-label="Ver planos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </a>
 
     <div class="hero__dots" role="tablist" aria-label="Navegar slides">
       <button class="hero__dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-slide="0"></button>
@@ -106,9 +120,13 @@
   <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
+        <div class="section-header__tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Compra sem conta
+        </div>
         <h2>Planos Individuais</h2>
         <div class="section-header__rule"></div>
-        <p><strong>Tenha autonomia total:</strong> compre seu código de acesso e conecte-se de forma independente em qualquer ponto da rede <strong>AngolaWiFi.</strong></p>
+        <p>Compre o seu código e conecte-se imediatamente. Sem contratos, sem burocracia — só internet.</p>
       </div>
 
       <div class="plans-grid plans-grid--individual" aria-live="polite">
@@ -151,13 +169,54 @@
     </div>
   </section>
 
+{{-- Como Funciona --}}
+<section class="howto-section howto-section--home">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header__tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Rápido e fácil
+      </div>
+      <h2>Como Funciona</h2>
+      <div class="section-header__rule"></div>
+      <p>Em menos de 2 minutos tens internet. Sem conta, sem password, sem esperas.</p>
+    </div>
+    <div class="howto-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Escolhe o plano</h3>
+        <p>Selecciona o plano que melhor se adapta — diário, semanal ou mensal.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Preenche os dados</h3>
+        <p>Nome, telefone e referência de pagamento. Simples, rápido e seguro.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Efectua o pagamento</h3>
+        <p>Paga por Multicaixa Express ou transferência bancária — tudo em segundos.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Recebe o código</h3>
+        <p>O seu código WiFi é enviado por email imediatamente após confirmação.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 {{-- Planos Familiares --}}
 <section class="planos-section planos-section--family" id="planos-familiares">
   <div class="container">
     <div class="section-header">
+      <div class="section-header__tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Para toda a família
+      </div>
       <h2>Planos Familiares</h2>
       <div class="section-header__rule"></div>
-      <p>Planos residenciais para famílias — navegação partilhada, velocidades reais e preços acessíveis. Carregados directamente do sistema de gestão.</p>
+      <p>Uma única ligação para todos em casa. Velocidades dedicadas, estabilidade garantida.</p>
     </div>
     <div class="plans-grid plans-grid--individual" id="familiar-plans-grid" aria-live="polite">
       <div class="family-loading">
@@ -173,9 +232,13 @@
 <section class="planos-section planos-section--company" id="planos-empresariais">
   <div class="container">
     <div class="section-header">
+      <div class="section-header__tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        SLA dedicado
+      </div>
       <h2>Planos Empresariais</h2>
       <div class="section-header__rule"></div>
-      <p>Soluções para empresas — SLA dedicado, suporte técnico prioritário e conexões estáveis para o seu negócio.</p>
+      <p>Conectividade de alta performance para PMEs e grandes empresas. Suporte prioritário 24/7.</p>
     </div>
     <div class="plans-grid plans-grid--individual" id="empresarial-plans-grid" aria-live="polite">
       <div class="family-loading">
@@ -191,9 +254,13 @@
 <section class="planos-section planos-section--institutional" id="planos-institucionais">
   <div class="container">
     <div class="section-header">
+      <div class="section-header__tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+        Sector público e privado
+      </div>
       <h2>Planos Institucionais</h2>
       <div class="section-header__rule"></div>
-      <p>Planos para instituições públicas e privadas — conectividade fiável, escalável e adaptada às necessidades organizacionais.</p>
+      <p>Conectividade escalável e fiável para instituições do Estado, escolas, hospitais e organizações.</p>
     </div>
     <div class="plans-grid plans-grid--individual" id="institucional-plans-grid" aria-live="polite">
       <div class="family-loading">
