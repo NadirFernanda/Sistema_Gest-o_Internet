@@ -646,8 +646,8 @@ input[type="submit"]:hover {
 /* =========================  19. FOOTER  ============================== */
 /* --- Base --- */
 .site-footer {
-  background: #0a0f1e url('../img/logo2.jpeg') no-repeat right 5% bottom 30%;
-  background-size: 220px auto;
+  background: #0a0f1e url('../img/carrossel2.jpg') no-repeat center center;
+  background-size: cover;
   position: relative; color: #cbd5e1;
   padding: 0; font-size: var(--body); overflow: hidden;
 }
