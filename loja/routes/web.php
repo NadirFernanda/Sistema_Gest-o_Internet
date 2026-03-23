@@ -73,6 +73,10 @@ Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'sho
 Route::post('/painel-revendedor/pagamento/confirmar', [ResellerPanelController::class, 'confirmPayment'])->name('reseller.panel.payment.confirm');
 Route::post('/painel-revendedor/pagamento/cancelar', [ResellerPanelController::class, 'cancelPayment'])->name('reseller.panel.payment.cancel');
 
+// Taxa de manutenção — pagamento pelo revendedor
+Route::get('/painel-revendedor/taxa-manutencao', [ResellerPanelController::class, 'showMaintenancePayment'])->name('reseller.maintenance.payment');
+Route::post('/painel-revendedor/taxa-manutencao/confirmar', [ResellerPanelController::class, 'confirmMaintenancePayment'])->name('reseller.maintenance.payment.confirm');
+
 // Carrinho de vouchers do revendedor
 Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
 Route::post('/painel-revendedor/carrinho/remover', [ResellerPanelController::class, 'cartRemove'])->name('reseller.cart.remove');

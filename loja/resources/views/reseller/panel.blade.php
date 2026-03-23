@@ -581,13 +581,19 @@
 
       {{-- Alerts --}}
       @if($application->maintenanceDueThisMonth())
-        <div class="rv-alert danger">
-          <span class="rv-alert-icon">🔔</span>
-          <div>
-            <strong>Taxa de manutenção em atraso</strong>
-            Valor em dívida: {{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz.
-            Por favor contacte a AngolaWiFi para regularizar.
+        <div class="rv-alert danger" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div style="display:flex;align-items:flex-start;gap:.65rem;">
+            <span class="rv-alert-icon">🔔</span>
+            <div>
+              <strong>Taxa de manutenção em atraso</strong><br>
+              Valor em dívida: {{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz.
+            </div>
           </div>
+          <a href="{{ route('reseller.maintenance.payment') }}"
+             style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#dc2626;color:#fff;border-radius:.6rem;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .15s;"
+             onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+            💳 Pagar agora
+          </a>
         </div>
       @endif
       @if($application->monthly_target_aoa > 0 && !$application->metMonthlyTarget())

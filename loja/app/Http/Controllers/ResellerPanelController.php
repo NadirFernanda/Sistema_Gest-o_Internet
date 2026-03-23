@@ -509,6 +509,52 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
+    //  Taxa de manutenção — página de pagamento
+    // ─────────────────────────────────────────────────────────────
+    public function showMaintenancePayment(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        if (!$application->maintenanceDueThisMonth()) {
+            return redirect()->route('reseller.panel')
+                ->with('status', 'Não há taxa de manutenção em dívida no mês actual.');
+        }
+
+        $amount    = $application->maintenanceFeeAoa();
+        $mcxEntity = '00372';
+        $mcxRef    = str_pad($application->id * 31 + 500000, 9, '0', STR_PAD_LEFT);
+
+        return view('reseller.maintenance-payment', compact('application', 'amount', 'mcxEntity', 'mcxRef'));
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Taxa de manutenção — confirmar pagamento
+    // ─────────────────────────────────────────────────────────────
+    public function confirmMaintenancePayment(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        $data = $request->validate([
+            'payment_method'    => ['required', 'string', 'in:multicaixa,transferencia,multicaixa_express'],
+            'payment_reference' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $application->update([
+            'maintenance_paid_year' => now()->year,
+            'maintenance_status'    => ResellerApplication::MAINTENANCE_OK,
+        ]);
+
+        return redirect()->route('reseller.panel')
+            ->with('status', '✅ Pagamento da taxa de manutenção registado com sucesso! Obrigado.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
     //  Compra legacy (mantida para compatibilidade)
     // ─────────────────────────────────────────────────────────────
     public function storePurchase(Request $request)
