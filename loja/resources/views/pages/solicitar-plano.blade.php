@@ -248,5 +248,16 @@
   border-color: #86efac !important;
   background: #f0fdf4 !important;
 }
+
+@media (max-width: 480px) {
+  .checkout-phone-group {
+    flex-direction: column;
+  }
+  .checkout-lookup-btn {
+    width: 100%;
+    padding: .6rem 1rem;
+    text-align: center;
+  }
+}
 </style>
 @endpush

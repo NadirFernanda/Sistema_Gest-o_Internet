@@ -215,6 +215,32 @@
 .rv-total-bar .lbl { font-size: .8rem; font-weight: 600; opacity: .65; }
 .rv-total-bar .amount { font-size: 1.6rem; font-weight: 900; letter-spacing: -.02em; color: #f7b500; }
 .rv-total-bar .profit { font-size: .85rem; font-weight: 700; color: #86efac; margin-top: .1rem; }
+
+@media (max-width: 640px) {
+  .rv-pay-wrap { padding: 0; }
+  .rv-methods-grid { grid-template-columns: 1fr; }
+  .rv-total-bar {
+    flex-direction: column;
+    text-align: center;
+    gap: .75rem;
+    padding: 1rem;
+  }
+  .rv-total-bar div[style*="text-align:right"] { text-align: center !important; }
+  .rv-total-bar .amount { font-size: 1.3rem; }
+  .rv-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .15rem;
+  }
+  .rv-detail-value { font-size: .85rem; word-break: break-all; }
+  .rv-detail-value.big { font-size: 1rem; }
+  .rv-detail-box { padding: .85rem 1rem; }
+  .rv-sum-table th { font-size: .65rem; padding: .35rem .4rem; }
+  .rv-sum-table td { font-size: .8rem; padding: .5rem .4rem; }
+  .rv-sum-tfoot td { font-size: .85rem; padding: .65rem .4rem; }
+  .rv-panel { padding: 1rem; }
+  .rv-btn-confirm { font-size: .92rem; padding: .85rem 1rem; }
+}
 </style>
 @endpush
 

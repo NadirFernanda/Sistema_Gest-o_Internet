@@ -132,10 +132,15 @@
 .sl-empty-title { font-size: 1rem; font-weight: 700; color: var(--sl-muted); margin-bottom: .3rem; }
 
 @media (max-width: 640px) {
-  .sl-sell-bar { flex-direction: column; align-items: stretch; text-align: center; }
-  .sl-sell-bar .sl-sell-actions { justify-content: center; }
+  .sl-sell-bar { flex-direction: column; align-items: stretch; text-align: center; padding: .85rem 1rem; }
+  .sl-sell-bar .sl-sell-actions { justify-content: center; flex-direction: column; }
   .sl-customer-input { width: 100%; }
   .sl-voucher-grid { grid-template-columns: 1fr; }
+  .sl-qty-input { width: 60px; }
+  .sl-qty-row { gap: .35rem; }
+  .sl-summary { grid-template-columns: 1fr 1fr; }
+  .sl-recent-table th, .sl-recent-table td { padding: .4rem .5rem; font-size: .78rem; }
+  .sl-btn { padding: .55rem 1rem; font-size: .85rem; width: 100%; justify-content: center; }
 }
 </style>
 @endpush

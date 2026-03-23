@@ -218,5 +218,28 @@
     color: #94a3b8;
     text-align: center;
 }
+
+@media (max-width: 640px) {
+    .pagar-plano-valor {
+        font-size: 1.2rem;
+    }
+    .pagar-plano-ref {
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+    .pagar-plano-instrucoes {
+        padding: 0.85rem 1rem;
+    }
+    .pagar-plano-instrucoes h2 {
+        font-size: 0.9rem;
+    }
+    .pagar-plano-steps {
+        font-size: 0.85rem;
+        padding-left: 1rem;
+    }
+    .pagar-plano-detalhe {
+        padding: 0.75rem 0.9rem;
+    }
+}
 </style>
 @endpush

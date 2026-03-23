@@ -447,6 +447,17 @@
   .rv-panel { padding: 1.1rem 1rem; }
   .rv-purchase-form { flex-direction: column; }
   .rv-btn-buy { width: 100%; text-align: center; }
+  .rv-disc-table { max-width: 100%; }
+  .rv-disc-table th, .rv-disc-table td { padding: .4rem .55rem; font-size: .82rem; }
+  .rv-hist-table { min-width: 420px; }
+  .rv-hist-table th, .rv-hist-table td { padding: .45rem .55rem; font-size: .8rem; }
+  .rv-stats { grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .rv-plan-grid { grid-template-columns: 1fr; }
+  .rv-plan-add-form { flex-direction: column; }
+  .rv-qty-input { width: 100%; }
+  .rv-btn-add { width: 100%; text-align: center; }
+  .rv-cart-footer { flex-direction: column; align-items: stretch; text-align: center; }
+  .rv-cart-actions { justify-content: center; }
 }
 </style>
 @endpush

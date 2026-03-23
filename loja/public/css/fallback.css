@@ -728,7 +728,7 @@ input[type="submit"]:hover {
 .footer-links a:hover::before { opacity: 1; left: -8px; }
 
 /* --- Contact column --- */
-.contact-list { display: flex; flex-direction: column; gap: .85rem; margin-top: .25rem; }
+.contact-list { display: flex; flex-direction: column; gap: .85rem; margin: 0; padding: 0; list-style: none; }
 .contact-list li {
   display: flex; align-items: flex-start; gap: .75rem;
 }
