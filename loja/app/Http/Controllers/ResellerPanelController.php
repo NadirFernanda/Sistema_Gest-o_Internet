@@ -306,7 +306,7 @@ class ResellerPanelController extends Controller
                 $cartTotal += $plan->price_reseller_aoa * (int) $qty;
             }
         }
-        $minPurchase = (int) config('reseller.min_purchase_aoa', 10000);
+        $minPurchase = (int) config('reseller.min_purchase_aoa', 2000);
         if ($cartTotal < $minPurchase) {
             $formatted = number_format($minPurchase, 0, ',', '.');
             return redirect()->route('reseller.panel')
