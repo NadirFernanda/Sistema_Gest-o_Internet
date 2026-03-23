@@ -705,6 +705,10 @@ class ResellerPanelController extends Controller
 
         // Group in-stock codes by plan
         $stockByPlan = $inStockCodes->groupBy('plan_id');
+        $soldByPlan  = $soldCodes->groupBy('plan_id');
+
+        // All plan slugs that appear in either group (for the summary)
+        $allPlanSlugs = $stockByPlan->keys()->merge($soldByPlan->keys())->unique()->sort();
 
         // Plan info for display
         $voucherPlans = VoucherPlan::all()->keyBy('slug');
@@ -715,6 +719,8 @@ class ResellerPanelController extends Controller
         return view('reseller.sell', [
             'application'  => $application,
             'stockByPlan'  => $stockByPlan,
+            'soldByPlan'   => $soldByPlan,
+            'allPlanSlugs' => $allPlanSlugs,
             'voucherPlans' => $voucherPlans,
             'totalInStock'  => $inStockCodes->count(),
             'totalSold'     => $soldCodes->count(),

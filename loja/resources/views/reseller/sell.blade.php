@@ -185,17 +185,32 @@
   <div class="sl-summary">
     <div class="sl-card">
       <p class="sl-card-val" style="color:var(--sl-green)">{{ $totalInStock }}</p>
-      <p class="sl-card-lbl">Vouchers disponíveis</p>
+      <p class="sl-card-lbl">Total disponíveis</p>
     </div>
     <div class="sl-card">
       <p class="sl-card-val" style="color:var(--sl-muted)">{{ $totalSold }}</p>
-      <p class="sl-card-lbl">Já vendidos</p>
+      <p class="sl-card-lbl">Total vendidos</p>
     </div>
-    @foreach($stockByPlan as $planSlug => $codes)
-      @php $plan = $voucherPlans->get($planSlug); @endphp
+    @foreach($allPlanSlugs as $planSlug)
+      @php
+        $plan  = $voucherPlans->get($planSlug);
+        $avail = isset($stockByPlan[$planSlug]) ? $stockByPlan[$planSlug]->count() : 0;
+        $sold  = isset($soldByPlan[$planSlug])  ? $soldByPlan[$planSlug]->count()  : 0;
+      @endphp
       <div class="sl-card">
-        <p class="sl-card-val" style="color:var(--sl-blue)">{{ $codes->count() }}</p>
-        <p class="sl-card-lbl">{{ $plan ? $plan->name : $planSlug }} (em stock)</p>
+        <p class="sl-card-lbl" style="font-weight:700;color:var(--sl-text);margin-bottom:.4rem;">
+          {{ $plan ? $plan->name : $planSlug }}
+        </p>
+        <div style="display:flex;gap:1.1rem;">
+          <div>
+            <p class="sl-card-val" style="color:var(--sl-green);font-size:1.5rem;">{{ $avail }}</p>
+            <p class="sl-card-lbl">disponíveis</p>
+          </div>
+          <div>
+            <p class="sl-card-val" style="color:var(--sl-muted);font-size:1.5rem;">{{ $sold }}</p>
+            <p class="sl-card-lbl">vendidos</p>
+          </div>
+        </div>
       </div>
     @endforeach
   </div>
