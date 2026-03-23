@@ -807,6 +807,12 @@
             <span>Total a pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
             <span style="color:#16a34a;">Lucro potencial: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
           </div>
+          @if($cartTotal < $minPurchaseAoa)
+          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.65rem 1rem;margin:.5rem 0;color:#b91c1c;font-size:.9rem;font-weight:600;">
+            ⚠️ Compra mínima obrigatória: <strong>{{ number_format($minPurchaseAoa, 0, ',', '.') }} Kz</strong>.
+            Adicione mais vouchers ao carrinho para poder finalizar a compra.
+          </div>
+          @endif
           <div class="rv-cart-actions">
             <form action="{{ route('reseller.cart.clear') }}" method="POST" style="display:inline;">
               @csrf
@@ -814,6 +820,8 @@
             </form>
             @if(session()->has('reseller_pending_order'))
               <a href="{{ route('reseller.panel.payment') }}" class="rv-btn-buy">💳 Completar pagamento pendente</a>
+            @elseif($cartTotal < $minPurchaseAoa)
+              <button type="button" class="rv-btn-buy" disabled style="opacity:.45;cursor:not-allowed;">✅ Finalizar compra &amp; pagar</button>
             @else
               <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">
                 @csrf
@@ -844,10 +852,15 @@
               </thead>
               <tbody>
                 @foreach($purchases as $purchase)
-                  <tr>
+                  <tr @if($purchase->status === 'cancelled') style="opacity:.5;" @endif>
                     <td class="muted">#{{ $purchase->id }}</td>
                     <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
-                    <td>{{ $purchase->plan_name ?? '—' }}</td>
+                    <td>
+                      {{ $purchase->plan_name ?? '—' }}
+                      @if($purchase->status === 'cancelled')
+                        <span style="display:inline-block;margin-left:.35rem;font-size:.7rem;font-weight:700;background:#fee2e2;color:#b91c1c;border-radius:.25rem;padding:.1rem .4rem;">ANULADA</span>
+                      @endif
+                    </td>
                     <td class="r">{{ $purchase->codes_count }}</td>
                     <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
                     <td class="r" style="color:#16a34a;font-weight:700;">
@@ -858,6 +871,7 @@
                       @endif
                     </td>
                     <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
+                      @if($purchase->status !== 'cancelled')
                       <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
                          class="rv-csv-btn" style="border-color:#93c5fd;color:#2563eb;background:#eff6ff;">📦 Códigos</a>
                       <a href="{{ route('reseller.sell') }}"
@@ -866,6 +880,9 @@
                          class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
                       <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
                          class="rv-csv-btn">⬇ CSV</a>
+                      @else
+                        <span style="color:#9ca3af;font-size:.82rem;">Compra anulada</span>
+                      @endif
                     </td>
                   </tr>
                 @endforeach

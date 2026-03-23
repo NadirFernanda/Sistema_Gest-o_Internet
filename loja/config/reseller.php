@@ -5,7 +5,7 @@ return [
     'code_unit_price_aoa' => env('RESELLER_CODE_UNIT_PRICE', 200),
 
     // Compra mínima obrigatória em Kz (regra de negócio)
-    'min_purchase_aoa' => 2000,
+    'min_purchase_aoa' => 10000,
 
     // ─── Modo 1: Revendedor com Internet Própria ──────────────────────────────
     // Desconto fixo de 70% — o revendedor paga 30% do valor de face.
