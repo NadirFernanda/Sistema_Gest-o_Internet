@@ -9,7 +9,7 @@
 </div>
 
 <div class="page-body">
-  <div class="container" style="max-width:820px;">
+  <div class="container container--880">
 
     @if (session('success'))
       <div class="alert alert-success" role="alert">{{ session('success') }}</div>
@@ -41,21 +41,21 @@
                   $total += $subtotal;
                 @endphp
                 <tr>
-                  <td>
+                  <td data-label="Produto">
                     @if (!empty($item['image_path']))
                       <img src="{{ asset($item['image_path']) }}" alt="{{ $item['product_name'] }}"
                            style="width:48px;height:48px;object-fit:cover;border-radius:0.5rem;vertical-align:middle;margin-right:0.5rem;">
                     @endif
                     <strong>{{ $item['product_name'] }}</strong>
                   </td>
-                  <td style="text-align:right;">{{ number_format($item['unit_price_aoa'], 0, ',', '.') }} Kz</td>
-                  <td style="text-align:center;">{{ $item['quantity'] }}</td>
-                  <td style="text-align:right;font-weight:700;">{{ number_format($subtotal, 0, ',', '.') }} Kz</td>
-                  <td>
+                  <td data-label="Preço unit." style="text-align:right;">{{ number_format($item['unit_price_aoa'], 0, ',', '.') }} Kz</td>
+                  <td data-label="Qtd." style="text-align:center;">{{ $item['quantity'] }}</td>
+                  <td data-label="Subtotal" style="text-align:right;font-weight:700;">{{ number_format($subtotal, 0, ',', '.') }} Kz</td>
+                  <td data-label="">
                     <form method="POST" action="{{ route('equipment.cart.remove') }}">
                       @csrf
                       <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
-                      <button type="submit" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:1.1rem;" title="Remover">✕</button>
+                      <button type="submit" class="cart-remove-btn" aria-label="Remover {{ $item['product_name'] }}">✕</button>
                     </form>
                   </td>
                 </tr>

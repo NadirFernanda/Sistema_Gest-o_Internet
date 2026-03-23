@@ -9,7 +9,7 @@
 </div>
 
 <div class="page-body">
-  <div class="container" style="max-width:760px;">
+  <div class="container container--720">
 
     @if ($errors->any())
       <div class="alert alert-error" role="alert">
