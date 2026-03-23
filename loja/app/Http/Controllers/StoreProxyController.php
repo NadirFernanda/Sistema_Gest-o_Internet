@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Client;
 
 class StoreProxyController extends Controller
@@ -16,6 +17,11 @@ class StoreProxyController extends Controller
 
     protected function getToken(): ?string
     {
+        // Cache do token OAuth por 50 minutos (tokens tipicamente duram 1 hora)
+        if (Cache::has('sg_oauth_token')) {
+            return Cache::get('sg_oauth_token');
+        }
+
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
         $tokenPath = env('SG_OAUTH_TOKEN_PATH', '/api/oauth/token');
         $clientId = env('SG_CLIENT_ID');
@@ -32,10 +38,14 @@ class StoreProxyController extends Controller
                     'client_secret' => $clientSecret,
                 ],
                 'http_errors' => false,
-                'timeout' => 8,
+                'timeout' => 4,
             ]);
             $body = $this->decodeBody($res->getBody());
-            return $body['access_token'] ?? null;
+            $token = $body['access_token'] ?? null;
+            if ($token) {
+                Cache::put('sg_oauth_token', $token, now()->addMinutes(50));
+            }
+            return $token;
         } catch (\Exception $e) {
             return null;
         }
@@ -54,7 +64,7 @@ class StoreProxyController extends Controller
             $res = $http->get('/api/planos', [
                 'query' => $request->query(),
                 'http_errors' => false,
-                'timeout' => 8,
+                'timeout' => 4,
             ]);
 
             return response($res->getBody(), $res->getStatusCode())
@@ -72,6 +82,13 @@ class StoreProxyController extends Controller
     public function planTemplates(Request $request)
     {
         // Proxy para o catálogo público de templates de planos (familiares/empresariais)
+        // Cache de 10 minutos para evitar chamadas repetidas ao SG
+        $cacheKey = 'sg_plan_templates_' . md5(serialize($request->query()));
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return response($cached, 200)->header('Content-Type', 'application/json');
+        }
+
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
         $http = new Client(['base_uri' => $sg]);
 
@@ -79,10 +96,15 @@ class StoreProxyController extends Controller
             $res = $http->get('/api/plan-templates', [
                 'query' => $request->query(),
                 'http_errors' => false,
-                'timeout' => 8,
+                'timeout' => 4,
             ]);
 
             $clean = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+
+            if ($res->getStatusCode() === 200) {
+                Cache::put($cacheKey, $clean, now()->addMinutes(10));
+            }
+
             return response($clean, $res->getStatusCode())
                 ->header('Content-Type', 'application/json');
         } catch (\Exception $e) {
@@ -97,6 +119,13 @@ class StoreProxyController extends Controller
     public function equipmentCatalog(Request $request)
     {
         // Proxy para o catálogo público de equipamentos à venda (gerido no SG)
+        // Cache de 10 minutos para evitar chamadas repetidas ao SG
+        $cacheKey = 'sg_equipment_catalog_' . md5(serialize($request->query()));
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return response($cached, 200)->header('Content-Type', 'application/json');
+        }
+
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
         $http = new Client(['base_uri' => $sg]);
 
@@ -104,10 +133,15 @@ class StoreProxyController extends Controller
             $res = $http->get('/api/equipment-catalog', [
                 'query' => $request->query(),
                 'http_errors' => false,
-                'timeout' => 8,
+                'timeout' => 4,
             ]);
 
             $clean = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+
+            if ($res->getStatusCode() === 200) {
+                Cache::put($cacheKey, $clean, now()->addMinutes(10));
+            }
+
             return response($clean, $res->getStatusCode())
                 ->header('Content-Type', 'application/json');
         } catch (\Exception $e) {
