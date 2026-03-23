@@ -311,6 +311,7 @@
   display: flex;
   flex-direction: column;
   gap: .75rem;
+  justify-content: space-between;
   transition: box-shadow .2s, border-color .2s;
 }
 .rv-plan-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.09); border-color: #f7b500; }
@@ -352,7 +353,7 @@
 .rv-plan-stock { font-size: .8rem; font-weight: 600; }
 .rv-plan-stock.ok { color: #15803d; }
 .rv-plan-stock.out { color: #dc2626; }
-.rv-plan-add-form { display: flex; gap: .5rem; align-items: center; margin-top: .25rem; }
+.rv-plan-add-form { display: flex; gap: .5rem; align-items: center; margin-top: auto; }
 .rv-qty-input {
   width: 70px;
   padding: .5rem .65rem;
