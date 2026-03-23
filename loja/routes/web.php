@@ -63,6 +63,10 @@ Route::get('/painel-revendedor/compras/{purchase}/codigos', [ResellerPanelContro
 Route::post('/painel-revendedor/voucher/{wifiCode}/distribuir', [ResellerPanelController::class, 'distributeVoucher'])->name('reseller.voucher.distribute');
 Route::post('/painel-revendedor/voucher/{wifiCode}/cancelar-distribuicao', [ResellerPanelController::class, 'undistributeVoucher'])->name('reseller.voucher.undistribute');
 
+// Módulo de vendas do revendedor
+Route::get('/painel-revendedor/vender', [ResellerPanelController::class, 'showSellPage'])->name('reseller.sell');
+Route::post('/painel-revendedor/vender', [ResellerPanelController::class, 'processSale'])->name('reseller.sell.process');
+
 // Pagamento do carrinho do revendedor
 Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'showPayment'])->name('reseller.panel.payment');
 Route::post('/painel-revendedor/pagamento/confirmar', [ResellerPanelController::class, 'confirmPayment'])->name('reseller.panel.payment.confirm');

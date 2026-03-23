@@ -676,4 +676,122 @@ class ResellerPanelController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Página de vendas — visualização unificada de todos os
+    //  vouchers não vendidos agrupados por plano
+    // ─────────────────────────────────────────────────────────────
+    public function showSellPage(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        // All completed purchases for this reseller
+        $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'completed')
+            ->pluck('id');
+
+        // All vouchers owned by this reseller
+        $allCodes = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->orderBy('plan_id')
+            ->orderBy('reseller_distributed_at')
+            ->orderBy('id')
+            ->get();
+
+        $inStockCodes  = $allCodes->whereNull('reseller_distributed_at');
+        $soldCodes     = $allCodes->whereNotNull('reseller_distributed_at');
+
+        // Group in-stock codes by plan
+        $stockByPlan = $inStockCodes->groupBy('plan_id');
+
+        // Plan info for display
+        $voucherPlans = VoucherPlan::all()->keyBy('slug');
+
+        // Recent sales (last 20)
+        $recentSales = $soldCodes->sortByDesc('reseller_distributed_at')->take(20);
+
+        return view('reseller.sell', [
+            'application'  => $application,
+            'stockByPlan'  => $stockByPlan,
+            'voucherPlans' => $voucherPlans,
+            'totalInStock'  => $inStockCodes->count(),
+            'totalSold'     => $soldCodes->count(),
+            'recentSales'   => $recentSales,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Processar venda — marca vouchers como vendidos e gera PDF
+    // ─────────────────────────────────────────────────────────────
+    public function processSale(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $data = $request->validate([
+            'voucher_ids'  => ['required', 'array', 'min:1'],
+            'voucher_ids.*' => ['required', 'integer'],
+            'customer_ref' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        // Validate ownership of all selected vouchers
+        $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'completed')
+            ->pluck('id');
+
+        $codes = WifiCode::whereIn('id', $data['voucher_ids'])
+            ->whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNull('reseller_distributed_at')
+            ->get();
+
+        if ($codes->isEmpty()) {
+            return back()->with('error', 'Nenhum voucher válido seleccionado para venda.');
+        }
+
+        // Mark all selected vouchers as sold
+        $customerRef = $data['customer_ref'] ?? null;
+        $now = now();
+
+        WifiCode::whereIn('id', $codes->pluck('id'))->update([
+            'reseller_distributed_at' => $now,
+            'reseller_customer_ref'   => $customerRef,
+        ]);
+
+        // Reload codes with updated distributed_at for the PDF
+        $codes = WifiCode::whereIn('id', $codes->pluck('id'))->get();
+
+        // Group sold codes by plan for the PDF
+        $codesByPlan = $codes->groupBy('plan_id');
+        $voucherPlans = VoucherPlan::all()->keyBy('slug');
+
+        // Generate PDF
+        $html = view('pdf.venda-revendedor', [
+            'application'  => $application,
+            'codesByPlan'  => $codesByPlan,
+            'voucherPlans' => $voucherPlans,
+            'customerRef'  => $customerRef,
+            'totalCodes'   => $codes->count(),
+            'saleDate'     => $now,
+        ])->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'venda_' . $codes->count() . 'vouchers_' . $now->format('Ymd_His') . '.pdf';
+
+        return response($dompdf->output())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
 }

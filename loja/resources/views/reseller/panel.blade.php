@@ -633,6 +633,19 @@
         @endif
       </div>
 
+      {{-- Sell button --}}
+      @if($totals['vouchers_total'] > 0)
+      <div style="margin-bottom:1.25rem;">
+        <a href="{{ route('reseller.sell') }}"
+           style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-radius:.75rem;font-size:1.05rem;font-weight:800;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(22,163,74,.25);"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(22,163,74,.35)'"
+           onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 14px rgba(22,163,74,.25)'">
+          🏷️ Vender vouchers ao cliente
+        </a>
+        <span style="font-size:.85rem;color:#64748b;margin-left:.75rem;">Seleccione vouchers, venda e gere o PDF para o cliente.</span>
+      </div>
+      @endif
+
       {{-- Tabela de descontos --}}
       <div class="rv-panel">
         <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> Tabela de descontos</div>
@@ -828,6 +841,8 @@
                     </td>
                     <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
                       <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
+                         class="rv-csv-btn" style="border-color:#93c5fd;color:#2563eb;background:#eff6ff;">📦 Códigos</a>
+                      <a href="{{ route('reseller.sell') }}"
                          class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
                       <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}"
                          class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
