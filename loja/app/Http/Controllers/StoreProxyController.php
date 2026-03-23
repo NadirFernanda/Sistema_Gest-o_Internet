@@ -222,6 +222,49 @@ class StoreProxyController extends Controller
      * @param  array  $data  Keys: nome, email, contato, nif, template_id, loja_request_id
      * @return array  ['success' => bool, 'data' => [...] | null, 'error' => string|null]
      */
+    /**
+     * Devolve o número actual de clientes activos consultado ao SG.
+     * Cache de 30 minutos no servidor. Usado de forma assíncrona pela página inicial.
+     */
+    public function activeClients(): \Illuminate\Http\JsonResponse
+    {
+        $cacheKey = 'sg_active_clients_count';
+        if (Cache::has($cacheKey)) {
+            return response()->json(['count' => Cache::get($cacheKey)]);
+        }
+
+        $sg      = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
+        $apiPath = config('services.sg.active_clients_path', '/api/stats/active-clients');
+        $headers = ['Accept' => 'application/json'];
+        $apiToken = env('SG_API_TOKEN');
+        if ($apiToken) {
+            $headers['X-API-TOKEN'] = $apiToken;
+        }
+
+        try {
+            $res = (new Client(['timeout' => 4]))->get($sg . $apiPath, [
+                'headers'     => $headers,
+                'http_errors' => false,
+            ]);
+            if ($res->getStatusCode() === 200) {
+                $raw   = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
+                $body  = json_decode($raw, true);
+                $count = $body['active_clients'] ?? $body['count'] ?? $body['total']
+                      ?? ($body['data']['count'] ?? null)
+                      ?? ($body['data']['active_clients'] ?? null);
+                if (is_numeric($count) && $count >= 0) {
+                    $count = (int) $count;
+                    Cache::put($cacheKey, $count, now()->addMinutes(30));
+                    return response()->json(['count' => $count]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // SG inacessível — devolve null silenciosamente
+        }
+
+        return response()->json(['count' => null]);
+    }
+
     public function syncJanela(array $data): array
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');

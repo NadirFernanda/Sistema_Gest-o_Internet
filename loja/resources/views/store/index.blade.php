@@ -106,7 +106,7 @@
           @if(isset($activeClientCount) && $activeClientCount !== null)
             <span class="stat-bar__num" data-count-to="{{ $activeClientCount }}" data-count-decimals="0" data-count-suffix="">{{ number_format($activeClientCount, 0, ',', '.') }}</span>
           @else
-            <span class="stat-bar__num" data-count-static="1">—</span>
+            <span class="stat-bar__num js-active-clients" data-count-decimals="0" data-count-suffix="">—</span>
           @endif
           <span class="stat-bar__lbl">Clientes activos</span>
         </div>
@@ -200,7 +200,7 @@
       <div class="step-card">
         <div class="step-num">4</div>
         <h3>Recebe o código</h3>
-        <p>O seu código WiFi é enviado por email imediatamente após confirmação.</p>
+        <p>O seu código WiFi aparece imediatamente no ecrã após confirmação do pagamento.</p>
       </div>
     </div>
   </div>
@@ -281,4 +281,24 @@
 </style>
 @endpush
 
+@push('scripts')
+<script>
+// Carrega o número de clientes activos de forma assíncrona para não bloquear o render
+(function () {
+  var el = document.querySelector('.js-active-clients');
+  if (!el) return;
+  fetch('/sg/active-clients')
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if (data && data.count !== null && data.count !== undefined) {
+        el.dataset.countTo = data.count;
+        el.textContent = new Intl.NumberFormat('pt-PT').format(data.count);
+        // dispara animação se o contador global já estiver inicializado
+        if (window.initCounters) window.initCounters();
+      }
+    })
+    .catch(function(){});
+})();
+</script>
+@endpush
 

@@ -25,15 +25,12 @@ class StorefrontController extends Controller
             $siteStats = collect();
         }
 
-        // Número real de clientes activos consultado ao SG, com cache de 30 minutos.
-        $activeClientCount = $this->fetchActiveClientCount();
-
-        // Planos familiares/empresariais carregados de forma assíncrona pelo JS
-        // (evita bloquear o render da página enquanto espera a resposta do SG)
+        // Planos familiares/empresariais e contagem de clientes activos carregados
+        // de forma assíncrona pelo JS — não bloqueiam o render da página.
         return view('store.index', [
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
-            'activeClientCount' => $activeClientCount,
+            'activeClientCount' => null,
         ]);
     }
 

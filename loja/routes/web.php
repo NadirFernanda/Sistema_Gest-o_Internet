@@ -26,6 +26,7 @@ Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'pla
 Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
 Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
+Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
