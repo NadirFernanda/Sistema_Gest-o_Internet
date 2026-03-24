@@ -131,32 +131,28 @@
 
       <div class="plans-grid plans-grid--individual" aria-live="polite">
         @forelse ($individualPlans as $plan)
-          <div class="plan-card-modern plan-card--individual plan-card--{{ $plan['id'] }}{{ $plan['id'] === 'semanal' ? ' plan-card--featured' : '' }}">
+          <div class="plan-card-modern plan-card--individual plan-card--{{ $plan->slug }}{{ $plan->slug === 'semanal' ? ' plan-card--featured' : '' }}">
             <div class="plan-card-modern-inner">
-              @if($plan['id'] === 'semanal')<div class="plan-badge">Mais Popular</div>@endif
+              @if($plan->slug === 'semanal')<div class="plan-badge">Mais Popular</div>@endif
               <div class="plan-card-modern-header">
                 <span class="plan-emoji" aria-hidden="true">
-                  @if(str_contains(strtolower($plan['name']), 'hora'))⏰@elseif(str_contains(strtolower($plan['name']), 'dia'))🌞@elseif(str_contains(strtolower($plan['name']), 'semana'))📅@elseif(str_contains(strtolower($plan['name']), 'mês') || str_contains(strtolower($plan['name']), 'mensal'))🗓️@else💡@endif
+                  @if(str_contains(strtolower($plan->name), 'hora'))⏰@elseif(str_contains(strtolower($plan->name), 'dia'))🌞@elseif(str_contains(strtolower($plan->name), 'semana'))📅@elseif(str_contains(strtolower($plan->name), 'mês') || str_contains(strtolower($plan->name), 'mensal'))🗓️@else💡@endif
                 </span>
-                <h3 class="plan-title">{{ $plan['name'] }}</h3>
+                <h3 class="plan-title">{{ $plan->name }}</h3>
               </div>
               <div class="plan-card-modern-body">
                 <div class="plan-price-row">
-                  <span class="plan-price">{{ number_format($plan['price_kwanza'], 0, ',', '.') }}</span>
+                  <span class="plan-price">{{ number_format($plan->price_public_aoa, 0, ',', '.') }}</span>
                   <span class="plan-currency">Kz</span>
                 </div>
                 <div class="plan-features">
-                  <span class="plan-feature plan-feature--active"><strong>{{ $plan['duration_label'] }}</strong></span>
-                  <span class="plan-feature">{{ $plan['speed'] }}</span>
-                  @if(!empty($plan['max_speed']))<span class="plan-feature">{{ $plan['max_speed'] }}</span>@endif
-                  @if(!empty($plan['download']))<span class="plan-feature">{{ $plan['download'] }}</span>@endif
+                  <span class="plan-feature plan-feature--active"><strong>{{ $plan->validity_label }}</strong></span>
+                  @if(!empty($plan->speed_label))<span class="plan-feature">{{ $plan->speed_label }}</span>@endif
+                  <span class="plan-feature">Downloads Ilimitados</span>
                 </div>
-                @if (!empty($plan['description']))
-                  <p class="plan-desc">{{ $plan['description'] }}</p>
-                @endif
               </div>
               <div class="plan-card-modern-footer">
-                <a class="btn-modern" href="{{ route('store.checkout', ['plan' => $plan['id']]) }}">Comprar Agora</a>
+                <a class="btn-modern" href="{{ route('store.checkout', ['plan' => $plan->slug]) }}">Comprar Agora</a>
               </div>
             </div>
           </div>

@@ -10,12 +10,12 @@
       <section class="checkout-summary-card">
         <h2>Resumo do Pedido</h2>
         @if($plan)
-          <p><span class="label">Plano:</span> {{ $plan['name'] }}</p>
-          <p><span class="label">Duração:</span> {{ $plan['duration_label'] }}</p>
-          <p><span class="label">Velocidade:</span> {{ $plan['max_speed'] ?? $plan['speed'] }}</p>
-          <p><span class="label">Download:</span> {{ $plan['download'] ?? 'Downloads Ilimitados' }}</p>
+          <p><span class="label">Plano:</span> {{ $plan->name }}</p>
+          <p><span class="label">Duração:</span> {{ $plan->validity_label }}</p>
+          <p><span class="label">Velocidade:</span> {{ $plan->speed_label }}</p>
+          <p><span class="label">Download:</span> Downloads Ilimitados</p>
           <p><span class="label">Quantidade:</span> 1 código</p>
-          <p class="total">Total: {{ number_format($plan['price_kwanza'], 0, ',', '.') }} AOA</p>
+          <p class="total">Total: {{ number_format($plan->price_public_aoa, 0, ',', '.') }} AOA</p>
         @else
           <p>Não foi possível identificar o plano selecionado. Volte à página inicial e escolha um plano.</p>
         @endif
@@ -38,7 +38,7 @@
         @if($plan)
         <form method="POST" action="{{ route('store.checkout.process') }}" class="checkout-form">
           @csrf
-          <input type="hidden" name="plan_id" value="{{ $plan['id'] }}">
+          <input type="hidden" name="plan_id" value="{{ $plan->slug }}">
           <p class="checkout-note">
             Para estes planos individuais não é necessário preencher dados pessoais.
             Basta escolher o método de pagamento e confirmar a compra.

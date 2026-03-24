@@ -216,6 +216,16 @@
   </div>
 
   @if($totalInStock === 0)
+    @if($pendingPurchases->count() > 0)
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #d97706;color:#78350f;padding:.9rem 1.1rem;border-radius:8px;margin-bottom:1.25rem;font-size:.875rem;line-height:1.6;">
+        <strong>⏳ Tem {{ $pendingPurchases->count() }} compra(s) pendente(s) de pagamento.</strong><br>
+        Os vouchers estão reservados mas só ficam disponíveis para vender após confirmar o pagamento.
+        <a href="{{ route('reseller.panel.resume.payment', $pendingPurchases->first()) }}"
+           style="display:inline-block;margin-top:.5rem;padding:.4rem .9rem;background:#d97706;color:#fff;border-radius:6px;font-weight:700;text-decoration:none;font-size:.82rem;">
+          💳 Retomar pagamento →
+        </a>
+      </div>
+    @endif
     <div class="sl-empty">
       <div class="sl-empty-icon">📭</div>
       <p class="sl-empty-title">Sem vouchers para vender</p>

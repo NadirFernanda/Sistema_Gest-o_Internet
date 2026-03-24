@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
 use App\Models\SiteStat;
+use App\Models\VoucherPlan;
 use App\Services\AutovendaOrderService;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -14,8 +15,12 @@ class StorefrontController extends Controller
 {
     public function index()
     {
-        // Planos individuais são sempre carregados da configuração local
-        $individualPlans = config('store_plans.individual', []);
+        // Planos individuais carregados da base de dados (tabela voucher_plans)
+        try {
+            $individualPlans = VoucherPlan::active()->get();
+        } catch (\Throwable $e) {
+            $individualPlans = collect();
+        }
 
         // Estatísticas dinâmicas para a barra de números no topo
         // Protegido contra tabela não existente (ex: primeiro deploy antes de migrate)
@@ -93,8 +98,7 @@ class StorefrontController extends Controller
         // Permite receber o identificador do plano tanto pela URL quanto por query string
         $planKey = $planId ?: $request->query('plan');
 
-        $individualPlans = collect(config('store_plans.individual', []));
-        $plan = $planKey ? $individualPlans->firstWhere('id', $planKey) : null;
+        $plan = $planKey ? VoucherPlan::where('slug', $planKey)->where('active', true)->first() : null;
 
         return view('store.checkout', [
             'plan' => $plan,
@@ -128,10 +132,8 @@ class StorefrontController extends Controller
             'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_MULTICAIXA . ',' . AutovendaOrder::METHOD_PAYPAL,
         ]);
 
-        // Planos individuais são lidos exclusivamente da configuração local.
-        // Os planos familiares/empresariais (SG) têm um fluxo completamente diferente.
-        $individualPlans = collect(config('store_plans.individual', []));
-        $plan = $individualPlans->firstWhere('id', $validated['plan_id']);
+        // Planos individuais carregados da base de dados — VoucherPlan é a fonte de verdade.
+        $plan = VoucherPlan::where('slug', $validated['plan_id'])->where('active', true)->first();
 
         if (!$plan) {
             return redirect()
@@ -143,19 +145,19 @@ class StorefrontController extends Controller
         // O gateway real ainda não está integrado — mostrar mensagem ao cliente.
         if (app()->isProduction()) {
             return redirect()
-                ->route('store.checkout', ['plan' => $plan['id']])
+                ->route('store.checkout', ['plan' => $plan->slug])
                 ->withErrors(['gateway' => 'O pagamento online para planos individuais está temporariamente indisponível. Dirija-se a um ponto de venda ou contacte o suporte (+244 949 364 505).']);
         }
 
         // Cria a ordem de autovenda em estado "awaiting_payment".
         // Sem dados de cliente — os planos individuais não requerem identificação.
         $order = AutovendaOrder::create([
-            'plan_id'               => $plan['id'],
-            'plan_name'             => $plan['name'],
-            'plan_speed'            => $plan['speed'] ?? null,
-            'plan_duration_minutes' => $plan['duration_minutes'] ?? null,
+            'plan_id'               => $plan->slug,
+            'plan_name'             => $plan->name,
+            'plan_speed'            => $plan->speed_label,
+            'plan_duration_minutes' => $plan->validity_minutes,
             'quantity'              => 1,
-            'amount_aoa'            => $plan['price_kwanza'],
+            'amount_aoa'            => $plan->price_public_aoa,
             'currency'              => 'AOA',
             'customer_name'         => null,
             'customer_email'        => null,
@@ -174,7 +176,7 @@ class StorefrontController extends Controller
         } catch (\Throwable $e) {
             // Sem stock de códigos WiFi disponíveis.
             return redirect()
-                ->route('store.checkout', ['plan' => $plan['id']])
+                ->route('store.checkout', ['plan' => $plan->slug])
                 ->withErrors(['stock' => 'Sem códigos WiFi disponíveis de momento. Tente novamente mais tarde ou contacte o suporte.']);
         }
 

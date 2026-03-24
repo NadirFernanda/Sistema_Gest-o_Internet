@@ -72,6 +72,7 @@ Route::post('/painel-revendedor/vender', [ResellerPanelController::class, 'proce
 Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'showPayment'])->name('reseller.panel.payment');
 Route::post('/painel-revendedor/pagamento/confirmar', [ResellerPanelController::class, 'confirmPayment'])->name('reseller.panel.payment.confirm');
 Route::post('/painel-revendedor/pagamento/cancelar', [ResellerPanelController::class, 'cancelPayment'])->name('reseller.panel.payment.cancel');
+Route::get('/painel-revendedor/compras/{purchase}/retomar', [ResellerPanelController::class, 'resumePayment'])->name('reseller.panel.resume.payment');
 
 // Taxa de manutenção — pagamento pelo revendedor
 Route::get('/painel-revendedor/taxa-manutencao', [ResellerPanelController::class, 'showMaintenancePayment'])->name('reseller.maintenance.payment');

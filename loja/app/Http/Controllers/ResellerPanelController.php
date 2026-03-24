@@ -29,7 +29,7 @@ class ResellerPanelController extends Controller
         $resellerId  = $request->session()->get('reseller_id');
         $application = null;
         $purchases   = collect();
-        $totals      = ['total_invested' => 0, 'vouchers_total' => 0, 'profit_total' => 0];
+        $totals      = ['total_invested' => 0, 'vouchers_total' => 0, 'profit_total' => 0, 'vouchers_in_stock' => 0];
         $monthlySpend    = 0;
         $estimatedProfit = 0;
 
@@ -127,22 +127,37 @@ class ResellerPanelController extends Controller
                     $salesReport[$slug]['profit_aoa']      += ($p->profit_aoa ?? 0);
                 }
 
-                // Count distributed (sold to customers) per plan
-                if (!empty($salesReport)) {
-                    $distributedCounts = WifiCode::whereIn(
-                        'reseller_purchase_id',
-                        $allPurchases->pluck('id')
-                    )->whereNotNull('reseller_distributed_at')
-                     ->selectRaw('plan_id, count(*) as cnt')
-                     ->groupBy('plan_id')
-                     ->pluck('cnt', 'plan_id')
-                     ->toArray();
+                // Count distributed + unsold per plan for the report and the sell button
+                if (!empty($salesReport) || $allPurchases->isNotEmpty()) {
+                    $completedIds = $allPurchases->pluck('id');
+
+                    $distributedCounts = WifiCode::whereIn('reseller_purchase_id', $completedIds)
+                        ->whereNotNull('reseller_distributed_at')
+                        ->selectRaw('plan_id, count(*) as cnt')
+                        ->groupBy('plan_id')
+                        ->pluck('cnt', 'plan_id')
+                        ->toArray();
+
+                    $unsoldCounts = WifiCode::whereIn('reseller_purchase_id', $completedIds)
+                        ->whereNull('reseller_distributed_at')
+                        ->selectRaw('plan_id, count(*) as cnt')
+                        ->groupBy('plan_id')
+                        ->pluck('cnt', 'plan_id')
+                        ->toArray();
 
                     foreach ($distributedCounts as $planId => $cnt) {
                         if (isset($salesReport[$planId])) {
                             $salesReport[$planId]['vouchers_sold'] = $cnt;
                         }
                     }
+
+                    foreach ($unsoldCounts as $planId => $cnt) {
+                        if (isset($salesReport[$planId])) {
+                            $salesReport[$planId]['vouchers_in_stock'] = $cnt;
+                        }
+                    }
+
+                    $totals['vouchers_in_stock'] = array_sum($unsoldCounts);
                 }
 
                 $monthlySpend = $application->monthlySpendings();
@@ -250,7 +265,7 @@ class ResellerPanelController extends Controller
 
         $data = $request->validate([
             'plan_slug' => ['required', 'string', 'exists:voucher_plans,slug'],
-            'quantity'  => ['required', 'integer', 'min:1', 'max:500'],
+            'quantity'  => ['required', 'integer', 'min:1'],
         ]);
 
         $cart = $request->session()->get(self::CART_SESSION, []);
@@ -430,6 +445,31 @@ class ResellerPanelController extends Controller
         $mcxRef    = str_pad($purchases->first()->id * 97 + 300000, 9, '0', STR_PAD_LEFT);
 
         return view('reseller.checkout', compact('application', 'purchases', 'total', 'mcxEntity', 'mcxRef'));
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Retomar pagamento pendente (sessão expirou após checkout)
+    // ─────────────────────────────────────────────────────────────
+    public function resumePayment(Request $request, ResellerPurchase $purchase)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        // Security: ensure this purchase belongs to the logged-in reseller and is still pending
+        if ((int) $purchase->reseller_application_id !== (int) $resellerId || $purchase->status !== 'pending') {
+            return redirect()->route('reseller.panel')->with('error', 'Pedido não encontrado ou já processado.');
+        }
+
+        // Restore all pending purchases from this checkout batch into the session
+        // (a single checkout may create multiple purchases, one per plan)
+        $pendingIds = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'pending')
+            ->pluck('id')
+            ->toArray();
+
+        $request->session()->put('reseller_pending_order', $pendingIds);
+
+        return redirect()->route('reseller.panel.payment');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -795,15 +835,21 @@ class ResellerPanelController extends Controller
         // Recent sales (last 20)
         $recentSales = $soldCodes->sortByDesc('reseller_distributed_at')->take(20);
 
+        // Pending purchases (session expired) — helps the view show a helpful message
+        $pendingPurchases = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'pending')
+            ->get();
+
         return view('reseller.sell', [
-            'application'  => $application,
-            'stockByPlan'  => $stockByPlan,
-            'soldByPlan'   => $soldByPlan,
-            'allPlanSlugs' => $allPlanSlugs,
-            'voucherPlans' => $voucherPlans,
-            'totalInStock'  => $inStockCodes->count(),
-            'totalSold'     => $soldCodes->count(),
-            'recentSales'   => $recentSales,
+            'application'      => $application,
+            'stockByPlan'      => $stockByPlan,
+            'soldByPlan'       => $soldByPlan,
+            'allPlanSlugs'     => $allPlanSlugs,
+            'voucherPlans'     => $voucherPlans,
+            'totalInStock'     => $inStockCodes->count(),
+            'totalSold'        => $soldCodes->count(),
+            'recentSales'      => $recentSales,
+            'pendingPurchases' => $pendingPurchases,
         ]);
     }
 

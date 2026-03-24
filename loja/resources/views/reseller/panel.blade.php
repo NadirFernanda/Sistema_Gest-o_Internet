@@ -377,9 +377,15 @@
 .rv-plan-stock.ok { color: #15803d; }
 .rv-plan-stock.out { color: #dc2626; }
 .rv-plan-add-form { display: flex; gap: .5rem; align-items: center; margin-top: auto; }
+.rv-qty-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.rv-qty-label { font-size: .78rem; color: #64748b; font-weight: 600; }
 .rv-qty-input {
   width: 70px;
-  padding: .5rem .65rem;
+  padding: .45rem .6rem;
   border: 1.5px solid #e2e8f0;
   border-radius: .5rem;
   font-size: .92rem;
@@ -389,19 +395,33 @@
 }
 .rv-qty-input:focus { outline: none; border-color: #f7b500; }
 .rv-btn-add {
-  flex: 1;
-  padding: .5rem .85rem;
+  width: 100%;
+  padding: .55rem .85rem;
   background: #f7b500;
   color: #1a202c;
   border: none;
   border-radius: .5rem;
-  font-size: .85rem;
+  font-size: .88rem;
   font-weight: 700;
   cursor: pointer;
   transition: background .2s;
-  white-space: nowrap;
+  text-align: center;
 }
 .rv-btn-add:hover { background: #e0a800; }
+.rv-btn-add:disabled { opacity: .45; cursor: not-allowed; background: #e2e8f0; color: #94a3b8; }
+/* Stock badge */
+.rv-plan-stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+}
+.rv-plan-stock-badge.ok  { background: #dcfce7; color: #15803d; }
+.rv-plan-stock-badge.low { background: #fef9c3; color: #92400e; }
+.rv-plan-stock-badge.out { background: #fee2e2; color: #b91c1c; }
 
 /* Cart panel */
 .rv-cart-panel { border: 1.5px solid #fde68a; }
@@ -763,8 +783,8 @@
         @endif
       </div>
 
-      {{-- Sell button --}}
-      @if($totals['vouchers_total'] > 0)
+      {{-- Sell button — only when there are actually unsold vouchers in stock --}}
+      @if($totals['vouchers_in_stock'] > 0)
       <div style="margin-bottom:1.25rem;">
         <a href="{{ route('reseller.sell') }}"
            style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-radius:.75rem;font-size:1.05rem;font-weight:800;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(22,163,74,.25);"
@@ -878,7 +898,7 @@
 
       {{-- ── Catálogo de planos ── --}}
       <div class="rv-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">📦</span> Planos disponíveis</div>
+        <div class="rv-panel-title"><span class="rv-panel-icon">�</span> Compra de Voucher / Abastecimento de Stock</div>
 
         @if($voucherPlans->isEmpty())
           <p class="rv-empty">Nenhum plano disponível de momento.</p>
@@ -893,21 +913,30 @@
                     : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
                   : '💡';
               @endphp
-              <div class="rv-plan-card">
+              @php
+                $stockAvail = \App\Models\WifiCode::where('plan_id', $plan->slug)
+                    ->where('status', 'available')->count();
+                $stockClass = $stockAvail === 0 ? 'out' : ($stockAvail < 10 ? 'low' : 'ok');
+                $stockLabel = $stockAvail === 0 ? '⊘ Sem stock' : ($stockAvail < 10 ? "⚠ {$stockAvail} disponíveis" : "✔ {$stockAvail} disponíveis");
+              @endphp
+              <div class="rv-plan-card{{ $stockAvail === 0 ? ' rv-plan-card--out' : '' }}">
 
-                {{-- Cabeçalho: igual à página pública --}}
-                <div class="rv-plan-card-header">
-                  <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
-                  <span class="rv-plan-name">{{ $plan->name }}</span>
+                {{-- Cabeçalho --}}
+                <div class="rv-plan-card-header" style="justify-content:space-between;">
+                  <div style="display:flex;align-items:center;gap:.6rem;">
+                    <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
+                    <span class="rv-plan-name">{{ $plan->name }}</span>
+                  </div>
+                  <span class="rv-plan-stock-badge {{ $stockClass }}">{{ $stockLabel }}</span>
                 </div>
 
-                {{-- Preço público em destaque, igual à página pública --}}
+                {{-- Preço público em destaque --}}
                 <div class="rv-plan-price-public-big">
                   <span class="rv-price-big-num">{{ number_format($plan->price_public_aoa, 0, ',', '.') }}</span>
                   <span class="rv-price-big-cur">Kz</span>
                 </div>
 
-                {{-- Features: duração, velocidade, downloads — mesmas da página pública --}}
+                {{-- Features --}}
                 <ul class="rv-plan-features">
                   <li><strong>{{ $plan->validity_label }}</strong></li>
                   <li>{{ $plan->speed_label }}</li>
@@ -918,10 +947,10 @@
                   <p class="rv-plan-desc">{{ $pcfg['description'] }}</p>
                 @endif
 
-                {{-- Separador antes da secção exclusiva do revendedor --}}
+                {{-- Separador --}}
                 <hr class="rv-plan-reseller-sep">
 
-                {{-- Preço revendedor + lucro (info extra para o agente) --}}
+                {{-- Preço revendedor + lucro --}}
                 <div class="rv-plan-prices">
                   <div class="rv-plan-price-row">
                     <span class="rv-price-label">Preço de custo</span>
@@ -933,12 +962,21 @@
                   </div>
                 </div>
 
-                <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form">
+                {{-- Formulário: qty em cima, botão em baixo (largura total) --}}
+                <form action="{{ route('reseller.cart.add') }}" method="POST"
+                      class="rv-plan-add-form" style="flex-direction:column;gap:.45rem;margin-top:auto;">
                   @csrf
                   <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
-                  <input type="number" name="quantity" min="1" max="500" value="1"
-                         class="rv-qty-input" required aria-label="Quantidade">
-                  <button type="submit" class="rv-btn-add">Adicionar ao carrinho</button>
+                  <div class="rv-qty-row">
+                    <span class="rv-qty-label">Qtd.:</span>
+                    <input type="number" name="quantity" min="1"
+                           value="1"
+                           class="rv-qty-input" required aria-label="Quantidade"
+                           {{ $stockAvail === 0 ? 'disabled' : '' }}>
+                  </div>
+                  <button type="submit" class="rv-btn-add" {{ $stockAvail === 0 ? 'disabled' : '' }}>
+                    {{ $stockAvail === 0 ? 'Sem stock disponível' : '+ Adicionar ao carrinho' }}
+                  </button>
                 </form>
 
               </div>
@@ -960,22 +998,33 @@
               <tr>
                 <th>Plano</th>
                 <th class="r">Qtd.</th>
-                <th class="r">Preço unit. (Kz)</th>
-                <th class="r">Subtotal (Kz)</th>
-                <th class="r">Lucro potencial (Kz)</th>
+                <th class="r">Preço de Custo (Kz)</th>
+                <th class="r">Preço de Venda (Kz)</th>
+                <th class="r">Valor a Pagar (Kz)</th>
+                <th class="r">Lucro da Operação (Kz)</th>
+                <th class="r">Total (Kz)</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               @foreach($cartItems as $item)
+              @php
+                $unitCost   = $item['subtotal'] / $item['qty'];           // preço de custo unitário
+                $unitSell   = $item['plan']->price_public_aoa;            // preço de venda unitário
+                $valorPagar = $item['subtotal'];                          // valor a pagar = custo × qtd
+                $lucro      = $item['profit'];                            // lucro = (venda - custo) × qtd
+                $total      = $valorPagar + $lucro;                       // total = valor a pagar + lucro
+              @endphp
               <tr>
                 <td><strong>{{ $item['plan']->name }}</strong>
                     <small class="muted" style="display:block;">{{ $item['plan']->validity_label }} · {{ $item['plan']->speed_label }}</small>
                 </td>
                 <td class="r">{{ $item['qty'] }}</td>
-                <td class="r">{{ number_format($item['plan']->price_reseller_aoa, 0, ',', '.') }}</td>
-                <td class="r bold">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
-                <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($item['profit'], 0, ',', '.') }}</td>
+                <td class="r">{{ number_format($unitCost, 0, ',', '.') }}</td>
+                <td class="r">{{ number_format($unitSell, 0, ',', '.') }}</td>
+                <td class="r bold">{{ number_format($valorPagar, 0, ',', '.') }}</td>
+                <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($lucro, 0, ',', '.') }}</td>
+                <td class="r bold">{{ number_format($total, 0, ',', '.') }}</td>
                 <td>
                   <form action="{{ route('reseller.cart.remove') }}" method="POST">
                     @csrf
@@ -991,8 +1040,9 @@
 
         <div class="rv-cart-footer">
           <div class="rv-cart-totals">
-            <span>Total a pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
-            <span style="color:#16a34a;">Lucro potencial: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
+            <span>Valor a pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
+            <span style="color:#16a34a;">Lucro da Operação: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
+            <span style="font-weight:700;">Total: <strong>{{ number_format($cartTotal + $cartProfit, 0, ',', '.') }} Kz</strong></span>
           </div>
           @if($cartTotal < $minPurchaseAoa)
           <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.65rem 1rem;margin:.5rem 0;color:#b91c1c;font-size:.9rem;font-weight:600;">
@@ -1062,7 +1112,7 @@
                       @endif
                     </td>
                     <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
-                      @if($purchase->status !== 'cancelled')
+                      @if($purchase->status === 'completed')
                       <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
                          class="rv-csv-btn" style="border-color:#93c5fd;color:#2563eb;background:#eff6ff;">📦 Códigos</a>
                       <a href="{{ route('reseller.sell') }}"
@@ -1071,6 +1121,9 @@
                          class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
                       <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
                          class="rv-csv-btn">⬇ CSV</a>
+                      @elseif($purchase->status === 'pending')
+                      <a href="{{ route('reseller.panel.resume.payment', $purchase) }}"
+                         class="rv-csv-btn" style="border-color:#fde68a;color:#92400e;background:#fffbeb;">💳 Retomar pagamento</a>
                       @else
                         <span style="color:#9ca3af;font-size:.82rem;">Compra anulada</span>
                       @endif
@@ -1095,36 +1148,26 @@
             <thead>
               <tr>
                 <th>Plano</th>
-                <th class="r">Comprados</th>
-                <th class="r">Vendidos ao cliente</th>
-                <th class="r">Em stock</th>
-                <th class="r">Taxa de venda</th>
-                <th class="r">Investido (Kz)</th>
-                <th class="r">Lucro realizado (Kz)</th>
+                <th class="r">Stock Inicial</th>
+                <th class="r">Entradas / Compras</th>
+                <th class="r">Saídas / Vendas</th>
+                <th class="r">Stock Final</th>
+                <th class="r">Lucro da Operação (Kz)</th>
               </tr>
             </thead>
             <tbody>
               @foreach($salesReport as $slug => $row)
                 @php
-                  $stockLeft  = $row['vouchers_bought'] - $row['vouchers_sold'];
-                  $sellRate   = $row['vouchers_bought'] > 0
-                    ? round($row['vouchers_sold'] * 100 / $row['vouchers_bought'])
-                    : 0;
+                  $stockFinal = $row['vouchers_in_stock'] ?? ($row['vouchers_bought'] - $row['vouchers_sold']);
+                  // Stock Inicial = Stock Final + Saídas - Entradas (= 0 quando agente começa do zero)
+                  $stockInicial = max(0, $stockFinal + $row['vouchers_sold'] - $row['vouchers_bought']);
                 @endphp
                 <tr>
                   <td><strong>{{ $row['plan_name'] }}</strong></td>
-                  <td class="r">{{ $row['vouchers_bought'] }}</td>
-                  <td class="r" style="color:#16a34a;font-weight:700;">{{ $row['vouchers_sold'] }}</td>
-                  <td class="r" style="color:{{ $stockLeft > 0 ? '#2563eb' : '#94a3b8' }};font-weight:700;">{{ $stockLeft }}</td>
-                  <td class="r">
-                    <div style="display:flex;align-items:center;gap:.4rem;justify-content:flex-end;">
-                      <span>{{ $sellRate }}%</span>
-                      <div style="width:60px;height:6px;background:#e5e7eb;border-radius:9999px;overflow:hidden;">
-                        <div style="height:6px;width:{{ $sellRate }}%;background:{{ $sellRate >= 80 ? '#16a34a' : ($sellRate >= 40 ? '#f59e0b' : '#e5e7eb') }};border-radius:9999px;"></div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="r bold">{{ number_format($row['invested_aoa'], 0, ',', '.') }}</td>
+                  <td class="r" style="color:#94a3b8;">{{ $stockInicial }}</td>
+                  <td class="r" style="color:#2563eb;font-weight:700;">+{{ $row['vouchers_bought'] }}</td>
+                  <td class="r" style="color:#16a34a;font-weight:700;">-{{ $row['vouchers_sold'] }}</td>
+                  <td class="r" style="color:{{ $stockFinal > 0 ? '#0f172a' : '#94a3b8' }};font-weight:700;">{{ $stockFinal }}</td>
                   <td class="r" style="color:#16a34a;font-weight:700;">
                     +{{ number_format($row['profit_aoa'], 0, ',', '.') }}
                   </td>
@@ -1134,18 +1177,17 @@
             <tfoot>
               <tr style="background:#f8fafc;font-weight:700;">
                 <td>Total</td>
-                <td class="r">{{ array_sum(array_column($salesReport, 'vouchers_bought')) }}</td>
-                <td class="r" style="color:#16a34a;">{{ array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
-                <td class="r">{{ array_sum(array_column($salesReport, 'vouchers_bought')) - array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
-                <td class="r">—</td>
-                <td class="r">{{ number_format(array_sum(array_column($salesReport, 'invested_aoa')), 0, ',', '.') }}</td>
+                <td class="r" style="color:#94a3b8;">0</td>
+                <td class="r" style="color:#2563eb;">+{{ array_sum(array_column($salesReport, 'vouchers_bought')) }}</td>
+                <td class="r" style="color:#16a34a;">-{{ array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
+                <td class="r" style="color:{{ $totals['vouchers_in_stock'] > 0 ? '#0f172a' : '#94a3b8' }};">{{ $totals['vouchers_in_stock'] }}</td>
                 <td class="r" style="color:#16a34a;">+{{ number_format(array_sum(array_column($salesReport, 'profit_aoa')), 0, ',', '.') }}</td>
               </tr>
             </tfoot>
           </table>
         </div>
         <p style="font-size:.78rem;color:#94a3b8;margin-top:.65rem;">
-          * "Vendidos ao cliente" = vouchers que marcou como entregues no painel. "Taxa de venda" = % vendidos do total comprado.
+          Fórmula: <strong>Stock Final = Stock Inicial + Entradas − Saídas</strong>. "Saídas/Vendas" = vouchers marcados como entregues ao cliente.
         </p>
       </div>
       @endif
