@@ -740,7 +740,6 @@
           <div class="rv-plan-grid">
             @foreach($voucherPlans as $plan)
               @php
-                $stock   = $plan->availableStock();
                 $pcfg    = $storePlansConfig->get($plan->slug);
                 $emoji   = $pcfg
                   ? (str_contains(strtolower($pcfg['name']), 'dia') ? '🌞'
@@ -748,7 +747,7 @@
                     : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
                   : '💡';
               @endphp
-              <div class="rv-plan-card {{ $stock === 0 ? 'rv-plan-card--out' : '' }}">
+              <div class="rv-plan-card">
 
                 {{-- Cabeçalho: igual à página pública --}}
                 <div class="rv-plan-card-header">
@@ -779,7 +778,7 @@
                 {{-- Preço revendedor + lucro (info extra para o agente) --}}
                 <div class="rv-plan-prices">
                   <div class="rv-plan-price-row">
-                    <span class="rv-price-label">O seu preço</span>
+                    <span class="rv-price-label">Preço de custo</span>
                     <span class="rv-price-reseller">{{ number_format($plan->resellerPriceFor($application), 0, ',', '.') }} Kz</span>
                   </div>
                   <div class="rv-plan-price-row">
@@ -788,19 +787,13 @@
                   </div>
                 </div>
 
-                <div class="rv-plan-stock {{ $stock > 0 ? 'ok' : 'out' }}">
-                  {{ $stock > 0 ? "✅ {$stock} em stock" : '❌ Sem stock' }}
-                </div>
-
-                @if($stock > 0)
-                  <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form">
+                <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form">
                     @csrf
                     <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
-                    <input type="number" name="quantity" min="1" max="{{ min($stock, 500) }}" value="1"
+                    <input type="number" name="quantity" min="1" max="500" value="1"
                            class="rv-qty-input" required aria-label="Quantidade">
                     <button type="submit" class="rv-btn-add">Adicionar ao carrinho</button>
                   </form>
-                @endif
               </div>
             @endforeach
           </div>
