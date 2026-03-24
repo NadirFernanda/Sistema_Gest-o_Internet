@@ -640,13 +640,39 @@
           <div class="rv-stat-sub">Total de lucro nas compras</div>
         </div>
 
-        <div class="rv-stat-card blue">
+        <div class="rv-stat-card blue" style="grid-column: 1 / -1;">
           <div class="rv-stat-icon">📦</div>
           <div class="rv-stat-label">Vouchers adquiridos</div>
-          <div class="rv-stat-value">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</div>
-          <div class="rv-stat-sub">
-            Investido: {{ number_format($totals['total_invested'], 0, ',', '.') }} Kz
-          </div>
+          <div class="rv-stat-value" style="margin-bottom:.5rem;">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</div>
+          @if(!empty($salesReport))
+            <table class="rv-hist-table" style="margin-bottom:.4rem;">
+              <thead>
+                <tr>
+                  <th>Plano</th>
+                  <th class="r">Qtd.</th>
+                  <th class="r">Investido (Kz)</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($salesReport as $row)
+                  <tr>
+                    <td>{{ $row['plan_name'] }}</td>
+                    <td class="r bold">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
+                    <td class="r">{{ number_format($row['invested_aoa'], 0, ',', '.') }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td><strong>TOTAL</strong></td>
+                  <td class="r bold">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</td>
+                  <td class="r bold">{{ number_format($totals['total_invested'], 0, ',', '.') }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          @else
+            <div class="rv-stat-sub">Investido: {{ number_format($totals['total_invested'], 0, ',', '.') }} Kz</div>
+          @endif
         </div>
 
         @if($application->monthly_target_aoa > 0)
