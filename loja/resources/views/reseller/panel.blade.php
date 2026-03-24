@@ -885,6 +885,7 @@
                   <th>Data</th>
                   <th>Plano</th>
                   <th class="r">Qtd.</th>
+                  <th class="r">Desconto</th>
                   <th class="r">Pago (Kz)</th>
                   <th class="r">Lucro (Kz)</th>
                   <th></th>
@@ -902,6 +903,9 @@
                       @endif
                     </td>
                     <td class="r">{{ $purchase->codes_count }}</td>
+                    <td class="r" style="color:#0d9488;font-weight:700;">
+                      {{ $purchase->discount_percent ? $purchase->discount_percent.'%' : '—' }}
+                    </td>
                     <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
                     <td class="r" style="color:#16a34a;font-weight:700;">
                       @if($purchase->profit_aoa)
