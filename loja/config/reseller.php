@@ -11,6 +11,15 @@ return [
     // Desconto fixo de 70% — o revendedor paga 30% do valor de face.
     'mode_own_discount_percent' => 70,
 
+    // Cota mensal obrigatória em vouchers — inibe revendedores ociosos
+    // Equivalente a 45.000 Kz de valor público por mês
+    'monthly_maintenance_quota_aoa' => 45000,
+    'monthly_maintenance_breakdown' => [
+        ['name' => 'Dia',    'plan_slug' => 'diario',  'qty' => 50, 'unit_price' => 200,  'total' => 10000],
+        ['name' => 'Semana', 'plan_slug' => 'semanal', 'qty' => 30, 'unit_price' => 500,  'total' => 15000],
+        ['name' => 'Mês',    'plan_slug' => 'mensal',  'qty' => 20, 'unit_price' => 1000, 'total' => 20000],
+    ],
+
     // Taxa de manutenção anual (Kz) — cobrada em Março
     'mode_own_maintenance_aoa' => 50000,
     'mode_own_maintenance_month' => 3,  // Março

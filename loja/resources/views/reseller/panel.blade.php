@@ -730,6 +730,63 @@
         @endif
       </div>
 
+      {{-- ── Cota Mensal de Manutenção ── --}}
+      @php
+        $quota     = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
+        $breakdown = config('reseller.monthly_maintenance_breakdown', []);
+        $mySpend   = $application->monthlySpendings();
+        $quotaPct  = $quota > 0 ? min(100, (int) round($mySpend * 100 / $quota)) : 0;
+      @endphp
+      <div class="rv-panel">
+        <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Cota Mensal de Manutenção</div>
+        <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
+          Para manter o estatuto de revendedor activo é obrigatório adquirir pelo menos
+          <strong>{{ number_format($quota, 0, ',', '.') }} Kz</strong> em vouchers por mês.
+        </p>
+        <table class="rv-hist-table" style="margin-bottom:.9rem;">
+          <thead>
+            <tr>
+              <th>Planos</th>
+              <th class="r">P. Unit.</th>
+              <th class="r">Qtd.</th>
+              <th class="r">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($breakdown as $row)
+              <tr>
+                <td>{{ $row['name'] }}</td>
+                <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
+                <td class="r">{{ $row['qty'] }}</td>
+                <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><strong>TOTAL</strong></td>
+              <td class="r bold">{{ number_format($quota, 0, ',', '.') }}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
+          <span>Progresso este mês:</span>
+          <span style="font-weight:700;color:{{ $quotaPct >= 100 ? '#16a34a' : '#d97706' }};">
+            {{ number_format($mySpend, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Kz &nbsp;({{ $quotaPct }}%)
+          </span>
+        </div>
+        <div class="rv-progress-bar">
+          <div class="rv-progress-fill" style="width:{{ $quotaPct }}%;background:{{ $quotaPct >= 100 ? '#16a34a' : '#f59e0b' }};"></div>
+        </div>
+        @if($quotaPct >= 100)
+          <p style="font-size:.82rem;color:#16a34a;font-weight:700;margin-top:.5rem;">✅ Cota mensal cumprida!</p>
+        @else
+          <p style="font-size:.82rem;color:#92400e;margin-top:.5rem;">
+            Faltam <strong>{{ number_format($quota - $mySpend, 0, ',', '.') }} Kz</strong> para cumprir a cota deste mês.
+          </p>
+        @endif
+      </div>
+
       {{-- ── Catálogo de planos ── --}}
       <div class="rv-panel">
         <div class="rv-panel-title"><span class="rv-panel-icon">📦</span> Planos disponíveis</div>
