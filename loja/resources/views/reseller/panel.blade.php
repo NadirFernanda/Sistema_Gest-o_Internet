@@ -788,12 +788,13 @@
                 </div>
 
                 <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form">
-                    @csrf
-                    <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
-                    <input type="number" name="quantity" min="1" max="500" value="1"
-                           class="rv-qty-input" required aria-label="Quantidade">
-                    <button type="submit" class="rv-btn-add">Adicionar ao carrinho</button>
-                  </form>
+                  @csrf
+                  <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
+                  <input type="number" name="quantity" min="1" max="500" value="1"
+                         class="rv-qty-input" required aria-label="Quantidade">
+                  <button type="submit" class="rv-btn-add">Adicionar ao carrinho</button>
+                </form>
+
               </div>
             @endforeach
           </div>
