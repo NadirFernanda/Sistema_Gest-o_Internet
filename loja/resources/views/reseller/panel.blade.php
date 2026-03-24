@@ -666,34 +666,39 @@
 
         @if($application->bonus_vouchers_aoa > 0)
           @php
-            $bonusBreakdown = collect(config('reseller.monthly_maintenance_breakdown', []))->map(function($row) use ($application) {
-                $qty = $row['unit_price'] > 0 ? (int) floor($application->bonus_vouchers_aoa / $row['unit_price']) : 0;
-                return array_merge($row, ['bonus_qty' => $qty]);
-            });
+            $bonusBreakdown = config('reseller.bonus_breakdown', []);
+            $bonusTotal = collect($bonusBreakdown)->sum('total');
           @endphp
           <div class="rv-stat-card purple" style="grid-column: 1 / -1;">
             <div class="rv-stat-icon">🎁</div>
             <div class="rv-stat-label">Bónus de arranque</div>
-            <div class="rv-stat-value blue" style="margin-bottom:.6rem;">{{ number_format($application->bonus_vouchers_aoa, 0, ',', '.') }} Kz</div>
-            <table style="width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.25rem;">
+            <table class="rv-hist-table" style="margin:.5rem 0 .35rem;">
               <thead>
                 <tr>
-                  <th style="text-align:left;color:#64748b;font-weight:600;padding-bottom:.3rem;">Plano</th>
-                  <th style="text-align:right;color:#64748b;font-weight:600;padding-bottom:.3rem;">P. Unit.</th>
-                  <th style="text-align:right;color:#64748b;font-weight:600;padding-bottom:.3rem;">Qtd. vouchers</th>
+                  <th>Planos</th>
+                  <th class="r">P. Unit.</th>
+                  <th class="r">Qtd.</th>
+                  <th class="r">Valor</th>
                 </tr>
               </thead>
               <tbody>
                 @foreach($bonusBreakdown as $row)
                   <tr>
-                    <td style="padding:.2rem 0;color:#374151;">{{ $row['name'] }}</td>
-                    <td style="text-align:right;color:#374151;">{{ number_format($row['unit_price'], 0, ',', '.') }} Kz</td>
-                    <td style="text-align:right;font-weight:800;color:#7c3aed;">{{ number_format($row['bonus_qty'], 0, ',', '.') }}</td>
+                    <td>{{ $row['name'] }}</td>
+                    <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
+                    <td class="r"><strong>{{ $row['qty'] }}</strong></td>
+                    <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
                   </tr>
                 @endforeach
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3"><strong>TOTAL</strong></td>
+                  <td class="r bold">{{ number_format($bonusTotal, 0, ',', '.') }}</td>
+                </tr>
+              </tfoot>
             </table>
-            <div class="rv-stat-sub" style="margin-top:.5rem;">Equivalente em vouchers com o bónus de arranque</div>
+            <div class="rv-stat-sub">Vouchers atribuídos no arranque da parceria</div>
           </div>
         @endif
       </div>

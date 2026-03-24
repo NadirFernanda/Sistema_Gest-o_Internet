@@ -27,6 +27,13 @@ return [
     // Bónus de início: % da taxa de instalação convertida em vouchers
     'bonus_install_percent' => 50,
 
+    // Bónus de arranque — breakdown fixo em vouchers (total = 90.000 Kz)
+    'bonus_breakdown' => [
+        ['name' => 'Dia',    'plan_slug' => 'diario',  'qty' => 100, 'unit_price' => 200,  'total' => 20000],
+        ['name' => 'Semana', 'plan_slug' => 'semanal', 'qty' => 60,  'unit_price' => 500,  'total' => 30000],
+        ['name' => 'Mês',    'plan_slug' => 'mensal',  'qty' => 40,  'unit_price' => 1000, 'total' => 40000],
+    ],
+
     // Meta mensal: % da taxa de instalação
     'monthly_target_percent' => 50,
 
