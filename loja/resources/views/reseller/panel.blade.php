@@ -633,11 +633,45 @@
 
       {{-- Stats --}}
       <div class="rv-stats">
-        <div class="rv-stat-card green">
+        <div class="rv-stat-card green" style="grid-column: 1 / -1;">
           <div class="rv-stat-icon">💰</div>
           <div class="rv-stat-label">Lucro estimado</div>
-          <div class="rv-stat-value green">{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }} Kz</div>
-          <div class="rv-stat-sub">Total de lucro nas compras</div>
+          <div class="rv-stat-value green" style="margin-bottom:.5rem;">{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }} Kz</div>
+          @if(!empty($salesReport))
+            <table class="rv-hist-table" style="margin-bottom:.4rem;">
+              <thead>
+                <tr>
+                  <th>Plano</th>
+                  <th class="r">Vouchers</th>
+                  <th class="r">Lucro (Kz)</th>
+                  <th class="r">% do total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @php $totalProfit = max(1, $totals['profit_total'] ?: $estimatedProfit); @endphp
+                @foreach($salesReport as $row)
+                  @php $pct = round($row['profit_aoa'] * 100 / $totalProfit); @endphp
+                  <tr>
+                    <td>{{ $row['plan_name'] }}</td>
+                    <td class="r">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
+                    <td class="r bold" style="color:#16a34a;">+{{ number_format($row['profit_aoa'], 0, ',', '.') }}</td>
+                    <td class="r">
+                      <span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:.75rem;font-weight:700;padding:.1rem .45rem;border-radius:.35rem;">{{ $pct }}%</span>
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2"><strong>TOTAL</strong></td>
+                  <td class="r bold" style="color:#16a34a;">+{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }}</td>
+                  <td class="r bold">100%</td>
+                </tr>
+              </tfoot>
+            </table>
+          @else
+            <div class="rv-stat-sub">Total de lucro nas compras</div>
+          @endif
         </div>
 
         <div class="rv-stat-card blue" style="grid-column: 1 / -1;">
