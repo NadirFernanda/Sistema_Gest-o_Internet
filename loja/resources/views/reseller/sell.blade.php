@@ -126,6 +126,22 @@
 .sl-recent-table .mono { font-family: 'Courier New', monospace; font-weight: 700; font-size: .85rem; color: #0f172a; }
 .sl-recent-table .dim { color: var(--sl-faint); font-size: .8rem; }
 
+/* Clickable plan card */
+a.sl-card-clickable {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+  transition: border-color .18s, box-shadow .18s, transform .13s;
+}
+a.sl-card-clickable:hover {
+  border-color: var(--sl-yellow);
+  box-shadow: 0 4px 16px rgba(247,181,0,.22);
+  transform: translateY(-2px);
+}
+/* Smooth scroll for plan anchors */
+.sl-plan-group { scroll-margin-top: 1.5rem; }
+
 /* Empty */
 .sl-empty { text-align: center; padding: 3rem 1rem; color: var(--sl-faint); }
 .sl-empty-icon { font-size: 2.5rem; margin-bottom: .5rem; }
@@ -184,11 +200,11 @@
   {{-- Summary cards --}}
   <div class="sl-summary">
     <div class="sl-card">
-      <p class="sl-card-val" style="color:var(--sl-green)">{{ $totalInStock }}</p>
+      <p class="sl-card-val" style="color:var(--sl-green)">{{ number_format($totalInStock, 0, ',', '.') }}</p>
       <p class="sl-card-lbl">Total disponíveis</p>
     </div>
     <div class="sl-card">
-      <p class="sl-card-val" style="color:var(--sl-muted)">{{ $totalSold }}</p>
+      <p class="sl-card-val" style="color:var(--sl-muted)">{{ number_format($totalSold, 0, ',', '.') }}</p>
       <p class="sl-card-lbl">Total vendidos</p>
     </div>
     @foreach($allPlanSlugs as $planSlug)
@@ -197,22 +213,32 @@
         $avail = isset($stockByPlan[$planSlug]) ? $stockByPlan[$planSlug]->count() : 0;
         $sold  = isset($soldByPlan[$planSlug])  ? $soldByPlan[$planSlug]->count()  : 0;
       @endphp
-      <div class="sl-card">
-        <p class="sl-card-lbl" style="font-weight:700;color:var(--sl-text);margin-bottom:.4rem;">
-          {{ $plan ? $plan->name : $planSlug }}
+      <a href="#plan-{{ $planSlug }}" class="sl-card sl-card-clickable" title="Ir para os vouchers — {{ $plan ? $plan->name : $planSlug }}">
+        <p class="sl-card-lbl" style="font-weight:700;color:var(--sl-text);margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>{{ $plan ? $plan->name : $planSlug }}</span>
+          <span style="font-size:.72rem;color:var(--sl-blue);font-weight:700;letter-spacing:.01em;">↓ ir</span>
         </p>
         <div style="display:flex;gap:1.1rem;">
           <div>
-            <p class="sl-card-val" style="color:var(--sl-green);font-size:1.5rem;">{{ $avail }}</p>
+            <p class="sl-card-val" style="color:var(--sl-green);font-size:1.5rem;">{{ number_format($avail, 0, ',', '.') }}</p>
             <p class="sl-card-lbl">disponíveis</p>
           </div>
           <div>
-            <p class="sl-card-val" style="color:var(--sl-muted);font-size:1.5rem;">{{ $sold }}</p>
+            <p class="sl-card-val" style="color:var(--sl-muted);font-size:1.5rem;">{{ number_format($sold, 0, ',', '.') }}</p>
             <p class="sl-card-lbl">vendidos</p>
           </div>
         </div>
-      </div>
+      </a>
     @endforeach
+
+    {{-- Explanatory tip card --}}
+    <div class="sl-card" style="background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-color:#bae6fd;border-left:4px solid var(--sl-blue);">
+      <p class="sl-card-lbl" style="font-weight:800;color:#0369a1;margin-bottom:.55rem;font-size:.8rem;">💡 Como navegar</p>
+      <p style="font-size:.77rem;color:#075985;line-height:1.6;margin:0;">
+        Clique num <strong>card de plano</strong> para saltar directamente para essa secção.<br>
+        Use <strong>"Seleccionar rápido"</strong> para escolher a quantidade sem ter de marcar voucher a voucher.
+      </p>
+    </div>
   </div>
 
   @if($totalInStock === 0)
@@ -252,7 +278,7 @@
         };
       @endphp
 
-      <div class="sl-panel sl-plan-group" data-plan="{{ $planSlug }}">
+      <div class="sl-panel sl-plan-group" data-plan="{{ $planSlug }}" id="plan-{{ $planSlug }}">
         <div class="sl-plan-header">
           <div style="display:flex;align-items:center;gap:.65rem;">
             <span class="sl-badge {{ $badgeClass }}">{{ strtoupper($planSlug) }}</span>

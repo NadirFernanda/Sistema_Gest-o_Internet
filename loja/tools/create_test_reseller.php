@@ -26,7 +26,7 @@ $r = ResellerApplication::updateOrCreate(
 );
 
 $added = 0;
-foreach (['diario' => 30, 'semanal' => 20, 'mensal' => 10] as $plan => $qty) {
+foreach (['diario' => 2000, 'semanal' => 2000, 'mensal' => 2000] as $plan => $qty) {
     for ($i = 1; $i <= $qty; $i++) {
         WifiCode::firstOrCreate(
             ['code' => strtoupper($plan) . '-TEST-' . str_pad($i, 4, '0', STR_PAD_LEFT)],
@@ -47,9 +47,9 @@ echo "  Modo    : " . $r->reseller_mode . " (desconto 70%)\n";
 echo "  Status  : " . $r->status . "\n";
 echo "----------------------------------------------\n";
 echo "  Stock adicionado:\n";
-echo "    Diario  : 30 vouchers (DIARIO-TEST-0001..0030)\n";
-echo "    Semanal : 20 vouchers (SEMANAL-TEST-0001..0020)\n";
-echo "    Mensal  : 10 vouchers (MENSAL-TEST-0001..0010)\n";
+echo "    Diario  : 2000 vouchers (DIARIO-TEST-0001..2000)\n";
+echo "    Semanal : 2000 vouchers (SEMANAL-TEST-0001..2000)\n";
+echo "    Mensal  : 2000 vouchers (MENSAL-TEST-0001..2000)\n";
 echo "==============================================\n";
 echo "  Login em: http://127.0.0.1:8001/painel-revendedor\n";
 echo "  OTP vai para: storage/logs/laravel.log\n";

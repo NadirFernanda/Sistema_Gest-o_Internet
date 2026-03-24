@@ -359,6 +359,26 @@ class ClienteController extends Controller
         $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $diasRestantes));
         return 'Alerta de vencimento enviado para ' . $cliente->email;
     }
+    /**
+     * Web JSON endpoint — returns clients for the plan form's dynamic dropdown.
+     * Protected by session auth (no API token required).
+     */
+    public function searchJson()
+    {
+        $busca = request('q', '');
+        $query = Cliente::query()->orderBy('nome');
+        if ($busca !== '') {
+            $query->where(function ($q) use ($busca) {
+                $q->where('nome', 'like', "%{$busca}%")
+                  ->orWhere('bi',   'like', "%{$busca}%")
+                  ->orWhere('contato', 'like', "%{$busca}%");
+            });
+        }
+        return response()->json(
+            $query->select('id', 'nome', 'bi')->limit(300)->get()
+        );
+    }
+
     public function index()
     {
         $query = Cliente::query();

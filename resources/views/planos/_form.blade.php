@@ -52,15 +52,21 @@
         </div>
 
         <div>
-            <label class="field-label">Cliente</label>
+            <label class="field-label">Cliente <span style="color:#d00">*</span>
+                <button type="button" id="reloadClientesBtn" title="Recarregar lista de clientes"
+                    style="background:none;border:none;cursor:pointer;color:#f7b500;font-size:13px;padding:0 4px;vertical-align:middle;">↺</button>
+            </label>
             <select id="clientePlano" name="cliente_id" class="select" required data-placeholder="Pesquisar cliente...">
                 <option value="">Selecione o cliente</option>
-                @if(isset($clientes) && count($clientes))
-                    @foreach($clientes as $c)
-                        <option value="{{ $c->id }}" {{ old('cliente_id') == $c->id ? 'selected' : '' }}>{{ $c->nome }}{{ $c->bi ? ' — ' . $c->bi : '' }}</option>
-                    @endforeach
+                {{-- Manter o cliente pré-selecionado após re-render por validação --}}
+                @if(old('cliente_id'))
+                    @php $oldCliente = \App\Models\Cliente::find(old('cliente_id')); @endphp
+                    @if($oldCliente)
+                        <option value="{{ $oldCliente->id }}" selected>{{ $oldCliente->nome }}{{ $oldCliente->bi ? ' — ' . $oldCliente->bi : '' }}</option>
+                    @endif
                 @endif
             </select>
+            <div id="clientesLoadStatus" style="font-size:11px;color:#888;margin-top:3px;display:none;"></div>
         </div>
 
         <div>
@@ -223,6 +229,53 @@
             });
             window.loadTemplates();
         })();
+
+    // ── Carregamento dinâmico de clientes ──────────────────────────────────
+    (function(){
+        const sel = document.getElementById('clientePlano');
+        const status = document.getElementById('clientesLoadStatus');
+        const reloadBtn = document.getElementById('reloadClientesBtn');
+        if(!sel) return;
+
+        const preSelectedId = sel.value; // valor pre-selecionado via old()
+
+        function loadClientes(){
+            if(status){ status.textContent = 'A carregar clientes…'; status.style.display='block'; }
+            fetch('{{ route('clientes.search.json') }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(function(list){
+                    const choicesInst = window._choicesMap && window._choicesMap['clientePlano'];
+                    if(choicesInst){
+                        const choices = list.map(function(c){
+                            return { value: String(c.id), label: c.nome + (c.bi ? ' — ' + c.bi : ''), selected: String(c.id) === String(preSelectedId) };
+                        });
+                        choicesInst.clearChoices();
+                        choicesInst.setChoices(choices, 'value', 'label', true);
+                        if(preSelectedId){ choicesInst.setChoiceByValue(String(preSelectedId)); }
+                    } else {
+                        // fallback: preencher select nativo
+                        const currentVal = sel.value;
+                        Array.from(sel.options).slice(1).forEach(o => o.remove()); // keep placeholder
+                        list.forEach(function(c){
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = c.nome + (c.bi ? ' — ' + c.bi : '');
+                            if(String(c.id) === String(preSelectedId)) opt.selected = true;
+                            sel.appendChild(opt);
+                        });
+                        if(currentVal) sel.value = currentVal;
+                    }
+                    if(status){ status.style.display='none'; }
+                })
+                .catch(function(){
+                    if(status){ status.textContent = 'Erro ao carregar clientes. Tente recarregar (↺).'; status.style.display='block'; }
+                });
+        }
+
+        if(reloadBtn) reloadBtn.addEventListener('click', loadClientes);
+        // Carrega sempre ao abrir a página — lista sempre fresca independentemente de quando o cliente foi criado
+        loadClientes();
+    })();
 
     })();
 </script>
