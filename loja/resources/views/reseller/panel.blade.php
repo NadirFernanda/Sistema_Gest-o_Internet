@@ -644,8 +644,8 @@
         <div class="rv-alert warning">
           <span class="rv-alert-icon">🎯</span>
           <div>
-            <strong>Meta mensal ainda não atingida</strong>
-            Faltam <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong> para atingir a meta
+            <strong>Manutenção mensal ainda não atingida</strong>
+            Faltam <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong> para atingir a manutenção
             de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz este mês.
           </div>
         </div>
@@ -735,7 +735,7 @@
           @endphp
           <div class="rv-stat-card amber">
             <div class="rv-stat-icon">🎯</div>
-            <div class="rv-stat-label">Meta mensal</div>
+            <div class="rv-stat-label">Manutenção mensal</div>
             <div class="rv-stat-value">{{ number_format($application->monthlySpendings(), 0, ',', '.') }} Kz</div>
             <div class="rv-stat-sub">de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz · {{ $pct }}%</div>
             <div class="rv-progress-bar">
