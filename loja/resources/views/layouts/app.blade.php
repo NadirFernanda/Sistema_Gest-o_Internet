@@ -9,12 +9,11 @@
     {{-- Carregamento não-bloqueante das fontes — evita ERR_SOCKET_NOT_CONNECTED bloquear o render --}}
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
-    {{-- CSS + JS via Vite (bundle inclui todo o CSS custom + JS). Fallback para
-         public/css/fallback.css caso o build não exista (dev sem npm run build). --}}
+    {{-- CSS principal — sempre carregado de public/css/fallback.css (fonte de verdade).
+         O Vite trata apenas do JS. Desta forma um novo build nunca destrói o CSS. --}}
+    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     @if (file_exists(public_path('build/manifest.json')))
-      @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-      <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
+      @vite(['resources/js/app.js'])
     @endif
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
