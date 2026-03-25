@@ -639,16 +639,40 @@
           </a>
         </div>
       @endif
-      @if($application->monthly_target_aoa > 0 && !$application->metMonthlyTarget())
-        @php $remaining = $application->monthly_target_aoa - $application->monthlySpendings(); @endphp
-        <div class="rv-alert warning">
-          <span class="rv-alert-icon">🎯</span>
+      {{-- Manutenção mensal (obrigatória — condiciona serviços) --}}
+      @php
+        $maintQuota = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
+        $maintSpend = $application->monthlySpendings();
+        $maintMet   = $maintSpend >= $maintQuota;
+      @endphp
+      @if(!$maintMet)
+        @php $maintRemaining = $maintQuota - $maintSpend; @endphp
+        <div class="rv-alert danger">
+          <span class="rv-alert-icon">🔧</span>
           <div>
-            <strong>Manutenção mensal ainda não atingida</strong>
-            Faltam <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong> para atingir a manutenção
-            de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz este mês.
+            <strong>Manutenção mensal não cumprida</strong> — serviços condicionados.<br>
+            Faltam <strong>{{ number_format($maintRemaining, 0, ',', '.') }} Kz</strong> em compras para atingir a cota mínima de {{ number_format($maintQuota, 0, ',', '.') }} Kz este mês.
           </div>
         </div>
+      @endif
+
+      {{-- Meta mensal (facultativa — bónus ao atingir) --}}
+      @if($application->monthly_target_aoa > 0)
+        @if(!$application->metMonthlyTarget())
+          @php $remaining = $application->monthly_target_aoa - $application->monthlySpendings(); @endphp
+          <div class="rv-alert warning">
+            <span class="rv-alert-icon">🏆</span>
+            <div>
+              <strong>Meta mensal ainda não atingida</strong> — bónus em vouchers disponível ao atingir!<br>
+              Faltam <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong> para meta de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz.
+            </div>
+          </div>
+        @else
+          <div class="rv-alert" style="background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;display:flex;align-items:flex-start;gap:.65rem;padding:.85rem 1rem;border-radius:.6rem;">
+            <span class="rv-alert-icon">🏆</span>
+            <div style="color:#166534;"><strong>Meta mensal atingida!</strong> Parabéns — bónus em vouchers creditado.</div>
+          </div>
+        @endif
       @endif
 
       {{-- Stats --}}
@@ -729,18 +753,44 @@
           @endif
         </div>
 
+        {{-- Manutenção mensal obrigatória --}}
+        @php
+          $mQuota = isset($maintQuota) ? $maintQuota : (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
+          $mSpend = isset($maintSpend) ? $maintSpend : $application->monthlySpendings();
+          $mPct   = min(100, $mQuota > 0 ? round($mSpend * 100 / $mQuota) : 0);
+        @endphp
+        <div class="rv-stat-card {{ $mPct >= 100 ? 'green' : 'amber' }}">
+          <div class="rv-stat-icon">🔧</div>
+          <div class="rv-stat-label">Manutenção mensal
+            <span style="font-size:.68rem;font-weight:700;color:{{ $mPct >= 100 ? '#15803d' : '#dc2626' }};margin-left:.3rem;">
+              {{ $mPct >= 100 ? '✔ cumprida' : '⚠ obrigatória' }}
+            </span>
+          </div>
+          <div class="rv-stat-value">{{ number_format($mSpend, 0, ',', '.') }} Kz</div>
+          <div class="rv-stat-sub">de {{ number_format($mQuota, 0, ',', '.') }} Kz · {{ $mPct }}%</div>
+          <div class="rv-progress-bar">
+            <div class="rv-progress-fill" style="width:{{ $mPct }}%;background:{{ $mPct >= 100 ? '#16a34a' : '#dc2626' }};"></div>
+          </div>
+        </div>
+
+        {{-- Meta mensal facultativa (bónus) --}}
         @if($application->monthly_target_aoa > 0)
           @php
-            $pct = min(100, round($application->monthlySpendings() * 100 / $application->monthly_target_aoa));
+            $metaPct = min(100, round($application->monthlySpendings() * 100 / $application->monthly_target_aoa));
           @endphp
-          <div class="rv-stat-card amber">
-            <div class="rv-stat-icon">🎯</div>
-            <div class="rv-stat-label">Manutenção mensal</div>
-            <div class="rv-stat-value">{{ number_format($application->monthlySpendings(), 0, ',', '.') }} Kz</div>
-            <div class="rv-stat-sub">de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz · {{ $pct }}%</div>
-            <div class="rv-progress-bar">
-              <div class="rv-progress-fill" style="width:{{ $pct }}%;background:{{ $pct >= 100 ? '#16a34a' : '#f59e0b' }};"></div>
+          <div class="rv-stat-card {{ $metaPct >= 100 ? 'purple' : 'amber' }}">
+            <div class="rv-stat-icon">🏆</div>
+            <div class="rv-stat-label">Meta mensal
+              <span style="font-size:.68rem;font-weight:700;color:#7c3aed;margin-left:.3rem;">facultativa</span>
             </div>
+            <div class="rv-stat-value">{{ number_format($application->monthlySpendings(), 0, ',', '.') }} Kz</div>
+            <div class="rv-stat-sub">de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz · {{ $metaPct }}%</div>
+            <div class="rv-progress-bar">
+              <div class="rv-progress-fill" style="width:{{ $metaPct }}%;background:{{ $metaPct >= 100 ? '#7c3aed' : '#f59e0b' }};"></div>
+            </div>
+            @if($metaPct >= 100)
+              <div style="font-size:.75rem;color:#7c3aed;font-weight:700;margin-top:.3rem;">🎁 Bónus creditado!</div>
+            @endif
           </div>
         @endif
 
