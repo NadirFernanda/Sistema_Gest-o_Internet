@@ -1707,3 +1707,111 @@ input[type="submit"] {
   .page-hero--compact { padding: 3rem 0 2rem; }
   .page-hero--compact .page-hero__title { font-size: 1.6rem; }
 }
+
+/* =====================================================================
+   HERO — scroll hint chevron below carousel
+   ===================================================================== */
+.hero__scroll-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.22);
+  border-radius: 50%;
+  color: rgba(255,255,255,.7);
+  text-decoration: none;
+  animation: bounceDown 1.8s ease-in-out infinite;
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.hero__scroll-hint:hover { background: rgba(247,181,0,.25); color: var(--brand); }
+@keyframes bounceDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* =====================================================================
+   HOW-TO SECTION — homepage "Como Funciona" 4-step grid
+   ===================================================================== */
+.howto-section { padding: 5.5rem 0; background: var(--surface-alt); }
+.howto-section--home { background: var(--surface-alt); }
+.howto-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+@media (min-width: 600px) { .howto-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .howto-grid { grid-template-columns: repeat(4, 1fr); } }
+.step-card {
+  background: #fff;
+  border-radius: var(--radius-card);
+  padding: 2rem 1.75rem;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid rgba(226,232,240,.65);
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.step-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--brand);
+  color: #111;
+  font-size: 1.15rem;
+  font-weight: 900;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(247,181,0,.3);
+}
+.step-card h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-dark); }
+.step-card p { margin: 0; color: var(--text-muted); font-size: .93rem; line-height: 1.6; }
+
+/* =====================================================================
+   FOOTER — BEM classes added in the modern footer redesign
+   ===================================================================== */
+.footer-brand-link { display: inline-block; text-decoration: none; }
+.footer-brand-name { display: block; font-size: 1.25rem; font-weight: 800; color: var(--brand); letter-spacing: .2px; }
+.footer-brand-name:hover { color: var(--brand-dark); }
+.footer-contact-list {
+  list-style: none;
+  padding: 0;
+  margin: .5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+.footer-contact-list li { display: flex; align-items: center; gap: .65rem; font-size: .9rem; color: #cbd5e1; }
+.footer-contact-list a { color: #cbd5e1; text-decoration: none; }
+.footer-contact-list a:hover { color: var(--brand); }
+.footer-contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: var(--brand);
+  flex-shrink: 0;
+}
+.footer-legal-sep { display: none; }
+@media (min-width: 768px) {
+  .footer-legal-sep {
+    display: inline-block;
+    width: 1px;
+    height: 1rem;
+    background: rgba(255,255,255,.2);
+    vertical-align: middle;
+    margin: 0 .5rem;
+  }
+}
