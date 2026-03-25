@@ -300,8 +300,8 @@
 /* Plan catalog grid */
 .rv-plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 .rv-plan-card {
   border: 1.5px solid #e2e8f0;
@@ -927,7 +927,6 @@
                     <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
                     <span class="rv-plan-name">{{ $plan->name }}</span>
                   </div>
-                  <span class="rv-plan-stock-badge {{ $stockClass }}">{{ $stockLabel }}</span>
                 </div>
 
                 {{-- Preço público em destaque --}}
