@@ -503,6 +503,35 @@
   .rv-cart-footer { flex-direction: column; align-items: stretch; text-align: center; }
   .rv-cart-actions { justify-content: center; }
 }
+
+/* ── Accordion menu ── */
+.rv-menu { display: flex; flex-direction: column; gap: .65rem; margin-top: .25rem; }
+.rv-menu-item { border-radius: .85rem; overflow: hidden; box-shadow: 0 2px 8px rgba(15,23,42,.07); border: 1.5px solid #e2e8f0; background: #fff; }
+.rv-menu-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.4rem; background: #0f172a; color: #fff;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  border: none; outline: none; text-align: left; gap: .75rem;
+  transition: background .15s;
+}
+.rv-menu-btn:hover, .rv-menu-btn.open { background: #1e293b; }
+.rv-menu-btn-left { display: flex; align-items: center; gap: .65rem; flex: 1; }
+.rv-menu-icon { font-size: 1.25rem; flex-shrink: 0; }
+.rv-menu-label { flex: 1; }
+.rv-menu-badge {
+  font-size: .72rem; font-weight: 700; padding: .2rem .65rem;
+  border-radius: 999px; white-space: nowrap;
+}
+.rv-menu-chevron {
+  font-size: 1.4rem; line-height: 1; transition: transform .25s; color: #94a3b8;
+}
+.rv-menu-chevron.open { transform: rotate(90deg); color: #f7b500; }
+.rv-menu-body { padding: 1.25rem; background: #f8fafc; border-top: 1.5px solid #e2e8f0; }
+@media (max-width: 640px) {
+  .rv-menu-btn { font-size: .95rem; padding: .9rem 1rem; }
+  .rv-menu-body { padding: .9rem; }
+  .rv-menu-icon { font-size: 1.05rem; }
+}
 </style>
 @endpush
 
@@ -622,627 +651,593 @@
         </form>
       </div>
 
-      {{-- Alerts --}}
+      {{-- ══ Pre-calc shared variables ══ --}}
+      @php
+        $maintQuota    = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
+        $maintBreakdown= config('reseller.monthly_maintenance_breakdown', []);
+        $maintSpend    = $application->monthlySpendings();
+        $maintMet      = $maintSpend >= $maintQuota;
+        $maintPct      = $maintQuota > 0 ? min(100, (int) round($maintSpend * 100 / $maintQuota)) : 0;
+      @endphp
+
+      {{-- ══ Alertas globais (sempre visíveis) ══ --}}
       @if($application->maintenanceDueThisMonth())
         <div class="rv-alert danger" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
           <div style="display:flex;align-items:flex-start;gap:.65rem;">
             <span class="rv-alert-icon">🔔</span>
             <div>
-              <strong>Taxa de manutenção em atraso</strong><br>
+              <strong>Taxa de manutenção anual em atraso</strong><br>
               Valor em dívida: {{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz.
             </div>
           </div>
           <a href="{{ route('reseller.maintenance.payment') }}"
-             style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#dc2626;color:#fff;border-radius:.6rem;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .15s;"
-             onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+             style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#dc2626;color:#fff;border-radius:.6rem;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;">
             💳 Pagar agora
           </a>
         </div>
       @endif
-      {{-- Manutenção mensal (obrigatória — condiciona serviços) --}}
-      @php
-        $maintQuota = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
-        $maintSpend = $application->monthlySpendings();
-        $maintMet   = $maintSpend >= $maintQuota;
-      @endphp
       @if(!$maintMet)
-        @php $maintRemaining = $maintQuota - $maintSpend; @endphp
         <div class="rv-alert danger">
           <span class="rv-alert-icon">🔧</span>
           <div>
             <strong>Manutenção mensal não cumprida</strong> — serviços condicionados.<br>
-            Faltam <strong>{{ number_format($maintRemaining, 0, ',', '.') }} Kz</strong> em compras para atingir a cota mínima de {{ number_format($maintQuota, 0, ',', '.') }} Kz este mês.
+            Faltam <strong>{{ number_format($maintQuota - $maintSpend, 0, ',', '.') }} Kz</strong> em compras para atingir a cota de {{ number_format($maintQuota, 0, ',', '.') }} Kz este mês.
           </div>
         </div>
       @endif
-
-      {{-- Meta mensal (facultativa — bónus ao atingir) --}}
-      @if($application->monthly_target_aoa > 0)
-        @if(!$application->metMonthlyTarget())
-          @php $remaining = $application->monthly_target_aoa - $application->monthlySpendings(); @endphp
-          <div class="rv-alert warning">
-            <span class="rv-alert-icon">🏆</span>
-            <div>
-              <strong>Meta mensal ainda não atingida</strong> — bónus em vouchers disponível ao atingir!<br>
-              Faltam <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong> para meta de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz.
-            </div>
-          </div>
-        @else
-          <div class="rv-alert" style="background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;display:flex;align-items:flex-start;gap:.65rem;padding:.85rem 1rem;border-radius:.6rem;">
-            <span class="rv-alert-icon">🏆</span>
-            <div style="color:#166534;"><strong>Meta mensal atingida!</strong> Parabéns — bónus em vouchers creditado.</div>
-          </div>
-        @endif
+      @if($application->monthly_target_aoa > 0 && $application->metMonthlyTarget())
+        <div class="rv-alert" style="background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;display:flex;align-items:flex-start;gap:.65rem;padding:.85rem 1rem;border-radius:.6rem;">
+          <span class="rv-alert-icon">🏆</span>
+          <div style="color:#166534;"><strong>Meta mensal atingida!</strong> Parabéns — bónus em vouchers creditado.</div>
+        </div>
       @endif
 
-      {{-- Stats --}}
-      <div class="rv-stats">
-        <div class="rv-stat-card green" style="grid-column: 1 / -1;">
-          <div class="rv-stat-icon">💰</div>
-          <div class="rv-stat-label">Lucro estimado</div>
-          <div class="rv-stat-value green" style="margin-bottom:.5rem;">{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }} Kz</div>
-          @if(!empty($salesReport))
-            <table class="rv-hist-table" style="margin-bottom:.4rem;">
-              <thead>
-                <tr>
-                  <th>Plano</th>
-                  <th class="r">Vouchers</th>
-                  <th class="r">Lucro (Kz)</th>
-                  <th class="r">% do total</th>
-                </tr>
-              </thead>
-              <tbody>
-                @php $totalProfit = max(1, $totals['profit_total'] ?: $estimatedProfit); @endphp
-                @foreach($salesReport as $row)
-                  @php $pct = round($row['profit_aoa'] * 100 / $totalProfit); @endphp
-                  <tr>
-                    <td>{{ $row['plan_name'] }}</td>
-                    <td class="r">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
-                    <td class="r bold" style="color:#16a34a;">+{{ number_format($row['profit_aoa'], 0, ',', '.') }}</td>
-                    <td class="r">
-                      <span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:.75rem;font-weight:700;padding:.1rem .45rem;border-radius:.35rem;">{{ $pct }}%</span>
-                    </td>
-                  </tr>
-                @endforeach
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="2"><strong>TOTAL</strong></td>
-                  <td class="r bold" style="color:#16a34a;">+{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }}</td>
-                  <td class="r bold">100%</td>
-                </tr>
-              </tfoot>
-            </table>
-          @else
-            <div class="rv-stat-sub">Total de lucro nas compras</div>
-          @endif
-        </div>
+      {{-- ══ MENU ACCORDION ══ --}}
+      <div class="rv-menu">
 
-        <div class="rv-stat-card blue" style="grid-column: 1 / -1;">
-          <div class="rv-stat-icon">📦</div>
-          <div class="rv-stat-label">Vouchers adquiridos</div>
-          <div class="rv-stat-value" style="margin-bottom:.5rem;">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</div>
-          @if(!empty($salesReport))
-            <table class="rv-hist-table" style="margin-bottom:.4rem;">
-              <thead>
-                <tr>
-                  <th>Plano</th>
-                  <th class="r">Qtd.</th>
-                  <th class="r">Investido (Kz)</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($salesReport as $row)
-                  <tr>
-                    <td>{{ $row['plan_name'] }}</td>
-                    <td class="r bold">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
-                    <td class="r">{{ number_format($row['invested_aoa'], 0, ',', '.') }}</td>
-                  </tr>
-                @endforeach
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td><strong>TOTAL</strong></td>
-                  <td class="r bold">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</td>
-                  <td class="r bold">{{ number_format($totals['total_invested'], 0, ',', '.') }}</td>
-                </tr>
-              </tfoot>
-            </table>
-          @else
-            <div class="rv-stat-sub">Investido: {{ number_format($totals['total_invested'], 0, ',', '.') }} Kz</div>
-          @endif
-        </div>
-
-        {{-- Manutenção mensal obrigatória --}}
-        @php
-          $mQuota = isset($maintQuota) ? $maintQuota : (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
-          $mSpend = isset($maintSpend) ? $maintSpend : $application->monthlySpendings();
-          $mPct   = min(100, $mQuota > 0 ? round($mSpend * 100 / $mQuota) : 0);
-        @endphp
-        <div class="rv-stat-card {{ $mPct >= 100 ? 'green' : 'amber' }}">
-          <div class="rv-stat-icon">🔧</div>
-          <div class="rv-stat-label">Manutenção mensal
-            <span style="font-size:.68rem;font-weight:700;color:{{ $mPct >= 100 ? '#15803d' : '#dc2626' }};margin-left:.3rem;">
-              {{ $mPct >= 100 ? '✔ cumprida' : '⚠ obrigatória' }}
+        {{-- ① COMPRAR --}}
+        <div class="rv-menu-item" id="rv-sec-comprar">
+          <button class="rv-menu-btn" onclick="rvToggle('comprar')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">🛒</span>
+              <span class="rv-menu-label">Comprar</span>
+              @if(!empty($cartItems))
+                <span class="rv-menu-badge" style="background:#f7b500;color:#1a202c;">{{ $cartVouchers }} no carrinho</span>
+              @endif
             </span>
-          </div>
-          <div class="rv-stat-value">{{ number_format($mSpend, 0, ',', '.') }} Kz</div>
-          <div class="rv-stat-sub">de {{ number_format($mQuota, 0, ',', '.') }} Kz · {{ $mPct }}%</div>
-          <div class="rv-progress-bar">
-            <div class="rv-progress-fill" style="width:{{ $mPct }}%;background:{{ $mPct >= 100 ? '#16a34a' : '#dc2626' }};"></div>
-          </div>
-        </div>
+            <span class="rv-menu-chevron" id="rv-chev-comprar">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-comprar" style="display:none;">
 
-        {{-- Meta mensal facultativa (bónus) --}}
-        @if($application->monthly_target_aoa > 0)
-          @php
-            $metaPct = min(100, round($application->monthlySpendings() * 100 / $application->monthly_target_aoa));
-          @endphp
-          <div class="rv-stat-card {{ $metaPct >= 100 ? 'purple' : 'amber' }}">
-            <div class="rv-stat-icon">🏆</div>
-            <div class="rv-stat-label">Meta mensal
-              <span style="font-size:.68rem;font-weight:700;color:#7c3aed;margin-left:.3rem;">facultativa</span>
-            </div>
-            <div class="rv-stat-value">{{ number_format($application->monthlySpendings(), 0, ',', '.') }} Kz</div>
-            <div class="rv-stat-sub">de {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz · {{ $metaPct }}%</div>
-            <div class="rv-progress-bar">
-              <div class="rv-progress-fill" style="width:{{ $metaPct }}%;background:{{ $metaPct >= 100 ? '#7c3aed' : '#f59e0b' }};"></div>
-            </div>
-            @if($metaPct >= 100)
-              <div style="font-size:.75rem;color:#7c3aed;font-weight:700;margin-top:.3rem;">🎁 Bónus creditado!</div>
-            @endif
-          </div>
-        @endif
-
-        @if($application->bonus_vouchers_aoa > 0)
-          @php
-            $bonusBreakdown = config('reseller.bonus_breakdown', []);
-            $bonusTotal = collect($bonusBreakdown)->sum('total');
-          @endphp
-          <div class="rv-stat-card purple" style="grid-column: 1 / -1;">
-            <div class="rv-stat-icon">🎁</div>
-            <div class="rv-stat-label">Bónus de arranque</div>
-            <table class="rv-hist-table" style="margin:.5rem 0 .35rem;">
-              <thead>
-                <tr>
-                  <th>Planos</th>
-                  <th class="r">P. Unit.</th>
-                  <th class="r">Qtd.</th>
-                  <th class="r">Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($bonusBreakdown as $row)
-                  <tr>
-                    <td>{{ $row['name'] }}</td>
-                    <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
-                    <td class="r"><strong>{{ $row['qty'] }}</strong></td>
-                    <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
-                  </tr>
-                @endforeach
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="3"><strong>TOTAL</strong></td>
-                  <td class="r bold">{{ number_format($bonusTotal, 0, ',', '.') }}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div class="rv-stat-sub">Vouchers atribuídos no arranque da parceria</div>
-          </div>
-        @endif
-      </div>
-
-      {{-- Sell button — only when there are actually unsold vouchers in stock --}}
-      @if($totals['vouchers_in_stock'] > 0)
-      <div style="margin-bottom:1.25rem;">
-        <a href="{{ route('reseller.sell') }}"
-           style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-radius:.75rem;font-size:1.05rem;font-weight:800;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(22,163,74,.25);"
-           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(22,163,74,.35)'"
-           onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 14px rgba(22,163,74,.25)'">
-          🏷️ Vender vouchers ao cliente
-        </a>
-        <span style="font-size:.85rem;color:#64748b;margin-left:.75rem;">Seleccione vouchers, venda e gere o PDF para o cliente.</span>
-      </div>
-      @endif
-
-      {{-- Tabela de descontos --}}
-      <div class="rv-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> Tabela de descontos</div>
-        @if($application->reseller_mode === 'own')
-          <p style="font-size:.95rem;color:#374151;">
-            Modo 1 — Internet Própria: desconto fixo de
-            <strong style="color:#0d9488;">{{ config('reseller.mode_own_discount_percent', 70) }}%</strong>
-            em todas as compras.
-          </p>
-        @else
-          @php
-            $tiers    = config('reseller.mode_angolawifi_discount_tiers', []);
-            $tierKeys = array_values(array_keys($tiers));
-            $mySpend  = $application->monthlySpendings();
-          @endphp
-          <table class="rv-disc-table">
-            <thead>
-              <tr>
-                <th>Compra mensal (Kz)</th>
-                <th style="text-align:right;">Desconto</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($tiers as $min => $pct)
+            {{-- Tabela de descontos --}}
+            <div class="rv-panel" style="margin-bottom:1rem;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> Tabela de descontos</div>
+              @if($application->reseller_mode === 'own')
+                <p style="font-size:.95rem;color:#374151;">
+                  Modo 1 — Internet Própria: desconto fixo de
+                  <strong style="color:#0d9488;">{{ config('reseller.mode_own_discount_percent', 70) }}%</strong>
+                  em todas as compras.
+                </p>
+              @else
                 @php
-                  $idx     = array_search($min, $tierKeys);
-                  $nextMin = isset($tierKeys[$idx + 1]) ? $tierKeys[$idx + 1] : null;
-                  $active  = $mySpend >= $min && (!$nextMin || $mySpend < $nextMin);
+                  $tiers    = config('reseller.mode_angolawifi_discount_tiers', []);
+                  $tierKeys = array_values(array_keys($tiers));
+                  $mySpend  = $application->monthlySpendings();
                 @endphp
-                <tr class="{{ $active ? 'active' : '' }}">
-                  <td>
-                    {{ number_format($min, 0, ',', '.') }}{{ $nextMin ? ' – '.number_format($nextMin - 1, 0, ',', '.') : '+' }} Kz
-                    @if($active)<span class="rv-disc-current-chip">actual</span>@endif
-                  </td>
-                  <td>{{ $pct }}%</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-          <p style="font-size:.8rem;color:#94a3b8;margin-top:.65rem;">O escalão em destaque corresponde ao seu volume de compras deste mês.</p>
-        @endif
-      </div>
+                <table class="rv-disc-table">
+                  <thead><tr><th>Compra mensal (Kz)</th><th style="text-align:right;">Desconto</th></tr></thead>
+                  <tbody>
+                    @foreach($tiers as $min => $pct)
+                      @php
+                        $idx     = array_search($min, $tierKeys);
+                        $nextMin = isset($tierKeys[$idx + 1]) ? $tierKeys[$idx + 1] : null;
+                        $active  = $mySpend >= $min && (!$nextMin || $mySpend < $nextMin);
+                      @endphp
+                      <tr class="{{ $active ? 'active' : '' }}">
+                        <td>{{ number_format($min,0,',','.') }}{{ $nextMin ? ' – '.number_format($nextMin-1,0,',','.') : '+' }} Kz @if($active)<span class="rv-disc-current-chip">actual</span>@endif</td>
+                        <td>{{ $pct }}%</td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+                <p style="font-size:.8rem;color:#94a3b8;margin-top:.65rem;">O escalão em destaque corresponde ao seu volume de compras deste mês.</p>
+              @endif
+            </div>
 
-      {{-- ── Cota Mensal de Manutenção ── --}}
-      @php
-        $quota     = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
-        $breakdown = config('reseller.monthly_maintenance_breakdown', []);
-        $mySpend   = $application->monthlySpendings();
-        $quotaPct  = $quota > 0 ? min(100, (int) round($mySpend * 100 / $quota)) : 0;
-      @endphp
-      <div class="rv-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Cota Mensal de Manutenção</div>
-        <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
-          Para manter o estatuto de revendedor activo é obrigatório adquirir pelo menos
-          <strong>{{ number_format($quota, 0, ',', '.') }} Kz</strong> em vouchers por mês.
-        </p>
-        <table class="rv-hist-table" style="margin-bottom:.9rem;">
-          <thead>
-            <tr>
-              <th>Planos</th>
-              <th class="r">P. Unit.</th>
-              <th class="r">Qtd.</th>
-              <th class="r">Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($breakdown as $row)
-              <tr>
-                <td>{{ $row['name'] }}</td>
-                <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
-                <td class="r">{{ $row['qty'] }}</td>
-                <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
-              </tr>
-            @endforeach
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3"><strong>TOTAL</strong></td>
-              <td class="r bold">{{ number_format($quota, 0, ',', '.') }}</td>
-            </tr>
-          </tfoot>
-        </table>
-        <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
-          <span>Progresso este mês:</span>
-          <span style="font-weight:700;color:{{ $quotaPct >= 100 ? '#16a34a' : '#d97706' }};">
-            {{ number_format($mySpend, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Kz &nbsp;({{ $quotaPct }}%)
-          </span>
-        </div>
-        <div class="rv-progress-bar">
-          <div class="rv-progress-fill" style="width:{{ $quotaPct }}%;background:{{ $quotaPct >= 100 ? '#16a34a' : '#f59e0b' }};"></div>
-        </div>
-        @if($quotaPct >= 100)
-          <p style="font-size:.82rem;color:#16a34a;font-weight:700;margin-top:.5rem;">✅ Cota mensal cumprida!</p>
-        @else
-          <p style="font-size:.82rem;color:#92400e;margin-top:.5rem;">
-            Faltam <strong>{{ number_format($quota - $mySpend, 0, ',', '.') }} Kz</strong> para cumprir a cota deste mês.
-          </p>
-        @endif
-      </div>
-
-      {{-- ── Catálogo de planos ── --}}
-      <div class="rv-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">�</span> Compra de Voucher / Abastecimento de Stock</div>
-
-        @if($voucherPlans->isEmpty())
-          <p class="rv-empty">Nenhum plano disponível de momento.</p>
-        @else
-          <div class="rv-plan-grid">
-            @foreach($voucherPlans as $plan)
-              @php
-                $pcfg    = $storePlansConfig->get($plan->slug);
-                $emoji   = $pcfg
-                  ? (str_contains(strtolower($pcfg['name']), 'dia') ? '🌞'
-                    : (str_contains(strtolower($pcfg['name']), 'semana') ? '📅'
-                    : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
-                  : '💡';
-              @endphp
-              @php
-                $stockAvail = \App\Models\WifiCode::where('plan_id', $plan->slug)
-                    ->where('status', 'available')->count();
-                $stockClass = $stockAvail === 0 ? 'out' : ($stockAvail < 10 ? 'low' : 'ok');
-                $stockLabel = $stockAvail === 0 ? '⊘ Sem stock' : ($stockAvail < 10 ? "⚠ {$stockAvail} disponíveis" : "✔ {$stockAvail} disponíveis");
-              @endphp
-              <div class="rv-plan-card{{ $stockAvail === 0 ? ' rv-plan-card--out' : '' }}">
-
-                {{-- Cabeçalho --}}
-                <div class="rv-plan-card-header" style="justify-content:space-between;">
-                  <div style="display:flex;align-items:center;gap:.6rem;">
-                    <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
-                    <span class="rv-plan-name">{{ $plan->name }}</span>
-                  </div>
+            {{-- Catálogo de planos --}}
+            <div class="rv-panel" style="margin-bottom:1rem;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">📦</span> Abastecimento de Stock</div>
+              @if($voucherPlans->isEmpty())
+                <p class="rv-empty">Nenhum plano disponível de momento.</p>
+              @else
+                <div class="rv-plan-grid">
+                  @foreach($voucherPlans as $plan)
+                    @php
+                      $pcfg  = $storePlansConfig->get($plan->slug);
+                      $emoji = $pcfg
+                        ? (str_contains(strtolower($pcfg['name']), 'dia') ? '🌞'
+                          : (str_contains(strtolower($pcfg['name']), 'semana') ? '📅'
+                          : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
+                        : '💡';
+                      $stockAvail = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->count();
+                    @endphp
+                    <div class="rv-plan-card{{ $stockAvail === 0 ? ' rv-plan-card--out' : '' }}">
+                      <div class="rv-plan-card-header">
+                        <div style="display:flex;align-items:center;gap:.6rem;">
+                          <span class="rv-plan-emoji" aria-hidden="true">{{ $emoji }}</span>
+                          <span class="rv-plan-name">{{ $plan->name }}</span>
+                        </div>
+                      </div>
+                      <div class="rv-plan-price-public-big">
+                        <span class="rv-price-big-num">{{ number_format($plan->price_public_aoa, 0, ',', '.') }}</span>
+                        <span class="rv-price-big-cur">Kz</span>
+                      </div>
+                      <ul class="rv-plan-features">
+                        <li><strong>{{ $plan->validity_label }}</strong></li>
+                        <li>{{ $plan->speed_label }}</li>
+                        @if($pcfg && !empty($pcfg['download']))<li>{{ $pcfg['download'] }}</li>@endif
+                      </ul>
+                      @if($pcfg && !empty($pcfg['description']))
+                        <p class="rv-plan-desc">{{ $pcfg['description'] }}</p>
+                      @endif
+                      <hr class="rv-plan-reseller-sep">
+                      <div class="rv-plan-prices">
+                        <div class="rv-plan-price-row">
+                          <span class="rv-price-label">Preço de custo</span>
+                          <span class="rv-price-reseller">{{ number_format($plan->resellerPriceFor($application), 0, ',', '.') }} Kz</span>
+                        </div>
+                        <div class="rv-plan-price-row">
+                          <span class="rv-price-label">Lucro / voucher</span>
+                          <span class="rv-price-profit">+{{ number_format($plan->profitForReseller($application), 0, ',', '.') }} Kz ({{ $plan->marginPercentForReseller($application) }}%)</span>
+                        </div>
+                      </div>
+                      <form action="{{ route('reseller.cart.add') }}" method="POST" class="rv-plan-add-form" style="flex-direction:column;gap:.45rem;margin-top:auto;">
+                        @csrf
+                        <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
+                        <div class="rv-qty-row">
+                          <span class="rv-qty-label">Qtd.:</span>
+                          <input type="number" name="quantity" min="1" value="1" class="rv-qty-input" required aria-label="Quantidade" {{ $stockAvail === 0 ? 'disabled' : '' }}>
+                        </div>
+                        <button type="submit" class="rv-btn-add" {{ $stockAvail === 0 ? 'disabled' : '' }}>
+                          {{ $stockAvail === 0 ? 'Sem stock disponível' : '+ Adicionar ao carrinho' }}
+                        </button>
+                      </form>
+                    </div>
+                  @endforeach
                 </div>
+              @endif
+            </div>
 
-                {{-- Preço público em destaque --}}
-                <div class="rv-plan-price-public-big">
-                  <span class="rv-price-big-num">{{ number_format($plan->price_public_aoa, 0, ',', '.') }}</span>
-                  <span class="rv-price-big-cur">Kz</span>
-                </div>
-
-                {{-- Features --}}
-                <ul class="rv-plan-features">
-                  <li><strong>{{ $plan->validity_label }}</strong></li>
-                  <li>{{ $plan->speed_label }}</li>
-                  @if($pcfg && !empty($pcfg['download']))<li>{{ $pcfg['download'] }}</li>@endif
-                </ul>
-
-                @if($pcfg && !empty($pcfg['description']))
-                  <p class="rv-plan-desc">{{ $pcfg['description'] }}</p>
-                @endif
-
-                {{-- Separador --}}
-                <hr class="rv-plan-reseller-sep">
-
-                {{-- Preço revendedor + lucro --}}
-                <div class="rv-plan-prices">
-                  <div class="rv-plan-price-row">
-                    <span class="rv-price-label">Preço de custo</span>
-                    <span class="rv-price-reseller">{{ number_format($plan->resellerPriceFor($application), 0, ',', '.') }} Kz</span>
-                  </div>
-                  <div class="rv-plan-price-row">
-                    <span class="rv-price-label">Lucro / voucher</span>
-                    <span class="rv-price-profit">+{{ number_format($plan->profitForReseller($application), 0, ',', '.') }} Kz ({{ $plan->marginPercentForReseller($application) }}%)</span>
-                  </div>
-                </div>
-
-                {{-- Formulário: qty em cima, botão em baixo (largura total) --}}
-                <form action="{{ route('reseller.cart.add') }}" method="POST"
-                      class="rv-plan-add-form" style="flex-direction:column;gap:.45rem;margin-top:auto;">
-                  @csrf
-                  <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
-                  <div class="rv-qty-row">
-                    <span class="rv-qty-label">Qtd.:</span>
-                    <input type="number" name="quantity" min="1"
-                           value="1"
-                           class="rv-qty-input" required aria-label="Quantidade"
-                           {{ $stockAvail === 0 ? 'disabled' : '' }}>
-                  </div>
-                  <button type="submit" class="rv-btn-add" {{ $stockAvail === 0 ? 'disabled' : '' }}>
-                    {{ $stockAvail === 0 ? 'Sem stock disponível' : '+ Adicionar ao carrinho' }}
-                  </button>
-                </form>
-
+            {{-- Carrinho --}}
+            @if(!empty($cartItems))
+            <div class="rv-panel rv-cart-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">🛒</span> Carrinho
+                <span style="font-size:.85rem;font-weight:500;color:#64748b;margin-left:.5rem;">{{ $cartVouchers }} voucher(s)</span>
               </div>
-            @endforeach
-          </div>
-        @endif
-      </div>
-
-      {{-- ── Carrinho ── --}}
-      @if(!empty($cartItems))
-      <div class="rv-panel rv-cart-panel">
-        <div class="rv-panel-title"><span class="rv-panel-icon">🛒</span> Carrinho
-          <span style="font-size:.85rem;font-weight:500;color:#64748b;margin-left:.5rem;">{{ $cartVouchers }} voucher(s)</span>
-        </div>
-
-        <div class="rv-hist-wrap">
-          <table class="rv-hist-table">
-            <thead>
-              <tr>
-                <th>Plano</th>
-                <th class="r">Qtd.</th>
-                <th class="r">Preço de Custo (Kz)</th>
-                <th class="r">Preço de Venda (Kz)</th>
-                <th class="r">Valor a Pagar (Kz)</th>
-                <th class="r">Lucro da Operação (Kz)</th>
-                <th class="r">Total (Kz)</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($cartItems as $item)
-              @php
-                $unitCost   = $item['subtotal'] / $item['qty'];           // preço de custo unitário
-                $unitSell   = $item['plan']->price_public_aoa;            // preço de venda unitário
-                $valorPagar = $item['subtotal'];                          // valor a pagar = custo × qtd
-                $lucro      = $item['profit'];                            // lucro = (venda - custo) × qtd
-                $total      = $valorPagar + $lucro;                       // total = valor a pagar + lucro
-              @endphp
-              <tr>
-                <td><strong>{{ $item['plan']->name }}</strong>
-                    <small class="muted" style="display:block;">{{ $item['plan']->validity_label }} · {{ $item['plan']->speed_label }}</small>
-                </td>
-                <td class="r">{{ $item['qty'] }}</td>
-                <td class="r">{{ number_format($unitCost, 0, ',', '.') }}</td>
-                <td class="r">{{ number_format($unitSell, 0, ',', '.') }}</td>
-                <td class="r bold">{{ number_format($valorPagar, 0, ',', '.') }}</td>
-                <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($lucro, 0, ',', '.') }}</td>
-                <td class="r bold">{{ number_format($total, 0, ',', '.') }}</td>
-                <td>
-                  <form action="{{ route('reseller.cart.remove') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="plan_slug" value="{{ $item['plan']->slug }}">
-                    <button type="submit" class="rv-csv-btn" style="color:#dc2626;border-color:#fecaca;">✕</button>
+              <div class="rv-hist-wrap">
+                <table class="rv-hist-table">
+                  <thead>
+                    <tr>
+                      <th>Plano</th><th class="r">Qtd.</th><th class="r">P. Custo</th>
+                      <th class="r">P. Venda</th><th class="r">A Pagar (Kz)</th>
+                      <th class="r">Lucro (Kz)</th><th class="r">Total (Kz)</th><th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($cartItems as $item)
+                    @php
+                      $unitCost   = $item['subtotal'] / $item['qty'];
+                      $unitSell   = $item['plan']->price_public_aoa;
+                      $valorPagar = $item['subtotal'];
+                      $lucro      = $item['profit'];
+                      $total      = $valorPagar + $lucro;
+                    @endphp
+                    <tr>
+                      <td><strong>{{ $item['plan']->name }}</strong><small class="muted" style="display:block;">{{ $item['plan']->validity_label }} · {{ $item['plan']->speed_label }}</small></td>
+                      <td class="r">{{ $item['qty'] }}</td>
+                      <td class="r">{{ number_format($unitCost, 0, ',', '.') }}</td>
+                      <td class="r">{{ number_format($unitSell, 0, ',', '.') }}</td>
+                      <td class="r bold">{{ number_format($valorPagar, 0, ',', '.') }}</td>
+                      <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($lucro, 0, ',', '.') }}</td>
+                      <td class="r bold">{{ number_format($total, 0, ',', '.') }}</td>
+                      <td>
+                        <form action="{{ route('reseller.cart.remove') }}" method="POST">
+                          @csrf
+                          <input type="hidden" name="plan_slug" value="{{ $item['plan']->slug }}">
+                          <button type="submit" class="rv-csv-btn" style="color:#dc2626;border-color:#fecaca;">✕</button>
+                        </form>
+                      </td>
+                    </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+              <div class="rv-cart-footer">
+                <div class="rv-cart-totals">
+                  <span>A pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
+                  <span style="color:#16a34a;">Lucro: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
+                  <span style="font-weight:700;">Total: <strong>{{ number_format($cartTotal + $cartProfit, 0, ',', '.') }} Kz</strong></span>
+                </div>
+                @if($cartTotal < $minPurchaseAoa)
+                  <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.65rem 1rem;margin:.5rem 0;color:#b91c1c;font-size:.9rem;font-weight:600;">
+                    ⚠️ Compra mínima: <strong>{{ number_format($minPurchaseAoa, 0, ',', '.') }} Kz</strong>. Adicione mais vouchers.
+                  </div>
+                @endif
+                <div class="rv-cart-actions">
+                  <form action="{{ route('reseller.cart.clear') }}" method="POST" style="display:inline;">@csrf
+                    <button type="submit" class="rv-csv-btn">Limpar carrinho</button>
                   </form>
-                </td>
-              </tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
-
-        <div class="rv-cart-footer">
-          <div class="rv-cart-totals">
-            <span>Valor a pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
-            <span style="color:#16a34a;">Lucro da Operação: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
-            <span style="font-weight:700;">Total: <strong>{{ number_format($cartTotal + $cartProfit, 0, ',', '.') }} Kz</strong></span>
-          </div>
-          @if($cartTotal < $minPurchaseAoa)
-          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.65rem 1rem;margin:.5rem 0;color:#b91c1c;font-size:.9rem;font-weight:600;">
-            ⚠️ Compra mínima obrigatória: <strong>{{ number_format($minPurchaseAoa, 0, ',', '.') }} Kz</strong>.
-            Adicione mais vouchers ao carrinho para poder finalizar a compra.
-          </div>
-          @endif
-          <div class="rv-cart-actions">
-            <form action="{{ route('reseller.cart.clear') }}" method="POST" style="display:inline;">
-              @csrf
-              <button type="submit" class="rv-csv-btn">Limpar carrinho</button>
-            </form>
-            @if(session()->has('reseller_pending_order'))
-              <a href="{{ route('reseller.panel.payment') }}" class="rv-btn-buy">💳 Completar pagamento pendente</a>
-            @elseif($cartTotal < $minPurchaseAoa)
-              <button type="button" class="rv-btn-buy" disabled style="opacity:.45;cursor:not-allowed;">✅ Finalizar compra &amp; pagar</button>
-            @else
-              <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="rv-btn-buy">✅ Finalizar compra &amp; pagar</button>
-              </form>
+                  @if(session()->has('reseller_pending_order'))
+                    <a href="{{ route('reseller.panel.payment') }}" class="rv-btn-buy">💳 Completar pagamento pendente</a>
+                  @elseif($cartTotal < $minPurchaseAoa)
+                    <button type="button" class="rv-btn-buy" disabled style="opacity:.45;cursor:not-allowed;">✅ Finalizar compra</button>
+                  @else
+                    <form action="{{ route('reseller.panel.checkout') }}" method="POST" style="display:inline;">@csrf
+                      <button type="submit" class="rv-btn-buy">✅ Finalizar compra &amp; pagar</button>
+                    </form>
+                  @endif
+                </div>
+              </div>
+            </div>
             @endif
+
           </div>
         </div>
-      </div>
-      @endif
 
-      {{-- Histórico --}}
-      <div class="rv-panel" style="margin-bottom:1.25rem;">
-        <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Histórico de compras</div>
-        @if($purchases instanceof \Illuminate\Pagination\LengthAwarePaginator && $purchases->count())
-          <div class="rv-hist-wrap">
-            <table class="rv-hist-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Data</th>
-                  <th>Plano</th>
-                  <th class="r">Qtd.</th>
-                  <th class="r">Desconto</th>
-                  <th class="r">Pago (Kz)</th>
-                  <th class="r">Lucro (Kz)</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($purchases as $purchase)
-                  <tr @if($purchase->status === 'cancelled') style="opacity:.5;" @endif>
-                    <td class="muted">#{{ $purchase->id }}</td>
-                    <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
-                    <td>
-                      {{ $purchase->plan_name ?? '—' }}
-                      @if($purchase->status === 'cancelled')
-                        <span style="display:inline-block;margin-left:.35rem;font-size:.7rem;font-weight:700;background:#fee2e2;color:#b91c1c;border-radius:.25rem;padding:.1rem .4rem;">ANULADA</span>
-                      @endif
-                    </td>
-                    <td class="r">{{ $purchase->codes_count }}</td>
-                    <td class="r" style="color:#0d9488;font-weight:700;">
-                      {{ $purchase->discount_percent ? $purchase->discount_percent.'%' : '—' }}
-                    </td>
-                    <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
-                    <td class="r" style="color:#16a34a;font-weight:700;">
-                      @if($purchase->profit_aoa)
-                        +{{ number_format($purchase->profit_aoa, 0, ',', '.') }}
-                      @else
-                        —
-                      @endif
-                    </td>
-                    <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
-                      @if($purchase->status === 'completed')
-                      <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}"
-                         class="rv-csv-btn" style="border-color:#93c5fd;color:#2563eb;background:#eff6ff;">📦 Códigos</a>
-                      <a href="{{ route('reseller.sell') }}"
-                         class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
-                      <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}"
-                         class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
-                      <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}"
-                         class="rv-csv-btn">⬇ CSV</a>
-                      @elseif($purchase->status === 'pending')
-                      <a href="{{ route('reseller.panel.resume.payment', $purchase) }}"
-                         class="rv-csv-btn" style="border-color:#fde68a;color:#92400e;background:#fffbeb;">💳 Retomar pagamento</a>
-                      @else
-                        <span style="color:#9ca3af;font-size:.82rem;">Compra anulada</span>
-                      @endif
-                    </td>
-                  </tr>
-                @endforeach
-              </tbody>
-            </table>
+        {{-- ② VENDER --}}
+        <div class="rv-menu-item" id="rv-sec-vender">
+          <button class="rv-menu-btn" onclick="rvToggle('vender')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">💵</span>
+              <span class="rv-menu-label">Vender</span>
+              @if($totals['vouchers_in_stock'] > 0)
+                <span class="rv-menu-badge" style="background:#dcfce7;color:#15803d;">{{ $totals['vouchers_in_stock'] }} disponíveis</span>
+              @endif
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-vender">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-vender" style="display:none;">
+            <div class="rv-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> Venda de vouchers ao cliente</div>
+              <p style="font-size:.95rem;color:#374151;margin:0 0 1rem;">Seleccione os vouchers, gere o PDF e entregue ao cliente. O sistema desconta automaticamente o stock.</p>
+              @if($totals['vouchers_in_stock'] > 0)
+                <a href="{{ route('reseller.sell') }}"
+                   style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-radius:.75rem;font-size:1.05rem;font-weight:800;text-decoration:none;box-shadow:0 4px 14px rgba(22,163,74,.25);">
+                  🏷️ Ir para a página de venda →
+                </a>
+              @else
+                <div class="rv-alert warning" style="margin-bottom:0;">
+                  <span class="rv-alert-icon">📭</span>
+                  <div><strong>Sem vouchers em stock.</strong> Compre vouchers primeiro para poder vender.</div>
+                </div>
+              @endif
+            </div>
           </div>
-          <div class="rv-pagination">{{ $purchases->links() }}</div>
-        @else
-          <p class="rv-empty">Ainda não existem compras registadas.</p>
+        </div>
+
+        {{-- ③ HISTÓRICO --}}
+        <div class="rv-menu-item" id="rv-sec-historico">
+          <button class="rv-menu-btn" onclick="rvToggle('historico')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">🕐</span>
+              <span class="rv-menu-label">Histórico</span>
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-historico">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-historico" style="display:none;">
+            <div class="rv-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Histórico de compras</div>
+              @if($purchases instanceof \Illuminate\Pagination\LengthAwarePaginator && $purchases->count())
+                <div class="rv-hist-wrap">
+                  <table class="rv-hist-table">
+                    <thead>
+                      <tr>
+                        <th>#</th><th>Data</th><th>Plano</th>
+                        <th class="r">Qtd.</th><th class="r">Desconto</th>
+                        <th class="r">Pago (Kz)</th><th class="r">Lucro (Kz)</th><th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($purchases as $purchase)
+                        <tr @if($purchase->status === 'cancelled') style="opacity:.5;" @endif>
+                          <td class="muted">#{{ $purchase->id }}</td>
+                          <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
+                          <td>{{ $purchase->plan_name ?? '—' }}
+                            @if($purchase->status === 'cancelled')
+                              <span style="display:inline-block;margin-left:.35rem;font-size:.7rem;font-weight:700;background:#fee2e2;color:#b91c1c;border-radius:.25rem;padding:.1rem .4rem;">ANULADA</span>
+                            @endif
+                          </td>
+                          <td class="r">{{ $purchase->codes_count }}</td>
+                          <td class="r" style="color:#0d9488;font-weight:700;">{{ $purchase->discount_percent ? $purchase->discount_percent.'%' : '—' }}</td>
+                          <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
+                          <td class="r" style="color:#16a34a;font-weight:700;">
+                            @if($purchase->profit_aoa) +{{ number_format($purchase->profit_aoa, 0, ',', '.') }} @else — @endif
+                          </td>
+                          <td style="white-space:nowrap;display:flex;gap:.4rem;flex-wrap:wrap;">
+                            @if($purchase->status === 'completed')
+                              <a href="{{ route('reseller.panel.purchase.codes', $purchase) }}" class="rv-csv-btn" style="border-color:#93c5fd;color:#2563eb;background:#eff6ff;">📦 Códigos</a>
+                              <a href="{{ route('reseller.sell') }}" class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
+                              <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}" class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
+                              <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}" class="rv-csv-btn">⬇ CSV</a>
+                            @elseif($purchase->status === 'pending')
+                              <a href="{{ route('reseller.panel.resume.payment', $purchase) }}" class="rv-csv-btn" style="border-color:#fde68a;color:#92400e;background:#fffbeb;">💳 Retomar</a>
+                            @else
+                              <span style="color:#9ca3af;font-size:.82rem;">Anulada</span>
+                            @endif
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+                <div class="rv-pagination">{{ $purchases->links() }}</div>
+              @else
+                <p class="rv-empty">Ainda não existem compras registadas.</p>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        {{-- ④ RELATÓRIOS --}}
+        <div class="rv-menu-item" id="rv-sec-relatorios">
+          <button class="rv-menu-btn" onclick="rvToggle('relatorios')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">📊</span>
+              <span class="rv-menu-label">Relatórios</span>
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-relatorios">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-relatorios" style="display:none;">
+
+            {{-- Lucro + Vouchers stats --}}
+            <div class="rv-stats" style="margin-bottom:1rem;">
+              <div class="rv-stat-card green" style="grid-column:1/-1;">
+                <div class="rv-stat-icon">💰</div>
+                <div class="rv-stat-label">Lucro estimado</div>
+                <div class="rv-stat-value green" style="margin-bottom:.5rem;">{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }} Kz</div>
+                @if(!empty($salesReport))
+                  <table class="rv-hist-table" style="margin-bottom:.4rem;">
+                    <thead><tr><th>Plano</th><th class="r">Vouchers</th><th class="r">Lucro (Kz)</th><th class="r">%</th></tr></thead>
+                    <tbody>
+                      @php $totalProfit = max(1, $totals['profit_total'] ?: $estimatedProfit); @endphp
+                      @foreach($salesReport as $row)
+                        @php $pct = round($row['profit_aoa'] * 100 / $totalProfit); @endphp
+                        <tr>
+                          <td>{{ $row['plan_name'] }}</td>
+                          <td class="r">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
+                          <td class="r bold" style="color:#16a34a;">+{{ number_format($row['profit_aoa'], 0, ',', '.') }}</td>
+                          <td class="r"><span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:.75rem;font-weight:700;padding:.1rem .45rem;border-radius:.35rem;">{{ $pct }}%</span></td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                    <tfoot><tr><td colspan="2"><strong>TOTAL</strong></td><td class="r bold" style="color:#16a34a;">+{{ number_format($totals['profit_total'] ?: $estimatedProfit, 0, ',', '.') }}</td><td class="r bold">100%</td></tr></tfoot>
+                  </table>
+                @else
+                  <div class="rv-stat-sub">Total de lucro nas compras</div>
+                @endif
+              </div>
+              <div class="rv-stat-card blue" style="grid-column:1/-1;">
+                <div class="rv-stat-icon">📦</div>
+                <div class="rv-stat-label">Vouchers adquiridos</div>
+                <div class="rv-stat-value" style="margin-bottom:.5rem;">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</div>
+                @if(!empty($salesReport))
+                  <table class="rv-hist-table" style="margin-bottom:.4rem;">
+                    <thead><tr><th>Plano</th><th class="r">Qtd.</th><th class="r">Investido (Kz)</th></tr></thead>
+                    <tbody>
+                      @foreach($salesReport as $row)
+                        <tr>
+                          <td>{{ $row['plan_name'] }}</td>
+                          <td class="r bold">{{ number_format($row['vouchers_bought'], 0, ',', '.') }}</td>
+                          <td class="r">{{ number_format($row['invested_aoa'], 0, ',', '.') }}</td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                    <tfoot><tr><td><strong>TOTAL</strong></td><td class="r bold">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</td><td class="r bold">{{ number_format($totals['total_invested'], 0, ',', '.') }}</td></tr></tfoot>
+                  </table>
+                @else
+                  <div class="rv-stat-sub">Investido: {{ number_format($totals['total_invested'], 0, ',', '.') }} Kz</div>
+                @endif
+              </div>
+            </div>
+
+            {{-- Relatório por plano --}}
+            @if(!empty($salesReport))
+            <div class="rv-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">📈</span> Relatório de Vendas por Plano</div>
+              <div class="rv-hist-wrap">
+                <table class="rv-hist-table">
+                  <thead>
+                    <tr>
+                      <th>Plano</th><th class="r">Stock Inicial</th><th class="r">Entradas</th>
+                      <th class="r">Saídas</th><th class="r">Stock Final</th><th class="r">Lucro (Kz)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($salesReport as $slug => $row)
+                      @php
+                        $stockFinal   = $row['vouchers_in_stock'] ?? ($row['vouchers_bought'] - $row['vouchers_sold']);
+                        $stockInicial = max(0, $stockFinal + $row['vouchers_sold'] - $row['vouchers_bought']);
+                      @endphp
+                      <tr>
+                        <td><strong>{{ $row['plan_name'] }}</strong></td>
+                        <td class="r" style="color:#94a3b8;">{{ $stockInicial }}</td>
+                        <td class="r" style="color:#2563eb;font-weight:700;">+{{ $row['vouchers_bought'] }}</td>
+                        <td class="r" style="color:#16a34a;font-weight:700;">-{{ $row['vouchers_sold'] }}</td>
+                        <td class="r" style="color:{{ $stockFinal > 0 ? '#0f172a' : '#94a3b8' }};font-weight:700;">{{ $stockFinal }}</td>
+                        <td class="r" style="color:#16a34a;font-weight:700;">+{{ number_format($row['profit_aoa'], 0, ',', '.') }}</td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                  <tfoot>
+                    <tr style="background:#f8fafc;font-weight:700;">
+                      <td>Total</td>
+                      <td class="r" style="color:#94a3b8;">0</td>
+                      <td class="r" style="color:#2563eb;">+{{ array_sum(array_column($salesReport, 'vouchers_bought')) }}</td>
+                      <td class="r" style="color:#16a34a;">-{{ array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
+                      <td class="r" style="color:{{ $totals['vouchers_in_stock'] > 0 ? '#0f172a' : '#94a3b8' }};">{{ $totals['vouchers_in_stock'] }}</td>
+                      <td class="r" style="color:#16a34a;">+{{ number_format(array_sum(array_column($salesReport, 'profit_aoa')), 0, ',', '.') }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <p style="font-size:.78rem;color:#94a3b8;margin-top:.65rem;">Stock Final = Stock Inicial + Entradas − Saídas.</p>
+            </div>
+            @else
+              <p class="rv-empty">Ainda não há dados de vendas.</p>
+            @endif
+
+          </div>
+        </div>
+
+        {{-- ⑤ MANUTENÇÃO MENSAL --}}
+        <div class="rv-menu-item" id="rv-sec-manutencao">
+          <button class="rv-menu-btn" onclick="rvToggle('manutencao')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">🔧</span>
+              <span class="rv-menu-label">Manutenção Mensal</span>
+              @if($maintMet)
+                <span class="rv-menu-badge" style="background:#dcfce7;color:#15803d;">✔ cumprida</span>
+              @else
+                <span class="rv-menu-badge" style="background:#fef2f2;color:#dc2626;">⚠ obrigatória</span>
+              @endif
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-manutencao">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-manutencao" style="display:none;">
+            <div class="rv-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Cota Mensal de Manutenção</div>
+              <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
+                Para manter o estatuto de revendedor activo é <strong>obrigatório</strong> adquirir pelo menos
+                <strong>{{ number_format($maintQuota, 0, ',', '.') }} Kz</strong> em vouchers por mês.
+                O não cumprimento condiciona o acesso aos serviços.
+              </p>
+              <table class="rv-hist-table" style="margin-bottom:.9rem;">
+                <thead><tr><th>Planos</th><th class="r">P. Unit.</th><th class="r">Qtd.</th><th class="r">Valor</th></tr></thead>
+                <tbody>
+                  @foreach($maintBreakdown as $row)
+                    <tr>
+                      <td>{{ $row['name'] }}</td>
+                      <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
+                      <td class="r">{{ $row['qty'] }}</td>
+                      <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                    </tr>
+                  @endforeach
+                </tbody>
+                <tfoot><tr><td colspan="3"><strong>TOTAL</strong></td><td class="r bold">{{ number_format($maintQuota, 0, ',', '.') }}</td></tr></tfoot>
+              </table>
+              <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
+                <span>Progresso este mês:</span>
+                <span style="font-weight:700;color:{{ $maintPct >= 100 ? '#16a34a' : '#d97706' }};">
+                  {{ number_format($maintSpend, 0, ',', '.') }} / {{ number_format($maintQuota, 0, ',', '.') }} Kz ({{ $maintPct }}%)
+                </span>
+              </div>
+              <div class="rv-progress-bar">
+                <div class="rv-progress-fill" style="width:{{ $maintPct }}%;background:{{ $maintPct >= 100 ? '#16a34a' : '#f59e0b' }};"></div>
+              </div>
+              @if($maintPct >= 100)
+                <p style="font-size:.82rem;color:#16a34a;font-weight:700;margin-top:.5rem;">✅ Cota mensal cumprida!</p>
+              @else
+                <p style="font-size:.82rem;color:#92400e;margin-top:.5rem;">
+                  Faltam <strong>{{ number_format($maintQuota - $maintSpend, 0, ',', '.') }} Kz</strong> para cumprir a cota deste mês.
+                </p>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        {{-- ⑥ META MENSAL --}}
+        @if($application->monthly_target_aoa > 0 || $application->bonus_vouchers_aoa > 0)
+        @php
+          $metaTarget = $application->monthly_target_aoa;
+          $metaSpend  = $application->monthlySpendings();
+          $metaPct    = $metaTarget > 0 ? min(100, (int) round($metaSpend * 100 / $metaTarget)) : 0;
+          $metaMet    = $metaTarget > 0 && $metaSpend >= $metaTarget;
+          $bonusBreakdown = config('reseller.bonus_breakdown', []);
+          $bonusTotal = collect($bonusBreakdown)->sum('total');
+        @endphp
+        <div class="rv-menu-item" id="rv-sec-meta">
+          <button class="rv-menu-btn" onclick="rvToggle('meta')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">🏆</span>
+              <span class="rv-menu-label">Meta Mensal</span>
+              @if($metaMet)
+                <span class="rv-menu-badge" style="background:#ede9fe;color:#6d28d9;">🎁 bónus atingido</span>
+              @else
+                <span class="rv-menu-badge" style="background:#fef3c7;color:#92400e;">facultativa</span>
+              @endif
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-meta">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-meta" style="display:none;">
+            <div class="rv-panel" style="margin-bottom:0;">
+              <div class="rv-panel-title"><span class="rv-panel-icon">🎯</span> Meta Mensal — Bónus em Vouchers</div>
+              <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
+                A meta mensal é <strong>facultativa</strong>. Ao atingir o volume de
+                <strong>{{ number_format($metaTarget, 0, ',', '.') }} Kz</strong> em compras este mês recebe bónus em vouchers.
+              </p>
+              @if($metaTarget > 0)
+                <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
+                  <span>Progresso este mês:</span>
+                  <span style="font-weight:700;color:{{ $metaPct >= 100 ? '#7c3aed' : '#d97706' }};">
+                    {{ number_format($metaSpend, 0, ',', '.') }} / {{ number_format($metaTarget, 0, ',', '.') }} Kz ({{ $metaPct }}%)
+                  </span>
+                </div>
+                <div class="rv-progress-bar" style="margin-bottom:.75rem;">
+                  <div class="rv-progress-fill" style="width:{{ $metaPct }}%;background:{{ $metaPct >= 100 ? '#7c3aed' : '#f59e0b' }};"></div>
+                </div>
+                @if($metaMet)
+                  <p style="font-size:.88rem;color:#7c3aed;font-weight:700;margin-bottom:.75rem;">🎁 Meta atingida! Bónus creditado.</p>
+                @else
+                  <p style="font-size:.82rem;color:#92400e;margin-bottom:.75rem;">
+                    Faltam <strong>{{ number_format($metaTarget - $metaSpend, 0, ',', '.') }} Kz</strong> para atingir a meta e ganhar o bónus.
+                  </p>
+                @endif
+              @endif
+              @if($application->bonus_vouchers_aoa > 0)
+                <div class="rv-panel-title" style="font-size:.9rem;margin-top:.5rem;border-top:1.5px solid #f1f5f9;padding-top:.75rem;"><span class="rv-panel-icon">🎁</span> Bónus de arranque</div>
+                <table class="rv-hist-table" style="margin:.5rem 0 .35rem;">
+                  <thead><tr><th>Planos</th><th class="r">P. Unit.</th><th class="r">Qtd.</th><th class="r">Valor</th></tr></thead>
+                  <tbody>
+                    @foreach($bonusBreakdown as $row)
+                      <tr>
+                        <td>{{ $row['name'] }}</td>
+                        <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
+                        <td class="r"><strong>{{ $row['qty'] }}</strong></td>
+                        <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                  <tfoot><tr><td colspan="3"><strong>TOTAL</strong></td><td class="r bold">{{ number_format($bonusTotal, 0, ',', '.') }}</td></tr></tfoot>
+                </table>
+                <div class="rv-stat-sub">Vouchers atribuídos no arranque da parceria</div>
+              @endif
+            </div>
+          </div>
+        </div>
         @endif
-      </div>
 
-      {{-- ── Relatório de Vendas (por plano) ── --}}
-      @if(!empty($salesReport))
-      <div class="rv-panel" style="margin-bottom:0;">
-        <div class="rv-panel-title"><span class="rv-panel-icon">📈</span> Relatório de Vendas por Plano</div>
-        <div class="rv-hist-wrap">
-          <table class="rv-hist-table">
-            <thead>
-              <tr>
-                <th>Plano</th>
-                <th class="r">Stock Inicial</th>
-                <th class="r">Entradas / Compras</th>
-                <th class="r">Saídas / Vendas</th>
-                <th class="r">Stock Final</th>
-                <th class="r">Lucro da Operação (Kz)</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($salesReport as $slug => $row)
-                @php
-                  $stockFinal = $row['vouchers_in_stock'] ?? ($row['vouchers_bought'] - $row['vouchers_sold']);
-                  // Stock Inicial = Stock Final + Saídas - Entradas (= 0 quando agente começa do zero)
-                  $stockInicial = max(0, $stockFinal + $row['vouchers_sold'] - $row['vouchers_bought']);
-                @endphp
-                <tr>
-                  <td><strong>{{ $row['plan_name'] }}</strong></td>
-                  <td class="r" style="color:#94a3b8;">{{ $stockInicial }}</td>
-                  <td class="r" style="color:#2563eb;font-weight:700;">+{{ $row['vouchers_bought'] }}</td>
-                  <td class="r" style="color:#16a34a;font-weight:700;">-{{ $row['vouchers_sold'] }}</td>
-                  <td class="r" style="color:{{ $stockFinal > 0 ? '#0f172a' : '#94a3b8' }};font-weight:700;">{{ $stockFinal }}</td>
-                  <td class="r" style="color:#16a34a;font-weight:700;">
-                    +{{ number_format($row['profit_aoa'], 0, ',', '.') }}
-                  </td>
-                </tr>
-              @endforeach
-            </tbody>
-            <tfoot>
-              <tr style="background:#f8fafc;font-weight:700;">
-                <td>Total</td>
-                <td class="r" style="color:#94a3b8;">0</td>
-                <td class="r" style="color:#2563eb;">+{{ array_sum(array_column($salesReport, 'vouchers_bought')) }}</td>
-                <td class="r" style="color:#16a34a;">-{{ array_sum(array_column($salesReport, 'vouchers_sold')) }}</td>
-                <td class="r" style="color:{{ $totals['vouchers_in_stock'] > 0 ? '#0f172a' : '#94a3b8' }};">{{ $totals['vouchers_in_stock'] }}</td>
-                <td class="r" style="color:#16a34a;">+{{ number_format(array_sum(array_column($salesReport, 'profit_aoa')), 0, ',', '.') }}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <p style="font-size:.78rem;color:#94a3b8;margin-top:.65rem;">
-          Fórmula: <strong>Stock Final = Stock Inicial + Entradas − Saídas</strong>. "Saídas/Vendas" = vouchers marcados como entregues ao cliente.
-        </p>
-      </div>
-      @endif
+      </div>{{-- /.rv-menu --}}
 
     </div>
   @endif
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function rvToggle(id) {
+  var body  = document.getElementById('rv-body-' + id);
+  var chev  = document.getElementById('rv-chev-' + id);
+  var btn   = chev ? chev.closest('.rv-menu-btn') : null;
+  var open  = body && body.style.display !== 'none';
+  if (body)  body.style.display = open ? 'none' : 'block';
+  if (chev)  chev.classList.toggle('open', !open);
+  if (btn)   btn.classList.toggle('open', !open);
+}
+// Open "Comprar" by default on page load
+document.addEventListener('DOMContentLoaded', function() {
+  rvToggle('comprar');
+});
+</script>
+@endpush
