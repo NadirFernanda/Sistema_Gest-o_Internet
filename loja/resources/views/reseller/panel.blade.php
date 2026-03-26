@@ -657,7 +657,7 @@
           <div style="display:flex;align-items:flex-start;gap:.65rem;">
             <span class="rv-alert-icon">🔔</span>
             <div>
-              <strong>Taxa de manutenção anual em atraso</strong><br>
+              <strong>Taxa de manutenção mensal em atraso</strong><br>
               Valor em dívida: {{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz.
             </div>
           </div>
