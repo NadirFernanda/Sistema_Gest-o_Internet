@@ -71,8 +71,13 @@
         <h3 style="margin:1.5rem 0 0.75rem;font-size:1.05rem;font-weight:700;">Método de Pagamento *</h3>
         <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
           <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <input type="radio" name="payment_method" value="multicaixa_express"
+                   {{ old('payment_method') === 'multicaixa_express' ? 'checked' : '' }} required>
+            Multicaixa Express
+          </label>
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
             <input type="radio" name="payment_method" value="paypal"
-                   {{ old('payment_method', 'paypal') === 'paypal' ? 'checked' : '' }} required>
+                   {{ old('payment_method') === 'paypal' ? 'checked' : '' }}>
             PayPal
           </label>
           <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">

@@ -338,11 +338,30 @@
         <div class="rv-methods-grid">
 
           {{-- Multicaixa / ATM --}}
-          <label class="rv-method-card active" id="card-mcx">
+          <label class="rv-method-card active" id="card-mcx"
+                 onclick="selectMethod('multicaixa', '{{ $mcxRef }}', 'mcx')">
             <input type="radio" name="_ui_method" value="multicaixa" checked>
             <div class="rv-method-icon">🏧</div>
             <div class="rv-method-name">Multicaixa / ATM</div>
             <div class="rv-method-desc">Pague em qualquer caixa ATM ou via banca online com a referência gerada.</div>
+          </label>
+
+          {{-- Bank transfer --}}
+          <label class="rv-method-card" id="card-bank"
+                 onclick="selectMethod('transferencia', 'TRF-{{ now()->format("YmdHi") }}-{{ $application->id }}', 'bank')">
+            <input type="radio" name="_ui_method" value="transferencia">
+            <div class="rv-method-icon">🏦</div>
+            <div class="rv-method-name">Transferência Bancária</div>
+            <div class="rv-method-desc">Transfira para a conta da AngolaWiFi e envie o comprovativo por email.</div>
+          </label>
+
+          {{-- Mobile payment --}}
+          <label class="rv-method-card" id="card-mobile"
+                 onclick="selectMethod('multicaixa_express', 'MCX-{{ now()->format("YmdHi") }}-{{ $application->id }}', 'mobile')">
+            <input type="radio" name="_ui_method" value="multicaixa_express">
+            <div class="rv-method-icon">📱</div>
+            <div class="rv-method-name">Multicaixa Express</div>
+            <div class="rv-method-desc">Pague directamente pelo telemóvel via Multicaixa Express (mPay).</div>
           </label>
 
         </div>
@@ -366,6 +385,44 @@
           </div>
         </div>
 
+        {{-- ── Bank transfer ────────────────────────────────── --}}
+        <div class="rv-detail-box hidden" id="detail-bank">
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">Banco</span>
+            <span class="rv-detail-value">Banco BIC</span>
+          </div>
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">Titular</span>
+            <span class="rv-detail-value">AngolaWiFi, Lda.</span>
+          </div>
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">IBAN</span>
+            <span class="rv-detail-value" style="font-size:.88rem;">AO06 0040 0000 0000 0000 0001 5</span>
+          </div>
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">Montante</span>
+            <span class="rv-detail-value">{{ number_format($total, 0, ',', '.') }} Kz</span>
+          </div>
+          <div class="rv-detail-note">
+            📎 Envie o comprovativo para <strong>financeiro@angolawifi.ao</strong> com o assunto
+            <em>"Revendedor #{{ $application->id }} — {{ $purchases->first()->plan_name ?? '' }}"</em>.
+          </div>
+        </div>
+
+        {{-- ── Multicaixa Express ───────────────────────────── --}}
+        <div class="rv-detail-box hidden" id="detail-mobile">
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">Número a debitar</span>
+            <span class="rv-detail-value">{{ $application->phone ?? '9XX XXX XXX' }}</span>
+          </div>
+          <div class="rv-detail-row">
+            <span class="rv-detail-label">Montante</span>
+            <span class="rv-detail-value">{{ number_format($total, 0, ',', '.') }} Kz</span>
+          </div>
+          <div class="rv-detail-note">
+            📲 Após clicar em "Confirmar Pagamento", receberá uma notificação no telemóvel para autorizar o débito.
+          </div>
+        </div>
 
         {{-- Confirm button --}}
         <button type="submit" class="rv-btn-confirm">
@@ -387,4 +444,18 @@
   </div>
 </div>
 
+<script>
+const cards   = { mcx: 'card-mcx', bank: 'card-bank', mobile: 'card-mobile' };
+const details = { mcx: 'detail-mcx', bank: 'detail-bank', mobile: 'detail-mobile' };
+
+function selectMethod(method, reference, cardKey) {
+  document.getElementById('inputMethod').value    = method;
+  document.getElementById('inputReference').value = reference;
+
+  Object.keys(cards).forEach(k => {
+    document.getElementById(cards[k]).classList.toggle('active', k === cardKey);
+    document.getElementById(details[k]).classList.toggle('hidden', k !== cardKey);
+  });
+}
+</script>
 @endsection

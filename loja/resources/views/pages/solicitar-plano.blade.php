@@ -109,8 +109,13 @@
           <p class="checkout-payment-title">Método de pagamento *</p>
           <div class="checkout-payment-options">
             <label>
+              <input type="radio" name="payment_method" value="multicaixa_express"
+                {{ old('payment_method', 'multicaixa_express') === 'multicaixa_express' ? 'checked' : '' }}>
+              <span>Multicaixa Express</span>
+            </label>
+            <label>
               <input type="radio" name="payment_method" value="paypal"
-                {{ old('payment_method', 'paypal') === 'paypal' ? 'checked' : '' }}>
+                {{ old('payment_method') === 'paypal' ? 'checked' : '' }}>
               <span>PayPal</span>
             </label>
           </div>

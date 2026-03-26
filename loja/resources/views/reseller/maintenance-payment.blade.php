@@ -62,11 +62,6 @@
     </div>
   @endif
 
-  {{-- Simulation notice --}}
-  <div class="rv-sim-notice">
-    ⚠️ <strong>Modo Protótipo:</strong> O botão "Confirmar Pagamento" regista o pagamento imediatamente. Em produção o pagamento seria validado automaticamente pelo sistema.
-  </div>
-
   {{-- Total bar --}}
   <div class="rv-total-bar">
     <div>
@@ -110,11 +105,28 @@
       <input type="hidden" name="payment_reference" id="inputReference" value="{{ $mcxRef }}">
 
       <div class="rv-methods-grid">
-        <label class="rv-method-card active" id="card-mcx">
+        <label class="rv-method-card active" id="card-mcx"
+               onclick="selectMethod('multicaixa', '{{ $mcxRef }}', 'mcx')">
           <input type="radio" name="_ui_method" value="multicaixa" checked>
           <div class="rv-method-icon">🏧</div>
           <div class="rv-method-name">Multicaixa / ATM</div>
           <div class="rv-method-desc">Pague em qualquer caixa ATM com a referência gerada.</div>
+        </label>
+
+        <label class="rv-method-card" id="card-bank"
+               onclick="selectMethod('transferencia', 'TRF-MAINT-{{ now()->year }}-{{ $application->id }}', 'bank')">
+          <input type="radio" name="_ui_method" value="transferencia">
+          <div class="rv-method-icon">🏦</div>
+          <div class="rv-method-name">Transferência Bancária</div>
+          <div class="rv-method-desc">Transfira para a conta da AngolaWiFi e envie o comprovativo.</div>
+        </label>
+
+        <label class="rv-method-card" id="card-mobile"
+               onclick="selectMethod('multicaixa_express', 'MCX-MAINT-{{ now()->year }}-{{ $application->id }}', 'mobile')">
+          <input type="radio" name="_ui_method" value="multicaixa_express">
+          <div class="rv-method-icon">📱</div>
+          <div class="rv-method-name">Multicaixa Express</div>
+          <div class="rv-method-desc">Pague pelo telemóvel via mPay.</div>
         </label>
       </div>
 
@@ -137,6 +149,45 @@
         </div>
       </div>
 
+      {{-- Bank transfer --}}
+      <div class="rv-detail-box hidden" id="detail-bank">
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">Banco</span>
+          <span class="rv-detail-value">Banco BIC</span>
+        </div>
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">Titular</span>
+          <span class="rv-detail-value">AngolaWiFi, Lda.</span>
+        </div>
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">IBAN</span>
+          <span class="rv-detail-value" style="font-size:.88rem;">AO06 0040 0000 0000 0000 0001 5</span>
+        </div>
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">Montante</span>
+          <span class="rv-detail-value">{{ number_format($amount, 0, ',', '.') }} Kz</span>
+        </div>
+        <div class="rv-detail-note">
+          📎 Envie o comprovativo para <strong>financeiro@angolawifi.ao</strong> com o assunto
+          <em>"Taxa Manutenção {{ now()->year }} — {{ $application->full_name }}"</em>.
+        </div>
+      </div>
+
+      {{-- Multicaixa Express --}}
+      <div class="rv-detail-box hidden" id="detail-mobile">
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">Número a debitar</span>
+          <span class="rv-detail-value">{{ $application->phone ?? '9XX XXX XXX' }}</span>
+        </div>
+        <div class="rv-detail-row">
+          <span class="rv-detail-label">Montante</span>
+          <span class="rv-detail-value">{{ number_format($amount, 0, ',', '.') }} Kz</span>
+        </div>
+        <div class="rv-detail-note">
+          📲 Após confirmar, receberá uma notificação no telemóvel para autorizar o débito.
+        </div>
+      </div>
+
 
       <button type="submit" class="rv-btn-confirm"
               onclick="return confirm('Confirmar o pagamento de {{ number_format($amount, 0, ',', '.') }} Kz referente à taxa de manutenção de {{ now()->year }}?')">
@@ -151,4 +202,19 @@
 </div>
 </div>
 
+<script>
+const allCards   = ['card-mcx','card-bank','card-mobile'];
+const allDetails = ['detail-mcx','detail-bank','detail-mobile'];
+
+function selectMethod(method, ref, key) {
+  document.getElementById('inputMethod').value    = method;
+  document.getElementById('inputReference').value = ref;
+
+  allCards.forEach(id => document.getElementById(id)?.classList.remove('active'));
+  allDetails.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+  document.getElementById('card-' + key)?.classList.add('active');
+  document.getElementById('detail-' + key)?.classList.remove('hidden');
+}
+</script>
 @endsection
