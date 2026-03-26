@@ -7,6 +7,7 @@ use App\Models\Product;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class EquipmentController extends Controller
@@ -223,7 +224,7 @@ class EquipmentController extends Controller
 
         session()->forget('equipment_cart');
 
-        return redirect()->route('equipment.confirmation', $order->id);
+        return redirect()->to(URL::signedRoute('equipment.confirmation', ['id' => $order->id]));
     }
 
     public function confirmation(int $id)

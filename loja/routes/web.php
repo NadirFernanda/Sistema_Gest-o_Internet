@@ -122,7 +122,9 @@ Route::post('/carrinho/remover', [EquipmentController::class, 'removeFromCart'])
 Route::post('/carrinho/limpar', [EquipmentController::class, 'clearCart'])->name('equipment.cart.clear');
 Route::get('/equipamentos/checkout', [EquipmentController::class, 'checkout'])->name('equipment.checkout');
 Route::post('/equipamentos/checkout', [EquipmentController::class, 'processCheckout'])->name('equipment.checkout.process');
-Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confirmation'])->name('equipment.confirmation');
+Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confirmation'])
+    ->middleware('signed')
+    ->name('equipment.confirmation');
 // Must be last to avoid shadowing named routes above
 Route::get('/equipamentos/{slug}', [EquipmentController::class, 'show'])->name('equipment.show');
 // Área do Cliente (histórico de compras via e-mail + OTP)
