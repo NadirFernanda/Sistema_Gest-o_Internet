@@ -17,11 +17,11 @@ class AdminDashboardController extends Controller
     /** Página de login do painel admin. */
     public function showLogin(Request $request)
     {
-        // Bypass SSO: se vier do SG com o token correto, autentica sem pedir senha
+        // Bypass SSO: apenas em ambiente local
         $ssoToken = $request->query('sg_sso');
         $expected = (string) config('services.sg.admin_token', '');
 
-        if ($ssoToken && $expected !== '' && hash_equals($expected, $ssoToken)) {
+        if (app()->environment('local') && $ssoToken && $expected !== '' && hash_equals($expected, $ssoToken)) {
             $request->session()->regenerate();
             $request->session()->put('sg_admin_authenticated', true);
             return redirect()->route('admin.dashboard');
