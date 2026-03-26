@@ -21,7 +21,7 @@ return [
     ],
 
     // Taxa de manutenção anual (Kz) — cobrada em Março
-    'mode_own_maintenance_aoa' => 50000,
+    'mode_own_maintenance_aoa' => 45000,
     'mode_own_maintenance_month' => 3,  // Março
 
     // Bónus de início: % da taxa de instalação convertida em vouchers
