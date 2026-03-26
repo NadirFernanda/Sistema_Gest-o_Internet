@@ -35,11 +35,13 @@ Route::get('/', function () {
 });
 
 // Demo proxy endpoints to interact with SG for the loja prototype
-Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
-Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
-Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
-Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
-Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
+if (app()->environment('local')) {
+    Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
+    Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
+    Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
+    Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
+    Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
+}
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
@@ -55,7 +57,9 @@ Route::get('/checkout/lookup', [FamilyPlanRequestController::class, 'lookup'])->
 
 // Pagamento dos planos familiares/empresariais
 // POST /payment/familia/webhook é CSRF-exempt (ver bootstrap/app.php)
-Route::get('/pagar-plano/{id}', [FamilyPlanPaymentController::class, 'show'])->name('family.payment.show');
+Route::get('/pagar-plano/{id}', [FamilyPlanPaymentController::class, 'show'])
+    ->middleware('signed')
+    ->name('family.payment.show');
 Route::post('/payment/familia/webhook', [FamilyPlanPaymentController::class, 'webhook'])->middleware('throttle:30,1')->name('family.payment.webhook');
 Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class, 'simulateSuccess'])->name('family.payment.simulate');
 

@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 /**
  * FamilyPlanRequestController — Checkout de planos familiares e empresariais.
@@ -200,8 +201,8 @@ class FamilyPlanRequestController extends Controller
         // Notifica o admin do novo pedido pendente de pagamento
         $this->notifyAdmin($requestRecord);
 
-        // Redireciona para a página de pagamento
-        return redirect()->route('family.payment.show', $requestRecord->id);
+        // Redireciona para a página de pagamento (URL assinada)
+        return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $requestRecord->id]));
     }
 
     // ── Notificações ─────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FamilyPlanRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 /**
  * FamilyPlanPaymentController — Gestão do fluxo de pagamento dos planos familiares/empresariais.
@@ -69,6 +70,35 @@ class FamilyPlanPaymentController extends Controller
             return response()->json(['error' => 'not_found_or_already_processed'], 404);
         }
 
+        $statusRaw = strtolower((string) $request->input('status', ''));
+        $amountRaw = $request->input('amount') ?? $request->input('valor');
+        $allowedStatuses = ['paid', 'success', 'completed', 'confirmed'];
+        $requireFields   = app()->isProduction() || (bool) $webhookSecret;
+
+        if ($requireFields && !$statusRaw) {
+            return response()->json(['error' => 'missing_status'], 400);
+        }
+
+        if ($statusRaw && !in_array($statusRaw, $allowedStatuses, true)) {
+            return response()->json(['error' => 'invalid_status'], 400);
+        }
+
+        if ($req->plan_preco !== null) {
+            if ($requireFields && $amountRaw === null) {
+                return response()->json(['error' => 'missing_amount'], 400);
+            }
+
+            if ($amountRaw !== null) {
+                $amountValue = is_numeric($amountRaw)
+                    ? (int) round((float) $amountRaw)
+                    : (int) preg_replace('/\D/', '', (string) $amountRaw);
+
+                if ((int) $amountValue !== (int) $req->plan_preco) {
+                    return response()->json(['error' => 'amount_mismatch'], 400);
+                }
+            }
+        }
+
         $activated = $this->activate($req);
         return response()->json(['success' => $activated, 'status' => $req->status]);
     }
@@ -87,12 +117,12 @@ class FamilyPlanPaymentController extends Controller
         $req = FamilyPlanRequest::findOrFail($id);
 
         if ($req->status !== FamilyPlanRequest::STATUS_AWAITING_PAYMENT) {
-            return redirect()->route('family.payment.show', $id)
+            return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $id]))
                 ->with('info', 'Pedido já processado (estado: ' . $req->status . ').');
         }
 
         $this->activate($req);
-        return redirect()->route('family.payment.show', $id);
+        return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $id]));
     }
 
     /**
