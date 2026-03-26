@@ -1,6 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// ─── DEV-ONLY autologin (never active in production) ─────────────────────────
+if (app()->environment('local')) {
+    Route::get('/dev-autologin/{email?}', function (\Illuminate\Http\Request $request, string $email = 'agente@teste.ao') {
+        $app = \App\Models\ResellerApplication::where('email', $email)
+            ->where('status', 'approved')
+            ->firstOrFail();
+        $request->session()->put('reseller_id', $app->id);
+        return redirect('/painel-revendedor')
+            ->with('success', "DEV: logado como {$app->full_name} ({$app->email})");
+    });
+}
+// ─────────────────────────────────────────────────────────────────────────────
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AutovendaOrderAdminController;
 use App\Http\Controllers\Admin\InstallationAppointmentAdminController;

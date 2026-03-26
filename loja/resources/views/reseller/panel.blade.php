@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @push('styles')
 <style>
@@ -1200,9 +1200,6 @@ function rvToggle(id) {
   if (chev)  chev.classList.toggle('open', !open);
   if (btn)   btn.classList.toggle('open', !open);
 }
-// Open "Comprar" by default on page load
-document.addEventListener('DOMContentLoaded', function() {
-  rvToggle('comprar');
-});
+
 </script>
 @endpush
