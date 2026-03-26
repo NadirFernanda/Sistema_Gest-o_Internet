@@ -15,7 +15,10 @@ class PublicEquipmentCatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EstoqueEquipamento::query()->orderBy('nome')->orderBy('modelo');
+        $query = EstoqueEquipamento::query()
+            ->select('id', 'nome', 'descricao', 'modelo', 'preco', 'imagem', 'quantidade')
+            ->orderBy('nome')
+            ->orderBy('modelo');
 
         if ($search = $request->query('q')) {
             $query->where(function ($q) use ($search) {
@@ -29,7 +32,11 @@ class PublicEquipmentCatalogController extends Controller
             $query->where('nome', $categoria);
         }
 
-        $items = $query->get();
+        $limit = (int) $request->query('limit', 200);
+        $limit = max(1, min($limit, 500));
+        $page = (int) $request->query('page', 1);
+        $page = max(1, $page);
+        $items = $query->skip(($page - 1) * $limit)->take($limit)->get();
 
         return response()->json([
             'data' => $items->map(function ($item) {

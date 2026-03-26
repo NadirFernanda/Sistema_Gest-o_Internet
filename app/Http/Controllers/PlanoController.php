@@ -169,33 +169,39 @@ class PlanoController extends Controller
                   ->select('planos.*')
                   ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))");
 
-            // Log final SQL + bindings for debugging in production environments
-            try {
-                // Log at INFO so it appears in production logs where DEBUG may be filtered
-                \Log::info('PlanoController@index - SQL query', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
-            } catch (\Exception $e) {
-                // Non-fatal: if toSql()/getBindings() fail for the current builder state, continue
-                \Log::warning('PlanoController@index - Falha ao obter SQL para debug', ['error' => $e->getMessage()]);
+            $limit = (int) $request->query('limit', 200);
+            $limit = max(1, min($limit, 1000));
+
+            if (config('app.debug')) {
+                try {
+                    \Log::debug('PlanoController@index - SQL query', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
+                } catch (\Exception $e) {
+                    \Log::warning('PlanoController@index - Falha ao obter SQL para debug', ['error' => $e->getMessage()]);
+                }
             }
 
-            $planos = $query->get();
-            \Log::info('Planos retornados', ['total' => $planos->count()]);
+            $planos = $query->limit($limit)->get();
 
         // Attach canonical web URLs to each plano and permission flags so front-end
         // can safely decide which actions to render per-plan.
         $user = auth()->user();
-        $payload = $planos->map(function ($p) use ($user) {
+        $templateCounts = PlanTemplate::whereIn('id', $planos->pluck('template_id')->filter()->unique())
+            ->withCount(['planos as template_active_clients_count' => function ($q) {
+                $q->where('ativo', true);
+            }])
+            ->get()
+            ->keyBy('id');
+
+        $payload = $planos->map(function ($p) use ($user, $templateCounts) {
             $arr = $p->toArray();
             // include template and active clients count for front-end cards
             try {
                 if ($p->relationLoaded('template') && $p->template) {
                     $arr['template'] = $p->template->toArray();
-                    // compute active clients count for this template (safe fallback)
-                    try {
-                        $arr['template_active_clients_count'] = $p->template->planos()->where('ativo', true)->count();
-                    } catch (\Exception $e) {
-                        $arr['template_active_clients_count'] = $p->template->planos()->count();
-                    }
+                    $countRow = $templateCounts->get($p->template->id);
+                    $arr['template_active_clients_count'] = $countRow
+                        ? (int) $countRow->template_active_clients_count
+                        : 0;
                 }
             } catch (\Exception $e) {
                 $arr['template_active_clients_count'] = null;

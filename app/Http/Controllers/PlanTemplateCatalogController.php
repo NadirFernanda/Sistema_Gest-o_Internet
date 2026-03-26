@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PlanTemplate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PlanTemplateCatalogController extends Controller
@@ -33,23 +34,32 @@ class PlanTemplateCatalogController extends Controller
             });
         }
 
-        $templates = $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'tipo', 'metadata']);
+        if ($search) {
+            $templates = $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'tipo', 'metadata']);
+        } else {
+            $templates = Cache::remember('plan_templates_catalog:all', 300, function () use ($query) {
+                return $query->get(['id', 'name', 'description', 'preco', 'ciclo', 'estado', 'tipo', 'metadata']);
+            });
+        }
 
         // Count active/pending plans per template to determine the most popular in each category.
         // We group by template_id and pick the highest count per (tipo/category) bucket.
-        $salesCounts = [];
-        try {
-            $rows = DB::table('planos')
-                ->select('template_id', DB::raw('COUNT(*) as cnt'))
-                ->whereNotNull('template_id')
-                ->groupBy('template_id')
-                ->get();
-            foreach ($rows as $row) {
-                $salesCounts[$row->template_id] = (int) $row->cnt;
+        $salesCounts = Cache::remember('plan_templates_catalog:sales_counts', 300, function () {
+            $counts = [];
+            try {
+                $rows = DB::table('planos')
+                    ->select('template_id', DB::raw('COUNT(*) as cnt'))
+                    ->whereNotNull('template_id')
+                    ->groupBy('template_id')
+                    ->get();
+                foreach ($rows as $row) {
+                    $counts[$row->template_id] = (int) $row->cnt;
+                }
+            } catch (\Throwable $e) {
+                // planos table may not exist yet in some environments — degrade gracefully
             }
-        } catch (\Throwable $e) {
-            // planos table may not exist yet in some environments — degrade gracefully
-        }
+            return $counts;
+        });
 
         // Bucket templates by their effective category and find the highest-sold id per bucket.
         $popularByBucket = [];

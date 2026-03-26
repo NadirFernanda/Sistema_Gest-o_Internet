@@ -107,8 +107,8 @@ class CobrancaController extends Controller
     {
         $query = Cobranca::with('cliente');
         // lista de clientes e equipamentos para preencher os filtros
-        $clientes = \App\Models\Cliente::orderBy('nome')->select('nome')->get();
-        $equipamentos = EstoqueEquipamento::orderBy('nome')->select('id','nome')->get();
+        $clientes = \App\Models\Cliente::orderBy('nome')->select('id', 'nome')->limit(500)->get();
+        $equipamentos = EstoqueEquipamento::orderBy('nome')->select('id', 'nome')->limit(500)->get();
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function($q) use ($request) {
                 $q->where('nome', 'ilike', '%' . $request->cliente . '%');

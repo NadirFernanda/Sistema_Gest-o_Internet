@@ -19,7 +19,7 @@ class CatalogEquipamentosController extends Controller
             });
         }
 
-        $itens = $query->get();
+        $itens = $query->paginate(50)->withQueryString();
 
         return view('catalog_equipamentos.index', compact('itens', 'busca'));
     }

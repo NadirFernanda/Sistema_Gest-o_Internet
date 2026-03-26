@@ -265,60 +265,46 @@ class ClienteController extends Controller
 
         // Include all plans except permanently cancelled ones.
         // Expired plans may have estado='Inativo' or 'Suspenso' and must still appear.
-        $planosRaw = \App\Models\Plano::with('cliente')
+        $alertas = collect();
+
+        \App\Models\Plano::with(['cliente:id,nome,contato,telefone,email'])
+            ->select('id', 'nome', 'descricao', 'cliente_id', 'proxima_renovacao', 'data_ativacao', 'ciclo')
             ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) NOT LIKE ?", ['%cancel%'])
-            ->get();
-
-        $planos = $planosRaw->filter(function ($plano) use ($dias, $hoje) {
-            // determine data_termino: prefer proxima_renovacao when present
-            try {
-                if (!empty($plano->proxima_renovacao)) {
-                    $dataTermino = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
-                } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
-                    $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
-                    if ($cicloInt <= 0) {
-                        $cicloInt = (int)$plano->ciclo;
+            ->orderBy('id')
+            ->chunkById(500, function ($planos) use ($dias, $hoje, &$alertas) {
+                foreach ($planos as $plano) {
+                    try {
+                        if (!empty($plano->proxima_renovacao)) {
+                            $dataTermino = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
+                        } elseif (!empty($plano->data_ativacao) && $plano->ciclo) {
+                            $cicloInt = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo));
+                            if ($cicloInt <= 0) {
+                                $cicloInt = (int) $plano->ciclo;
+                            }
+                            $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
+                        } else {
+                            continue;
+                        }
+                    } catch (\Exception $e) {
+                        continue;
                     }
-                    $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
-                } else {
-                    return false;
-                }
-            } catch (\Exception $e) {
-                return false;
-            }
 
-            $diasRestantes = $hoje->diffInDays($dataTermino, false);
-            // Incluir planos vencidos (diasRestantes < 0) e planos que vencem em até $dias dias
-            return $diasRestantes <= $dias;
-        });
-
-        $alertas = $planos->map(function ($plano) use ($hoje) {
-            try {
-                if (!empty($plano->proxima_renovacao)) {
-                    $dataTermino = \Carbon\Carbon::parse($plano->proxima_renovacao)->startOfDay();
-                } else {
-                    $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$plano->ciclo));
-                    if ($cicloInt <= 0) {
-                        $cicloInt = (int)$plano->ciclo;
+                    $diasRestantes = $hoje->diffInDays($dataTermino, false);
+                    if ($diasRestantes > $dias) {
+                        continue;
                     }
-                    $dataTermino = \Carbon\Carbon::parse($plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
-                }
-            } catch (\Exception $e) {
-                $dataTermino = $hoje;
-            }
 
-            $diasRestantes = $hoje->diffInDays($dataTermino, false);
-            // Shape the alert to match the frontend expectation (main.js)
-            return [
-                'id' => $plano->id,
-                'nome' => $plano->cliente?->nome,
-                'plano' => $plano->nome ?? $plano->descricao ?? '',
-                'contato' => $plano->cliente?->contato ?? $plano->cliente?->telefone ?? '',
-                'email' => $plano->cliente?->email ?? '',
-                'dataTermino' => $dataTermino->toDateString(),
-                'diasRestantes' => $diasRestantes,
-            ];
-        })->values();
+                    $alertas->push([
+                        'id' => $plano->id,
+                        'nome' => $plano->cliente?->nome,
+                        'plano' => $plano->nome ?? $plano->descricao ?? '',
+                        'contato' => $plano->cliente?->contato ?? $plano->cliente?->telefone ?? '',
+                        'email' => $plano->cliente?->email ?? '',
+                        'dataTermino' => $dataTermino->toDateString(),
+                        'diasRestantes' => $diasRestantes,
+                    ]);
+                }
+            });
 
         // Ordenar alfabeticamente pelo nome do cliente
         $alertas = $alertas->sortBy(function($a) {
@@ -392,7 +378,9 @@ class ClienteController extends Controller
         }
         // Se for chamada via API/AJAX (ex.: /api/clientes), retorna lista simples em JSON
         if (request()->wantsJson() || request()->is('api/*')) {
-            $clientes = $query->orderBy('nome')->get();
+            $limit = (int) request('limit', 200);
+            $limit = max(1, min($limit, 1000));
+            $clientes = $query->orderBy('nome')->limit($limit)->get();
             return response()->json($clientes);
         }
 

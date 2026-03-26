@@ -90,5 +90,11 @@
             </tbody>
         </table>
     </div>
+
+    @if($itens->hasPages())
+        <div style="margin-top:16px;">
+            {{ $itens->links() }}
+        </div>
+    @endif
 </div>
 @endsection
