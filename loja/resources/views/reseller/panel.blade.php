@@ -1087,18 +1087,18 @@
           </button>
           <div class="rv-menu-body" id="rv-body-manutencao" style="display:none;">
             <div class="rv-panel" style="margin-bottom:0;">
-              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Taxa de Manutenção Anual</div>
+              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Taxa de Manutenção Mensal</div>
               @if(!$application->maintenanceDueThisMonth())
                 <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:.6rem;">
                   <span style="font-size:1.4rem;">✅</span>
                   <div>
                     <strong style="color:#15803d;">Manutenção paga para {{ now()->year }}</strong><br>
-                    <span style="font-size:.83rem;color:#166534;">O pagamento anual foi efectuado e o serviço está activo.</span>
+                    <span style="font-size:.83rem;color:#166534;">O pagamento mensal foi efectuado e o serviço está activo.</span>
                   </div>
                 </div>
               @else
                 <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
-                  A taxa de manutenção anual deve ser paga de <strong>uma só vez</strong> pelo importador.
+                  A Taxa de Manutenção Mensal deve ser paga de <strong>uma só vez</strong> pelo importador.
                   O valor em dívida é de <strong>{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz</strong>.
                 </p>
                 <a href="{{ route('reseller.maintenance.payment') }}"
