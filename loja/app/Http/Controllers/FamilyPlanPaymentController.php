@@ -37,6 +37,12 @@ class FamilyPlanPaymentController extends Controller
         // Se PAYMENT_WEBHOOK_SECRET estiver definido no .env, exige que a chamada
         // inclua o header correcto; caso contrário rejeita com 401.
         $webhookSecret = env('PAYMENT_WEBHOOK_SECRET');
+        if (!$webhookSecret && app()->isProduction()) {
+            Log::error('Payment webhook: secret ausente em produção', [
+                'ip' => $request->ip(),
+            ]);
+            return response()->json(['error' => 'webhook_unconfigured'], 503);
+        }
         if ($webhookSecret) {
             $signature = $request->header('X-Webhook-Signature')
                       ?? $request->header('X-Gateway-Signature')
