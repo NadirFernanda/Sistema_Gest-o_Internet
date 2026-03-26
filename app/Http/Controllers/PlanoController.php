@@ -46,6 +46,7 @@ class PlanoController extends Controller
             $plano = Plano::create($validated);
             \Log::info('PlanoController@store - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
             Cache::forget('sg_active_clients_count'); // invalida cache do contador de clientes activos
+            Cache::forget('plan_templates_catalog:sales_counts');
 
             // If this is a regular web form submit (not expecting JSON), redirect
             if (! $request->wantsJson()) {
@@ -305,6 +306,7 @@ class PlanoController extends Controller
         }
         $plano->delete();
         Cache::forget('sg_active_clients_count');
+        Cache::forget('plan_templates_catalog:sales_counts');
         return response()->json(['success' => true, 'message' => 'Plano removido com sucesso.']);
     }
 
@@ -323,6 +325,7 @@ class PlanoController extends Controller
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
         Cache::forget('sg_active_clients_count'); // invalida cache (ativo pode ter mudado)
+        Cache::forget('plan_templates_catalog:sales_counts');
         // If this request is a normal web form submit, redirect to the show page
         if (! $request->wantsJson()) {
             return redirect()->route('planos.show', $plano->id)->with('success', 'Plano atualizado com sucesso.');
@@ -364,6 +367,7 @@ class PlanoController extends Controller
             $plano = Plano::create($validated);
             \Log::info('PlanoController@storeWeb - Plano criado', ['plano' => $plano, 'template_used' => $template ? $template->id : null, 'created_by' => auth()->id()]);
             Cache::forget('sg_active_clients_count');
+            Cache::forget('plan_templates_catalog:sales_counts');
             return redirect()->route('planos.index')->with('success', 'Plano cadastrado com sucesso.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
@@ -400,6 +404,7 @@ class PlanoController extends Controller
         $plano = Plano::findOrFail($id);
         $plano->delete();
         Cache::forget('sg_active_clients_count');
+        Cache::forget('plan_templates_catalog:sales_counts');
         return redirect()->route('planos.index')->with('success', 'Plano removido.');
     }
 }

@@ -44,6 +44,8 @@ class PlanTemplateController extends Controller
         ]);
 
         PlanTemplate::create($data);
+        Cache::forget('plan_templates:list_json');
+        Cache::forget('plan_templates_catalog:all');
         return redirect()->route('plan-templates.index')->with('success', 'Plano criado com sucesso');
     }
 
@@ -64,12 +66,16 @@ class PlanTemplateController extends Controller
         ]);
 
         $plan_template->update($data);
+        Cache::forget('plan_templates:list_json');
+        Cache::forget('plan_templates_catalog:all');
         return redirect()->route('plan-templates.index')->with('success', 'Plano atualizado com sucesso');
     }
 
     public function destroy(PlanTemplate $plan_template)
     {
         $plan_template->delete();
+        Cache::forget('plan_templates:list_json');
+        Cache::forget('plan_templates_catalog:all');
         return redirect()->route('plan-templates.index')->with('success', 'Plano removido com sucesso');
     }
 
