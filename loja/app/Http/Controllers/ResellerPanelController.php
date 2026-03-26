@@ -486,8 +486,14 @@ class ResellerPanelController extends Controller
         }
 
         $application = ResellerApplication::findOrFail($resellerId);
-        $method      = $request->input('payment_method', 'multicaixa');
-        $reference   = trim($request->input('payment_reference', ''))
+
+        $data = $request->validate([
+            'payment_method'    => ['required', 'string', 'in:multicaixa,transferencia,multicaixa_express'],
+            'payment_reference' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $method    = $data['payment_method'];
+        $reference = trim($data['payment_reference'] ?? '')
             ?: ('SIM-' . now()->format('YmdHis') . '-' . $application->id);
 
         // Load plan validity labels for the CSV
@@ -600,7 +606,10 @@ class ResellerPanelController extends Controller
         $mcxEntity = '00372';
         $mcxRef    = str_pad($application->id * 31 + 500000, 9, '0', STR_PAD_LEFT);
 
-        return view('reseller.maintenance-payment', compact('application', 'amount', 'mcxEntity', 'mcxRef'));
+        $token = bin2hex(random_bytes(16));
+        $request->session()->put('maintenance_payment_token', $token);
+
+        return view('reseller.maintenance-payment', compact('application', 'amount', 'mcxEntity', 'mcxRef', 'token'));
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -613,10 +622,22 @@ class ResellerPanelController extends Controller
 
         $application = ResellerApplication::findOrFail($resellerId);
 
+        if (!$application->maintenanceDueThisMonth()) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'Não há taxa de manutenção em dívida no mês actual.');
+        }
+
         $data = $request->validate([
             'payment_method'    => ['required', 'string', 'in:multicaixa,transferencia,multicaixa_express'],
-            'payment_reference' => ['nullable', 'string', 'max:100'],
+            'payment_reference' => ['nullable', 'string', 'max:100', 'required_if:payment_method,transferencia,multicaixa_express'],
+            'payment_token'     => ['required', 'string', 'size:32'],
         ]);
+
+        $sessionToken = $request->session()->pull('maintenance_payment_token');
+        if (!$sessionToken || !hash_equals($sessionToken, $data['payment_token'])) {
+            return redirect()->route('reseller.maintenance.payment')
+                ->with('error', 'A confirmação expirou. Atualize a página e tente novamente.');
+        }
 
         $application->update([
             'maintenance_paid_year' => now()->year,

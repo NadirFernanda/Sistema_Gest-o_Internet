@@ -103,6 +103,7 @@
       @csrf
       <input type="hidden" name="payment_method"    id="inputMethod"    value="multicaixa">
       <input type="hidden" name="payment_reference" id="inputReference" value="{{ $mcxRef }}">
+      <input type="hidden" name="payment_token"     value="{{ $token }}">
 
       <div class="rv-methods-grid">
         <label class="rv-method-card active" id="card-mcx"

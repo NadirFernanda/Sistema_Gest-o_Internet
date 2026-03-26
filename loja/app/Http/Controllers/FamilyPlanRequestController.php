@@ -142,12 +142,14 @@ class FamilyPlanRequestController extends Controller
         $sgVerifiedPreco  = $validated['plan_preco'] ?? null;
         $sgVerifiedCiclo  = $validated['plan_ciclo'] ?? null;
         $priceVerified    = false;
+        $sgAvailable      = false;
 
         try {
             $sg  = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
             $res = (new Client(['timeout' => 5]))->get($sg . '/api/plan-templates', ['http_errors' => false]);
 
             if ($res->getStatusCode() === 200) {
+                $sgAvailable = true;
                 $templates = json_decode((string) $res->getBody(), true)['data'] ?? [];
                 $template  = collect($templates)->firstWhere('id', $validated['plan_id']);
 
@@ -165,10 +167,16 @@ class FamilyPlanRequestController extends Controller
                 }
             }
         } catch (\Throwable $e) {
-            // SG inacessível — prossegue com valores do cliente mas sinaliza para revisão
+            // SG inacessível — bloquear para evitar adulteração de preço
             Log::warning('FamilyPlanRequest: não foi possível verificar o template do plano (SG inacessível)', [
                 'plan_id' => $validated['plan_id'],
             ]);
+        }
+
+        if (!$sgAvailable || !$priceVerified) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['plan_id' => 'O Sistema de Gestão está indisponível. Tente novamente dentro de alguns minutos.']);
         }
 
         $requestRecord = FamilyPlanRequest::create([
@@ -182,7 +190,7 @@ class FamilyPlanRequestController extends Controller
             'customer_nif'    => $validated['customer_nif'] ?? null,
             'payment_method'  => $validated['payment_method'],
             'status'          => FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
-            'notes'           => $priceVerified ? null : 'AVISO: preço não verificado — SG inacessível durante o checkout.',
+            'notes'           => null,
         ]);
 
         // Generate and persist the payment reference (requires the DB-assigned ID)
