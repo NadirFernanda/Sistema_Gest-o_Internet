@@ -1,6 +1,9 @@
 // Lógica simples para simular login e navegação
 
 document.addEventListener('DOMContentLoaded', function() {
+    const apiToken = (document.querySelector('meta[name="api-token"]') || { getAttribute: () => '' }).getAttribute('content') || '';
+    const apiHeaders = apiToken ? { 'X-API-TOKEN': apiToken } : {};
+
     const loginForm = document.querySelector('.login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -11,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // --- ALERTAS ---
     if (document.getElementById('alertasLista')) {
-        const _alertasToken = (document.querySelector('meta[name="api-token"]') || {getAttribute:()=>''}).getAttribute('content') || '';
         let _alertasData = [];
 
         function applyFiltersAndRender() {
@@ -83,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const diasAlertaInput = document.getElementById('diasAlerta');
             const DIAS_ALERTA = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
             lista.innerHTML = '<p>A carregar…</p>';
-            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { headers: { 'X-API-TOKEN': _alertasToken } })
+            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { headers: apiHeaders })
                 .then(async res => {
                     try {
                         _alertasData = await res.json();
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const select = document.getElementById('clientePlano');
             if (!select) return;
             const valorAtual = select.value;
-            fetch('/api/clientes', { credentials: 'include' })
+            fetch('/api/clientes', { credentials: 'include', headers: apiHeaders })
                 .then(async res => {
                     let clientes = [];
                     try {
@@ -180,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!lista) return;
             const filtro = encodeURIComponent(getFiltroPlanos());
             const url = filtro ? `/api/planos?busca=${filtro}` : '/api/planos';
-            fetch(url, { credentials: 'include' })
+            fetch(url, { credentials: 'include', headers: apiHeaders })
                 .then(async res => {
                     let planos = [];
                     try {

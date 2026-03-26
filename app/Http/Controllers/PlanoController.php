@@ -172,6 +172,8 @@ class PlanoController extends Controller
 
             $limit = (int) $request->query('limit', 200);
             $limit = max(1, min($limit, 1000));
+            $page = (int) $request->query('page', 1);
+            $page = max(1, $page);
 
             if (config('app.debug')) {
                 try {
@@ -181,7 +183,7 @@ class PlanoController extends Controller
                 }
             }
 
-            $planos = $query->limit($limit)->get();
+            $planos = $query->forPage($page, $limit)->get();
 
         // Attach canonical web URLs to each plano and permission flags so front-end
         // can safely decide which actions to render per-plan.

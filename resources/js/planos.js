@@ -388,8 +388,11 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
         const __apiToken = __apiTokenMeta ? __apiTokenMeta.getAttribute('content') : '';
         const headers = { 'X-Requested-With':'XMLHttpRequest', 'X-API-TOKEN': __apiToken };
 
-        // Todos os dados carregados uma só vez
+        // Dados carregados por páginas
         let _planosData = [];
+        let _page = 1;
+        let _hasMore = true;
+        const _pageSize = 200;
 
         // Aplica todos os filtros localmente e renderiza — igual ao applyFiltersAndRender() do alertas
         function applyFiltersAndRender(){
@@ -514,6 +517,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                     </article>`;
             });
             html += '</div>';
+            html += renderLoadMore();
             lista.innerHTML = html;
             // attach delete handlers if needed later (delegation could be used)
             lista.querySelectorAll('.btn-remove').forEach(b => b.addEventListener('click', function(){
@@ -543,6 +547,21 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             }));
         }
 
+        function renderLoadMore(){
+            if(!_hasMore) return '';
+            return `<div style="display:flex;justify-content:center;margin:16px 0;">
+                <button type="button" id="loadMorePlanos" class="btn btn-ghost">Carregar mais</button>
+            </div>`;
+        }
+
+        function attachLoadMore(){
+            const btn = document.getElementById('loadMorePlanos');
+            if(!btn) return;
+            btn.addEventListener('click', function(){
+                loadPlanosPage(_page + 1, true);
+            });
+        }
+
         // Estado do filtro de template (clique nos cards de resumo)
         let _activeTemplateId = null;
 
@@ -558,7 +577,7 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
             const nm   = document.getElementById('activePlanFilterName');
             if(bar)  bar.style.display = 'flex';
             if(nm)   nm.textContent    = name;
-            applyFiltersAndRender();
+            loadPlanosPage(1, false);
         }
 
         function clearTemplateFilter(){
@@ -631,25 +650,53 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
 
         // Pesquisa textual: filtra localmente (mesmo padrão que alertas)
         function debounce(fn, wait){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, wait); }; }
-        input.addEventListener('input', debounce(applyFiltersAndRender, 250));
-        input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); applyFiltersAndRender(); } });
+        input.addEventListener('input', debounce(function(){ loadPlanosPage(1, false); }, 350));
+        input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); loadPlanosPage(1, false); } });
 
-        // Carrega todos os planos uma vez e depois filtra cliente-side
-        function loadPlanos(){
+        function buildQuery(page){
+            const params = new URLSearchParams();
+            if(input.value) params.set('busca', input.value.trim());
+            const estado = document.getElementById('filtroEstado')?.value || '';
+            const tipo = document.getElementById('filtroTipo')?.value || '';
+            const templateId = _activeTemplateId;
+            if(estado) params.set('estado', estado);
+            if(tipo) params.set('tipo', tipo);
+            if(templateId) params.set('template_id', templateId);
+            params.set('limit', String(_pageSize));
+            params.set('page', String(page));
+            return params.toString();
+        }
+
+        function loadPlanosPage(page, append){
             const base = (window.planosConfig && window.planosConfig.planosApi ? window.planosConfig.planosApi : '/api/planos');
-            lista.innerHTML = '<div style="padding:12px 0">A carregar…</div>';
-            fetch(base, { headers: headers, credentials: 'same-origin' })
+            const query = buildQuery(page);
+            if(!append){
+                lista.innerHTML = '<div style="padding:12px 0">A carregar…</div>';
+                _planosData = [];
+                _page = 1;
+                _hasMore = true;
+            }
+            fetch(base + (query ? ('?' + query) : ''), { headers: headers, credentials: 'same-origin' })
                 .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
                 .then(function(json){
-                    _planosData = Array.isArray(json) ? json : [];
+                    const items = Array.isArray(json) ? json : [];
+                    if(append){
+                        _planosData = _planosData.concat(items);
+                        _page = page;
+                    } else {
+                        _planosData = items;
+                        _page = page;
+                    }
+                    _hasMore = items.length === _pageSize;
                     applyFiltersAndRender();
+                    attachLoadMore();
                 })
                 .catch(function(){ lista.innerHTML = '<p>Erro ao carregar planos.</p>'; });
         }
 
         try{
-            window.__refreshPlanos = function(){ loadPlanos(); };
-            loadPlanos();
+            window.__refreshPlanos = function(){ loadPlanosPage(1, false); };
+            loadPlanosPage(1, false);
         }catch(_){ }
     })();
 
