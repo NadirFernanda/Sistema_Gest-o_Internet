@@ -105,6 +105,7 @@ class CustomerAccountController extends Controller
 
         // OTP valid — establish authenticated session and clean up OTP data
         $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at']);
+        $request->session()->regenerate();
         $request->session()->put('customer_email', $sessionEmail);
 
         return redirect()->route('account.index');

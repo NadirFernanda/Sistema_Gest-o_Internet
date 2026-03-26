@@ -244,6 +244,7 @@ class ResellerPanelController extends Controller
             return redirect()->route('reseller.panel')->with('error', 'Nenhum revendedor aprovado encontrado para este endereço de email.');
         }
 
+        $request->session()->regenerate();
         $request->session()->put('reseller_id', $application->id);
         return redirect()->route('reseller.panel');
     }
