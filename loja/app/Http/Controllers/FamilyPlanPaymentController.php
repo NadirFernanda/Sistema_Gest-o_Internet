@@ -109,8 +109,8 @@ class FamilyPlanPaymentController extends Controller
      */
     public function simulateSuccess($id)
     {
-        // Impede activação gratuita de planos em produção.
-        if (app()->isProduction()) {
+        // Impede activação gratuita de planos fora de local/testing.
+        if (!app()->environment('local', 'testing')) {
             abort(404);
         }
 
