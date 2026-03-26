@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @push('styles')
 <style>
@@ -651,15 +651,6 @@
         </form>
       </div>
 
-      {{-- ══ Pre-calc shared variables ══ --}}
-      @php
-        $maintQuota    = (int) config('reseller.monthly_maintenance_quota_aoa', 45000);
-        $maintBreakdown= config('reseller.monthly_maintenance_breakdown', []);
-        $maintSpend    = $application->monthlySpendings();
-        $maintMet      = $maintSpend >= $maintQuota;
-        $maintPct      = $maintQuota > 0 ? min(100, (int) round($maintSpend * 100 / $maintQuota)) : 0;
-      @endphp
-
       {{-- ══ Alertas globais (sempre visíveis) ══ --}}
       @if($application->maintenanceDueThisMonth())
         <div class="rv-alert danger" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
@@ -674,15 +665,6 @@
              style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#dc2626;color:#fff;border-radius:.6rem;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;">
             💳 Pagar agora
           </a>
-        </div>
-      @endif
-      @if(!$maintMet)
-        <div class="rv-alert danger">
-          <span class="rv-alert-icon">🔧</span>
-          <div>
-            <strong>Manutenção mensal não cumprida</strong> — serviços condicionados.<br>
-            Faltam <strong>{{ number_format($maintQuota - $maintSpend, 0, ',', '.') }} Kz</strong> em compras para atingir a cota de {{ number_format($maintQuota, 0, ',', '.') }} Kz este mês.
-          </div>
         </div>
       @endif
       @if($application->monthly_target_aoa > 0 && $application->metMonthlyTarget())
@@ -1095,8 +1077,8 @@
             <span class="rv-menu-btn-left">
               <span class="rv-menu-icon">🔧</span>
               <span class="rv-menu-label">Manutenção Mensal</span>
-              @if($maintMet)
-                <span class="rv-menu-badge" style="background:#dcfce7;color:#15803d;">✔ cumprida</span>
+              @if(!$application->maintenanceDueThisMonth())
+                <span class="rv-menu-badge" style="background:#dcfce7;color:#15803d;">✔ paga</span>
               @else
                 <span class="rv-menu-badge" style="background:#fef2f2;color:#dc2626;">⚠ obrigatória</span>
               @endif
@@ -1105,46 +1087,29 @@
           </button>
           <div class="rv-menu-body" id="rv-body-manutencao" style="display:none;">
             <div class="rv-panel" style="margin-bottom:0;">
-              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Cota Mensal de Manutenção</div>
-              <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
-                Para manter o estatuto de revendedor activo é <strong>obrigatório</strong> adquirir pelo menos
-                <strong>{{ number_format($maintQuota, 0, ',', '.') }} Kz</strong> em vouchers por mês.
-                O não cumprimento condiciona o acesso aos serviços.
-              </p>
-              <table class="rv-hist-table" style="margin-bottom:.9rem;">
-                <thead><tr><th>Planos</th><th class="r">P. Unit.</th><th class="r">Qtd.</th><th class="r">Valor</th></tr></thead>
-                <tbody>
-                  @foreach($maintBreakdown as $row)
-                    <tr>
-                      <td>{{ $row['name'] }}</td>
-                      <td class="r">{{ number_format($row['unit_price'], 0, ',', '.') }}</td>
-                      <td class="r">{{ $row['qty'] }}</td>
-                      <td class="r bold">{{ number_format($row['total'], 0, ',', '.') }}</td>
-                    </tr>
-                  @endforeach
-                </tbody>
-                <tfoot><tr><td colspan="3"><strong>TOTAL</strong></td><td class="r bold">{{ number_format($maintQuota, 0, ',', '.') }}</td></tr></tfoot>
-              </table>
-              <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
-                <span>Progresso este mês:</span>
-                <span style="font-weight:700;color:{{ $maintPct >= 100 ? '#16a34a' : '#d97706' }};">
-                  {{ number_format($maintSpend, 0, ',', '.') }} / {{ number_format($maintQuota, 0, ',', '.') }} Kz ({{ $maintPct }}%)
-                </span>
-              </div>
-              <div class="rv-progress-bar">
-                <div class="rv-progress-fill" style="width:{{ $maintPct }}%;background:{{ $maintPct >= 100 ? '#16a34a' : '#f59e0b' }};"></div>
-              </div>
-              @if($maintPct >= 100)
-                <p style="font-size:.82rem;color:#16a34a;font-weight:700;margin-top:.5rem;">✅ Cota mensal cumprida!</p>
+              <div class="rv-panel-title"><span class="rv-panel-icon">📋</span> Taxa de Manutenção Anual</div>
+              @if(!$application->maintenanceDueThisMonth())
+                <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:.6rem;">
+                  <span style="font-size:1.4rem;">✅</span>
+                  <div>
+                    <strong style="color:#15803d;">Manutenção paga para {{ now()->year }}</strong><br>
+                    <span style="font-size:.83rem;color:#166534;">O pagamento anual foi efectuado e o serviço está activo.</span>
+                  </div>
+                </div>
               @else
-                <p style="font-size:.82rem;color:#92400e;margin-top:.5rem;">
-                  Faltam <strong>{{ number_format($maintQuota - $maintSpend, 0, ',', '.') }} Kz</strong> para cumprir a cota deste mês.
+                <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
+                  A taxa de manutenção anual deve ser paga de <strong>uma só vez</strong> pelo importador.
+                  O valor em dívida é de <strong>{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz</strong>.
                 </p>
+                <a href="{{ route('reseller.maintenance.payment') }}"
+                   style="display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;background:#dc2626;color:#fff;border-radius:.6rem;font-size:.88rem;font-weight:700;text-decoration:none;">
+                  💳 Pagar manutenção agora
+                </a>
               @endif
             </div>
           </div>
         </div>
-
+        
         {{-- ⑥ META MENSAL --}}
         @if($application->monthly_target_aoa > 0 || $application->bonus_vouchers_aoa > 0)
         @php
