@@ -51,7 +51,7 @@
   <a href="{{ route('reseller.panel') }}" class="rv-back-link">← Voltar ao painel</a>
 
   <div class="rv-pay-header">
-    <h1>🔔 Taxa de Manutenção Anual</h1>
+    <h1>🔔 Taxa de Manutenção Mensal</h1>
     <p>Regularize a sua taxa de manutenção para continuar a utilizar o painel de revendedor sem restrições.</p>
   </div>
 
