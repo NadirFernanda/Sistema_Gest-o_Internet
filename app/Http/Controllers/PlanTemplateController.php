@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PlanTemplate;
+use Illuminate\Support\Facades\Cache;
 
 class PlanTemplateController extends Controller
 {
@@ -21,7 +22,7 @@ class PlanTemplateController extends Controller
         // Load templates with a count of active clientes (planos.ativo = true)
         $templates = PlanTemplate::withCount(['planos as active_clients_count' => function ($q) {
             $q->where('ativo', true);
-        }])->orderBy('name')->get();
+        }])->orderBy('name')->paginate(100)->withQueryString();
 
         return view('plan_templates.index', compact('templates'));
     }
@@ -81,9 +82,11 @@ class PlanTemplateController extends Controller
     // list all templates as JSON (lightweight)
     public function listJson()
     {
-        $list = PlanTemplate::withCount(['planos as template_active_clients_count' => function ($q) {
-            $q->where('ativo', true);
-        }])->orderBy('name')->get(['id','name','preco','ciclo','estado']);
+        $list = Cache::remember('plan_templates:list_json', 300, function () {
+            return PlanTemplate::withCount(['planos as template_active_clients_count' => function ($q) {
+                $q->where('ativo', true);
+            }])->orderBy('name')->get(['id','name','preco','ciclo','estado']);
+        });
 
         // ensure numeric counts are present (0 when none)
         $list->transform(function ($t) {

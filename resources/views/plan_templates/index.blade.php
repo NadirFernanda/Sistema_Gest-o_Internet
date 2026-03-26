@@ -62,6 +62,12 @@
         @endforelse
       </tbody>
     </table>
+
+    @if($templates->hasPages())
+      <div style="margin-top:16px;">
+        {{ $templates->links() }}
+      </div>
+    @endif
   </div>
 
       <script>
