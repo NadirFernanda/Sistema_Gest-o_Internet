@@ -642,7 +642,8 @@ class ResellerPanelController extends Controller
         }
 
         $application->update([
-            'maintenance_paid_year' => now()->year,
+            'maintenance_paid_year'  => now()->year,
+            'maintenance_paid_month' => now()->month,
             'maintenance_status'    => ResellerApplication::MAINTENANCE_OK,
         ]);
 

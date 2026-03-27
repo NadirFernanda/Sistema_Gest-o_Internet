@@ -21,6 +21,7 @@ class ResellerApplication extends Model
         'saldo_bonus_aoa',
         'monthly_target_aoa',
         'maintenance_paid_year',
+        'maintenance_paid_month',
         'maintenance_status',
         'notes',
         'subject',
@@ -37,7 +38,8 @@ class ResellerApplication extends Model
         'bonus_vouchers_aoa'   => 'integer',
         'saldo_bonus_aoa'      => 'integer',
         'monthly_target_aoa'   => 'integer',
-        'maintenance_paid_year'=> 'integer',
+        'maintenance_paid_year' => 'integer',
+        'maintenance_paid_month'=> 'integer',
     ];
 
     public const STATUS_PENDING  = 'pending';
@@ -102,15 +104,11 @@ class ResellerApplication extends Model
         return $this->monthlySpendings() >= $this->monthly_target_aoa;
     }
 
-    /** True if maintenance fee is due this month and not yet paid. */
+    /** True if the monthly maintenance fee has not been paid for the current month. */
     public function maintenanceDueThisMonth(): bool
     {
-        $dueMonth = $this->reseller_mode === self::INTERNET_OWN
-            ? (int) config('reseller.mode_own_maintenance_month', 3)
-            : (int) config('reseller.mode_angolawifi_maintenance_month', 10);
-
-        if (now()->month !== $dueMonth) return false;
-        return ($this->maintenance_paid_year ?? 0) < now()->year;
+        return !(($this->maintenance_paid_year  ?? 0) === now()->year
+              && ($this->maintenance_paid_month ?? 0) === now()->month);
     }
 
     /** Maintenance fee amount for this reseller's mode. */

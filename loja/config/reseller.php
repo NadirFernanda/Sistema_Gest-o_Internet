@@ -20,7 +20,7 @@ return [
         ['name' => 'Mês',    'plan_slug' => 'mensal',  'qty' => 20, 'unit_price' => 1000, 'total' => 20000],
     ],
 
-    // Taxa de manutenção anual (Kz) — cobrada em Março
+    // Taxa de manutenção mensal (Kz) — Modo 1
     'mode_own_maintenance_aoa' => 45000,
     'mode_own_maintenance_month' => 3,  // Março
 
@@ -46,7 +46,7 @@ return [
         200000 => 40,
     ],
 
-    // Taxa de manutenção anual (Kz) — cobrada em Outubro
+    // Taxa de manutenção mensal (Kz) — Modo 2
     'mode_angolawifi_maintenance_aoa' => 100000,
     'mode_angolawifi_maintenance_month' => 10, // Outubro
 ];

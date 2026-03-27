@@ -71,7 +71,7 @@
     <div style="text-align:right;">
       <div class="lbl">Valor a pagar</div>
       <div class="amount">{{ number_format($amount, 0, ',', '.') }} Kz</div>
-      <div class="sub">Taxa de manutenção {{ now()->year }}</div>
+      <div class="sub">Taxa de manutenção {{ now()->format('m/Y') }}</div>
     </div>
   </div>
 
@@ -81,13 +81,13 @@
     <div class="rv-detail-row">
       <span class="rv-detail-label">Tipo de taxa</span>
       <span class="rv-detail-value" style="font-family:inherit;font-size:.9rem;">
-        Manutenção anual — revendedor
+        Manutenção mensal — revendedor
         {{ $application->reseller_mode === 'own' ? 'com internet própria' : 'AngolaWiFi' }}
       </span>
     </div>
     <div class="rv-detail-row">
-      <span class="rv-detail-label">Ano de referência</span>
-      <span class="rv-detail-value" style="font-family:inherit;">{{ now()->year }}</span>
+      <span class="rv-detail-label">Mês/Ano de referência</span>
+      <span class="rv-detail-value" style="font-family:inherit;">{{ now()->format('m/Y') }}</span>
     </div>
     <div class="rv-detail-row">
       <span class="rv-detail-label">Montante</span>
@@ -115,7 +115,7 @@
         </label>
 
         <label class="rv-method-card" id="card-bank"
-               onclick="selectMethod('transferencia', 'TRF-MAINT-{{ now()->year }}-{{ $application->id }}', 'bank')">
+               onclick="selectMethod('transferencia', 'TRF-MAINT-{{ now()->format('mY') }}-{{ $application->id }}', 'bank')">
           <input type="radio" name="_ui_method" value="transferencia">
           <div class="rv-method-icon">🏦</div>
           <div class="rv-method-name">Transferência Bancária</div>
@@ -123,7 +123,7 @@
         </label>
 
         <label class="rv-method-card" id="card-mobile"
-               onclick="selectMethod('multicaixa_express', 'MCX-MAINT-{{ now()->year }}-{{ $application->id }}', 'mobile')">
+               onclick="selectMethod('multicaixa_express', 'MCX-MAINT-{{ now()->format('mY') }}-{{ $application->id }}', 'mobile')">
           <input type="radio" name="_ui_method" value="multicaixa_express">
           <div class="rv-method-icon">📱</div>
           <div class="rv-method-name">Multicaixa Express</div>
@@ -146,7 +146,7 @@
           <span class="rv-detail-value">{{ number_format($amount, 0, ',', '.') }} Kz</span>
         </div>
         <div class="rv-detail-note">
-          Esta referência é válida para a taxa de manutenção de {{ now()->year }} do revendedor <strong>{{ $application->full_name }}</strong>.
+          Esta referência é válida para a taxa de manutenção de {{ now()->format('m/Y') }} do revendedor <strong>{{ $application->full_name }}</strong>.
         </div>
       </div>
 
@@ -170,7 +170,7 @@
         </div>
         <div class="rv-detail-note">
           📎 Envie o comprovativo para <strong>financeiro@angolawifi.ao</strong> com o assunto
-          <em>"Taxa Manutenção {{ now()->year }} — {{ $application->full_name }}"</em>.
+          <em>"Taxa Manutenção {{ now()->format('m/Y') }} — {{ $application->full_name }}"</em>.
         </div>
       </div>
 
@@ -191,7 +191,7 @@
 
 
       <button type="submit" class="rv-btn-confirm"
-              onclick="return confirm('Confirmar o pagamento de {{ number_format($amount, 0, ',', '.') }} Kz referente à taxa de manutenção de {{ now()->year }}?')">
+              onclick="return confirm('Confirmar o pagamento de {{ number_format($amount, 0, ',', '.') }} Kz referente à taxa de manutenção de {{ now()->format('m/Y') }}?')">
         ✅ Confirmar Pagamento — {{ number_format($amount, 0, ',', '.') }} Kz
       </button>
 

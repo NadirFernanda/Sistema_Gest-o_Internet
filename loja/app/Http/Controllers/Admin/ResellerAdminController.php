@@ -60,7 +60,8 @@ class ResellerAdminController extends Controller
             'reseller_mode'        => 'nullable|in:own,angolawifi',
             'installation_fee_aoa' => 'nullable|integer|min:0',
             'monthly_target_aoa'   => 'nullable|integer|min:0',
-            'maintenance_paid_year'=> 'nullable|integer|min:2020|max:2100',
+            'maintenance_paid_year' => 'nullable|integer|min:2020|max:2100',
+            'maintenance_paid_month'=> 'nullable|integer|min:1|max:12',
             'maintenance_status'   => 'nullable|in:ok,pending,overdue',
             'notes'                => 'nullable|string|max:2000',
         ]);

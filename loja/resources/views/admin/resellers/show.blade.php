@@ -136,7 +136,9 @@
       @if($application->maintenanceDueThisMonth())
         <span class="badge bg-red">Pendente este m&ecirc;s</span>
         <p class="ap-stat-sub">{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz</p>
-      @elseif($application->maintenance_paid_year >= now()->year)
+      @elseif($application->maintenance_paid_year && $application->maintenance_paid_month)
+        <span class="badge bg-green">Paga ({{ str_pad($application->maintenance_paid_month, 2, '0', STR_PAD_LEFT) }}/{{ $application->maintenance_paid_year }})</span>
+      @elseif($application->maintenance_paid_year)
         <span class="badge bg-green">Paga ({{ $application->maintenance_paid_year }})</span>
       @else
         <p class="ap-stat-sub">Sem dados</p>
@@ -190,11 +192,22 @@
         </div>
 
         <div>
-          <label class="ap-label" for="maintenance_paid_year">Manuten&ccedil;&atilde;o paga &mdash; ano</label>
-          <input id="maintenance_paid_year" name="maintenance_paid_year" type="number"
-                 min="2020" max="2100"
-                 value="{{ old('maintenance_paid_year', $application->maintenance_paid_year) }}"
-                 class="ap-ctrl" placeholder="{{ now()->year }}">
+          <label class="ap-label">Manuten&ccedil;&atilde;o paga &mdash; m&ecirc;s/ano</label>
+          <div style="display:flex;gap:.5rem;">
+            <select id="maintenance_paid_month" name="maintenance_paid_month" class="ap-ctrl" style="width:auto;">
+              <option value="">-- M&ecirc;s --</option>
+              @foreach(range(1,12) as $m)
+                <option value="{{ $m }}" @selected((int)old('maintenance_paid_month', $application->maintenance_paid_month) === $m)>
+                  {{ str_pad($m, 2, '0', STR_PAD_LEFT) }}
+                </option>
+              @endforeach
+            </select>
+            <input id="maintenance_paid_year" name="maintenance_paid_year" type="number"
+                   min="2020" max="2100"
+                   value="{{ old('maintenance_paid_year', $application->maintenance_paid_year) }}"
+                   class="ap-ctrl" placeholder="{{ now()->year }}" style="width:100px;">
+          </div>
+          @error('maintenance_paid_month')<p class="ap-err-inline">{{ $message }}</p>@enderror
           @error('maintenance_paid_year')<p class="ap-err-inline">{{ $message }}</p>@enderror
         </div>
 

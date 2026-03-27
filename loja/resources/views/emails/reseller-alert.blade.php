@@ -20,7 +20,7 @@
 
   @if($alertType === 'maintenance')
     <div class="alert-box alert-maintenance">
-      <p>⚠️ <strong>A sua taxa de manutenção anual está em atraso.</strong></p>
+      <p>⚠️ <strong>A sua taxa de manutenção mensal está em atraso.</strong></p>
       <p>
         Valor a pagar:
         <span class="amount">{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz</span>

@@ -1092,7 +1092,7 @@
                 <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:.6rem;">
                   <span style="font-size:1.4rem;">✅</span>
                   <div>
-                    <strong style="color:#15803d;">Manutenção paga para {{ now()->year }}</strong><br>
+                    <strong style="color:#15803d;">Manutenção paga para: {{ now()->format('m/Y') }}</strong><br>
                     <span style="font-size:.83rem;color:#166534;">O pagamento mensal foi efectuado e o serviço está activo.</span>
                   </div>
                 </div>
