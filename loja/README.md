@@ -344,6 +344,8 @@ php artisan migrate --force
 php artisan optimize:clear
 php artisan optimize
 npm run build
+# Corrigir permissões após deploy como root (evita 419 por sessões inacessíveis ao php-fpm)
+chown -R www-data:www-data /var/www/sgmr/loja/storage /var/www/sgmr/loja/bootstrap/cache
 sudo systemctl reload php8.4-fpm nginx
 ```
 
