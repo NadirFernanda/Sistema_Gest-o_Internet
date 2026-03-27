@@ -164,7 +164,7 @@ class ResellerPanelController extends Controller
                 $monthlySpend = $application->monthlySales();
         }
 
-        $topSellers = [];
+        $topSellers = collect([]);
         $myRank     = null;
         if ($application) {
             $topSellers = ResellerApplication::topSellersThisMonth(10);
