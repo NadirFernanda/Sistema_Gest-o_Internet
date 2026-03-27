@@ -44,7 +44,7 @@ class ResellerAdminController extends Controller
     public function show(ResellerApplication $application)
     {
         $purchases         = $application->purchases()->orderByDesc('id')->paginate(10);
-        $monthlySpend      = $application->monthlySpendings();
+        $monthlySpend      = $application->monthlySales();
         $totalRevenue      = $application->purchases()->sum('net_amount_aoa');
         $totalProfit       = $application->purchases()->selectRaw('SUM(gross_amount_aoa - net_amount_aoa) as profit')->value('profit') ?? 0;
         $bonusTransactions = $application->bonusTransactions()->orderByDesc('id')->limit(20)->get();

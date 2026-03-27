@@ -161,7 +161,15 @@ class ResellerPanelController extends Controller
                     $totals['vouchers_in_stock'] = array_sum($unsoldCounts);
                 }
 
-                $monthlySpend = $application->monthlySpendings();
+                $monthlySpend = $application->monthlySales();
+        }
+
+        $topSellers = [];
+        $myRank     = null;
+        if ($application) {
+            $topSellers = ResellerApplication::topSellersThisMonth(10);
+            $pos = $topSellers->search(fn($r) => $r->reseller_id === $application->id);
+            $myRank = $pos !== false ? $pos + 1 : null;
         }
 
         $otpEmail   = $request->session()->get('reseller_otp_email');
@@ -185,6 +193,8 @@ class ResellerPanelController extends Controller
             'salesReport'      => $salesReport,
             'minPurchaseAoa'   => (int) config('reseller.min_purchase_aoa', 10000),
             'storePlansConfig' => $storePlansConfig,
+            'topSellers'       => $topSellers,
+            'myRank'           => $myRank,
         ]);
     }
 

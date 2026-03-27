@@ -119,14 +119,14 @@
       <p class="ap-stat-sub">Soma de todos os descontos</p>
     </div>
     <div class="ap-stat">
-      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Meta este m&ecirc;s</p>
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Vendas este m&ecirc;s (meta)</p>
       @if($application->monthly_target_aoa > 0)
         @php $pct = min(100, round($monthlySpend * 100 / $application->monthly_target_aoa)); @endphp
         <p class="ap-stat-val" style="font-size:1rem;font-weight:700;">
           {{ number_format($monthlySpend, 0, ',', '.') }} / {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz
         </p>
         <div class="ap-bar"><div class="ap-bar-fill" style="width:{{ $pct }}%;background:{{ $pct >= 100 ? 'var(--a-green)' : 'var(--a-brand)' }};"></div></div>
-        <p class="ap-stat-sub">{{ $pct }}% atingido</p>
+        <p class="ap-stat-sub">{{ $pct }}% atingido &mdash; vendas ao cliente final</p>
       @else
         <p class="ap-stat-sub">Sem meta definida</p>
       @endif

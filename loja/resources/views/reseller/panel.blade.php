@@ -1114,7 +1114,7 @@
         @if($application->monthly_target_aoa > 0 || $application->bonus_vouchers_aoa > 0)
         @php
           $metaTarget = $application->monthly_target_aoa;
-          $metaSpend  = $application->monthlySpendings();
+          $metaSpend  = $application->monthlySales();
           $metaPct    = $metaTarget > 0 ? min(100, (int) round($metaSpend * 100 / $metaTarget)) : 0;
           $metaMet    = $metaTarget > 0 && $metaSpend >= $metaTarget;
           $bonusBreakdown = config('reseller.bonus_breakdown', []);
@@ -1138,11 +1138,11 @@
               <div class="rv-panel-title"><span class="rv-panel-icon">🎯</span> Meta Mensal — Bónus em Vouchers</div>
               <p style="font-size:.88rem;color:#374151;margin:0 0 .9rem;">
                 A meta mensal é <strong>facultativa</strong>. Ao atingir o volume de
-                <strong>{{ number_format($metaTarget, 0, ',', '.') }} Kz</strong> em compras este mês recebe bónus em vouchers.
+                <strong>{{ number_format($metaTarget, 0, ',', '.') }} Kz</strong> em <strong>vendas</strong> ao cliente final este mês recebe bónus em vouchers.
               </p>
               @if($metaTarget > 0)
                 <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#374151;margin-bottom:.4rem;">
-                  <span>Progresso este mês:</span>
+                  <span>Vendas este mês:</span>
                   <span style="font-weight:700;color:{{ $metaPct >= 100 ? '#7c3aed' : '#d97706' }};">
                     {{ number_format($metaSpend, 0, ',', '.') }} / {{ number_format($metaTarget, 0, ',', '.') }} Kz ({{ $metaPct }}%)
                   </span>
@@ -1154,10 +1154,63 @@
                   <p style="font-size:.88rem;color:#7c3aed;font-weight:700;margin-bottom:.75rem;">🎁 Meta atingida! Bónus creditado.</p>
                 @else
                   <p style="font-size:.82rem;color:#92400e;margin-bottom:.75rem;">
-                    Faltam <strong>{{ number_format($metaTarget - $metaSpend, 0, ',', '.') }} Kz</strong> para atingir a meta e ganhar o bónus.
+                    Faltam <strong>{{ number_format($metaTarget - $metaSpend, 0, ',', '.') }} Kz</strong> em vendas para atingir a meta e ganhar o bónus.
                   </p>
                 @endif
               @endif
+
+              {{-- TOP 10 LEADERBOARD --}}
+              @if($topSellers->isNotEmpty())
+              <div class="rv-panel-title" style="font-size:.9rem;margin-top:.5rem;border-top:1.5px solid #f1f5f9;padding-top:.75rem;">
+                <span class="rv-panel-icon">🏅</span> Top 10 — Vendas deste mês
+                @if($myRank)
+                  <span style="margin-left:.5rem;font-size:.8rem;font-weight:700;background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:999px;">
+                    A sua posição: #{{ $myRank }}
+                  </span>
+                @endif
+              </div>
+              <table class="rv-hist-table" style="margin:.5rem 0 .35rem;">
+                <thead>
+                  <tr>
+                    <th style="width:28px;">#</th>
+                    <th>Agente</th>
+                    <th class="r">Vouchers</th>
+                    <th class="r">Vendas (Kz)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($topSellers as $i => $seller)
+                  @php
+                    $isMe      = $application->id === $seller->reseller_id;
+                    $qualifies = $seller->total_sales_aoa >= $metaTarget;
+                    $pos       = $i + 1;
+                  @endphp
+                  <tr style="{{ $isMe ? 'background:#faf5ff;font-weight:700;' : '' }}">
+                    <td style="text-align:center;color:{{ $pos <= 3 ? '#d97706' : '#9ca3af' }};font-weight:700;">
+                      @if($pos === 1) 🥇
+                      @elseif($pos === 2) 🥈
+                      @elseif($pos === 3) 🥉
+                      @else {{ $pos }}
+                      @endif
+                    </td>
+                    <td>
+                      {{ $isMe ? 'Você (' . Str::before($seller->full_name, ' ') . ')' : Str::before($seller->full_name, ' ') . ' ' . Str::substr(Str::after($seller->full_name, ' '), 0, 1) . '.' }}
+                      @if($qualifies)
+                        <span style="font-size:.75rem;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:999px;margin-left:3px;">bónus</span>
+                      @endif
+                    </td>
+                    <td class="r">{{ number_format($seller->vouchers_sold, 0, ',', '.') }}</td>
+                    <td class="r bold" style="color:#7c3aed;">{{ number_format($seller->total_sales_aoa, 0, ',', '.') }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+              <p style="font-size:.78rem;color:#9ca3af;margin-top:.2rem;">
+                Agentes com vendas &ge; {{ number_format($metaTarget, 0, ',', '.') }} Kz recebem bónus em vouchers.
+                Nomes apresentados de forma abreviada para privacidade.
+              </p>
+              @endif
+
               @if($application->bonus_vouchers_aoa > 0)
                 <div class="rv-panel-title" style="font-size:.9rem;margin-top:.5rem;border-top:1.5px solid #f1f5f9;padding-top:.75rem;"><span class="rv-panel-icon">🎁</span> Bónus de arranque</div>
                 <table class="rv-hist-table" style="margin:.5rem 0 .35rem;">

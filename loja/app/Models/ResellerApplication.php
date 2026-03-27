@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ResellerApplication extends Model
 {
@@ -88,7 +89,7 @@ class ResellerApplication extends Model
         return $discount;
     }
 
-    /** Total purchased this calendar month (gross). */
+    /** Total purchased this calendar month (gross). Kept for admin stats. */
     public function monthlySpendings(): int
     {
         return (int) $this->purchases()
@@ -97,11 +98,56 @@ class ResellerApplication extends Model
             ->sum('gross_amount_aoa');
     }
 
-    /** True if the reseller met their monthly target this month. */
+    /** Total sold to end-customers this calendar month (sum of public prices of distributed codes). */
+    public function monthlySales(): int
+    {
+        $purchaseIds = $this->purchases()->pluck('id');
+        if ($purchaseIds->isEmpty()) return 0;
+
+        $salesByPlan = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNotNull('reseller_distributed_at')
+            ->whereYear('reseller_distributed_at', now()->year)
+            ->whereMonth('reseller_distributed_at', now()->month)
+            ->selectRaw('plan_id, COUNT(*) as qty')
+            ->groupBy('plan_id')
+            ->get();
+
+        if ($salesByPlan->isEmpty()) return 0;
+
+        $plans = VoucherPlan::whereIn('slug', $salesByPlan->pluck('plan_id'))->get()->keyBy('slug');
+
+        return (int) $salesByPlan->sum(
+            fn($row) => $row->qty * ($plans[$row->plan_id]->price_public_aoa ?? 0)
+        );
+    }
+
+    /** Top N resellers ranked by voucher sales value this month. */
+    public static function topSellersThisMonth(int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table('wifi_codes')
+            ->join('reseller_purchases', 'wifi_codes.reseller_purchase_id', '=', 'reseller_purchases.id')
+            ->join('reseller_applications', 'reseller_purchases.reseller_application_id', '=', 'reseller_applications.id')
+            ->join('voucher_plans', 'wifi_codes.plan_id', '=', 'voucher_plans.slug')
+            ->whereNotNull('wifi_codes.reseller_distributed_at')
+            ->whereYear('wifi_codes.reseller_distributed_at', now()->year)
+            ->whereMonth('wifi_codes.reseller_distributed_at', now()->month)
+            ->select(
+                'reseller_applications.id as reseller_id',
+                'reseller_applications.full_name',
+                DB::raw('SUM(voucher_plans.price_public_aoa) as total_sales_aoa'),
+                DB::raw('COUNT(wifi_codes.id) as vouchers_sold')
+            )
+            ->groupBy('reseller_applications.id', 'reseller_applications.full_name')
+            ->orderByDesc('total_sales_aoa')
+            ->limit($limit)
+            ->get();
+    }
+
+    /** True if the reseller met their monthly target this month (based on sales to customers). */
     public function metMonthlyTarget(): bool
     {
         if ($this->monthly_target_aoa <= 0) return true;
-        return $this->monthlySpendings() >= $this->monthly_target_aoa;
+        return $this->monthlySales() >= $this->monthly_target_aoa;
     }
 
     /** True if the monthly maintenance fee has not been paid for the current month. */

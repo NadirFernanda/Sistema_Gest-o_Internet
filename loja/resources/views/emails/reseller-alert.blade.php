@@ -37,21 +37,22 @@
 
   @elseif($alertType === 'target')
     <div class="alert-box alert-target">
-      <p>⚠️ <strong>A meta mensal de compras ainda não foi atingida.</strong></p>
+      <p>⚠️ <strong>A meta mensal de vendas ainda não foi atingida.</strong></p>
       @php
-        $spend     = $application->monthlySpendings();
+        $spend     = $application->monthlySales();
         $target    = $application->monthly_target_aoa;
         $remaining = max(0, $target - $spend);
       @endphp
       <p>
-        Meta: <span class="amount">{{ number_format($target, 0, ',', '.') }} Kz</span><br>
-        Já comprou: <strong>{{ number_format($spend, 0, ',', '.') }} Kz</strong><br>
+        Meta: <span class="amount">{{ number_format($target, 0, ',', '.') }} Kz</span> em vendas ao cliente final<br>
+        Já vendeu: <strong>{{ number_format($spend, 0, ',', '.') }} Kz</strong><br>
         Em falta: <strong>{{ number_format($remaining, 0, ',', '.') }} Kz</strong>
       </p>
     </div>
     <p>
-      Recorde-se de que atingir a meta mensal é um requisito do seu contrato de revenda.
-      Ainda tem até ao final do mês para completar as suas compras de vouchers.
+      Recorde-se de que atingir a meta mensal de <strong>vendas</strong> dá-lhe direito a bónus em vouchers
+      e mantém a sua posição no Top 10 de revendedores AngolaWiFi.
+      Ainda tem até ao final do mês para completar as suas vendas.
     </p>
   @endif
 
