@@ -12,9 +12,9 @@
   --sl-green:  #16a34a;
   --sl-amber:  #d97706;
   --sl-red:    #dc2626;
-  --sl-blue:   #3b82f6;
   --sl-yellow: #f7b500;
 }
+
 .sl-page { font-family: Inter, system-ui, sans-serif; background: var(--sl-bg); min-height: 80vh; padding: 2rem 1rem 4rem; color: var(--sl-text); }
 .sl-wrap  { max-width: 1100px; margin: 0 auto; }
 
@@ -28,135 +28,98 @@
 /* Alerts */
 .sl-ok  { background: #f0fdf4; border: 1px solid #86efac; border-left: 4px solid var(--sl-green); color: #166534; padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: 1rem; }
 .sl-err { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--sl-red);   color: #7f1d1d; padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: 1rem; }
-
-/* Summary cards */
-.sl-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .85rem; margin-bottom: 1.75rem; }
-.sl-card { background: var(--sl-surf); border: 1px solid var(--sl-border); border-radius: 10px; padding: 1rem 1.1rem; }
-.sl-card-val { font-size: 2rem; font-weight: 800; line-height: 1; margin: 0 0 .25rem; }
-.sl-card-lbl { font-size: .75rem; color: var(--sl-muted); font-weight: 500; }
-
-/* Info box */
 .sl-info { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid var(--sl-amber); color: #78350f; padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1.25rem; line-height: 1.55; }
 
+/* Layout */
+.sl-layout { display: grid; grid-template-columns: 1fr 360px; gap: 1.25rem; align-items: start; }
+@media (max-width: 860px) { .sl-layout { grid-template-columns: 1fr; } }
+
+/* Summary cards */
+.sl-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+.sl-card { background: var(--sl-surf); border: 1px solid var(--sl-border); border-radius: 10px; padding: .9rem 1rem; }
+.sl-card-val { font-size: 1.8rem; font-weight: 800; line-height: 1; margin: 0 0 .2rem; }
+.sl-card-lbl { font-size: .74rem; color: var(--sl-muted); font-weight: 500; }
+
 /* Panel */
-.sl-panel { background: var(--sl-surf); border: 1px solid var(--sl-border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.25rem; }
-.sl-panel-title { font-size: 1.05rem; font-weight: 800; color: var(--sl-text); margin: 0 0 1rem; display: flex; align-items: center; gap: .5rem; }
+.sl-panel { background: var(--sl-surf); border: 1px solid var(--sl-border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+.sl-panel-title { font-size: 1rem; font-weight: 800; color: var(--sl-text); margin: 0 0 1rem; display: flex; align-items: center; gap: .45rem; }
 
-/* Plan group */
-.sl-plan-group { margin-bottom: 1.5rem; }
-.sl-plan-group:last-child { margin-bottom: 0; }
-.sl-plan-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding: .65rem 1rem; background: #f8fafc; border-radius: 8px; margin-bottom: .75rem; }
-.sl-plan-name { font-size: .95rem; font-weight: 800; color: var(--sl-text); }
-.sl-plan-meta { font-size: .78rem; color: var(--sl-muted); }
-.sl-plan-count { font-size: .82rem; font-weight: 700; }
-.sl-plan-count.ok  { color: var(--sl-green); }
-.sl-plan-count.out { color: var(--sl-faint); }
-
-/* Badges */
-.sl-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .2rem .65rem; border-radius: 999px; font-size: .73rem; font-weight: 700; white-space: nowrap; }
-.sl-badge-diario  { background: #dbeafe; color: #1d4ed8; }
-.sl-badge-semanal { background: #ede9fe; color: #6d28d9; }
-.sl-badge-mensal  { background: #fef3c7; color: #b45309; }
-.sl-badge-default { background: #f1f5f9; color: #475569; }
-
-/* Voucher grid */
-.sl-voucher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .5rem; }
-.sl-voucher-item {
-  display: flex; align-items: center; gap: .65rem;
-  padding: .55rem .85rem;
-  border: 1.5px solid var(--sl-border);
-  border-radius: 8px;
-  transition: border-color .15s, background .15s;
-  cursor: pointer;
-  user-select: none;
-}
-.sl-voucher-item:hover { border-color: var(--sl-yellow); background: #fffdf5; }
-.sl-voucher-item.selected { border-color: var(--sl-green); background: #f0fdf4; }
-.sl-voucher-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--sl-green); cursor: pointer; flex-shrink: 0; }
-.sl-voucher-code { font-family: 'Courier New', monospace; font-weight: 700; font-size: .9rem; letter-spacing: .04em; color: #0f172a; }
-.sl-voucher-plan { font-size: .72rem; color: var(--sl-muted); }
-
-/* Quick quantity selector */
-.sl-qty-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .65rem; flex-wrap: wrap; }
-.sl-qty-label { font-size: .82rem; color: var(--sl-muted); font-weight: 600; }
-.sl-qty-input { width: 80px; padding: .4rem .65rem; border: 1.5px solid var(--sl-border); border-radius: 7px; font-size: .88rem; text-align: center; font-family: inherit; color: var(--sl-text); }
-.sl-qty-input:focus { outline: none; border-color: var(--sl-yellow); }
-.sl-qty-btn { padding: .35rem .75rem; border: 1.5px solid var(--sl-border); border-radius: 7px; font-size: .78rem; font-weight: 700; cursor: pointer; background: var(--sl-surf); color: var(--sl-muted); transition: all .15s; font-family: inherit; }
-.sl-qty-btn:hover { border-color: var(--sl-green); color: var(--sl-green); background: #f0fdf4; }
-.sl-qty-btn.active { border-color: var(--sl-green); color: #fff; background: var(--sl-green); }
-
-/* Sell bar (sticky bottom) */
-.sl-sell-bar {
-  position: sticky;
-  bottom: 0;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+/* Plan cards — catalog */
+.sl-plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .85rem; }
+.sl-plan-card {
+  background: var(--sl-surf);
+  border: 2px solid var(--sl-border);
   border-radius: 12px;
-  padding: 1rem 1.5rem;
-  margin-top: 1.25rem;
+  padding: 1.1rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  box-shadow: 0 -4px 24px rgba(0,0,0,.15);
-  z-index: 50;
+  flex-direction: column;
+  gap: .7rem;
+  transition: border-color .18s, box-shadow .18s;
 }
-.sl-sell-bar .sl-sell-info { color: #fff; }
-.sl-sell-bar .sl-sell-count { font-size: 1.1rem; font-weight: 800; color: var(--sl-yellow); }
-.sl-sell-bar .sl-sell-sub { font-size: .82rem; color: #94a3b8; }
-.sl-sell-bar .sl-sell-actions { display: flex; gap: .65rem; align-items: center; flex-wrap: wrap; }
-.sl-btn { display: inline-flex; align-items: center; gap: .35rem; padding: .6rem 1.25rem; border-radius: 8px; font-size: .9rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; text-decoration: none; white-space: nowrap; transition: all .15s; }
-.sl-btn-sell { background: var(--sl-green); color: #fff; }
-.sl-btn-sell:hover { background: #15803d; }
-.sl-btn-sell:disabled { opacity: .5; cursor: not-allowed; }
-.sl-btn-ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.25); color: #fff; }
-.sl-btn-ghost:hover { background: rgba(255,255,255,.1); }
+.sl-plan-card.has-stock:hover { border-color: var(--sl-yellow); box-shadow: 0 4px 18px rgba(247,181,0,.18); }
+.sl-plan-card.no-stock { opacity: .55; }
+.sl-plan-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.sl-plan-name { font-size: 1rem; font-weight: 800; color: var(--sl-text); }
+.sl-plan-price { font-size: 1.15rem; font-weight: 800; color: var(--sl-yellow); white-space: nowrap; }
+.sl-plan-meta { font-size: .78rem; color: var(--sl-muted); line-height: 1.5; }
+.sl-plan-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .2rem .6rem; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+.sl-badge-green  { background: #d1fae5; color: #065f46; }
+.sl-badge-gray   { background: #f1f5f9; color: #475569; }
+.sl-badge-yellow { background: #fef9c3; color: #854d0e; }
 
-/* Customer ref */
-.sl-customer-row { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
-.sl-customer-input { padding: .5rem .85rem; border: 1.5px solid rgba(255,255,255,.2); border-radius: 8px; font-size: .85rem; color: #fff; background: rgba(255,255,255,.08); font-family: inherit; width: 220px; }
-.sl-customer-input::placeholder { color: rgba(255,255,255,.4); }
+/* Add to cart form inline */
+.sl-add-form { display: flex; gap: .5rem; align-items: center; }
+.sl-qty-input { width: 72px; padding: .4rem .6rem; border: 1.5px solid var(--sl-border); border-radius: 7px; font-size: .88rem; text-align: center; font-family: inherit; color: var(--sl-text); }
+.sl-qty-input:focus { outline: none; border-color: var(--sl-yellow); }
+.sl-add-btn { flex: 1; padding: .45rem .8rem; background: var(--sl-yellow); color: #000; font-weight: 700; font-size: .83rem; border: none; border-radius: 7px; cursor: pointer; font-family: inherit; transition: background .14s; white-space: nowrap; }
+.sl-add-btn:hover { background: #e0a400; }
+
+/* Cart (right column) */
+.sl-cart-sticky { position: sticky; top: 1.5rem; }
+.sl-cart-empty { text-align: center; padding: 1.5rem .5rem; color: var(--sl-faint); font-size: .85rem; }
+
+/* Cart items */
+.sl-cart-item { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 0; border-bottom: 1px solid var(--sl-border); }
+.sl-cart-item:last-child { border-bottom: none; }
+.sl-cart-item-name { font-size: .88rem; font-weight: 700; color: var(--sl-text); }
+.sl-cart-item-meta { font-size: .75rem; color: var(--sl-muted); }
+.sl-cart-item-price { font-size: .9rem; font-weight: 700; color: var(--sl-text); white-space: nowrap; }
+.sl-cart-remove { background: none; border: none; color: var(--sl-faint); cursor: pointer; font-size: 1rem; padding: .15rem .35rem; border-radius: 4px; transition: color .12s, background .12s; }
+.sl-cart-remove:hover { color: var(--sl-red); background: #fef2f2; }
+
+/* Cart total */
+.sl-cart-total { display: flex; justify-content: space-between; align-items: center; padding: .75rem 0 .5rem; border-top: 2px solid var(--sl-border); margin-top: .25rem; }
+.sl-cart-total-lbl { font-size: .82rem; font-weight: 700; color: var(--sl-muted); }
+.sl-cart-total-val { font-size: 1.2rem; font-weight: 800; color: var(--sl-yellow); }
+
+/* Customer input */
+.sl-customer-wrap { padding: .7rem 0 .75rem; }
+.sl-field-label { font-size: .77rem; font-weight: 600; color: var(--sl-muted); margin-bottom: .3rem; }
+.sl-customer-input { width: 100%; padding: .5rem .75rem; border: 1.5px solid var(--sl-border); border-radius: 8px; font-size: .87rem; color: var(--sl-text); font-family: inherit; box-sizing: border-box; }
 .sl-customer-input:focus { outline: none; border-color: var(--sl-yellow); }
-.sl-customer-label { font-size: .78rem; color: #94a3b8; }
+
+/* Sell button */
+.sl-sell-btn { display: block; width: 100%; padding: .75rem 1rem; background: var(--sl-green); color: #fff; font-weight: 700; font-size: .95rem; border: none; border-radius: 9px; cursor: pointer; font-family: inherit; transition: background .14s; text-align: center; }
+.sl-sell-btn:hover { background: #15803d; }
+.sl-clear-btn { display: block; width: 100%; margin-top: .5rem; padding: .5rem 1rem; background: none; color: var(--sl-muted); font-size: .8rem; border: 1px solid var(--sl-border); border-radius: 7px; cursor: pointer; font-family: inherit; transition: all .13s; text-align: center; text-decoration: none; }
+.sl-clear-btn:hover { border-color: var(--sl-red); color: var(--sl-red); background: #fef2f2; }
 
 /* Recent sales */
-.sl-recent-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-.sl-recent-table th { text-align: left; padding: .5rem .75rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--sl-faint); border-bottom: 1px solid var(--sl-border); }
-.sl-recent-table td { padding: .5rem .75rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; }
-.sl-recent-table .mono { font-family: 'Courier New', monospace; font-weight: 700; font-size: .85rem; color: #0f172a; }
-.sl-recent-table .dim { color: var(--sl-faint); font-size: .8rem; }
+.sl-recent-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.sl-recent-table th { text-align: left; padding: .45rem .7rem; font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--sl-faint); border-bottom: 1px solid var(--sl-border); }
+.sl-recent-table td { padding: .45rem .7rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; }
+.sl-recent-table .mono { font-family: 'Courier New', monospace; font-weight: 700; font-size: .83rem; }
+.sl-recent-table .dim  { color: var(--sl-faint); font-size: .78rem; }
 
-/* Clickable plan card */
-a.sl-card-clickable {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  cursor: pointer;
-  transition: border-color .18s, box-shadow .18s, transform .13s;
-}
-a.sl-card-clickable:hover {
-  border-color: var(--sl-yellow);
-  box-shadow: 0 4px 16px rgba(247,181,0,.22);
-  transform: translateY(-2px);
-}
-/* Smooth scroll for plan anchors */
-.sl-plan-group { scroll-margin-top: 1.5rem; }
-
-/* Empty */
+/* Empty state */
 .sl-empty { text-align: center; padding: 3rem 1rem; color: var(--sl-faint); }
 .sl-empty-icon { font-size: 2.5rem; margin-bottom: .5rem; }
 .sl-empty-title { font-size: 1rem; font-weight: 700; color: var(--sl-muted); margin-bottom: .3rem; }
 
 @media (max-width: 640px) {
-  .sl-sell-bar { flex-direction: column; align-items: stretch; text-align: center; padding: .85rem 1rem; }
-  .sl-sell-bar .sl-sell-actions { justify-content: center; flex-direction: column; }
-  .sl-customer-input { width: 100%; }
-  .sl-voucher-grid { grid-template-columns: 1fr; }
-  .sl-qty-input { width: 60px; }
-  .sl-qty-row { gap: .35rem; }
+  .sl-plans-grid { grid-template-columns: 1fr; }
   .sl-summary { grid-template-columns: 1fr 1fr; }
-  .sl-recent-table th, .sl-recent-table td { padding: .4rem .5rem; font-size: .78rem; }
-  .sl-btn { padding: .55rem 1rem; font-size: .85rem; width: 100%; justify-content: center; }
+  .sl-recent-table th, .sl-recent-table td { padding: .4rem .45rem; font-size: .76rem; }
 }
 </style>
 @endpush
@@ -167,10 +130,10 @@ a.sl-card-clickable:hover {
 
   {{-- Flash messages --}}
   @if(session('status'))
-    <div class="sl-ok">✓ {{ session('status') }}</div>
+    <div class="sl-ok">&#10003; {{ session('status') }}</div>
   @endif
   @if(session('error'))
-    <div class="sl-err">✗ {{ session('error') }}</div>
+    <div class="sl-err">&#10007; {{ session('error') }}</div>
   @endif
   @if($errors->any())
     <div class="sl-err">@foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
@@ -179,256 +142,218 @@ a.sl-card-clickable:hover {
   {{-- Header --}}
   <div class="sl-topbar">
     <div>
-      <h1>🏷️ Vender Vouchers</h1>
+      <h1>&#127991; Vender ao Cliente Final</h1>
       <p class="sl-sub">
-        Seleccione os vouchers que pretende vender ao cliente final.<br>
-        Após clicar em <strong>"Vender"</strong>, o sistema marca-os como vendidos e gera um PDF para entregar ao cliente.
+        Escolha os planos e quantidades que o cliente pediu.<br>
+        Após confirmar, o sistema entrega os vouchers automaticamente e gera o PDF para o cliente.
       </p>
     </div>
-    <a href="{{ route('reseller.panel') }}" class="sl-back">← Painel</a>
-  </div>
-
-  {{-- Info box --}}
-  <div class="sl-info">
-    <strong>Como funciona:</strong>
-    1. Seleccione os vouchers que vai entregar ao cliente (pode misturar planos diferentes).
-    2. Opcionalmente, preencha o nome/telefone do cliente.
-    3. Clique em <strong>"Vender"</strong> — o sistema gera o PDF e desconta automaticamente os vouchers do seu stock.
-    O pagamento é gerido por si — a loja não intervém no recebimento.
+    <a href="{{ route('reseller.panel') }}" class="sl-back">&larr; Painel</a>
   </div>
 
   {{-- Summary cards --}}
   <div class="sl-summary">
     <div class="sl-card">
       <p class="sl-card-val" style="color:var(--sl-green)">{{ number_format($totalInStock, 0, ',', '.') }}</p>
-      <p class="sl-card-lbl">Total disponíveis</p>
+      <p class="sl-card-lbl">Vouchers em stock</p>
     </div>
     <div class="sl-card">
       <p class="sl-card-val" style="color:var(--sl-muted)">{{ number_format($totalSold, 0, ',', '.') }}</p>
       <p class="sl-card-lbl">Total vendidos</p>
     </div>
-    @foreach($allPlanSlugs as $planSlug)
-      @php
-        $plan  = $voucherPlans->get($planSlug);
-        $avail = isset($stockByPlan[$planSlug]) ? $stockByPlan[$planSlug]->count() : 0;
-        $sold  = isset($soldByPlan[$planSlug])  ? $soldByPlan[$planSlug]->count()  : 0;
-      @endphp
-      <a href="#plan-{{ $planSlug }}" class="sl-card sl-card-clickable" title="Ir para os vouchers — {{ $plan ? $plan->name : $planSlug }}">
-        <p class="sl-card-lbl" style="font-weight:700;color:var(--sl-text);margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between;">
-          <span>{{ $plan ? $plan->name : $planSlug }}</span>
-          <span style="font-size:.72rem;color:var(--sl-blue);font-weight:700;letter-spacing:.01em;">↓ ir</span>
-        </p>
-        <div style="display:flex;gap:1.1rem;">
-          <div>
-            <p class="sl-card-val" style="color:var(--sl-green);font-size:1.5rem;">{{ number_format($avail, 0, ',', '.') }}</p>
-            <p class="sl-card-lbl">disponíveis</p>
-          </div>
-          <div>
-            <p class="sl-card-val" style="color:var(--sl-muted);font-size:1.5rem;">{{ number_format($sold, 0, ',', '.') }}</p>
-            <p class="sl-card-lbl">vendidos</p>
-          </div>
-        </div>
-      </a>
+    @foreach($stockByPlan as $slug => $qty)
+      @php $plan = $voucherPlans->get($slug); @endphp
+      <div class="sl-card">
+        <p class="sl-card-lbl" style="font-weight:700;color:var(--sl-text);margin-bottom:.35rem;">{{ $plan ? $plan->name : $slug }}</p>
+        <p class="sl-card-val" style="font-size:1.5rem;color:var(--sl-green)">{{ number_format($qty, 0, ',', '.') }}</p>
+        <p class="sl-card-lbl">disponíveis</p>
+      </div>
     @endforeach
-
-    {{-- Explanatory tip card --}}
-    <div class="sl-card" style="background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-color:#bae6fd;border-left:4px solid var(--sl-blue);">
-      <p class="sl-card-lbl" style="font-weight:800;color:#0369a1;margin-bottom:.55rem;font-size:.8rem;">💡 Como navegar</p>
-      <p style="font-size:.77rem;color:#075985;line-height:1.6;margin:0;">
-        Clique num <strong>card de plano</strong> para saltar directamente para essa secção.<br>
-        Use <strong>"Seleccionar rápido"</strong> para escolher a quantidade sem ter de marcar voucher a voucher.
-      </p>
-    </div>
   </div>
 
   @if($totalInStock === 0)
     @if($pendingPurchases->count() > 0)
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #d97706;color:#78350f;padding:.9rem 1.1rem;border-radius:8px;margin-bottom:1.25rem;font-size:.875rem;line-height:1.6;">
-        <strong>⏳ Tem {{ $pendingPurchases->count() }} compra(s) pendente(s) de pagamento.</strong><br>
+      <div class="sl-info">
+        <strong>&#9203; Tem {{ $pendingPurchases->count() }} compra(s) pendente(s) de pagamento.</strong><br>
         Os vouchers estão reservados mas só ficam disponíveis para vender após confirmar o pagamento.
         <a href="{{ route('reseller.panel.resume.payment', $pendingPurchases->first()) }}"
            style="display:inline-block;margin-top:.5rem;padding:.4rem .9rem;background:#d97706;color:#fff;border-radius:6px;font-weight:700;text-decoration:none;font-size:.82rem;">
-          💳 Retomar pagamento →
+          &#128179; Retomar pagamento &rarr;
         </a>
       </div>
     @endif
     <div class="sl-empty">
-      <div class="sl-empty-icon">📭</div>
+      <div class="sl-empty-icon">&#128205;</div>
       <p class="sl-empty-title">Sem vouchers para vender</p>
-      <p>Compre vouchers no <a href="{{ route('reseller.panel') }}" style="color:var(--sl-blue);font-weight:700;">painel principal</a> para começar a revender.</p>
+      <p>Compre vouchers no <a href="{{ route('reseller.panel') }}" style="color:#3b82f6;font-weight:700;">painel principal</a> para começar a revender.</p>
     </div>
   @else
 
-  {{-- Sale form --}}
-  <form id="sellForm" action="{{ route('reseller.sell.process') }}" method="POST">
-    @csrf
+  {{-- Main layout: catalog + cart --}}
+  <div class="sl-layout">
 
-    {{-- Voucher selection by plan --}}
-    @foreach($stockByPlan as $planSlug => $codes)
-      @php
-        $plan = $voucherPlans->get($planSlug);
-        $planName = $plan ? $plan->name : $planSlug;
-        $validityLabel = $plan ? $plan->validity_label : '';
-        $speedLabel = $plan ? $plan->speed_label : '';
-        $badgeClass = match($planSlug) {
-          'diario'  => 'sl-badge-diario',
-          'semanal' => 'sl-badge-semanal',
-          'mensal'  => 'sl-badge-mensal',
-          default   => 'sl-badge-default',
-        };
-      @endphp
+    {{-- LEFT: Catálogo de planos disponíveis --}}
+    <div>
+      <div class="sl-panel">
+        <div class="sl-panel-title">&#128230; Planos disponíveis &mdash; escolha a quantidade</div>
 
-      <div class="sl-panel sl-plan-group" data-plan="{{ $planSlug }}" id="plan-{{ $planSlug }}">
-        <div class="sl-plan-header">
-          <div style="display:flex;align-items:center;gap:.65rem;">
-            <span class="sl-badge {{ $badgeClass }}">{{ strtoupper($planSlug) }}</span>
-            <span class="sl-plan-name">{{ $planName }}</span>
-            @if($validityLabel)
-              <span class="sl-plan-meta">{{ $validityLabel }}{{ $speedLabel ? ' · ' . $speedLabel : '' }}</span>
-            @endif
-          </div>
-          <span class="sl-plan-count ok">{{ $codes->count() }} disponíveis</span>
-        </div>
-
-        {{-- Quick quantity selector --}}
-        <div class="sl-qty-row">
-          <span class="sl-qty-label">Seleccionar rápido:</span>
-          <input type="number" min="0" max="{{ $codes->count() }}" value="0"
-                 class="sl-qty-input" data-plan-qty="{{ $planSlug }}"
-                 onchange="selectByQuantity('{{ $planSlug }}', this.value)">
-          <button type="button" class="sl-qty-btn" onclick="selectByQuantity('{{ $planSlug }}', {{ $codes->count() }})">Todos ({{ $codes->count() }})</button>
-          <button type="button" class="sl-qty-btn" onclick="selectByQuantity('{{ $planSlug }}', 0)">Nenhum</button>
-        </div>
-
-        {{-- Voucher grid --}}
-        <div class="sl-voucher-grid" id="grid-{{ $planSlug }}">
-          @foreach($codes as $code)
-            <label class="sl-voucher-item" data-plan="{{ $planSlug }}" for="v-{{ $code->id }}">
-              <input type="checkbox" name="voucher_ids[]" value="{{ $code->id }}"
-                     id="v-{{ $code->id }}" class="voucher-cb" data-plan="{{ $planSlug }}"
-                     onchange="updateSelection()">
-              <div>
-                <div class="sl-voucher-code">{{ $code->code }}</div>
-                <div class="sl-voucher-plan">{{ $planName }}</div>
+        <div class="sl-plans-grid">
+          @foreach($stockByPlan as $planSlug => $availableQty)
+            @php
+              $plan = $voucherPlans->get($planSlug);
+              $inCart = 0;
+              foreach($sellItems as $item) {
+                if ($item['plan']->slug === $planSlug) { $inCart = $item['qty']; break; }
+              }
+            @endphp
+            <div class="sl-plan-card {{ $availableQty > 0 ? 'has-stock' : 'no-stock' }}">
+              <div class="sl-plan-card-header">
+                <div>
+                  <div class="sl-plan-name">{{ $plan ? $plan->name : $planSlug }}</div>
+                  @if($plan)
+                    <div class="sl-plan-meta">
+                      {{ $plan->validity_label }}{{ $plan->speed_label ? ' &middot; ' . $plan->speed_label : '' }}
+                    </div>
+                  @endif
+                </div>
+                <div>
+                  @if($plan)
+                    <div class="sl-plan-price">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} Kz</div>
+                  @endif
+                </div>
               </div>
-            </label>
+
+              <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                <span class="sl-plan-badge {{ $availableQty > 0 ? 'sl-badge-green' : 'sl-badge-gray' }}">
+                  {{ $availableQty > 0 ? $availableQty . ' em stock' : 'Sem stock' }}
+                </span>
+                @if($inCart > 0)
+                  <span class="sl-plan-badge sl-badge-yellow">{{ $inCart }} no carrinho</span>
+                @endif
+              </div>
+
+              @if($availableQty > 0)
+                <form action="{{ route('reseller.sell.cart.add') }}" method="POST" class="sl-add-form">
+                  @csrf
+                  <input type="hidden" name="plan_slug" value="{{ $planSlug }}">
+                  <input type="number" name="quantity" value="1" min="1" max="{{ $availableQty }}"
+                         class="sl-qty-input" required>
+                  <button type="submit" class="sl-add-btn">+ Adicionar</button>
+                </form>
+              @endif
+            </div>
           @endforeach
         </div>
       </div>
-    @endforeach
 
-    {{-- Sticky sell bar --}}
-    <div class="sl-sell-bar" id="sellBar">
-      <div class="sl-sell-info">
-        <div class="sl-sell-count">
-          <span id="selectedCount">0</span> voucher(s) seleccionados
+      {{-- Recent sales --}}
+      @if($recentSales->count() > 0)
+      <div class="sl-panel">
+        <div class="sl-panel-title">&#128203; Vendas recentes</div>
+        <div style="overflow-x:auto;">
+          <table class="sl-recent-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Plano</th>
+                <th>Cliente</th>
+                <th>Vendido em</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($recentSales as $code)
+                @php $plan = $voucherPlans->get($code->plan_id); @endphp
+                <tr>
+                  <td class="mono">{{ $code->code }}</td>
+                  <td>{{ $plan ? $plan->name : $code->plan_id }}</td>
+                  <td>{{ $code->reseller_customer_ref ?: '&mdash;' }}</td>
+                  <td class="dim">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') }}</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
-        <div class="sl-sell-sub" id="selectedBreakdown">Seleccione vouchers acima</div>
       </div>
-      <div class="sl-sell-actions">
-        <div class="sl-customer-row">
-          <span class="sl-customer-label">Cliente:</span>
-          <input type="text" name="customer_ref" class="sl-customer-input"
-                 placeholder="Nome / telefone (opcional)" maxlength="200" autocomplete="off">
-        </div>
-        <button type="submit" class="sl-btn sl-btn-sell" id="btnSell" disabled
-                onclick="return confirm('Confirma a venda dos vouchers seleccionados? Esta acção gera o PDF e desconta os vouchers do seu stock.')">
-          🏷️ Vender &amp; gerar PDF
-        </button>
-        <button type="button" class="sl-btn sl-btn-ghost" onclick="clearAll()">Limpar selecção</button>
+      @endif
+    </div>
+
+    {{-- RIGHT: Carrinho de venda --}}
+    <div class="sl-cart-sticky">
+      <div class="sl-panel">
+        <div class="sl-panel-title">&#128722; Carrinho do cliente</div>
+
+        @if(empty($sellItems))
+          <div class="sl-cart-empty">
+            <div style="font-size:1.75rem;margin-bottom:.4rem;">&#128717;</div>
+            <p>Adicione planos ao carrinho para iniciar a venda.</p>
+          </div>
+        @else
+          {{-- Cart items --}}
+          <div>
+            @foreach($sellItems as $item)
+              <div class="sl-cart-item">
+                <div>
+                  <div class="sl-cart-item-name">{{ $item['plan']->name }}</div>
+                  <div class="sl-cart-item-meta">{{ $item['qty'] }}&times; {{ number_format($item['plan']->price_public_aoa, 0, ',', '.') }} Kz</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;">
+                  <div class="sl-cart-item-price">{{ number_format($item['subtotal'], 0, ',', '.') }} Kz</div>
+                  <form action="{{ route('reseller.sell.cart.remove') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="plan_slug" value="{{ $item['plan']->slug }}">
+                    <button type="submit" class="sl-cart-remove" title="Remover">&times;</button>
+                  </form>
+                </div>
+              </div>
+            @endforeach
+          </div>
+
+          {{-- Total --}}
+          <div class="sl-cart-total">
+            <span class="sl-cart-total-lbl">Total a cobrar ao cliente</span>
+            <span class="sl-cart-total-val">{{ number_format($sellTotal, 0, ',', '.') }} Kz</span>
+          </div>
+
+          {{-- Confirm sale form --}}
+          <form action="{{ route('reseller.sell.process') }}" method="POST"
+                onsubmit="return confirm('Confirma a venda? O sistema irá alocar os vouchers e gerar o PDF para o cliente.')">
+            @csrf
+
+            <div class="sl-customer-wrap">
+              <div class="sl-field-label">Nome / telefone do cliente (opcional)</div>
+              <input type="text" name="customer_ref" class="sl-customer-input"
+                     placeholder="Ex: João Silva · 923 456 789"
+                     maxlength="200" autocomplete="off"
+                     value="{{ old('customer_ref') }}">
+            </div>
+
+            <button type="submit" class="sl-sell-btn">
+              &#10003; Confirmar venda &amp; gerar PDF
+            </button>
+          </form>
+
+          <form action="{{ route('reseller.sell.cart.clear') }}" method="POST">
+            @csrf
+            <button type="submit" class="sl-clear-btn">Limpar carrinho</button>
+          </form>
+        @endif
+      </div>
+
+      {{-- Help tip --}}
+      <div style="background:#f8fafc;border:1px solid var(--sl-border);border-radius:9px;padding:.9rem 1rem;font-size:.77rem;color:var(--sl-muted);line-height:1.6;">
+        <strong style="color:var(--sl-text);">&#128161; Como funciona</strong><br>
+        1. Escolha os planos e quantidades que o cliente pediu.<br>
+        2. Preencha o nome/telefone (opcional).<br>
+        3. Clique <em>Confirmar venda</em> &mdash; os vouchers são alocados automaticamente e o PDF é gerado para entregar ao cliente.<br>
+        <strong style="color:var(--sl-text);">O pagamento é gerido por si.</strong>
       </div>
     </div>
-  </form>
 
-  @endif
+  </div>{{-- /.sl-layout --}}
 
-  {{-- Recent sales --}}
-  @if($recentSales->count() > 0)
-  <div class="sl-panel" style="margin-top:1.5rem;">
-    <div class="sl-panel-title">📋 Vendas recentes</div>
-    <div style="overflow-x:auto;">
-      <table class="sl-recent-table">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Plano</th>
-            <th>Cliente</th>
-            <th>Vendido em</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($recentSales as $code)
-            @php $plan = $voucherPlans->get($code->plan_id); @endphp
-            <tr>
-              <td class="mono">{{ $code->code }}</td>
-              <td>{{ $plan ? $plan->name : $code->plan_id }}</td>
-              <td>{{ $code->reseller_customer_ref ?: '—' }}</td>
-              <td class="dim">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') }}</td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
-  </div>
   @endif
 
 </div>
 </div>
-
-<script>
-function updateSelection() {
-  var checkboxes = document.querySelectorAll('.voucher-cb:checked');
-  var count = checkboxes.length;
-  document.getElementById('selectedCount').textContent = count;
-  document.getElementById('btnSell').disabled = count === 0;
-
-  // Update visual selection
-  document.querySelectorAll('.sl-voucher-item').forEach(function(item) {
-    var cb = item.querySelector('.voucher-cb');
-    item.classList.toggle('selected', cb && cb.checked);
-  });
-
-  // Breakdown by plan
-  var planCounts = {};
-  checkboxes.forEach(function(cb) {
-    var plan = cb.getAttribute('data-plan');
-    planCounts[plan] = (planCounts[plan] || 0) + 1;
-  });
-
-  var parts = [];
-  for (var plan in planCounts) {
-    parts.push(planCounts[plan] + '× ' + plan);
-  }
-  document.getElementById('selectedBreakdown').textContent =
-    count > 0 ? parts.join(' + ') : 'Seleccione vouchers acima';
-
-  // Update qty inputs
-  document.querySelectorAll('.sl-qty-input').forEach(function(input) {
-    var planSlug = input.getAttribute('data-plan-qty');
-    var checked = document.querySelectorAll('.voucher-cb[data-plan="' + planSlug + '"]:checked').length;
-    input.value = checked;
-  });
-}
-
-function selectByQuantity(planSlug, qty) {
-  qty = parseInt(qty) || 0;
-  var checkboxes = document.querySelectorAll('.voucher-cb[data-plan="' + planSlug + '"]');
-  var count = 0;
-  checkboxes.forEach(function(cb) {
-    cb.checked = count < qty;
-    count++;
-  });
-  // Update qty input
-  var qtyInput = document.querySelector('[data-plan-qty="' + planSlug + '"]');
-  if (qtyInput) qtyInput.value = qty;
-  updateSelection();
-}
-
-function clearAll() {
-  document.querySelectorAll('.voucher-cb').forEach(function(cb) {
-    cb.checked = false;
-  });
-  updateSelection();
-}
-</script>
 @endsection
+

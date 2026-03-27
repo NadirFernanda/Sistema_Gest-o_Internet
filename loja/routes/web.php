@@ -84,6 +84,9 @@ Route::post('/painel-revendedor/voucher/{wifiCode}/cancelar-distribuicao', [Rese
 // Módulo de vendas do revendedor
 Route::get('/painel-revendedor/vender', [ResellerPanelController::class, 'showSellPage'])->name('reseller.sell');
 Route::post('/painel-revendedor/vender', [ResellerPanelController::class, 'processSale'])->name('reseller.sell.process');
+Route::post('/painel-revendedor/vender/carrinho/adicionar', [ResellerPanelController::class, 'sellCartAdd'])->name('reseller.sell.cart.add');
+Route::post('/painel-revendedor/vender/carrinho/remover', [ResellerPanelController::class, 'sellCartRemove'])->name('reseller.sell.cart.remove');
+Route::post('/painel-revendedor/vender/carrinho/limpar', [ResellerPanelController::class, 'sellCartClear'])->name('reseller.sell.cart.clear');
 
 // Pagamento do carrinho do revendedor
 Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'showPayment'])->name('reseller.panel.payment');

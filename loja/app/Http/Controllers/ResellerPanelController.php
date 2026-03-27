@@ -18,8 +18,9 @@ use Illuminate\Support\Str;
 
 class ResellerPanelController extends Controller
 {
-    private const OTP_TTL      = 10;
-    private const CART_SESSION = 'reseller_cart'; // [ plan_slug => quantity ]
+    private const OTP_TTL        = 10;
+    private const CART_SESSION   = 'reseller_cart';      // [ plan_slug => quantity ] — comprar vouchers
+    private const SELL_CART_SESSION = 'reseller_sell_cart'; // [ plan_slug => quantity ] — vender ao cliente final
 
     // ─────────────────────────────────────────────────────────────
     //  Panel index
@@ -819,8 +820,7 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Página de vendas — visualização unificada de todos os
-    //  vouchers não vendidos agrupados por plano
+    //  Página de vendas ao cliente final — catálogo de stock do agente
     // ─────────────────────────────────────────────────────────────
     public function showSellPage(Request $request)
     {
@@ -829,35 +829,53 @@ class ResellerPanelController extends Controller
 
         $application = ResellerApplication::findOrFail($resellerId);
 
-        // All completed purchases for this reseller
+        // Vouchers disponíveis para venda (por plano)
         $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
             ->where('status', 'completed')
             ->pluck('id');
 
-        // All vouchers owned by this reseller
-        $allCodes = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
-            ->orderBy('plan_id')
-            ->orderBy('reseller_distributed_at')
-            ->orderBy('id')
-            ->get();
+        // Stock por plano: apenas os não vendidos
+        $stockByPlan = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNull('reseller_distributed_at')
+            ->selectRaw('plan_id, count(*) as qty')
+            ->groupBy('plan_id')
+            ->pluck('qty', 'plan_id');
 
-        $inStockCodes  = $allCodes->whereNull('reseller_distributed_at');
-        $soldCodes     = $allCodes->whereNotNull('reseller_distributed_at');
-
-        // Group in-stock codes by plan
-        $stockByPlan = $inStockCodes->groupBy('plan_id');
-        $soldByPlan  = $soldCodes->groupBy('plan_id');
-
-        // All plan slugs that appear in either group (for the summary)
-        $allPlanSlugs = $stockByPlan->keys()->merge($soldByPlan->keys())->unique()->sort();
-
-        // Plan info for display
         $voucherPlans = VoucherPlan::all()->keyBy('slug');
 
-        // Recent sales (last 20)
-        $recentSales = $soldCodes->sortByDesc('reseller_distributed_at')->take(20);
+        // Carrinho de venda ao cliente — planos e quantidades
+        $sellCart  = $request->session()->get(self::SELL_CART_SESSION, []);
+        $sellItems = [];
+        $sellTotal = 0;
 
-        // Pending purchases (session expired) — helps the view show a helpful message
+        foreach ($sellCart as $slug => $qty) {
+            $plan      = $voucherPlans->get($slug);
+            $available = $stockByPlan->get($slug, 0);
+            if ($plan && $qty > 0 && $available > 0) {
+                $qty       = min($qty, $available); // cap at available stock
+                $subtotal  = $plan->price_public_aoa * $qty;
+                $sellItems[] = [
+                    'plan'      => $plan,
+                    'qty'       => $qty,
+                    'available' => $available,
+                    'subtotal'  => $subtotal,
+                ];
+                $sellTotal += $subtotal;
+            }
+        }
+
+        // Vendas recentes (últimas 20)
+        $recentSales = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNotNull('reseller_distributed_at')
+            ->orderByDesc('reseller_distributed_at')
+            ->take(20)
+            ->get();
+
+        $totalInStock = $stockByPlan->sum();
+        $totalSold = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNotNull('reseller_distributed_at')
+            ->count();
+
         $pendingPurchases = ResellerPurchase::where('reseller_application_id', $resellerId)
             ->where('status', 'pending')
             ->get();
@@ -865,18 +883,69 @@ class ResellerPanelController extends Controller
         return view('reseller.sell', [
             'application'      => $application,
             'stockByPlan'      => $stockByPlan,
-            'soldByPlan'       => $soldByPlan,
-            'allPlanSlugs'     => $allPlanSlugs,
             'voucherPlans'     => $voucherPlans,
-            'totalInStock'     => $inStockCodes->count(),
-            'totalSold'        => $soldCodes->count(),
+            'sellItems'        => $sellItems,
+            'sellTotal'        => $sellTotal,
+            'totalInStock'     => $totalInStock,
+            'totalSold'        => $totalSold,
             'recentSales'      => $recentSales,
             'pendingPurchases' => $pendingPurchases,
         ]);
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Processar venda — marca vouchers como vendidos e gera PDF
+    //  Carrinho de venda ao cliente — adicionar plano
+    // ─────────────────────────────────────────────────────────────
+    public function sellCartAdd(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate([
+            'plan_slug' => ['required', 'string', 'exists:voucher_plans,slug'],
+            'quantity'  => ['required', 'integer', 'min:1', 'max:999'],
+        ]);
+
+        $cart = $request->session()->get(self::SELL_CART_SESSION, []);
+        $cart[$data['plan_slug']] = ($cart[$data['plan_slug']] ?? 0) + (int) $data['quantity'];
+        $request->session()->put(self::SELL_CART_SESSION, $cart);
+
+        return redirect()->route('reseller.sell')->with('status', 'Plano adicionado ao carrinho.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Carrinho de venda ao cliente — remover plano
+    // ─────────────────────────────────────────────────────────────
+    public function sellCartRemove(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate(['plan_slug' => ['required', 'string']]);
+        $cart = $request->session()->get(self::SELL_CART_SESSION, []);
+        unset($cart[$data['plan_slug']]);
+        $request->session()->put(self::SELL_CART_SESSION, $cart);
+
+        return redirect()->route('reseller.sell');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Carrinho de venda ao cliente — limpar
+    // ─────────────────────────────────────────────────────────────
+    public function sellCartClear(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $request->session()->forget(self::SELL_CART_SESSION);
+        return redirect()->route('reseller.sell');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Processar venda ao cliente — aloca vouchers automaticamente
     // ─────────────────────────────────────────────────────────────
     public function processSale(Request $request)
     {
@@ -884,42 +953,76 @@ class ResellerPanelController extends Controller
         if (!$resellerId) return redirect()->route('reseller.panel');
 
         $data = $request->validate([
-            'voucher_ids'  => ['required', 'array', 'min:1'],
-            'voucher_ids.*' => ['required', 'integer'],
             'customer_ref' => ['nullable', 'string', 'max:200'],
         ]);
 
         $application = ResellerApplication::findOrFail($resellerId);
+        $sellCart    = $request->session()->get(self::SELL_CART_SESSION, []);
 
-        // Validate ownership of all selected vouchers
+        if (empty($sellCart)) {
+            return redirect()->route('reseller.sell')->with('error', 'O carrinho de venda está vazio.');
+        }
+
+        // Vouchers disponíveis (only from completed purchases, not yet distributed)
         $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
             ->where('status', 'completed')
             ->pluck('id');
 
-        $codes = WifiCode::whereIn('id', $data['voucher_ids'])
-            ->whereIn('reseller_purchase_id', $purchaseIds)
-            ->whereNull('reseller_distributed_at')
-            ->get();
+        $voucherPlans = VoucherPlan::all()->keyBy('slug');
 
-        if ($codes->isEmpty()) {
-            return back()->with('error', 'Nenhum voucher válido seleccionado para venda.');
+        // Validate stock for each plan in the sell cart
+        foreach ($sellCart as $slug => $qty) {
+            $available = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+                ->where('plan_id', $slug)
+                ->whereNull('reseller_distributed_at')
+                ->count();
+
+            if ($available < $qty) {
+                $planName = optional($voucherPlans->get($slug))->name ?? $slug;
+                return redirect()->route('reseller.sell')
+                    ->with('error', "Stock insuficiente para \"{$planName}\": pediu {$qty}, disponível {$available}.");
+            }
         }
 
-        // Mark all selected vouchers as sold
+        // Allocate vouchers for each plan and mark as distributed
+        $now         = now();
         $customerRef = $data['customer_ref'] ?? null;
-        $now = now();
+        $allCodes    = collect();
 
-        WifiCode::whereIn('id', $codes->pluck('id'))->update([
-            'reseller_distributed_at' => $now,
-            'reseller_customer_ref'   => $customerRef,
-        ]);
+        try {
+            DB::transaction(function () use ($sellCart, $purchaseIds, $customerRef, $now, &$allCodes) {
+                foreach ($sellCart as $slug => $qty) {
+                    $qty = (int) $qty;
 
-        // Reload codes with updated distributed_at for the PDF
-        $codes = WifiCode::whereIn('id', $codes->pluck('id'))->get();
+                    $codes = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+                        ->where('plan_id', $slug)
+                        ->whereNull('reseller_distributed_at')
+                        ->lockForUpdate()
+                        ->limit($qty)
+                        ->get();
 
-        // Group sold codes by plan for the PDF
+                    if ($codes->count() < $qty) {
+                        throw new \RuntimeException("Stock insuficiente para o plano \"{$slug}\" no momento da venda.");
+                    }
+
+                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                        'reseller_distributed_at' => $now,
+                        'reseller_customer_ref'   => $customerRef,
+                    ]);
+
+                    $allCodes = $allCodes->concat($codes->pluck('id'));
+                }
+            });
+        } catch (\Throwable $e) {
+            return redirect()->route('reseller.sell')->with('error', $e->getMessage());
+        }
+
+        // Clear sell cart
+        $request->session()->forget(self::SELL_CART_SESSION);
+
+        // Reload codes with updated data for PDF
+        $codes       = WifiCode::whereIn('id', $allCodes)->get();
         $codesByPlan = $codes->groupBy('plan_id');
-        $voucherPlans = VoucherPlan::all()->keyBy('slug');
 
         // Generate PDF
         $html = view('pdf.venda-revendedor', [
