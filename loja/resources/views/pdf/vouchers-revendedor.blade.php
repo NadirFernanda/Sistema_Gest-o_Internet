@@ -2,192 +2,215 @@
 <html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
-  <title>Vouchers — {{ $purchase->plan_name }} #{{ $purchase->id }}</title>
+  <title>Vouchers &mdash; {{ $purchase->plan_name }} #{{ $purchase->id }}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
-      font-size: 12px;
-      color: #1a202c;
-      background: #fff;
+      font-size: 11px;
+      color: #333333;
+      background: #ffffff;
     }
-    /* Header */
+
+    /* ── HEADER ── */
     .header {
-      border-bottom: 2px solid #f7b500;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-      display: table;
-      width: 100%;
+      background: #f7b500;
+      margin-bottom: 0;
     }
-    .header-left  { display: table-cell; vertical-align: middle; }
-    .header-right { display: table-cell; vertical-align: middle; text-align: right; }
-    .brand        { font-size: 18px; font-weight: bold; color: #0f172a; }
-    .brand-sub    { font-size: 10px; color: #64748b; }
-    .doc-title    { font-size: 15px; font-weight: bold; color: #0f172a; }
-    .doc-sub      { font-size: 10px; color: #64748b; margin-top: 2px; }
+    .header-inner { display: table; width: 100%; }
+    .header-left  { display: table-cell; vertical-align: middle; padding: 16px 20px; width: 55%; }
+    .header-right { display: table-cell; vertical-align: middle; text-align: right; padding: 16px 20px; background: #e6a800; }
+    .brand     { font-size: 24px; font-weight: bold; color: #1a1a1a; letter-spacing: -0.4px; line-height: 1; }
+    .brand-sub { font-size: 9px; color: #4a3a00; margin-top: 3px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .doc-type  { font-size: 8.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.14em; color: #4a3a00; margin-bottom: 3px; }
+    .doc-title { font-size: 15px; font-weight: bold; color: #1a1a1a; }
+    .doc-sub   { font-size: 9px; color: #4a3a00; margin-top: 3px; }
+    .header-bar { height: 5px; background: #ffffff; margin-bottom: 20px; }
 
-    /* Info grid */
+    /* ── INFO GRID ── */
     .info-grid {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 10px 14px;
-      margin-bottom: 16px;
       display: table;
       width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e8e8e8;
+      margin-bottom: 20px;
     }
-    .info-cell { display: table-cell; width: 33%; padding-right: 12px; vertical-align: top; }
-    .info-label { font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-    .info-val   { font-size: 12px; font-weight: bold; color: #0f172a; margin-top: 2px; }
-    .info-val.green { color: #16a34a; }
-
-    /* Stats bar */
-    .stats-bar { display: table; width: 100%; margin-bottom: 16px; border-collapse: separate; border-spacing: 8px 0; }
-    .stat-box {
+    .info-cell {
       display: table-cell;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 8px 12px;
-      text-align: center;
+      width: 33.33%;
+      padding: 11px 15px;
+      vertical-align: top;
+      border-right: 1px solid #e8e8e8;
     }
-    .stat-box .sv { font-size: 18px; font-weight: bold; }
-    .stat-box .sl { font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
-    .stat-box.green { border-color: #86efac; background: #f0fdf4; }
-    .stat-box.green .sv { color: #16a34a; }
-    .stat-box.blue  { border-color: #bfdbfe; background: #eff6ff; }
-    .stat-box.blue  .sv { color: #1d4ed8; }
+    .info-cell:last-child { border-right: none; }
+    .info-cell.accent { border-top: 3px solid #f7b500; background: #fffdf0; }
+    .info-cell.normal { border-top: 3px solid #e8e8e8; background: #fafafa; }
+    .info-label { font-size: 7.5px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+    .info-val   { font-size: 12px; font-weight: bold; color: #1a1a1a; margin-top: 2px; }
+    .info-val.green { color: #16a34a; }
+    .info-sub   { font-size: 9px; color: #888888; margin-top: 2px; }
 
-    /* Table */
-    .voucher-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-    .voucher-table thead tr { background: #1e293b; color: #fff; }
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: #f9f9f9;
+      border: 1px solid #e8e8e8;
+    }
+    .stat-cell { display: table-cell; text-align: center; padding: 12px 8px; border-right: 1px solid #e8e8e8; vertical-align: middle; }
+    .stat-cell:last-child { border-right: none; }
+    .stat-cell.primary { background: #f7b500; }
+    .stat-num { font-size: 26px; font-weight: bold; color: #1a1a1a; line-height: 1; }
+    .stat-cell.green .stat-num { color: #16a34a; }
+    .stat-lbl { font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #666666; margin-top: 3px; }
+    .stat-cell.primary .stat-lbl { color: #4a3a00; }
+
+    /* ── WARNING NOTICE ── */
+    .notice {
+      background: #fffbea;
+      border: 1px solid #fde68a;
+      border-left: 3px solid #f7b500;
+      padding: 7px 12px;
+      font-size: 9.5px;
+      color: #4a3a00;
+      margin-bottom: 18px;
+      line-height: 1.55;
+    }
+
+    /* ── VOUCHER TABLE ── */
+    .voucher-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    .voucher-table thead tr { background: #f7b500; }
     .voucher-table thead th {
-      padding: 7px 10px;
-      font-size: 9px;
+      padding: 7px 11px;
+      font-size: 8px;
       font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       text-align: left;
+      color: #1a1a1a;
     }
     .voucher-table thead th.center { text-align: center; }
-    .voucher-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .voucher-table tbody tr:nth-child(even) { background: #fafafa; }
+    .voucher-table tbody tr:nth-child(odd)  { background: #ffffff; }
+    .voucher-table tbody tr { border-bottom: 1px solid #f0f0f0; }
     .voucher-table tbody td {
-      padding: 6px 10px;
-      border-bottom: 1px solid #e9ecef;
-      font-size: 11px;
+      padding: 7px 11px;
+      font-size: 10.5px;
       vertical-align: middle;
     }
-    .code-cell {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      font-weight: bold;
-      letter-spacing: 0.06em;
-      color: #0f172a;
-    }
-    .badge-stock { color: #16a34a; font-weight: bold; }
-    .badge-sold  { color: #64748b; }
-    .num-cell    { text-align: center; color: #64748b; font-size: 10px; }
-    .customer-cell { font-size: 10px; color: #374151; }
-    .date-cell     { font-size: 10px; color: #94a3b8; }
 
-    /* Footer */
-    .footer {
-      border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
-      color: #94a3b8;
-      font-size: 9px;
-      display: table;
-      width: 100%;
-    }
-    .footer-left  { display: table-cell; }
-    .footer-right { display: table-cell; text-align: right; }
+    .num-cell { text-align: center; color: #bbbbbb; font-size: 9px; width: 26px; }
 
-    /* Confidential notice */
-    .notice {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      border-left: 3px solid #f59e0b;
-      padding: 7px 10px;
+    .code-wrap {
+      display: inline-block;
+      background: #fffbea;
+      border: 1.5px solid #f7b500;
       border-radius: 4px;
-      font-size: 9.5px;
-      color: #78350f;
-      margin-bottom: 14px;
-      line-height: 1.5;
+      padding: 3px 10px;
+    }
+    .code-text {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12.5px;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      color: #333333;
     }
 
-    /* Page break */
-    @page { margin: 18mm 14mm; }
+    .badge-stock { color: #16a34a; font-weight: bold; font-size: 10px; }
+    .badge-sold  { color: #888888; font-size: 10px; }
+    .customer-cell { font-size: 9.5px; color: #555555; }
+    .date-cell     { font-size: 9.5px; color: #aaaaaa; }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 18px;
+      background: #f7b500;
+      padding: 10px 18px;
+    }
+    .footer-inner { display: table; width: 100%; }
+    .footer-left  { display: table-cell; vertical-align: middle; }
+    .footer-right { display: table-cell; vertical-align: middle; text-align: right; }
+    .footer-brand { font-size: 10px; font-weight: bold; color: #1a1a1a; }
+    .footer-text  { font-size: 8px; color: #4a3a00; margin-top: 2px; line-height: 1.5; }
+
+    @page { margin: 14mm 14mm; }
   </style>
 </head>
 <body>
 
-  {{-- Header --}}
+  {{-- ══ HEADER ══ --}}
   <div class="header">
-    <div class="header-left">
-      <div class="brand">🌐 AngolaWiFi</div>
-      <div class="brand-sub">angolawifi.ao · Portal de Revendedores</div>
-    </div>
-    <div class="header-right">
-      <div class="doc-title">Lista de Vouchers</div>
-      <div class="doc-sub">Compra #{{ $purchase->id }} · {{ optional($purchase->created_at)->format('d/m/Y H:i') }}</div>
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="brand">AngolaWiFi</div>
+        <div class="brand-sub">angolawifi.ao &nbsp;&middot;&nbsp; Portal de Revendedores</div>
+      </div>
+      <div class="header-right">
+        <div class="doc-type">Lista de Vouchers</div>
+        <div class="doc-title">{{ $purchase->plan_name }}</div>
+        <div class="doc-sub">Compra #{{ $purchase->id }} &middot; {{ optional($purchase->created_at)->format('d/m/Y H:i') }}</div>
+      </div>
     </div>
   </div>
+  <div class="header-bar"></div>
 
-  {{-- Info grid --}}
+  {{-- ══ INFO GRID ══ --}}
   <div class="info-grid">
-    <div class="info-cell">
+    <div class="info-cell accent">
       <div class="info-label">Revendedor</div>
       <div class="info-val">{{ $application->full_name }}</div>
-      <div style="font-size:10px;color:#64748b;margin-top:1px;">{{ $application->email }}</div>
+      <div class="info-sub">{{ $application->email }}</div>
     </div>
-    <div class="info-cell">
+    <div class="info-cell normal">
       <div class="info-label">Plano</div>
       <div class="info-val">{{ $purchase->plan_name }}</div>
       @if($voucherPlan)
-        <div style="font-size:10px;color:#64748b;margin-top:1px;">{{ $voucherPlan->validity_label }}{{ $voucherPlan->speed_label ? ' · ' . $voucherPlan->speed_label : '' }}</div>
+        <div class="info-sub">{{ $voucherPlan->validity_label }}{{ $voucherPlan->speed_label ? ' &middot; ' . $voucherPlan->speed_label : '' }}</div>
       @endif
     </div>
-    <div class="info-cell" style="padding-right:0;">
+    <div class="info-cell normal">
       <div class="info-label">Lucro potencial</div>
       <div class="info-val green">{{ number_format($purchase->profit_aoa ?? 0, 0, ',', '.') }} Kz</div>
-      <div style="font-size:10px;color:#64748b;margin-top:1px;">Investido: {{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} Kz</div>
+      <div class="info-sub">Investido: {{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} Kz</div>
     </div>
   </div>
 
-  {{-- Stats --}}
+  {{-- ══ STATS BAR ══ --}}
   <div class="stats-bar">
-    <div class="stat-box">
-      <div class="sv">{{ $totalCodes }}</div>
-      <div class="sl">Total</div>
+    <div class="stat-cell primary">
+      <div class="stat-num">{{ $totalCodes }}</div>
+      <div class="stat-lbl">Total</div>
     </div>
-    <div class="stat-box green">
-      <div class="sv">{{ $inStock }}</div>
-      <div class="sl">Por vender</div>
+    <div class="stat-cell green">
+      <div class="stat-num">{{ $inStock }}</div>
+      <div class="stat-lbl">Por vender</div>
     </div>
-    <div class="stat-box blue">
-      <div class="sv">{{ $distributed }}</div>
-      <div class="sl">Vendidos</div>
+    <div class="stat-cell">
+      <div class="stat-num" style="color:#888888;">{{ $distributed }}</div>
+      <div class="stat-lbl">Vendidos</div>
     </div>
     @if($purchase->profit_aoa && $totalCodes > 0)
-    <div class="stat-box green">
-      <div class="sv" style="font-size:14px;">{{ number_format($purchase->profit_aoa / $totalCodes, 0, ',', '.') }} Kz</div>
-      <div class="sl">Lucro/voucher</div>
+    <div class="stat-cell">
+      <div class="stat-num" style="font-size:16px;color:#16a34a;">{{ number_format($purchase->profit_aoa / $totalCodes, 0, ',', '.') }} Kz</div>
+      <div class="stat-lbl">Lucro/voucher</div>
     </div>
     @endif
   </div>
 
-  {{-- Notice --}}
+  {{-- ══ NOTICE ══ --}}
   <div class="notice">
-    ⚠️ <strong>Confidencial.</strong> Estes códigos destinam-se exclusivamente à revenda autorizada pela AngolaWiFi.
-    Os códigos são de uso único. Uma vez utilizados pelo cliente final, não podem ser reinstaurados.
+    <strong>Confidencial.</strong> Estes c&#243;digos destinam-se exclusivamente &#224; revenda autorizada pela AngolaWiFi.
+    Os c&#243;digos s&#227;o de uso &#250;nico. Uma vez utilizados pelo cliente final, n&#227;o podem ser reinstaurados.
   </div>
 
-  {{-- Voucher table --}}
+  {{-- ══ VOUCHER TABLE ══ --}}
   <table class="voucher-table">
     <thead>
       <tr>
-        <th class="center" style="width:28px;">#</th>
-        <th>Código de Voucher</th>
+        <th class="center">#</th>
+        <th>C&#243;digo de Voucher</th>
         <th>Estado</th>
         <th>Cliente (ref.)</th>
         <th>Vendido em</th>
@@ -197,30 +220,44 @@
       @foreach($codes as $i => $code)
       <tr>
         <td class="num-cell">{{ $i + 1 }}</td>
-        <td class="code-cell">{{ $code->code }}</td>
+        <td>
+          <div class="code-wrap">
+            <span class="code-text">{{ $code->code }}</span>
+          </div>
+        </td>
         <td>
           @if($code->reseller_distributed_at)
-            <span class="badge-sold">✓ Vendido</span>
+            <span class="badge-sold">&#10003; Vendido</span>
           @else
-            <span class="badge-stock">● Disponível</span>
+            <span class="badge-stock">&#9679; Dispon&#237;vel</span>
           @endif
         </td>
-        <td class="customer-cell">{{ $code->reseller_customer_ref ?: '—' }}</td>
-        <td class="date-cell">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') ?: '—' }}</td>
+        <td class="customer-cell">{{ $code->reseller_customer_ref ?: '&mdash;' }}</td>
+        <td class="date-cell">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') ?: '&mdash;' }}</td>
       </tr>
       @endforeach
     </tbody>
   </table>
 
-  {{-- Footer --}}
+  {{-- ══ FOOTER ══ --}}
   <div class="footer">
-    <div class="footer-left">
-      AngolaWiFi · Documento gerado em {{ now()->format('d/m/Y \à\s H:i') }} · Uso interno do revendedor
-    </div>
-    <div class="footer-right">
-      Compra #{{ $purchase->id }} · {{ $totalCodes }} voucher(s)
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-brand">AngolaWiFi</div>
+        <div class="footer-text">
+          Documento gerado em {{ now()->format('d/m/Y \à\s H:i') }}<br>
+          Uso interno do revendedor &mdash; Compra #{{ $purchase->id }}
+        </div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-text" style="text-align:right;">
+          {{ $totalCodes }} voucher(s)<br>
+          Revendedor: <strong>{{ $application->full_name }}</strong>
+        </div>
+      </div>
     </div>
   </div>
 
 </body>
 </html>
+
