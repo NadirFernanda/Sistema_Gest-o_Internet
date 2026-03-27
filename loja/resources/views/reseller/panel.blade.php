@@ -509,12 +509,12 @@
 .rv-menu-item { border-radius: .85rem; overflow: hidden; box-shadow: 0 2px 8px rgba(15,23,42,.07); border: 1.5px solid #e2e8f0; background: #fff; }
 .rv-menu-btn {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
-  padding: 1.1rem 1.4rem; background: #0f172a; color: #fff;
+  padding: 1.1rem 1.4rem; background: #f7b500; color: #1a202c;
   font-size: 1.1rem; font-weight: 700; cursor: pointer;
   border: none; outline: none; text-align: left; gap: .75rem;
   transition: background .15s;
 }
-.rv-menu-btn:hover, .rv-menu-btn.open { background: #1e293b; }
+.rv-menu-btn:hover, .rv-menu-btn.open { background: #e0a800; }
 .rv-menu-btn-left { display: flex; align-items: center; gap: .65rem; flex: 1; }
 .rv-menu-icon { font-size: 1.25rem; flex-shrink: 0; }
 .rv-menu-label { flex: 1; }
@@ -523,9 +523,9 @@
   border-radius: 999px; white-space: nowrap;
 }
 .rv-menu-chevron {
-  font-size: 1.4rem; line-height: 1; transition: transform .25s; color: #94a3b8;
+  font-size: 1.4rem; line-height: 1; transition: transform .25s; color: rgba(26,32,44,.5);
 }
-.rv-menu-chevron.open { transform: rotate(90deg); color: #f7b500; }
+.rv-menu-chevron.open { transform: rotate(90deg); color: #1a202c; }
 .rv-menu-body { padding: 1.25rem; background: #f8fafc; border-top: 1.5px solid #e2e8f0; }
 @media (max-width: 640px) {
   .rv-menu-btn { font-size: .95rem; padding: .9rem 1rem; }
