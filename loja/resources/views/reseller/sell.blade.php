@@ -170,6 +170,18 @@ html { scroll-behavior: smooth; }
   .sl-cart-item-meta { font-size: .72rem; }
   .sl-sell-btn { font-size: .88rem; padding: .65rem 1rem; }
 }
+@media (max-width: 480px) {
+  .sl-page { padding: 1rem .6rem 5rem; }
+  .sl-topbar h1 { font-size: 1.15rem; }
+  .sl-plan-card { min-width: 140px; flex: 0 0 140px; }
+  .sl-plan-name { font-size: .9rem; }
+  .sl-plan-price { font-size: 1rem; }
+  .sl-card-val { font-size: 1.4rem; }
+  .sl-panel { padding: 1rem .85rem; }
+  .sl-panel-title { font-size: .92rem; }
+  .sl-sticky-bar { padding: .5rem .65rem; }
+  .sl-sticky-bar-info { font-size: .8rem; }
+}
 </style>
 @endpush
 

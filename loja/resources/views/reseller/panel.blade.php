@@ -513,11 +513,55 @@
   .rv-bulk-form > div { min-width: unset !important; }
   .rv-bulk-form input[type=number] { width: 100% !important; }
   .rv-bulk-form button { width: 100%; margin-top: 0 !important; }
-}
-@media (max-width: 640px) {
+  /* Accordion menu */
   .rv-menu-btn { font-size: .95rem; padding: .9rem 1rem; }
   .rv-menu-body { padding: .9rem; }
   .rv-menu-icon { font-size: 1.05rem; }
+}
+@media (max-width: 480px) {
+  .rv-page { padding: 1.25rem .6rem 6rem; }
+  .rv-panel { padding: .75rem .65rem; }
+  .rv-stat-card { padding: .9rem .9rem; }
+  .rv-stat-value { font-size: 1.3rem; }
+  .rv-price-big-num { font-size: 1.35rem; }
+  .rv-menu-btn { padding: .8rem .9rem; font-size: .97rem; }
+  .rv-topbar { padding: .85rem 1rem; }
+}
+/* ── Sticky bottom bar ── */
+.rv-sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; border-top: 2px solid #f7b500;
+  padding: .65rem 1rem; z-index: 500;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.1);
+}
+.rv-sticky-bar-inner {
+  max-width: 900px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; flex-wrap: wrap;
+}
+.rv-sticky-bar-info {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .88rem;
+}
+.rv-sticky-bar-btns { display: flex; gap: .5rem; }
+.rv-sticky-btn-secondary {
+  padding: .48rem 1.1rem; background: none; color: #64748b;
+  font-weight: 600; font-size: .85rem; border: 1px solid #e2e8f0;
+  border-radius: 8px; text-decoration: none; white-space: nowrap;
+  transition: border-color .13s, color .13s;
+}
+.rv-sticky-btn-secondary:hover { border-color: #0f172a; color: #0f172a; }
+.rv-sticky-btn-primary {
+  padding: .48rem 1.2rem; background: #f7b500; color: #1a202c;
+  font-weight: 700; font-size: .88rem; border-radius: 8px;
+  text-decoration: none; white-space: nowrap; transition: background .13s;
+}
+.rv-sticky-btn-primary:hover { background: #e0a800; }
+@media (max-width: 480px) {
+  .rv-sticky-bar { padding: .5rem .75rem; }
+  .rv-sticky-bar-inner { flex-direction: column; align-items: stretch; gap: .4rem; }
+  .rv-sticky-bar-info { font-size: .82rem; }
+  .rv-sticky-bar-btns { width: 100%; }
+  .rv-sticky-btn-secondary, .rv-sticky-btn-primary { flex: 1; text-align: center; }
 }
 .rv-menu { display: flex; flex-direction: column; gap: .65rem; margin-top: .25rem; }
 .rv-menu-item { border-radius: .85rem; overflow: hidden; box-shadow: 0 2px 8px rgba(15,23,42,.07); border: 1.5px solid #e2e8f0; background: #fff; }
@@ -1404,9 +1448,9 @@ document.addEventListener('DOMContentLoaded', function() { rvOpen('comprar'); })
 
 {{-- Sticky bar: visible only when cart has items --}}
 @if(!empty($cartItems))
-<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #f7b500;padding:.65rem 1rem;z-index:500;box-shadow:0 -4px 24px rgba(0,0,0,.1);">
-  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.88rem;">
+<div class="rv-sticky-bar">
+  <div class="rv-sticky-bar-inner">
+    <div class="rv-sticky-bar-info">
       <span style="font-size:1.1rem;">🛒</span>
       <strong>{{ $cartVouchers }} voucher(s) no carrinho</strong>
       <span style="color:#64748b;">·</span>
@@ -1416,9 +1460,9 @@ document.addEventListener('DOMContentLoaded', function() { rvOpen('comprar'); })
         <span style="color:#16a34a;font-weight:700;">+{{ number_format($cartNetProfit, 0, ',', '.') }} Kz lucro</span>
       @endif
     </div>
-    <div style="display:flex;gap:.5rem;">
-      <a href="#rv-catalog" onclick="rvOpen('comprar')" style="padding:.48rem 1.1rem;background:none;color:#64748b;font-weight:600;font-size:.85rem;border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;white-space:nowrap;">+ Continuar a comprar</a>
-      <a href="#rv-cart" onclick="rvOpen('comprar')" style="padding:.48rem 1.2rem;background:#f7b500;color:#1a202c;font-weight:700;font-size:.88rem;border-radius:8px;text-decoration:none;white-space:nowrap;">✅ Finalizar compra</a>
+    <div class="rv-sticky-bar-btns">
+      <a href="#rv-catalog" onclick="rvOpen('comprar')" class="rv-sticky-btn-secondary">+ Continuar a comprar</a>
+      <a href="#rv-cart" onclick="rvOpen('comprar')" class="rv-sticky-btn-primary">✅ Finalizar compra</a>
     </div>
   </div>
 </div>
