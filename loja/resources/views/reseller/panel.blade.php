@@ -6,7 +6,7 @@
 .rv-page {
   min-height: 80vh;
   background: #f8fafc;
-  padding: 2.5rem 1rem 4rem;
+  padding: 2.5rem 1rem 6rem;
 }
 
 /* Login */
@@ -826,7 +826,7 @@
             </div>
 
             {{-- Catálogo de planos --}}
-            <div class="rv-panel" style="margin-bottom:1rem;">
+            <div class="rv-panel" id="rv-catalog" style="margin-bottom:1rem;">
               <div class="rv-panel-title"><span class="rv-panel-icon">📦</span> Abastecimento de Stock</div>
               @if($voucherPlans->isEmpty())
                 <p class="rv-empty">Nenhum plano disponível de momento.</p>
@@ -914,7 +914,7 @@
 
             {{-- Carrinho --}}
             @if(!empty($cartItems))
-            <div class="rv-panel rv-cart-panel" style="margin-bottom:0;">
+            <div class="rv-panel rv-cart-panel" id="rv-cart" style="margin-bottom:0;">
               <div class="rv-panel-title"><span class="rv-panel-icon">🛒</span> Carrinho
                 <span style="font-size:.85rem;font-weight:500;color:#64748b;margin-left:.5rem;">{{ $cartVouchers }} voucher(s)</span>
               </div>
@@ -1390,6 +1390,28 @@ function rvOpen(id) {
 @if(!empty($cartItems) || str_contains(session('status', ''), 'carrinho') || str_contains(session('error', ''), 'carrinho'))
 document.addEventListener('DOMContentLoaded', function() { rvOpen('comprar'); });
 @endif
-
 </script>
+
+{{-- Sticky bar: visible only when cart has items --}}
+@if(!empty($cartItems))
+<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #f7b500;padding:.65rem 1rem;z-index:500;box-shadow:0 -4px 24px rgba(0,0,0,.1);">
+  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.88rem;">
+      <span style="font-size:1.1rem;">🛒</span>
+      <strong>{{ $cartVouchers }} voucher(s) no carrinho</strong>
+      <span style="color:#64748b;">·</span>
+      <strong style="color:#f7b500;">{{ number_format($cartPayAmount, 0, ',', '.') }} Kz a pagar</strong>
+      @if($cartNetProfit > 0)
+        <span style="color:#64748b;">·</span>
+        <span style="color:#16a34a;font-weight:700;">+{{ number_format($cartNetProfit, 0, ',', '.') }} Kz lucro</span>
+      @endif
+    </div>
+    <div style="display:flex;gap:.5rem;">
+      <a href="#rv-catalog" onclick="rvOpen('comprar')" style="padding:.48rem 1.1rem;background:none;color:#64748b;font-weight:600;font-size:.85rem;border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;white-space:nowrap;">+ Continuar a comprar</a>
+      <a href="#rv-cart" onclick="rvOpen('comprar')" style="padding:.48rem 1.2rem;background:#f7b500;color:#1a202c;font-weight:700;font-size:.88rem;border-radius:8px;text-decoration:none;white-space:nowrap;">✅ Finalizar compra</a>
+    </div>
+  </div>
+</div>
+@endif
+
 @endpush
