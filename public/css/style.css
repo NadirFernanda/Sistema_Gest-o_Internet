@@ -1048,6 +1048,7 @@ button.btn-danger:hover, .btn.btn-danger:hover {
 .form-editar-botoes { gap: 18px; }
 .ficha-cliente .btn {
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
 /* =====================================================
    TABLET RESPONSIVE — 768 px e acima
    Corrige o layout que colapsava para mobile mesmo em tablets
@@ -1113,7 +1114,6 @@ button.btn-danger:hover, .btn.btn-danger:hover {
     /* Form grid de criação/edição: manter 2 colunas em tablet */
     .form-grid { grid-template-columns: 1fr 1fr; }
     .form-editar-grid { grid-template-columns: 1fr 1fr; }
-}
 }
 .ficha-cliente .btn:hover {
     transform: translateY(-3px);
