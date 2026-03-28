@@ -1387,7 +1387,7 @@ function rvOpen(id) {
   if (chev) chev.classList.add('open');
   if (btn)  btn.classList.add('open');
 }
-@if(session('status') === 'Plano adicionado ao carrinho.')
+@if(!empty($cartItems) || str_contains(session('status', ''), 'carrinho') || str_contains(session('error', ''), 'carrinho'))
 document.addEventListener('DOMContentLoaded', function() { rvOpen('comprar'); });
 @endif
 
