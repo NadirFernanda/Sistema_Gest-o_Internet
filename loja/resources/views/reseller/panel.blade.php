@@ -486,25 +486,39 @@
 .rv-empty { color: #94a3b8; font-size: .95rem; text-align: center; padding: 2rem 0; }
 .rv-pagination { margin-top: .75rem; }
 
+@media (max-width: 900px) {
+  .rv-plan-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+}
 @media (max-width: 640px) {
   .rv-topbar { flex-direction: column; align-items: flex-start; }
-  .rv-panel { padding: 1.1rem 1rem; }
+  .rv-panel { padding: 1rem .85rem; }
   .rv-purchase-form { flex-direction: column; }
   .rv-btn-buy { width: 100%; text-align: center; }
   .rv-disc-table { max-width: 100%; }
   .rv-disc-table th, .rv-disc-table td { padding: .4rem .55rem; font-size: .82rem; }
-  .rv-hist-table { min-width: 420px; }
-  .rv-hist-table th, .rv-hist-table td { padding: .45rem .55rem; font-size: .8rem; }
-  .rv-stats { grid-template-columns: 1fr 1fr; gap: .75rem; }
-  .rv-plan-grid { grid-template-columns: 1fr; }
+  .rv-hist-table { min-width: 0; width: 100%; }
+  .rv-hist-table th, .rv-hist-table td { padding: .38rem .4rem; font-size: .75rem; }
+  .rv-hist-table th.hide-sm, .rv-hist-table td.hide-sm { display: none; }
+  .rv-stats { grid-template-columns: 1fr 1fr; gap: .65rem; }
+  .rv-plan-grid { grid-template-columns: 1fr; gap: .85rem; }
   .rv-plan-add-form { flex-direction: column; }
   .rv-qty-input { width: 100%; }
   .rv-btn-add { width: 100%; text-align: center; }
   .rv-cart-footer { flex-direction: column; align-items: stretch; text-align: center; }
-  .rv-cart-actions { justify-content: center; }
+  .rv-cart-actions { justify-content: center; flex-direction: column; }
+  .rv-cart-actions .rv-btn-buy, .rv-cart-actions .rv-csv-btn { width: 100%; text-align: center; justify-content: center; }
+  .rv-price-big-num { font-size: 1.6rem; }
+  /* Bulk add form: wrap vertically on mobile */
+  .rv-bulk-form { flex-direction: column !important; align-items: stretch !important; }
+  .rv-bulk-form > div { min-width: unset !important; }
+  .rv-bulk-form input[type=number] { width: 100% !important; }
+  .rv-bulk-form button { width: 100%; margin-top: 0 !important; }
 }
-
-/* ── Accordion menu ── */
+@media (max-width: 640px) {
+  .rv-menu-btn { font-size: .95rem; padding: .9rem 1rem; }
+  .rv-menu-body { padding: .9rem; }
+  .rv-menu-icon { font-size: 1.05rem; }
+}
 .rv-menu { display: flex; flex-direction: column; gap: .65rem; margin-top: .25rem; }
 .rv-menu-item { border-radius: .85rem; overflow: hidden; box-shadow: 0 2px 8px rgba(15,23,42,.07); border: 1.5px solid #e2e8f0; background: #fff; }
 .rv-menu-btn {
@@ -527,11 +541,6 @@
 }
 .rv-menu-chevron.open { transform: rotate(90deg); color: #1a202c; }
 .rv-menu-body { padding: 1.25rem; background: #f8fafc; border-top: 1.5px solid #e2e8f0; }
-@media (max-width: 640px) {
-  .rv-menu-btn { font-size: .95rem; padding: .9rem 1rem; }
-  .rv-menu-body { padding: .9rem; }
-  .rv-menu-icon { font-size: 1.05rem; }
-}
 </style>
 @endpush
 
@@ -834,6 +843,7 @@
 
                 {{-- Encomenda múltipla --}}
                 <form action="{{ route('reseller.cart.add.all') }}" method="POST"
+                      class="rv-bulk-form"
                       style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.1rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem;">
                   @csrf
                   @foreach($voucherPlans as $plan)

@@ -146,12 +146,29 @@ html { scroll-behavior: smooth; }
 .sl-empty-icon { font-size: 2.5rem; margin-bottom: .5rem; }
 .sl-empty-title { font-size: 1rem; font-weight: 700; color: var(--sl-muted); margin-bottom: .3rem; }
 
+@media (max-width: 900px) {
+  .sl-plans-grid { flex-wrap: wrap; }
+  .sl-plan-card { flex: 1 1 200px; min-width: 180px; }
+}
 @media (max-width: 640px) {
-  .sl-plans-grid { flex-wrap: nowrap; }
+  .sl-page { padding: 1.25rem .75rem 5rem; }
+  .sl-wrap { padding: 0; }
+  .sl-plans-grid { flex-wrap: nowrap; overflow-x: auto; }
   .sl-plan-card { min-width: 160px; flex: 0 0 160px; }
   .sl-summary { grid-template-columns: 1fr 1fr; }
   .sl-recent-table th, .sl-recent-table td { padding: .4rem .45rem; font-size: .76rem; }
   .sl-sticky-bar-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  .sl-sticky-bar-inner > div:last-child { width: 100%; display: flex; gap: .5rem; }
+  .sl-sticky-btn-cart, .sl-sticky-btn-continue { flex: 1; text-align: center; }
+  /* Bulk add form on mobile */
+  .sl-panel form[action*="adicionar-todos"] { flex-direction: column !important; }
+  .sl-panel form[action*="adicionar-todos"] > div { min-width: unset !important; }
+  .sl-panel form[action*="adicionar-todos"] input[type=number] { width: 100% !important; }
+  .sl-panel form[action*="adicionar-todos"] button { width: 100%; margin-top: 0 !important; }
+  /* Cart items */
+  .sl-cart-item-name { font-size: .82rem; }
+  .sl-cart-item-meta { font-size: .72rem; }
+  .sl-sell-btn { font-size: .88rem; padding: .65rem 1rem; }
 }
 </style>
 @endpush
