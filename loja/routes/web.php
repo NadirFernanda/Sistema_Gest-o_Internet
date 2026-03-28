@@ -85,6 +85,7 @@ Route::post('/painel-revendedor/voucher/{wifiCode}/cancelar-distribuicao', [Rese
 Route::get('/painel-revendedor/vender', [ResellerPanelController::class, 'showSellPage'])->name('reseller.sell');
 Route::post('/painel-revendedor/vender', [ResellerPanelController::class, 'processSale'])->name('reseller.sell.process');
 Route::post('/painel-revendedor/vender/carrinho/adicionar', [ResellerPanelController::class, 'sellCartAdd'])->name('reseller.sell.cart.add');
+Route::post('/painel-revendedor/vender/carrinho/adicionar-todos', [ResellerPanelController::class, 'sellCartAddAll'])->name('reseller.sell.cart.add.all');
 Route::post('/painel-revendedor/vender/carrinho/remover', [ResellerPanelController::class, 'sellCartRemove'])->name('reseller.sell.cart.remove');
 Route::post('/painel-revendedor/vender/carrinho/limpar', [ResellerPanelController::class, 'sellCartClear'])->name('reseller.sell.cart.clear');
 
@@ -100,6 +101,7 @@ Route::post('/painel-revendedor/taxa-manutencao/confirmar', [ResellerPanelContro
 
 // Carrinho de vouchers do revendedor
 Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
+Route::post('/painel-revendedor/carrinho/adicionar-todos', [ResellerPanelController::class, 'cartAddAll'])->name('reseller.cart.add.all');
 Route::post('/painel-revendedor/carrinho/remover', [ResellerPanelController::class, 'cartRemove'])->name('reseller.cart.remove');
 Route::post('/painel-revendedor/carrinho/limpar', [ResellerPanelController::class, 'cartClear'])->name('reseller.cart.clear');
 Route::post('/painel-revendedor/checkout', [ResellerPanelController::class, 'checkout'])->name('reseller.panel.checkout');

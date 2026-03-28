@@ -30,9 +30,9 @@
 .sl-err { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--sl-red);   color: #7f1d1d; padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: 1rem; }
 .sl-info { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid var(--sl-amber); color: #78350f; padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1.25rem; line-height: 1.55; }
 
-/* Layout */
-.sl-layout { display: grid; grid-template-columns: 1fr 360px; gap: 1.25rem; align-items: start; }
-@media (max-width: 860px) { .sl-layout { grid-template-columns: 1fr; } }
+/* Layout — single column: plans on top, cart below */
+.sl-layout { display: flex; flex-direction: column; gap: 1.25rem; }
+html { scroll-behavior: smooth; }
 
 /* Summary cards */
 .sl-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
@@ -44,9 +44,11 @@
 .sl-panel { background: var(--sl-surf); border: 1px solid var(--sl-border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
 .sl-panel-title { font-size: 1rem; font-weight: 800; color: var(--sl-text); margin: 0 0 1rem; display: flex; align-items: center; gap: .45rem; }
 
-/* Plan cards — catalog */
-.sl-plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .85rem; }
+/* Plan cards — catalog: all cards in a single horizontal row */
+.sl-plans-grid { display: flex; flex-wrap: nowrap; gap: .85rem; overflow-x: auto; padding-bottom: .35rem; }
 .sl-plan-card {
+  flex: 1 1 0;
+  min-width: 180px;
   background: var(--sl-surf);
   border: 2px solid var(--sl-border);
   border-radius: 12px;
@@ -74,9 +76,37 @@
 .sl-add-btn { flex: 1; padding: .45rem .8rem; background: var(--sl-yellow); color: #000; font-weight: 700; font-size: .83rem; border: none; border-radius: 7px; cursor: pointer; font-family: inherit; transition: background .14s; white-space: nowrap; }
 .sl-add-btn:hover { background: #e0a400; }
 
-/* Cart (right column) */
-.sl-cart-sticky { position: sticky; top: 1.5rem; }
+/* Cart (below plans) */
+.sl-cart-sticky { width: 100%; }
 .sl-cart-empty { text-align: center; padding: 1.5rem .5rem; color: var(--sl-faint); font-size: .85rem; }
+
+/* Sticky bottom bar — shown when cart has items */
+.sl-sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 2px solid var(--sl-yellow);
+  padding: .65rem 1rem;
+  z-index: 200;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.1);
+}
+.sl-sticky-bar-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; flex-wrap: wrap;
+}
+.sl-sticky-bar-info { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .88rem; }
+.sl-sticky-btn-cart {
+  padding: .48rem 1.2rem; background: var(--sl-yellow); color: #000;
+  font-weight: 700; font-size: .88rem; border-radius: 8px;
+  text-decoration: none; white-space: nowrap; transition: background .14s;
+}
+.sl-sticky-btn-cart:hover { background: #e0a400; }
+.sl-sticky-btn-continue {
+  padding: .48rem 1.1rem; background: none; color: var(--sl-muted);
+  font-weight: 600; font-size: .85rem; border: 1px solid var(--sl-border);
+  border-radius: 8px; text-decoration: none; white-space: nowrap; transition: all .13s;
+}
+.sl-sticky-btn-continue:hover { border-color: var(--sl-text); color: var(--sl-text); }
 
 /* Cart items */
 .sl-cart-item { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 0; border-bottom: 1px solid var(--sl-border); }
@@ -117,15 +147,17 @@
 .sl-empty-title { font-size: 1rem; font-weight: 700; color: var(--sl-muted); margin-bottom: .3rem; }
 
 @media (max-width: 640px) {
-  .sl-plans-grid { grid-template-columns: 1fr; }
+  .sl-plans-grid { flex-wrap: nowrap; }
+  .sl-plan-card { min-width: 160px; flex: 0 0 160px; }
   .sl-summary { grid-template-columns: 1fr 1fr; }
   .sl-recent-table th, .sl-recent-table td { padding: .4rem .45rem; font-size: .76rem; }
+  .sl-sticky-bar-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
 }
 </style>
 @endpush
 
 @section('content')
-<div class="sl-page">
+<div class="sl-page" style="padding-bottom:5rem;">
 <div class="sl-wrap">
 
   {{-- Flash messages --}}
@@ -194,8 +226,30 @@
 
     {{-- LEFT: Catálogo de planos disponíveis --}}
     <div>
-      <div class="sl-panel">
+      <div class="sl-panel" id="plans">
         <div class="sl-panel-title">&#128230; Planos disponíveis &mdash; escolha a quantidade</div>
+
+        {{-- Encomenda múltipla --}}
+        <form action="{{ route('reseller.sell.cart.add.all') }}" method="POST"
+              style="background:#f8fafc;border:1px solid var(--sl-border);border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.1rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem;">
+          @csrf
+          @foreach($stockByPlan as $planSlug => $availableQty)
+            @php $bPlan = $voucherPlans->get($planSlug); @endphp
+            <div style="display:flex;flex-direction:column;gap:.25rem;min-width:110px;">
+              <label style="font-size:.72rem;font-weight:700;color:var(--sl-muted);">{{ $bPlan ? $bPlan->name : $planSlug }}</label>
+              <input type="number" name="plans[{{ $planSlug }}]" value="0" min="0" max="{{ $availableQty }}"
+                     style="width:90px;padding:.38rem .5rem;border:1.5px solid var(--sl-border);border-radius:6px;font-size:.88rem;text-align:center;"
+                     {{ $availableQty === 0 ? 'disabled' : '' }}>
+              <span style="font-size:.68rem;color:{{ $availableQty > 0 ? 'var(--sl-green)' : 'var(--sl-faint)' }};">
+                {{ $availableQty > 0 ? $availableQty.' em stock' : 'Sem stock' }}
+              </span>
+            </div>
+          @endforeach
+          <button type="submit"
+                  style="padding:.45rem 1.1rem;background:var(--sl-yellow);color:#000;font-weight:700;font-size:.85rem;border:none;border-radius:7px;cursor:pointer;white-space:nowrap;align-self:flex-start;margin-top:1.1rem;">
+            &#128722; Adicionar tudo ao carrinho
+          </button>
+        </form>
 
         <div class="sl-plans-grid">
           @foreach($stockByPlan as $planSlug => $availableQty)
@@ -246,40 +300,12 @@
         </div>
       </div>
 
-      {{-- Recent sales --}}
-      @if($recentSales->count() > 0)
-      <div class="sl-panel">
-        <div class="sl-panel-title">&#128203; Vendas recentes</div>
-        <div style="overflow-x:auto;">
-          <table class="sl-recent-table">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Plano</th>
-                <th>Cliente</th>
-                <th>Vendido em</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($recentSales as $code)
-                @php $plan = $voucherPlans->get($code->plan_id); @endphp
-                <tr>
-                  <td class="mono">{{ $code->code }}</td>
-                  <td>{{ $plan ? $plan->name : $code->plan_id }}</td>
-                  <td>{{ $code->reseller_customer_ref ?: '&mdash;' }}</td>
-                  <td class="dim">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') }}</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
-      </div>
-      @endif
+      {{-- Recent sales moved to after the cart --}}
     </div>
 
-    {{-- RIGHT: Carrinho de venda --}}
+    {{-- BOTTOM: Carrinho de venda --}}
     <div class="sl-cart-sticky">
-      <div class="sl-panel">
+      <div class="sl-panel" id="cart">
         <div class="sl-panel-title">&#128722; Carrinho do cliente</div>
 
         @if(empty($sellItems))
@@ -351,9 +377,59 @@
 
   </div>{{-- /.sl-layout --}}
 
+  {{-- Recent sales: below the cart --}}
+  @if($recentSales->count() > 0)
+  <div class="sl-panel" style="margin-top:1.25rem;">
+    <div class="sl-panel-title">&#128203; Vendas recentes</div>
+    <div style="overflow-x:auto;">
+      <table class="sl-recent-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Plano</th>
+            <th>Cliente</th>
+            <th>Vendido em</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($recentSales as $code)
+            @php $plan = $voucherPlans->get($code->plan_id); @endphp
+            <tr>
+              <td class="mono">{{ $code->code }}</td>
+              <td>{{ $plan ? $plan->name : $code->plan_id }}</td>
+              <td>{{ $code->reseller_customer_ref ?: '&mdash;' }}</td>
+              <td class="dim">{{ optional($code->reseller_distributed_at)->format('d/m/Y H:i') }}</td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+  @endif
+
   @endif
 
 </div>
 </div>
+
+{{-- Sticky bar: visible only when cart has items --}}
+@if(!empty($sellItems))
+  @php $cartQty = collect($sellItems)->sum('qty'); @endphp
+  <div class="sl-sticky-bar">
+    <div class="sl-sticky-bar-inner">
+      <div class="sl-sticky-bar-info">
+        <span style="font-size:1.05rem;">&#128722;</span>
+        <strong>{{ $cartQty }} {{ $cartQty === 1 ? 'item' : 'itens' }} no carrinho</strong>
+        <span style="color:var(--sl-muted);">·</span>
+        <strong style="color:var(--sl-yellow);">{{ number_format($sellTotal, 0, ',', '.') }} Kz</strong>
+      </div>
+      <div style="display:flex;gap:.5rem;">
+        <a href="#plans" class="sl-sticky-btn-continue">&#43; Continuar a adicionar</a>
+        <a href="#cart" class="sl-sticky-btn-cart">Ver carrinho &darr;</a>
+      </div>
+    </div>
+  </div>
+@endif
+
 @endsection
 

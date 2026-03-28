@@ -70,6 +70,12 @@ class ResellerPanelController extends Controller
             }
         }
 
+        // Cart tax breakdown (6,5% de retenção sobre o lucro bruto)
+        $cartTax        = (int) round($cartProfit * 0.065);
+        $cartNetProfit  = $cartProfit - $cartTax;
+        $cartPayAmount  = $cartTotal + $cartTax;
+        $cartGrossTotal = $cartTotal + $cartProfit;
+
         // Sales report: per-plan breakdown across all purchases
         $salesReport = [];
 
@@ -187,6 +193,10 @@ class ResellerPanelController extends Controller
             'cartItems'        => $cartItems,
             'cartTotal'        => $cartTotal,
             'cartProfit'       => $cartProfit,
+            'cartTax'          => $cartTax,
+            'cartNetProfit'    => $cartNetProfit,
+            'cartPayAmount'    => $cartPayAmount,
+            'cartGrossTotal'   => $cartGrossTotal,
             'cartVouchers'     => $cartVouchers,
             'otpPending'       => $otpPending,
             'otpEmail'         => $otpEmail,
@@ -287,6 +297,41 @@ class ResellerPanelController extends Controller
         return redirect()->route('reseller.panel')->with('status', 'Plano adicionado ao carrinho.');
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  Carrinho de compra — adicionar múltiplos planos de uma vez
+    // ─────────────────────────────────────────────────────────────
+    public function cartAddAll(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate([
+            'plans'   => ['required', 'array'],
+            'plans.*' => ['nullable', 'integer', 'min:0', 'max:9999'],
+        ]);
+
+        $validSlugs = \App\Models\VoucherPlan::pluck('slug')->flip();
+        $cart  = $request->session()->get(self::CART_SESSION, []);
+        $added = 0;
+
+        foreach ($data['plans'] as $slug => $qty) {
+            $qty = (int) $qty;
+            if ($qty > 0 && $validSlugs->has($slug)) {
+                $cart[$slug] = ($cart[$slug] ?? 0) + $qty;
+                $added++;
+            }
+        }
+
+        $request->session()->put(self::CART_SESSION, $cart);
+
+        if ($added === 0) {
+            return redirect()->route('reseller.panel')->with('error', 'Insira pelo menos uma quantidade maior que zero.');
+        }
+
+        return redirect()->route('reseller.panel')->with('status', $added . ' plano(s) adicionados ao carrinho.');
+    }
+
     public function cartRemove(Request $request)
     {
         if (!$request->session()->get('reseller_id')) {
@@ -298,7 +343,7 @@ class ResellerPanelController extends Controller
         unset($cart[$data['plan_slug']]);
         $request->session()->put(self::CART_SESSION, $cart);
 
-        return redirect()->route('reseller.panel');
+        return redirect()->back();
     }
 
     public function cartClear(Request $request)
@@ -308,7 +353,7 @@ class ResellerPanelController extends Controller
         }
 
         $request->session()->forget(self::CART_SESSION);
-        return redirect()->route('reseller.panel');
+        return redirect()->back();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -379,11 +424,14 @@ class ResellerPanelController extends Controller
                         throw new \RuntimeException("Stock insuficiente para {$plan->name} no momento do checkout.");
                     }
 
-                    $unitPrice = $plan->resellerPriceFor($application);
-                    $netAmount = $unitPrice * $qty;
-                    $grossAmt  = $plan->price_public_aoa * $qty;
-                    $profit    = $grossAmt - $netAmount;
-                    $discPct   = $plan->price_public_aoa > 0
+                    $unitPrice   = $plan->resellerPriceFor($application);
+                    $grossAmt    = $plan->price_public_aoa * $qty;
+                    $resellerCost = $unitPrice * $qty;
+                    $grossProfit = $grossAmt - $resellerCost;
+                    $taxAoa      = (int) round($grossProfit * 0.065); // 6,5% retido para impostos
+                    $netProfit   = $grossProfit - $taxAoa;            // lucro líquido após impostos
+                    $netAmount   = $resellerCost + $taxAoa;           // valor a pagar = custo + impostos
+                    $discPct     = $plan->price_public_aoa > 0
                         ? round((1 - $unitPrice / $plan->price_public_aoa) * 100, 1)
                         : 0;
 
@@ -400,7 +448,8 @@ class ResellerPanelController extends Controller
                         'discount_percent'         => $discPct,
                         'net_amount_aoa'           => $netAmount,
                         'codes_count'              => $qty,
-                        'profit_aoa'               => $profit,
+                        'profit_aoa'               => $netProfit,
+                        'tax_aoa'                  => $taxAoa,
                         'csv_path'                 => $path,
                         'status'                   => 'pending',
                         'meta'                     => ['code_preview' => $codes->take(3)->pluck('code')->toArray()],
@@ -926,6 +975,41 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
+    //  Carrinho de venda — adicionar múltiplos planos de uma vez
+    // ─────────────────────────────────────────────────────────────
+    public function sellCartAddAll(Request $request)
+    {
+        if (!$request->session()->get('reseller_id')) {
+            return redirect()->route('reseller.panel');
+        }
+
+        $data = $request->validate([
+            'plans'   => ['required', 'array'],
+            'plans.*' => ['nullable', 'integer', 'min:0', 'max:9999'],
+        ]);
+
+        $validSlugs = \App\Models\VoucherPlan::pluck('slug')->flip();
+        $cart  = $request->session()->get(self::SELL_CART_SESSION, []);
+        $added = 0;
+
+        foreach ($data['plans'] as $slug => $qty) {
+            $qty = (int) $qty;
+            if ($qty > 0 && $validSlugs->has($slug)) {
+                $cart[$slug] = ($cart[$slug] ?? 0) + $qty;
+                $added++;
+            }
+        }
+
+        $request->session()->put(self::SELL_CART_SESSION, $cart);
+
+        if ($added === 0) {
+            return redirect()->route('reseller.sell')->with('error', 'Insira pelo menos uma quantidade maior que zero.');
+        }
+
+        return redirect()->route('reseller.sell')->with('status', $added . ' plano(s) adicionados ao carrinho de venda.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
     //  Carrinho de venda ao cliente — remover plano
     // ─────────────────────────────────────────────────────────────
     public function sellCartRemove(Request $request)
@@ -939,7 +1023,7 @@ class ResellerPanelController extends Controller
         unset($cart[$data['plan_slug']]);
         $request->session()->put(self::SELL_CART_SESSION, $cart);
 
-        return redirect()->route('reseller.sell');
+        return redirect()->back();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -952,7 +1036,7 @@ class ResellerPanelController extends Controller
         }
 
         $request->session()->forget(self::SELL_CART_SESSION);
-        return redirect()->route('reseller.sell');
+        return redirect()->back();
     }
 
     // ─────────────────────────────────────────────────────────────

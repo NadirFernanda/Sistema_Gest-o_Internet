@@ -277,12 +277,14 @@
     {{-- Total bar --}}
     <div class="rv-total-bar">
       <div>
-        <div class="lbl">Total a pagar</div>
-        <div class="amount">{{ number_format($total, 0, ',', '.') }} Kz</div>
+        <div class="lbl">Total da operação</div>
+        <div class="amount">{{ number_format($purchases->sum('gross_amount_aoa'), 0, ',', '.') }} Kz</div>
       </div>
       <div style="text-align:right;">
-        <div class="lbl">Lucro estimado</div>
+        <div class="lbl">Lucro estimado (líq.)</div>
         <div class="profit">+{{ number_format($purchases->sum('profit_aoa'), 0, ',', '.') }} Kz</div>
+        <div style="font-size:.78rem;color:#fca5a5;margin-top:.1rem;">Impostos retidos: {{ number_format($purchases->sum('tax_aoa'), 0, ',', '.') }} Kz</div>
+        <div style="font-size:.78rem;color:#fde68a;margin-top:.05rem;font-weight:700;">Valor a pagar: {{ number_format($total, 0, ',', '.') }} Kz</div>
       </div>
     </div>
 
@@ -296,8 +298,10 @@
               <th>Plano</th>
               <th class="r">Qtd.</th>
               <th class="r">Preço unit.</th>
-              <th class="r">Subtotal</th>
-              <th class="r">Lucro est.</th>
+              <th class="r">Total (pub.)</th>
+              <th class="r">Lucro líq.</th>
+              <th class="r">Impostos (6,5%)</th>
+              <th class="r">A pagar</th>
             </tr>
           </thead>
           <tbody>
@@ -309,16 +313,20 @@
               </td>
               <td class="r">{{ number_format($purchase->quantity) }} vouchers</td>
               <td class="r">{{ number_format($purchase->unit_price_aoa, 0, ',', '.') }} Kz</td>
-              <td class="r"><strong>{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} Kz</strong></td>
+              <td class="r">{{ number_format($purchase->gross_amount_aoa, 0, ',', '.') }} Kz</td>
               <td class="r rv-profit-col">+{{ number_format($purchase->profit_aoa, 0, ',', '.') }} Kz</td>
+              <td class="r" style="color:#dc2626;font-weight:600;">{{ number_format($purchase->tax_aoa ?? 0, 0, ',', '.') }} Kz</td>
+              <td class="r"><strong>{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} Kz</strong></td>
             </tr>
             @endforeach
           </tbody>
           <tfoot>
             <tr>
               <td class="rv-sum-tfoot" colspan="3">Total</td>
-              <td class="rv-sum-tfoot r">{{ number_format($total, 0, ',', '.') }} Kz</td>
+              <td class="rv-sum-tfoot r">{{ number_format($purchases->sum('gross_amount_aoa'), 0, ',', '.') }} Kz</td>
               <td class="rv-sum-tfoot r rv-profit-col">+{{ number_format($purchases->sum('profit_aoa'), 0, ',', '.') }} Kz</td>
+              <td class="rv-sum-tfoot r" style="color:#dc2626;">{{ number_format($purchases->sum('tax_aoa'), 0, ',', '.') }} Kz</td>
+              <td class="rv-sum-tfoot r">{{ number_format($total, 0, ',', '.') }} Kz</td>
             </tr>
           </tfoot>
         </table>
@@ -426,7 +434,7 @@
 
         {{-- Confirm button --}}
         <button type="submit" class="rv-btn-confirm">
-          ✅ Confirmar Pagamento — {{ number_format($total, 0, ',', '.') }} Kz
+          ✅ Confirmar Pagamento — {{ number_format($total, 0, ',', '.') }} Kz (incl. impostos)
         </button>
 
       </form>

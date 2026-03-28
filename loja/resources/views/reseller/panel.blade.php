@@ -545,6 +545,22 @@
         <span class="rv-alert-icon">✅</span>
         <div>{{ session('status') }}</div>
       </div>
+      @if(session('status') === 'Plano adicionado ao carrinho.')
+        <div style="display:flex;gap:.75rem;margin-top:.6rem;flex-wrap:wrap;">
+          <a href="#rv-sec-comprar"
+             onclick="rvOpen('comprar')"
+             class="rv-btn-buy"
+             style="flex:1;text-align:center;text-decoration:none;min-width:160px;">
+            🛒 Ver carrinho
+          </a>
+          <a href="#rv-sec-vender"
+             onclick="rvOpen('vender')"
+             class="rv-csv-btn"
+             style="flex:1;text-align:center;text-decoration:none;min-width:160px;padding:.55rem 1rem;font-weight:600;">
+            ➕ Continuar a comprar
+          </a>
+        </div>
+      @endif
     </div>
   @endif
   @if(session('error'))
@@ -589,20 +605,103 @@
             Enviámos um código de <strong>6 dígitos</strong> para <strong>{{ $otpEmail }}</strong>.<br>
             Verifique a caixa de entrada (e o spam). Válido durante <strong>10 minutos</strong>.
           </p>
-          <form action="{{ route('reseller.panel.verify') }}" method="POST" novalidate autocomplete="off">
+
+          <form id="otpForm" action="{{ route('reseller.panel.verify') }}" method="POST" novalidate autocomplete="off">
             @csrf
+            <input type="hidden" name="otp" id="otpHidden">
             <div class="rv-field">
-              <label for="rev-otp">Código de verificação</label>
-              <input id="rev-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]{6}"
-                     maxlength="6" placeholder="_ _ _ _ _ _" required autofocus
-                     style="font-size:1.6rem;letter-spacing:.35em;text-align:center;font-family:monospace;" />
+              <label>Código de verificação</label>
+              <div id="otpBoxes" style="display:flex;gap:.5rem;">
+                @for($i = 0; $i < 6; $i++)
+                  <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"
+                    class="otp-digit"
+                    autocomplete="off"
+                    aria-label="Dígito {{ $i+1 }}"
+                    {{ $i === 0 ? 'autofocus' : '' }}>
+                @endfor
+              </div>
             </div>
-            <button type="submit" class="rv-btn-login">Confirmar código →</button>
+            <button type="submit" class="rv-btn-login" id="otpSubmitBtn" disabled style="opacity:.45;">
+              Confirmar código →
+            </button>
           </form>
+
           <form action="{{ route('reseller.panel.logout') }}" method="POST" style="margin-top:.75rem;">
             @csrf
             <button type="submit" class="rv-logout-btn" style="width:100%;text-align:center;">← Usar outro email</button>
           </form>
+
+          <style>
+            .otp-digit {
+              flex: 1;
+              min-width: 0;
+              padding: .65rem .25rem;
+              border: 1.5px solid #e2e8f0;
+              border-radius: .6rem;
+              font-size: 1.5rem;
+              font-weight: 800;
+              font-family: monospace;
+              text-align: center;
+              color: #0f172a;
+              background: #f8fafc;
+              transition: border-color .2s, box-shadow .2s;
+              box-sizing: border-box;
+            }
+            .otp-digit:focus {
+              outline: none;
+              border-color: #f7b500;
+              box-shadow: 0 0 0 3px rgba(247,181,0,.15);
+              background: #fff;
+            }
+            .otp-digit.filled {
+              border-color: #0f172a;
+              background: #fff;
+            }
+          </style>
+          <script>
+          (function () {
+            const boxes  = Array.from(document.querySelectorAll('.otp-digit'));
+            const hidden = document.getElementById('otpHidden');
+            const btn    = document.getElementById('otpSubmitBtn');
+            const form   = document.getElementById('otpForm');
+
+            function sync() {
+              const val  = boxes.map(b => b.value).join('');
+              hidden.value = val;
+              const full = /^\d{6}$/.test(val);
+              btn.disabled     = !full;
+              btn.style.opacity = full ? '1' : '.45';
+            }
+
+            boxes.forEach((box, idx) => {
+              box.addEventListener('input', () => {
+                box.value = box.value.replace(/\D/g, '').slice(-1);
+                box.classList.toggle('filled', box.value !== '');
+                if (box.value && idx < 5) boxes[idx + 1].focus();
+                sync();
+              });
+              box.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !box.value && idx > 0) {
+                  boxes[idx - 1].value = '';
+                  boxes[idx - 1].classList.remove('filled');
+                  boxes[idx - 1].focus();
+                  sync();
+                }
+                if (e.key === 'ArrowLeft'  && idx > 0) boxes[idx - 1].focus();
+                if (e.key === 'ArrowRight' && idx < 5) boxes[idx + 1].focus();
+                if (e.key === 'Enter' && !btn.disabled) form.submit();
+              });
+              box.addEventListener('paste', e => {
+                const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                if (!text) return;
+                e.preventDefault();
+                text.split('').forEach((ch, i) => { if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); } });
+                boxes[Math.min(text.length, 5)].focus();
+                sync();
+              });
+            });
+          })();
+          </script>
 
         @else
           {{-- PASSO 1: introduzir email --}}
@@ -732,6 +831,29 @@
               @if($voucherPlans->isEmpty())
                 <p class="rv-empty">Nenhum plano disponível de momento.</p>
               @else
+
+                {{-- Encomenda múltipla --}}
+                <form action="{{ route('reseller.cart.add.all') }}" method="POST"
+                      style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.1rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem;">
+                  @csrf
+                  @foreach($voucherPlans as $plan)
+                    @php $saStock = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->count(); @endphp
+                    <div style="display:flex;flex-direction:column;gap:.25rem;min-width:110px;">
+                      <label style="font-size:.72rem;font-weight:700;color:#64748b;">{{ $plan->name }}</label>
+                      <input type="number" name="plans[{{ $plan->slug }}]" value="0" min="0"
+                             style="width:90px;padding:.38rem .5rem;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.88rem;text-align:center;"
+                             {{ $saStock === 0 ? 'disabled' : '' }}>
+                      <span style="font-size:.68rem;color:{{ $saStock > 0 ? '#16a34a' : '#94a3b8' }};">
+                        {{ $saStock > 0 ? $saStock.' disponíveis' : 'Sem stock' }}
+                      </span>
+                    </div>
+                  @endforeach
+                  <button type="submit"
+                          style="padding:.45rem 1.1rem;background:#f7b500;color:#1a202c;font-weight:700;font-size:.85rem;border:none;border-radius:7px;cursor:pointer;white-space:nowrap;align-self:flex-start;margin-top:1.1rem;">
+                    🛒 Adicionar tudo ao carrinho
+                  </button>
+                </form>
+
                 <div class="rv-plan-grid">
                   @foreach($voucherPlans as $plan)
                     @php
@@ -836,9 +958,10 @@
               </div>
               <div class="rv-cart-footer">
                 <div class="rv-cart-totals">
-                  <span>A pagar: <strong>{{ number_format($cartTotal, 0, ',', '.') }} Kz</strong></span>
-                  <span style="color:#16a34a;">Lucro: <strong>+{{ number_format($cartProfit, 0, ',', '.') }} Kz</strong></span>
-                  <span style="font-weight:700;">Total: <strong>{{ number_format($cartTotal + $cartProfit, 0, ',', '.') }} Kz</strong></span>
+                  <span>Total da operação: <strong>{{ number_format($cartGrossTotal, 0, ',', '.') }} Kz</strong></span>
+                  <span style="color:#16a34a;">Lucro (líquido): <strong>+{{ number_format($cartNetProfit, 0, ',', '.') }} Kz</strong></span>
+                  <span style="color:#dc2626;">Impostos retidos (6,5%): <strong>{{ number_format($cartTax, 0, ',', '.') }} Kz</strong></span>
+                  <span style="font-weight:700;">Valor a pagar: <strong>{{ number_format($cartPayAmount, 0, ',', '.') }} Kz</strong></span>
                 </div>
                 @if($cartTotal < $minPurchaseAoa)
                   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.65rem 1rem;margin:.5rem 0;color:#b91c1c;font-size:.9rem;font-weight:600;">
@@ -916,7 +1039,7 @@
                       <tr>
                         <th>#</th><th>Data</th><th>Plano</th>
                         <th class="r">Qtd.</th><th class="r">Desconto</th>
-                        <th class="r">Pago (Kz)</th><th class="r">Lucro (Kz)</th><th></th>
+                        <th class="r">Pago (Kz)</th><th class="r">Impostos (Kz)</th><th class="r">Lucro líq. (Kz)</th><th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -932,6 +1055,9 @@
                           <td class="r">{{ $purchase->codes_count }}</td>
                           <td class="r" style="color:#0d9488;font-weight:700;">{{ $purchase->discount_percent ? $purchase->discount_percent.'%' : '—' }}</td>
                           <td class="r bold">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
+                          <td class="r" style="color:#dc2626;font-weight:600;">
+                            {{ ($purchase->tax_aoa ?? 0) > 0 ? number_format($purchase->tax_aoa, 0, ',', '.') : '—' }}
+                          </td>
                           <td class="r" style="color:#16a34a;font-weight:700;">
                             @if($purchase->profit_aoa) +{{ number_format($purchase->profit_aoa, 0, ',', '.') }} @else — @endif
                           </td>
@@ -1253,6 +1379,17 @@ function rvToggle(id) {
   if (chev)  chev.classList.toggle('open', !open);
   if (btn)   btn.classList.toggle('open', !open);
 }
+function rvOpen(id) {
+  var body = document.getElementById('rv-body-' + id);
+  var chev = document.getElementById('rv-chev-' + id);
+  var btn  = chev ? chev.closest('.rv-menu-btn') : null;
+  if (body) body.style.display = 'block';
+  if (chev) chev.classList.add('open');
+  if (btn)  btn.classList.add('open');
+}
+@if(session('status') === 'Plano adicionado ao carrinho.')
+document.addEventListener('DOMContentLoaded', function() { rvOpen('comprar'); });
+@endif
 
 </script>
 @endpush

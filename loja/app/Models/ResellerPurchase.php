@@ -14,6 +14,7 @@ class ResellerPurchase extends Model
         'quantity',
         'unit_price_aoa',
         'profit_aoa',
+        'tax_aoa',
         'status',
         'payment_method',
         'payment_reference',
