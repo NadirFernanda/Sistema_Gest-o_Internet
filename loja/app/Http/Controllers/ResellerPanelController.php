@@ -223,8 +223,9 @@ class ResellerPanelController extends Controller
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $request->session()->put('reseller_otp_email',      $email);
-        $request->session()->put('reseller_otp_code',       $otp);
+        $request->session()->put('reseller_otp_code',       hash('sha256', $otp)); // stored as hash — never plaintext
         $request->session()->put('reseller_otp_expires_at', now()->addMinutes(self::OTP_TTL)->toIso8601String());
+        $request->session()->put('reseller_otp_attempts',   0);
         $request->session()->forget('reseller_id');
 
         if ($application) {
@@ -247,11 +248,19 @@ class ResellerPanelController extends Controller
         }
 
         if (Carbon::parse($sessionExpires)->isPast()) {
-            $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
+            $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at', 'reseller_otp_attempts']);
             return redirect()->route('reseller.panel')->with('error', 'O código expirou. Introduza o seu email de novo para receber outro código.');
         }
 
-        if (!hash_equals($sessionCode, $data['otp'])) {
+        // Brute-force protection: invalidate OTP after 5 failed attempts
+        $attempts = (int) $request->session()->get('reseller_otp_attempts', 0);
+        if ($attempts >= 5) {
+            $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at', 'reseller_otp_attempts']);
+            return redirect()->route('reseller.panel')->with('error', 'Demasiadas tentativas incorrectas. Solicite um novo código.');
+        }
+
+        if (!hash_equals($sessionCode, hash('sha256', $data['otp']))) {
+            $request->session()->put('reseller_otp_attempts', $attempts + 1);
             return redirect()->route('reseller.panel')->with('error', 'Código incorreto. Verifique o email e tente novamente.');
         }
 
@@ -259,7 +268,7 @@ class ResellerPanelController extends Controller
             ->where('status', ResellerApplication::STATUS_APPROVED)
             ->first();
 
-        $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at']);
+        $request->session()->forget(['reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at', 'reseller_otp_attempts']);
 
         if (!$application) {
             return redirect()->route('reseller.panel')->with('error', 'Nenhum revendedor aprovado encontrado para este endereço de email.');
@@ -272,7 +281,8 @@ class ResellerPanelController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->forget(['reseller_id', 'reseller_otp_email', 'reseller_otp_code', 'reseller_otp_expires_at', self::CART_SESSION]);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect()->route('reseller.panel');
     }
 
@@ -287,7 +297,7 @@ class ResellerPanelController extends Controller
 
         $data = $request->validate([
             'plan_slug' => ['required', 'string', 'exists:voucher_plans,slug'],
-            'quantity'  => ['required', 'integer', 'min:1'],
+            'quantity'  => ['required', 'integer', 'min:1', 'max:9999'],
         ]);
 
         $cart = $request->session()->get(self::CART_SESSION, []);

@@ -30,6 +30,15 @@ class ResellerController extends Controller
         $subject = 'Quero ser agente revendedor';
         $message = "Saudações prezados,\nVenho pelo intermédio deste manifestar o interesse para ser agente revendedor do serviço AngolaWiFi.";
 
+        // Protect existing approved/rejected applications from being overwritten.
+        // An attacker who knows an approved reseller's e-mail could submit this form
+        // and reset their status to pending, locking them out of the panel.
+        $existing = ResellerApplication::where('email', $validated['email'])->first();
+        if ($existing && $existing->status !== ResellerApplication::STATUS_PENDING) {
+            return redirect()->route('reseller.apply')
+                ->withErrors(['email' => 'Já existe uma candidatura processada para este e-mail. Contacte o suporte se precisar de assistência.']);
+        }
+
         $application = ResellerApplication::updateOrCreate(
             ['email' => $validated['email']],
             [

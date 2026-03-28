@@ -18,7 +18,9 @@ class AdminDashboardController extends Controller
     public function showLogin(Request $request)
     {
         // Bypass SSO: aceite em qualquer ambiente (token enviado pelo SG via ?sg_sso=)
-        $ssoToken = $request->query('sg_sso', $request->query('token', ''));
+        // Accepted via ?sg_sso= only — the generic ?token= alias was removed to reduce
+        // the risk of the secret leaking through browser history or referrer headers.
+        $ssoToken = $request->query('sg_sso', '');
         $expected = (string) config('services.sg.admin_token', '');
 
         if ($ssoToken !== '' && $expected !== '' && hash_equals($expected, $ssoToken)) {

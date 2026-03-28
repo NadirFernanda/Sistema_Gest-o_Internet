@@ -73,14 +73,16 @@ class FamilyPlanRequestController extends Controller
      */
     public function lookup(Request $request)
     {
-        $phone = preg_replace('/[\s\-\.()]/', '', $request->query('phone', ''));
+        // Strip non-digit characters and require a full phone number (9+ digits)
+        // to prevent partial-number fishing that could leak customer PII.
+        $phone = preg_replace('/\D/', '', $request->query('phone', ''));
 
-        if (mb_strlen($phone) < 7) {
+        if (mb_strlen($phone) < 9) {
             return response()->json(['found' => false]);
         }
 
         // ── 1. Pesquisa local (pedidos anteriores na loja) ────────────────
-        $record = FamilyPlanRequest::where('customer_phone', 'like', '%' . $phone . '%')
+        $record = FamilyPlanRequest::where('customer_phone', $phone)
             ->whereIn('status', [
                 FamilyPlanRequest::STATUS_ACTIVATED,
                 FamilyPlanRequest::STATUS_PENDING,
