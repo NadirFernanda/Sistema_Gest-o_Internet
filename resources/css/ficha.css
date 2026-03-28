@@ -1483,4 +1483,79 @@ body a.btn:not(.btn-icon):not(.btn-back-circle) {
 /* Ensure the search wrap uses full available width inside the padded toolbar */
 .planos-toolbar .search-wrap { width: 100%; }
 
+/* =====================================================
+   TABLET RESPONSIVE — 768 px – 1024 px
+   Evita que o layout colapse para mobile em tablets
+   ===================================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Hero: wrapping flexível antes do breakpoint de 900px */
+  .clientes-hero .hero-inner {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .clientes-hero .hero-ctas {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Toolbars: manter horizontal com wrap em vez de colapsar para coluna */
+  .clientes-toolbar,
+  .planos-toolbar,
+  .alertas-toolbar {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .clientes-toolbar-left,
+  .alertas-toolbar > div:first-child {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+  }
+  .clientes-toolbar-actions,
+  .alertas-toolbar-actions {
+    flex: 0 0 auto;
+  }
+
+  /* Plano cards: 2 por linha em tablets */
+  .plan-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .plan-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* CTA grid do plano: 2 colunas em tablet */
+  .cta-grid {
+    grid-template-columns: 1fr 1fr !important;
+    grid-auto-flow: row !important;
+    grid-template-rows: none !important;
+  }
+  .cta-grid .btn {
+    height: 52px;
+    width: 100%;
+  }
+
+  /* Plano top-actions: linha em tablet */
+  .plano-top-actions {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+  }
+  .plano-top-actions .plano-top-btn {
+    flex: 1 1 auto;
+    min-width: 130px;
+  }
+
+  /* Estoque table: compacto em tablet */
+  .estoque-tabela-moderna { padding: 12px 10px 6px 10px; }
+  .tabela-estoque-moderna { min-width: 520px; font-size: 0.97em; }
+
+  /* Ficha grid: 2 colunas em tablet */
+  .ficha-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Plano resumo no ficha: wrap em vez de overflow */
+  .plan-dates { grid-template-columns: 1fr; gap: 4px; }
+}
+
 

@@ -1048,6 +1048,72 @@ button.btn-danger:hover, .btn.btn-danger:hover {
 .form-editar-botoes { gap: 18px; }
 .ficha-cliente .btn {
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+/* =====================================================
+   TABLET RESPONSIVE — 768 px e acima
+   Corrige o layout que colapsava para mobile mesmo em tablets
+   ===================================================== */
+
+/* Dashboard: 2 colunas em vez de coluna única */
+@media (min-width: 768px) {
+    .dashboard-container .dashboard-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    /* CTA grid do plano: 2 colunas em tablets (era 3 colunas de 220px fixos) */
+    .cta-grid {
+        grid-template-columns: 1fr 1fr !important;
+        grid-auto-flow: row !important;
+        grid-template-rows: none !important;
+    }
+    .cta-grid .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 56px !important;
+    }
+}
+
+/* Ajustes específicos para tablet 768–1024 px */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Containers: reduzir margens e padding excessivos */
+    .dashboard-container,
+    .clientes-container,
+    .alertas-container {
+        margin-top: 28px;
+        margin-bottom: 28px;
+        padding: 22px 20px;
+    }
+    /* Planos: ativar scroll horizontal mais cedo */
+    .planos-container {
+        margin: 16px 16px;
+        width: calc(100% - 32px);
+        padding: 18px;
+    }
+    .planos-container table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Botões de ação na tabela: tamanho compacto em tablet */
+    .planos-container table td .btn,
+    .planos-container table td button {
+        min-width: 90px !important;
+        height: 40px !important;
+        padding: 0 8px !important;
+        font-size: 0.9rem !important;
+    }
+    .planos-container table td .status-badge,
+    .planos-container table td span.status {
+        min-width: 90px;
+        height: 40px;
+        padding: 0 8px;
+        font-size: 0.9rem;
+    }
+    /* Form grid de criação/edição: manter 2 colunas em tablet */
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .form-editar-grid { grid-template-columns: 1fr 1fr; }
+}
 }
 .ficha-cliente .btn:hover {
     transform: translateY(-3px);
