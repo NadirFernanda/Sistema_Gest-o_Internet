@@ -267,7 +267,7 @@ class ClienteController extends Controller
         // Expired plans may have estado='Inativo' or 'Suspenso' and must still appear.
         $alertas = collect();
 
-        \App\Models\Plano::with(['cliente:id,nome,contato,telefone,email'])
+        \App\Models\Plano::with(['cliente:id,nome,contato,email'])
             ->select('id', 'nome', 'descricao', 'cliente_id', 'proxima_renovacao', 'data_ativacao', 'ciclo')
             ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) NOT LIKE ?", ['%cancel%'])
             ->orderBy('id')
