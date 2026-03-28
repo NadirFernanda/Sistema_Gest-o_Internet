@@ -56,9 +56,13 @@
                     return;
                 }
                 try {
-                    const res = await fetch('/api/alertas/disparar', {
+                    const res = await fetch('/internal/alertas/disparar', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        },
                         body: JSON.stringify({ dias, planos: selecionados })
                     });
 

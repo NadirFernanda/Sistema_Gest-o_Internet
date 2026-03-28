@@ -1,8 +1,12 @@
 // Lógica simples para simular login e navegação
 
 document.addEventListener('DOMContentLoaded', function() {
-    const apiToken = (document.querySelector('meta[name="api-token"]') || { getAttribute: () => '' }).getAttribute('content') || '';
-    const apiHeaders = apiToken ? { 'X-API-TOKEN': apiToken } : {};
+    // Use CSRF token (already in <meta name="csrf-token">) for state-changing requests.
+    // Session cookie provides authentication — no shared API token needed in the HTML.
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || { getAttribute: () => '' }).getAttribute('content') || '';
+    const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken };
+    // Legacy alias kept so any remaining code that references apiHeaders still compiles
+    const apiHeaders = { 'Accept': 'application/json' };
 
     const loginForm = document.querySelector('.login-form');
     if (loginForm) {
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const diasAlertaInput = document.getElementById('diasAlerta');
             const DIAS_ALERTA = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
             lista.innerHTML = '<p>A carregar…</p>';
-            fetch(`/api/alertas?dias=${DIAS_ALERTA}`, { headers: apiHeaders })
+            fetch(`/internal/alertas?dias=${DIAS_ALERTA}`, { credentials: 'include', headers: apiHeaders })
                 .then(async res => {
                     try {
                         _alertasData = await res.json();
@@ -149,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const select = document.getElementById('clientePlano');
             if (!select) return;
             const valorAtual = select.value;
-            fetch('/api/clientes', { credentials: 'include', headers: apiHeaders })
+            fetch('/internal/clientes', { credentials: 'include', headers: apiHeaders })
                 .then(async res => {
                     let clientes = [];
                     try {
@@ -181,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const lista = document.getElementById('planosLista');
             if (!lista) return;
             const filtro = encodeURIComponent(getFiltroPlanos());
-            const url = filtro ? `/api/planos?busca=${filtro}` : '/api/planos';
+            const url = filtro ? `/internal/planos?busca=${filtro}` : '/internal/planos';
             fetch(url, { credentials: 'include', headers: apiHeaders })
                 .then(async res => {
                     let planos = [];

@@ -35,9 +35,9 @@ Route::middleware('auth')->group(function () {
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::get('/clientes/{cliente}/ficha', [\App\Http\Controllers\ClienteController::class, 'ficha'])->name('clientes.ficha');
     // Corrige erro 500: rota para compensar dias (handler moved to dedicated controller)
-    Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteCompensacaoController::class, 'store'])->name('clientes.compensar_dias');
+    Route::post('/clientes/{cliente}/compensar-dias', [\App\Http\Controllers\ClienteCompensacaoController::class, 'store'])->name('clientes.compensar_dias')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.edit');
     // Adicionar janela automÃ¡tica: extende a prÃ³xima renovaÃ§Ã£o pelo ciclo do plano
-    Route::post('/clientes/{cliente}/adicionar-janela', [\App\Http\Controllers\ClienteController::class, 'adicionarJanela'])->name('clientes.adicionar_janela');
+    Route::post('/clientes/{cliente}/adicionar-janela', [\App\Http\Controllers\ClienteController::class, 'adicionarJanela'])->name('clientes.adicionar_janela')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':planos.edit');
     // HistÃ³rico de compensaÃ§Ãµes de dias (por cliente)
     Route::get('/clientes/{cliente}/compensacoes', [\App\Http\Controllers\ClienteCompensacaoController::class, 'index'])->name('clientes.compensacoes');
     // Exportar histÃ³rico de compensaÃ§Ãµes (Excel)
@@ -203,7 +203,18 @@ Route::middleware('auth')->group(function () {
 // Dev helper routes removed. For local testing use the `diagnose:stock` command and feature branches.
 
 
-
+// ──────────────────────────────────────────────────────────────────────────────
+// Internal AJAX routes for the web frontend (session auth, no shared API token).
+// These replace the /api/* calls from main.js so the API_CLIENTES_TOKEN does not
+// need to be embedded in the HTML source.
+// ──────────────────────────────────────────────────────────────────────────────
+Route::middleware('auth')->prefix('internal')->name('internal.')->group(function () {
+    Route::get('/alertas', [\App\Http\Controllers\ClienteController::class, 'listarAlertas'])->name('alertas');
+    Route::post('/alertas/disparar', [\App\Http\Controllers\ClienteController::class, 'dispararAlertas'])->name('alertas.disparar');
+    Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
+    Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'index'])->name('planos');
+    Route::get('/planos/{id}', [\App\Http\Controllers\PlanoController::class, 'show'])->name('planos.show')->whereNumber('id');
+});
 // Rota pÃºblica apenas via URL assinada para permitir download temporÃ¡rio sem sessÃ£o
 Route::get('/clientes/{cliente}/ficha/signed/download', [\App\Http\Controllers\ClienteController::class, 'fichaPdfSigned'])
     ->name('clientes.ficha.signed')

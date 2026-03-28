@@ -330,7 +330,8 @@ class ClienteController extends Controller
             return response()->json(['success' => true, 'message' => 'Dispatch iniciado', 'output' => $output]);
         } catch (\Throwable $e) {
             \Log::error('API dispararAlertas error', ['err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['success' => false, 'message' => 'Erro ao disparar alertas', 'error' => $e->getMessage()], 500);
+            $detail = app()->isProduction() ? null : $e->getMessage();
+            return response()->json(array_filter(['success' => false, 'message' => 'Erro ao disparar alertas', 'error' => $detail]), 500);
         }
     }
 
@@ -376,8 +377,8 @@ class ClienteController extends Controller
                   ->orWhere('contato', 'like', "%$busca%");
             });
         }
-        // Se for chamada via API/AJAX (ex.: /api/clientes), retorna lista simples em JSON
-        if (request()->wantsJson() || request()->is('api/*')) {
+        // Se for chamada via API/AJAX (ex.: /api/clientes ou /internal/clientes), retorna lista simples em JSON
+        if (request()->wantsJson() || request()->is('api/*') || request()->is('internal/*')) {
             $limit = (int) request('limit', 200);
             $limit = max(1, min($limit, 1000));
             $clientes = $query->orderBy('nome')->limit($limit)->get();
@@ -772,7 +773,7 @@ class ClienteController extends Controller
     }
     public function store(Request $request)
     {
-        \Log::info('Entrou no método store do ClienteController', ['request' => $request->all()]);
+        \Log::info('Entrou no método store do ClienteController');
         try {
             $validated = $request->validate([
                 'bi_tipo' => 'required|string|in:BI,NIF,Outro',

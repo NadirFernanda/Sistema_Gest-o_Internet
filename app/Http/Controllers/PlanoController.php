@@ -13,7 +13,7 @@ class PlanoController extends Controller
 {
     public function store(Request $request)
     {
-        \Log::info('PlanoController@store - Request recebido', ['request' => $request->all()]);
+        \Log::info('PlanoController@store - Request recebido');
         try {
             // Require a template_id for creating planos. Template values are enforced server-side.
             $validated = $request->validate([
@@ -71,7 +71,8 @@ class PlanoController extends Controller
             if (! $request->wantsJson()) {
                 return back()->with('error', 'Erro ao cadastrar plano: ' . $e->getMessage())->withInput();
             }
-            return response()->json(['success' => false, 'message' => 'Erro ao cadastrar plano', 'error' => $e->getMessage()], 500);
+            $detail = app()->isProduction() ? null : $e->getMessage();
+            return response()->json(array_filter(['success' => false, 'message' => 'Erro ao cadastrar plano', 'error' => $detail]), 500);
         }
     }
 
