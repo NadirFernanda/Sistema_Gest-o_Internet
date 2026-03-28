@@ -343,7 +343,7 @@ class ResellerPanelController extends Controller
         unset($cart[$data['plan_slug']]);
         $request->session()->put(self::CART_SESSION, $cart);
 
-        return redirect()->back();
+        return redirect()->back()->with('status', 'Plano removido do carrinho.');
     }
 
     public function cartClear(Request $request)
@@ -353,7 +353,7 @@ class ResellerPanelController extends Controller
         }
 
         $request->session()->forget(self::CART_SESSION);
-        return redirect()->back();
+        return redirect()->back()->with('status', 'Carrinho limpo.');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -1023,7 +1023,7 @@ class ResellerPanelController extends Controller
         unset($cart[$data['plan_slug']]);
         $request->session()->put(self::SELL_CART_SESSION, $cart);
 
-        return redirect()->back();
+        return redirect()->back()->with('status', 'Plano removido do carrinho de venda.');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -1036,7 +1036,7 @@ class ResellerPanelController extends Controller
         }
 
         $request->session()->forget(self::SELL_CART_SESSION);
-        return redirect()->back();
+        return redirect()->back()->with('status', 'Carrinho de venda limpo.');
     }
 
     // ─────────────────────────────────────────────────────────────
