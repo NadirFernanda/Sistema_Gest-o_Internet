@@ -911,7 +911,22 @@ class ResellerPanelController extends Controller
             ->groupBy('plan_id')
             ->pluck('qty', 'plan_id');
 
-        $voucherPlans = VoucherPlan::all()->keyBy('slug');
+        $voucherPlans = VoucherPlan::orderBy('sort_order')->get()->keyBy('slug');
+
+        // Reorder stockByPlan to follow plan sort_order
+        $orderedStock = collect();
+        foreach ($voucherPlans as $slug => $plan) {
+            if ($stockByPlan->has($slug)) {
+                $orderedStock->put($slug, $stockByPlan->get($slug));
+            }
+        }
+        // Append any slugs not in voucherPlans (safety net)
+        foreach ($stockByPlan as $slug => $qty) {
+            if (!$orderedStock->has($slug)) {
+                $orderedStock->put($slug, $qty);
+            }
+        }
+        $stockByPlan = $orderedStock;
 
         // Carrinho de venda ao cliente — planos e quantidades
         $sellCart  = $request->session()->get(self::SELL_CART_SESSION, []);
