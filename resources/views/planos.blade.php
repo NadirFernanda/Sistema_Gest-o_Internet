@@ -162,7 +162,7 @@
             window.planosConfig = {
                 planTemplatesList: "{{ route('plan-templates.list.json') }}",
                 planTemplatesBase: "/plan-templates",
-                planosApi: "/api/planos",
+                planosApi: "{{ route('planos.json') }}",
                 planosCreateRoute: "{{ route('planos.create') }}",
                 clientesJson: "/clientes",
                 adminContactEmail: "{{ config('mail.from.address', 'admin@angolawifi.ao') }}"

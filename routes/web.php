@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('clientes.update')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.edit');
     Route::delete('/clientes/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.delete');
     Route::get('/planos', [\App\Http\Controllers\PlanoController::class, 'webIndex'])->name('planos.index');
+    // Session-authenticated JSON feed for the planos page (no API token required)
+    Route::get('/planos-json', [\App\Http\Controllers\PlanoController::class, 'webIndexJson'])->name('planos.json');
     // Only users with the 'Administrador' role can access the planos create/store web routes
     Route::post('/planos', [\App\Http\Controllers\PlanoController::class, 'storeWeb'])
         ->name('planos.store')

@@ -270,6 +270,15 @@ class PlanoController extends Controller
     }
 
     /**
+     * Session-authenticated JSON endpoint for the web planos page.
+     * Delegates to index() but is protected by session auth (no API token required).
+     */
+    public function webIndexJson(Request $request)
+    {
+        return $this->index($request);
+    }
+
+    /**
      * Web view for planos list. Returns the Blade view with clients for the inline form.
      */
     public function webIndex(Request $request)

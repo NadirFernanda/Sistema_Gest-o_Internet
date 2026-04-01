@@ -37,6 +37,7 @@
                     : $lojaBaseUrl.'/admin';
             @endphp
             <a href="{{ $lojaAdminUrl }}" class="btn" target="_blank" rel="noopener">Loja</a>
+            <a href="http://mx100.angoweb.net/webmail" class="btn" target="_blank" rel="noopener">Webmail</a>
             <div class="dropdown" style="display:block;position:relative;width:100%;">
                 <button class="btn" id="relatoriosBtn" type="button" style="width:100%;">Relatórios ▼</button>
                 <div id="relatoriosMenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #ccc;z-index:10;min-width:180px;box-shadow:0 2px 8px rgba(0,0,0,0.08);width:100%;">
