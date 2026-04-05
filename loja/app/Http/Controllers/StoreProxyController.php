@@ -29,7 +29,7 @@ class StoreProxyController extends Controller
 
         if (! $sg || ! $clientId || ! $clientSecret) return null;
 
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
         try {
             $res = $http->post($tokenPath, [
                 'form_params' => [
@@ -58,7 +58,7 @@ class StoreProxyController extends Controller
         // Aqui fazemos apenas um proxy HTTP, sem simulações nem mocks.
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         try {
             $res = $http->get('/api/planos', [
@@ -90,7 +90,7 @@ class StoreProxyController extends Controller
         }
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         try {
             $res = $http->get('/api/plan-templates', [
@@ -127,7 +127,7 @@ class StoreProxyController extends Controller
         }
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         try {
             $res = $http->get('/api/equipment-catalog', [
@@ -160,7 +160,7 @@ class StoreProxyController extends Controller
 
         $payload = $request->all();
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
         $res = $http->post('/api/orders/sync', [
             'headers' => [
                 'Authorization' => "Bearer $token",
@@ -185,7 +185,7 @@ class StoreProxyController extends Controller
     public function lookupClienteSG(string $phone): array
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         $headers = ['Accept' => 'application/json'];
         $apiToken = env('SG_API_TOKEN');
@@ -242,7 +242,7 @@ class StoreProxyController extends Controller
         }
 
         try {
-            $res = (new Client(['timeout' => 4]))->get($sg . $apiPath, [
+            $res = (new Client(['timeout' => 4, 'verify' => false]))->get($sg . $apiPath, [
                 'headers'     => $headers,
                 'http_errors' => false,
             ]);
@@ -268,7 +268,7 @@ class StoreProxyController extends Controller
     public function syncJanela(array $data): array
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
-        $http = new Client(['base_uri' => $sg]);
+        $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         $headers = ['Accept' => 'application/json'];
         $apiToken = env('SG_API_TOKEN');
