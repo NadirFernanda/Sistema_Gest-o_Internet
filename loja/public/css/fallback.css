@@ -92,7 +92,50 @@ a { text-decoration: none; }
 .hero .overlay { background: rgba(0,0,0,0.5); padding: 1.5rem 2rem; border-radius: .75rem; color: #fff; max-width: 720px; }
 .hero h1 { font-size: clamp(1.4rem, 3.5vw, 2rem); line-height: 1.1; margin: 0 0 .5rem; font-weight: 900; letter-spacing: -.02em; }
 .hero p { color: rgba(255,255,255,0.88); margin: 0 0 0.85rem; font-size: 1rem; }
-/* .btn-primary defined below in the global button block */
+/* Global button styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .7rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: .95rem;
+  text-decoration: none;
+  background: var(--brand);
+  color: #111827;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(247,181,0,.28);
+  transition: background .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.btn-primary:hover {
+  background: var(--brand-dark);
+  color: #111827;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(247,181,0,.38);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .7rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: .95rem;
+  text-decoration: none;
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,.45);
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.75);
+  color: #fff;
+  transform: translateY(-2px);
+}
 
 /* Header helper removed */
 
