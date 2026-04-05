@@ -34,14 +34,12 @@ Route::get('/', function () {
     return app(\App\Http\Controllers\StorefrontController::class)->index();
 });
 
-// Demo proxy endpoints to interact with SG for the loja prototype
-if (app()->environment('local')) {
-    Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
-    Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
-    Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
-    Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
-    Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
-}
+// Proxy endpoints — loja → SG (necessários em todos os ambientes)
+Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
+Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
+Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
+Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
+Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
