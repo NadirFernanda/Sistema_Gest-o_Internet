@@ -41,7 +41,7 @@
             <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
             Instalação Rápida
           </span>
-          <h1 class="hero__title">Instalado<br><strong>em até 48 horas</strong></h1>
+          <h1 class="hero__title">Instalamos<br><strong>em até 48 horas</strong></h1>
           <p class="hero__desc">Técnicos especializados, equipamentos incluídos e activação imediata. Sem burocracia, sem surpresas.</p>
           <div class="hero__actions">
             <a href="#planos" class="btn-primary">Escolher Plano</a>
