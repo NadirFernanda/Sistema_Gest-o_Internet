@@ -4,6 +4,7 @@
 @section('seo_description', 'Ligue-se à internet com a AngolaWiFi. Planos WiFi por hotspot a partir de 200 Kz/dia, planos família a partir de 27.500 Kz/mês e soluções empresariais até 100 Mbps. Instalação em 48h em todo Angola.')
 
 @push('seo')
+@verbatim
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -76,6 +77,7 @@
   ]
 }
 </script>
+@endverbatim
 @endpush
 
 @section('content')
