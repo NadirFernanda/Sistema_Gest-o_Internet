@@ -1773,4 +1773,286 @@ main .container {
 .step-card h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-dark); }
 .step-card p { margin: 0; color: var(--text-muted); font-size: .93rem; line-height: 1.6; }
 
+/* =====================================================================
+   MOBILE — comprehensive responsive overrides
+   Target: smartphones < 768px
+   ===================================================================== */
+@media (max-width: 767px) {
+
+  /* ── 1. Body: zero out horizontal padding so sections reach screen edges */
+  body {
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: hidden;
+  }
+  main {
+    overflow-x: hidden;
+  }
+
+  /* ── 2. Strip the redundant section-level horizontal gutter
+          (containers inside handle their own via --page-gutter) ── */
+  .planos-section,
+  .howto-hero,
+  .info-grid,
+  .info-banner,
+  .auth-grid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* ── 3. Add padding to fixed-width container helpers that have none ── */
+  [class^="container--"],
+  [class*=" container--"] {
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+    box-sizing: border-box;
+  }
+
+  /* ── 4. Hero carousel ── */
+  #hero {
+    height: 420px;
+    min-height: 340px;
+  }
+  .hero__card {
+    padding: 1.75rem var(--page-gutter) 2rem var(--page-gutter);
+    max-width: 100%;
+  }
+  .hero__title {
+    font-size: clamp(1.55rem, 7.5vw, 2.1rem);
+    letter-spacing: -.025em;
+    margin-bottom: .85rem;
+  }
+  .hero__desc {
+    font-size: .93rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+  .hero__actions {
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .hero__actions .btn-primary,
+  .hero__actions .btn-ghost {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+  .hero__arrow { display: none; }
+
+  /* ── 5. Stat bar: compact ── */
+  .stat-bar {
+    padding: .9rem var(--page-gutter);
+  }
+  .stat-bar__grid {
+    gap: 0;
+    justify-content: space-around;
+  }
+  .stat-bar__item {
+    padding: .3rem .6rem;
+    min-width: 0;
+    flex: 1;
+    border-right-color: rgba(255,255,255,.05);
+  }
+  .stat-bar__num {
+    font-size: 1.35rem;
+    letter-spacing: -.02em;
+  }
+  .stat-bar__lbl {
+    font-size: .56rem;
+    letter-spacing: .06em;
+  }
+
+  /* ── 6. Section header ── */
+  .section-header {
+    margin-bottom: 1.75rem;
+  }
+  .section-header h2 {
+    font-size: 1.55rem;
+  }
+  .section-header p {
+    font-size: .92rem;
+  }
+
+  /* ── 7. Plans sections: reduce heavy top/bottom padding ── */
+  .planos-section {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  /* ── 8. Plan cards: single column, compact inner spacing ── */
+  .plans-grid {
+    grid-template-columns: 1fr;
+    gap: .85rem;
+  }
+  .plan-card-modern-header {
+    padding: 1.25rem 1.25rem .75rem;
+  }
+  .plan-card-modern-body {
+    padding: 0 1.25rem 1rem;
+  }
+  .plan-card-modern-footer {
+    padding: .85rem 1.25rem 1.25rem;
+  }
+
+  /* ── 9. How-to section ── */
+  .howto-section {
+    padding: 3.5rem 0;
+  }
+  .howto-grid {
+    margin-top: 1.5rem;
+    gap: .85rem;
+  }
+  .step-card {
+    padding: 1.4rem 1.25rem;
+  }
+
+  /* ── 10. Page hero ── */
+  .page-hero {
+    padding: 5.5rem var(--page-gutter) 3rem;
+  }
+  .page-hero__title {
+    font-size: clamp(1.55rem, 6.5vw, 2.1rem);
+    letter-spacing: -.025em;
+  }
+  .page-hero__desc {
+    font-size: .95rem;
+  }
+  .page-hero--compact {
+    padding: 3.5rem var(--page-gutter) 2.5rem;
+  }
+  .page-hero--compact .page-hero__title {
+    font-size: 1.5rem;
+  }
+
+  /* ── 11. Page body ── */
+  .page-body {
+    padding: 2.5rem var(--page-gutter) 4rem;
+  }
+
+  /* ── 12. Info cards ── */
+  .info-card {
+    padding: 1.5rem 1.25rem;
+  }
+  .info-card h3 {
+    font-size: 1.05rem;
+  }
+
+  /* ── 13. Mobile header menu ── */
+  .store-mobile-menu {
+    padding: .75rem var(--page-gutter) 1rem;
+    border-top: 1px solid rgba(0,0,0,.07);
+  }
+  .store-mobile-link {
+    font-size: .97rem;
+    padding: 10px 2px;
+    color: #1f2937;
+    display: block;
+  }
+  .store-mobile-cta {
+    display: block !important;
+    background: var(--brand);
+    color: #111827 !important;
+    font-weight: 700 !important;
+    font-size: .92rem !important;
+    padding: .65rem 1rem !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    margin-bottom: .35rem;
+    border-bottom: none !important;
+    text-decoration: none;
+  }
+  .store-mobile-submenu {
+    padding-left: 8px;
+    border-left: 2px solid rgba(247,181,0,.3);
+    margin-left: 4px;
+  }
+
+  /* ── 14. Checkout page ── */
+  .checkout-page {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  .checkout-title {
+    font-size: 1.35rem;
+  }
+  .checkout-summary-card,
+  .checkout-form-card {
+    padding: 1.5rem 1.15rem;
+  }
+
+  /* ── 15. Reseller apply page ── */
+  .reseller-page {
+    padding: 2rem 0 4rem;
+  }
+  .reseller-intro,
+  .reseller-form-card {
+    padding: 1.75rem var(--page-gutter);
+  }
+  .reseller-title {
+    font-size: 1.4rem;
+  }
+  .reseller-lead {
+    font-size: .92rem;
+  }
+
+  /* ── 16. Auth / account ── */
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  /* ── 17. Tables: horizontal scroll ── */
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* ── 18. Equipment grid: 2 cols on mobile, 1 on very small ── */
+  .equipment-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .85rem;
+  }
+
+  /* ── 19. Footer ── */
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding: 2.75rem var(--page-gutter) 2rem;
+  }
+  .footer-brand-col {
+    max-width: 100%;
+  }
+  .footer-col h4 {
+    margin-bottom: .75rem;
+  }
+
+  /* ── 20. Smooth scroll anchor: account for fixed header height ── */
+  [id] {
+    scroll-margin-top: 70px;
+  }
+}
+
+/* Extra-small screens: 360px and below */
+@media (max-width: 400px) {
+  .stat-bar__grid {
+    flex-wrap: wrap;
+  }
+  .stat-bar__item {
+    min-width: 45%;
+    border-right: none;
+    padding: .35rem .5rem;
+  }
+  .equipment-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero__title {
+    font-size: 1.45rem;
+  }
+  .plan-price {
+    font-size: 2.1rem;
+  }
+}
+
 
