@@ -83,6 +83,19 @@ body { line-height: 1.7; -webkit-font-smoothing:antialiased; -moz-osx-font-smoot
 #mobile-menu { border-top: 1px solid #e5e7eb; }
 /* basic link reset */
 a { text-decoration: none; }
+/* Links dentro do conteúdo de páginas internas — cor da marca em vez de azul do browser */
+.page-body a, .step-body a, .howto-step a {
+  color: var(--brand-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(247,181,0,.4);
+  text-underline-offset: 3px;
+  transition: color .15s, text-decoration-color .15s;
+}
+.page-body a:hover, .step-body a:hover, .howto-step a:hover {
+  color: var(--brand);
+  text-decoration-color: var(--brand);
+}
 
 /* Header nav spacing and cart button */
 /* Header navigation styles removed (header not present) */
