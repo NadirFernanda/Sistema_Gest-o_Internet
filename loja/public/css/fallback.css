@@ -1817,8 +1817,8 @@ main .container {
 
   /* ── 4. Hero carousel ── */
   #hero {
-    height: 420px;
-    min-height: 340px;
+    height: 480px;
+    min-height: 380px;
     /* A classe .hero aplica display:flex que quebra o carousel em mobile.
        O id #hero tem maior especificidade e sobrepõe-a. */
     display: block !important;
@@ -1830,15 +1830,16 @@ main .container {
     width: 100%;
     min-width: 0;
     overflow: hidden;
+    /* Alinhar ao topo para que o padding-top do card controle a posição */
+    align-items: flex-start;
   }
   .hero__card {
-    /* Padding lateral = page-gutter; box-sizing: border-box garante que
-       a largura total (incluindo padding) não excede 100% do slide. */
-    padding: 2rem var(--page-gutter) 2.25rem;
+    /* padding-top = altura do header fixo (82px) + folga visual (1rem).
+       Garante que o conteúdo começa sempre abaixo do header. */
+    padding: calc(82px + 1rem) var(--page-gutter) 2.25rem;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    /* overflow:hidden removido — cortava o .hero__eyebrow */
   }
   .hero__title {
     font-size: clamp(1.45rem, 7vw, 2rem);
