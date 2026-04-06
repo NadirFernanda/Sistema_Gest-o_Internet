@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('seo_title', 'Quem Somos | AngolaWiFi — Internet em Angola')
+@section('seo_description', 'A AngolaWiFi é uma plataforma digital que conecta pessoas, famílias e empresas à internet em Angola. Revenda de serviços por hotspot, fibra e micro-ondas. Suporte local, preços acessíveis, conectividade real.')
+
 @section('content')
   <div class="page-hero">
     <div class="container">

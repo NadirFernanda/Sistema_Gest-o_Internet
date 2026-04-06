@@ -1,5 +1,83 @@
 @extends('layouts.app')
 
+@section('seo_title', 'AngolaWiFi — Internet WiFi em Angola | Planos a partir de 200 Kz')
+@section('seo_description', 'Ligue-se à internet com a AngolaWiFi. Planos WiFi por hotspot a partir de 200 Kz/dia, planos família a partir de 27.500 Kz/mês e soluções empresariais até 100 Mbps. Instalação em 48h em todo Angola.')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://angolawifi.ao/#organization",
+      "name": "AngolaWiFi",
+      "url": "https://angolawifi.ao",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://angolawifi.ao/img/logo2.jpeg"
+      },
+      "description": "Plataforma digital de internet WiFi em Angola. Planos residenciais, familiares, empresariais e institucionais. Revenda de serviços por hotspot, fibra e micro-ondas.",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Angola"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "Portuguese"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://angolawifi.ao/#website",
+      "url": "https://angolawifi.ao",
+      "name": "AngolaWiFi",
+      "publisher": { "@id": "https://angolawifi.ao/#organization" },
+      "inLanguage": "pt"
+    },
+    {
+      "@type": "ItemList",
+      "name": "Planos de Internet AngolaWiFi",
+      "url": "https://angolawifi.ao/#planos",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Plano Diário — 200 Kz",
+          "description": "Internet WiFi por hotspot durante 24 horas. Até 10 Mbps, download ilimitado."
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Plano Semanal — 500 Kz",
+          "description": "Internet WiFi por hotspot durante 7 dias. Até 10 Mbps, download ilimitado."
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Plano Mensal — 1.000 Kz",
+          "description": "Internet WiFi por hotspot durante 30 dias. Até 10 Mbps, download ilimitado."
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Plano Família 6 Mbps — 27.500 Kz",
+          "description": "Internet residencial de 6 Mbps para famílias. 30 dias, instalação incluída."
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Plano Empresarial 25 Mbps — 195.000 Kz",
+          "description": "Internet dedicada para micro e pequenas empresas. 30 dias, 25 Mbps."
+        }
+      ]
+    }
+  ]
+}
+</script>
+@endpush
+
 @section('content')
   {{-- Hero Carousel --}}
   <section class="hero" id="hero" aria-roledescription="carousel" aria-label="Destaques">

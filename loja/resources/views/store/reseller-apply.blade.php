@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Quero ser revendedor')
+@section('seo_title', 'Quero ser Revendedor | Programa de Parceria AngolaWiFi')
+@section('seo_description', 'Torne-se parceiro oficial da AngolaWiFi. Revenda vouchers WiFi com lucro garantido, painel de gestão dedicado e suporte da equipa. Registe-se gratuitamente.')
 
 @section('content')
   <div class="container--880 reseller-page">

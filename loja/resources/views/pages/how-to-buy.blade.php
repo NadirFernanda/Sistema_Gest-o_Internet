@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('seo_title', 'Como Comprar Internet WiFi | AngolaWiFi')
+@section('seo_description', 'Guia passo a passo para comprar internet WiFi com a AngolaWiFi. Escolha o seu plano, pague por referência multicaixa ou transferência e comece a navegar em minutos. Planos individuais, familiares e empresariais.')
+
 @section('content')
   <div class="page-hero">
     <div class="container">

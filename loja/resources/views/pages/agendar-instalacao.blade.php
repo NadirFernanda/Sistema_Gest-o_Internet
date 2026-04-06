@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Agendar Instalação — AngolaWiFi')
+@section('seo_title', 'Agendar Instalação de Internet | AngolaWiFi')
+@section('seo_description', 'Agende a instalação do seu plano de internet AngolaWiFi. Técnicos especializados, equipamentos incluídos e activação em até 48h. Disponível para planos familiares, empresariais e institucionais.')
 
 @section('content')
 <style>

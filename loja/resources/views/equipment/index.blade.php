@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('seo_title', 'Equipamentos & Redes WiFi | AngolaWiFi')
+@section('seo_description', 'Compre routers, repetidores, antenas e acessórios WiFi na AngolaWiFi. Equipamentos compatíveis com todos os planos. Encomende online e receba em casa em Angola.')
+
 @section('content')
 <div class="page-hero">
   <div class="container">

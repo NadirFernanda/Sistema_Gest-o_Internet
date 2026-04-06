@@ -1,2 +1,12 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /painel-revendedor/
+Disallow: /checkout/
+Disallow: /autovenda/
+Disallow: /sg/
+Disallow: /pagar-plano/
+Disallow: /dev-autologin/
+Disallow: /payment/
+Allow: /
+
+Sitemap: https://angolawifi.ao/sitemap.xml
