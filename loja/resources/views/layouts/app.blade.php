@@ -6,12 +6,12 @@
 
     {{-- ── SEO: título, descrição e robots ─────────────────────────────── --}}
     @php
-      $seoTitle  = trim(View::yieldContent('seo_title'))
-                ?: trim(strip_tags(View::yieldContent('title')))
+      $seoTitle  = trim($__env->yieldContent('seo_title'))
+                ?: trim(strip_tags($__env->yieldContent('title')))
                 ?: config('app.name', 'AngolaWiFi');
-      $seoDesc   = trim(View::yieldContent('seo_description'))
+      $seoDesc   = trim($__env->yieldContent('seo_description'))
                 ?: 'AngolaWiFi — Internet WiFi em Angola. Planos residenciais, familiares e empresariais a partir de 200 Kz. Instalação em 48h, velocidades reais, suporte local.';
-      $ogImage   = trim(View::yieldContent('og_image')) ?: asset('img/carrossel1.webp');
+      $ogImage   = trim($__env->yieldContent('og_image')) ?: asset('img/carrossel1.webp');
       $canonical = request()->url();
     @endphp
 
