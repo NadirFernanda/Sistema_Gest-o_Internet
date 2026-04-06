@@ -31,11 +31,11 @@ class StorefrontController extends Controller
         }
 
         // Planos familiares/empresariais e contagem de clientes activos carregados
-        // de forma assíncrona pelo JS — não bloqueiam o render da página.
+        // do SG via API (cache de 5 minutos). Null se o SG estiver inacessível.
         return view('store.index', [
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
-            'activeClientCount' => null,
+            'activeClientCount' => $this->fetchActiveClientCount(),
         ]);
     }
 
