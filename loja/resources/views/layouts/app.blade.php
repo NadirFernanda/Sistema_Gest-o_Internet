@@ -4,38 +4,68 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    {{-- ── SEO: título, descrição e robots ─────────────────────────────── --}}
-    @php
-      $seoTitle  = trim($__env->yieldContent('seo_title'))
-                ?: trim(strip_tags($__env->yieldContent('title')))
-                ?: config('app.name', 'AngolaWiFi');
-      $seoDesc   = trim($__env->yieldContent('seo_description'))
-                ?: 'AngolaWiFi — Internet WiFi em Angola. Planos residenciais, familiares e empresariais a partir de 200 Kz. Instalação em 48h, velocidades reais, suporte local.';
-      $ogImage   = trim($__env->yieldContent('og_image')) ?: asset('img/carrossel1.webp');
-      $canonical = request()->url();
-    @endphp
+    {{-- ── SEO: título, descrição, OG, Twitter ────────────────────────── --}}
+    @if($__env->hasSection('seo_title'))
+      <title>@yield('seo_title')</title>
+    @elseif($__env->hasSection('title'))
+      <title>@yield('title')</title>
+    @else
+      <title>{{ config('app.name', 'AngolaWiFi') }}</title>
+    @endif
 
-    <title>{{ $seoTitle }}</title>
-    <meta name="description"          content="{{ $seoDesc }}">
-    <link rel="canonical"             href="{{ $canonical }}">
-    <meta name="robots"               content="index, follow">
+    @if($__env->hasSection('seo_description'))
+      <meta name="description" content="@yield('seo_description')">
+    @else
+      <meta name="description" content="AngolaWiFi — Internet WiFi em Angola. Planos residenciais, familiares e empresariais a partir de 200 Kz. Instalação em 48h, velocidades reais, suporte local.">
+    @endif
+
+    <link rel="canonical" href="{{ request()->url() }}">
+    <meta name="robots" content="index, follow">
 
     {{-- Open Graph --}}
-    <meta property="og:type"          content="website">
-    <meta property="og:site_name"     content="{{ config('app.name', 'AngolaWiFi') }}">
-    <meta property="og:title"         content="{{ $seoTitle }}">
-    <meta property="og:description"   content="{{ $seoDesc }}">
-    <meta property="og:url"           content="{{ $canonical }}">
-    <meta property="og:image"         content="{{ $ogImage }}">
-    <meta property="og:locale"        content="pt_AO">
+    <meta property="og:type"      content="website">
+    <meta property="og:site_name" content="{{ config('app.name', 'AngolaWiFi') }}">
+    <meta property="og:url"       content="{{ request()->url() }}">
+    <meta property="og:locale"    content="pt_AO">
+    @if($__env->hasSection('seo_title'))
+      <meta property="og:title"       content="@yield('seo_title')">
+    @elseif($__env->hasSection('title'))
+      <meta property="og:title"       content="@yield('title')">
+    @else
+      <meta property="og:title"       content="{{ config('app.name', 'AngolaWiFi') }}">
+    @endif
+    @if($__env->hasSection('seo_description'))
+      <meta property="og:description" content="@yield('seo_description')">
+    @else
+      <meta property="og:description" content="AngolaWiFi — Internet WiFi em Angola. Planos residenciais, familiares e empresariais a partir de 200 Kz. Instalação em 48h, velocidades reais, suporte local.">
+    @endif
+    @if($__env->hasSection('og_image'))
+      <meta property="og:image" content="@yield('og_image')">
+    @else
+      <meta property="og:image" content="{{ asset('img/carrossel1.webp') }}">
+    @endif
 
     {{-- Twitter Card --}}
-    <meta name="twitter:card"         content="summary_large_image">
-    <meta name="twitter:title"        content="{{ $seoTitle }}">
-    <meta name="twitter:description"  content="{{ $seoDesc }}">
-    <meta name="twitter:image"        content="{{ $ogImage }}">
+    <meta name="twitter:card" content="summary_large_image">
+    @if($__env->hasSection('seo_title'))
+      <meta name="twitter:title"       content="@yield('seo_title')">
+    @elseif($__env->hasSection('title'))
+      <meta name="twitter:title"       content="@yield('title')">
+    @else
+      <meta name="twitter:title"       content="{{ config('app.name', 'AngolaWiFi') }}">
+    @endif
+    @if($__env->hasSection('seo_description'))
+      <meta name="twitter:description" content="@yield('seo_description')">
+    @else
+      <meta name="twitter:description" content="AngolaWiFi — Internet WiFi em Angola. Planos residenciais, familiares e empresariais a partir de 200 Kz. Instalação em 48h, velocidades reais, suporte local.">
+    @endif
+    @if($__env->hasSection('og_image'))
+      <meta name="twitter:image" content="@yield('og_image')">
+    @else
+      <meta name="twitter:image" content="{{ asset('img/carrossel1.webp') }}">
+    @endif
 
-    {{-- Dados estruturados e overrides por página --}}
+    {{-- Dados estruturados por página --}}
     @stack('seo')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
