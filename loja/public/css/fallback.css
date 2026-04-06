@@ -629,6 +629,8 @@ main .container {
   padding: .25rem .6rem;
   border-radius: 4px;
   border: 1px solid rgba(247,181,0,.25);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .hero__title {
   font-size: clamp(2.2rem, 5vw, 3.4rem);
@@ -1836,7 +1838,7 @@ main .container {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
+    /* overflow:hidden removido — cortava o .hero__eyebrow */
   }
   .hero__title {
     font-size: clamp(1.45rem, 7vw, 2rem);
