@@ -331,12 +331,14 @@ main .container {
 .howto-hero h2 { margin:0; font-size:clamp(1.2rem, 2.5vw, 1.5rem); color:var(--text-dark); font-weight:800; letter-spacing:-.02em; }
 .howto-hero p { margin:0.6rem 0 0; color:var(--text-muted); font-size:1rem; line-height:1.65; }
 
-.howto-steps { display:grid; gap:1rem; grid-template-columns: 1fr; }
-.howto-step { display:flex; gap:1rem; align-items:flex-start; }
+.howto-steps { display:grid; gap:1.25rem; grid-template-columns: 1fr; }
+.howto-step { display:flex; gap:1rem; align-items:flex-start; background:#fff; border-radius:var(--radius-card); padding:1.5rem; border:1.5px solid rgba(226,232,240,.7); box-shadow:var(--shadow-sm); }
 .step-badge { width:56px; height:56px; border-radius:14px; background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%); color: #111827; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.2rem; box-shadow: 0 8px 28px rgba(247,181,0,.3); flex-shrink:0; }
-.step-body { flex:1; }
-.step-body h4 { margin:0 0 .4rem; font-size:1rem; color:var(--text-dark); font-weight:800; }
-.step-body p { margin:0; color:var(--text-dark); }
+.step-body { flex:1; min-width:0; }
+.step-body h4 { margin:0 0 .75rem; font-size:1.05rem; color:var(--text-dark); font-weight:800; }
+.step-body h5 { margin:1rem 0 .4rem; font-size:.95rem; color:var(--text-dark); font-weight:700; }
+.step-body p { margin:0 0 .6rem; color:var(--text-dark); line-height:1.65; }
+.step-body p:last-child { margin-bottom:0; }
 
 @media (min-width:768px) {
   .howto-steps { grid-template-columns: repeat(2, 1fr); }
@@ -1939,6 +1941,20 @@ main .container {
   }
   .step-card {
     padding: 1.4rem 1.25rem;
+  }
+  /* Como Comprar page — step cards mobile */
+  .howto-step {
+    padding: 1.15rem;
+    gap: .75rem;
+  }
+  .step-badge {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+  .step-body h4 {
+    font-size: .97rem;
   }
 
   /* ── 10. Page hero ── */
