@@ -1815,7 +1815,9 @@ main .container {
   }
   .hero__card {
     padding: 1.75rem var(--page-gutter) 2rem var(--page-gutter);
+    width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
   }
   .hero__title {
     font-size: clamp(1.55rem, 7.5vw, 2.1rem);
@@ -1840,27 +1842,29 @@ main .container {
   }
   .hero__arrow { display: none; }
 
-  /* ── 5. Stat bar: compact ── */
+  /* ── 5. Stat bar: compact, forçar 4 itens em linha ── */
   .stat-bar {
-    padding: .9rem var(--page-gutter);
+    padding: .75rem 0;
   }
   .stat-bar__grid {
     gap: 0;
-    justify-content: space-around;
+    justify-content: center;
+    flex-wrap: nowrap;
   }
   .stat-bar__item {
-    padding: .3rem .6rem;
+    padding: .4rem .4rem;
     min-width: 0;
-    flex: 1;
-    border-right-color: rgba(255,255,255,.05);
+    flex: 1 1 25%;
+    border-right: 1px solid rgba(255,255,255,.07);
   }
+  .stat-bar__item:last-child { border-right: none; }
   .stat-bar__num {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     letter-spacing: -.02em;
   }
   .stat-bar__lbl {
-    font-size: .56rem;
-    letter-spacing: .06em;
+    font-size: .5rem;
+    letter-spacing: .05em;
   }
 
   /* ── 6. Section header ── */
@@ -2036,19 +2040,20 @@ main .container {
 
 /* Extra-small screens: 360px and below */
 @media (max-width: 400px) {
-  .stat-bar__grid {
-    flex-wrap: wrap;
-  }
   .stat-bar__item {
-    min-width: 45%;
-    border-right: none;
-    padding: .35rem .5rem;
+    padding: .3rem .25rem;
+  }
+  .stat-bar__num {
+    font-size: 1rem;
+  }
+  .stat-bar__lbl {
+    font-size: .46rem;
   }
   .equipment-grid {
     grid-template-columns: 1fr;
   }
   .hero__title {
-    font-size: 1.45rem;
+    font-size: 1.4rem;
   }
   .plan-price {
     font-size: 2.1rem;
