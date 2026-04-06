@@ -305,9 +305,9 @@ main .container {
 .info-card ul { padding-left:1.1rem; margin-top:.5rem; }
 .info-card li { margin-bottom:.45rem; }
 
-.steps-list { list-style:none; padding-left:0; margin-top:.65rem; display:flex; flex-direction:column; gap:.55rem; }
-.steps-list li { display:flex; align-items:baseline; gap:.55rem; color:var(--text-dark); line-height:1.6; font-size:.97rem; }
-.steps-list li::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--brand); flex-shrink:0; margin-top:.42rem; box-shadow:0 0 0 3px rgba(247,181,0,.18); }
+.steps-list { list-style:none; padding-left:1.35rem; margin-top:.65rem; display:flex; flex-direction:column; gap:.55rem; }
+.steps-list li { position:relative; color:var(--text-dark); line-height:1.65; font-size:.97rem; }
+.steps-list li::before { content:''; position:absolute; left:-1.1rem; top:.52rem; width:7px; height:7px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 3px rgba(247,181,0,.18); }
 
 .plans-table { margin-top:.6rem; }
 .plans-table h4 { margin:0 0 .4rem; }
