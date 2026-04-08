@@ -1309,9 +1309,9 @@ main .container {
 .equipment-card__cta {
   display: inline-flex; align-items: center; gap: .3rem;
   padding: .4rem .8rem; border-radius: 6px;
-  background: var(--brand); color: #111;
+  background: var(--brand); color: #111 !important;
   font-size: .78rem; font-weight: 700;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: background .12s, transform .1s;
 }
 .equipment-card__cta:hover { background: #e0a800; transform: translateY(-1px); }
