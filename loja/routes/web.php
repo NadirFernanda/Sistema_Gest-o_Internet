@@ -38,7 +38,7 @@ Route::get('/', function () {
 Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
 Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
 Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
-Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder']);
+Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder'])->middleware('throttle:10,1');
 Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
 
 // Storefront routes
@@ -63,7 +63,7 @@ Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class,
 
 // Módulo Revendedor - página de adesão
 Route::get('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'showForm'])->name('reseller.apply');
-Route::post('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'submit'])->name('reseller.apply.submit');
+Route::post('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'submit'])->middleware('throttle:3,1')->name('reseller.apply.submit');
 Route::get('/quero-ser-revendedor/obrigado', [\App\Http\Controllers\ResellerController::class, 'thankYou'])->name('reseller.apply.thankyou');
 
 // Área do Revendedor (pós-aprovação)
@@ -71,7 +71,7 @@ Route::get('/painel-revendedor', [ResellerPanelController::class, 'index'])->nam
 Route::post('/painel-revendedor/login', [ResellerPanelController::class, 'login'])->middleware('throttle:5,1')->name('reseller.panel.login');
 Route::post('/painel-revendedor/verify', [ResellerPanelController::class, 'verify'])->middleware('throttle:10,1')->name('reseller.panel.verify');
 Route::post('/painel-revendedor/logout', [ResellerPanelController::class, 'logout'])->name('reseller.panel.logout');
-Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->name('reseller.panel.purchase');
+Route::post('/painel-revendedor/compras', [ResellerPanelController::class, 'storePurchase'])->middleware('throttle:10,1')->name('reseller.panel.purchase');
 Route::get('/painel-revendedor/compras/{purchase}/csv', [ResellerPanelController::class, 'downloadCsv'])->name('reseller.panel.purchase.csv');
 Route::get('/painel-revendedor/compras/{purchase}/vouchers', [ResellerPanelController::class, 'downloadVouchers'])->name('reseller.panel.purchase.vouchers');
 Route::get('/painel-revendedor/compras/{purchase}/pdf', [ResellerPanelController::class, 'downloadPdf'])->name('reseller.panel.purchase.pdf');
@@ -102,7 +102,7 @@ Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::c
 Route::post('/painel-revendedor/carrinho/adicionar-todos', [ResellerPanelController::class, 'cartAddAll'])->name('reseller.cart.add.all');
 Route::post('/painel-revendedor/carrinho/remover', [ResellerPanelController::class, 'cartRemove'])->name('reseller.cart.remove');
 Route::post('/painel-revendedor/carrinho/limpar', [ResellerPanelController::class, 'cartClear'])->name('reseller.cart.clear');
-Route::post('/painel-revendedor/checkout', [ResellerPanelController::class, 'checkout'])->name('reseller.panel.checkout');
+Route::post('/painel-revendedor/checkout', [ResellerPanelController::class, 'checkout'])->middleware('throttle:10,1')->name('reseller.panel.checkout');
 
 // Protótipo de callback de pagamento (para testes sem gateway real)
 Route::get('/autovenda/callback/simulate/{order}', [\App\Http\Controllers\PaymentCallbackController::class, 'simulateSuccess'])
@@ -124,7 +124,7 @@ Route::post('/carrinho/adicionar', [EquipmentController::class, 'addToCart'])->n
 Route::post('/carrinho/remover', [EquipmentController::class, 'removeFromCart'])->name('equipment.cart.remove');
 Route::post('/carrinho/limpar', [EquipmentController::class, 'clearCart'])->name('equipment.cart.clear');
 Route::get('/equipamentos/checkout', [EquipmentController::class, 'checkout'])->name('equipment.checkout');
-Route::post('/equipamentos/checkout', [EquipmentController::class, 'processCheckout'])->name('equipment.checkout.process');
+Route::post('/equipamentos/checkout', [EquipmentController::class, 'processCheckout'])->middleware('throttle:5,1')->name('equipment.checkout.process');
 Route::get('/equipamentos/confirmacao/{id}', [EquipmentController::class, 'confirmation'])
     ->middleware('signed')
     ->name('equipment.confirmation');

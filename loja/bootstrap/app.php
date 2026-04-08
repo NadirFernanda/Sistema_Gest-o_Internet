@@ -24,7 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             // ── Camada 2: Rate limit por IP (120 req/min — protege contra abuso)
             ThrottleRequests::using('web-general'),
-            // ── Camada 3: Rastreio de visitantes online (existente)
+            // ── Camada 3: Cabeçalhos de segurança HTTP (CSP, X-Frame-Options, etc.)
+            \App\Http\Middleware\SecurityHeaders::class,
+            // ── Camada 4: Rastreio de visitantes online (existente)
             \App\Http\Middleware\TrackOnlineVisitors::class,
         ]);
 
