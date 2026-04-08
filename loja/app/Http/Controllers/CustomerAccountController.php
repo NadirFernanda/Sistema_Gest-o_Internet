@@ -58,10 +58,11 @@ class CustomerAccountController extends Controller
         // Generate a 6-digit numeric OTP
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Store OTP + expiry in session (never exposed in response)
+        // Store OTP as SHA-256 hash — never store plaintext in session
         $request->session()->put('account_otp_email',      $email);
-        $request->session()->put('account_otp_code',       $otp);
+        $request->session()->put('account_otp_code',       hash('sha256', $otp));
         $request->session()->put('account_otp_expires_at', now()->addMinutes(self::OTP_TTL)->toIso8601String());
+        $request->session()->put('account_otp_attempts',   0);
         // Invalidate any previous authenticated session
         $request->session()->forget('customer_email');
 
@@ -92,19 +93,28 @@ class CustomerAccountController extends Controller
 
         // Check expiry
         if (Carbon::parse($sessionExpires)->isPast()) {
-            $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at']);
+            $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at', 'account_otp_attempts']);
             return redirect()->route('account.index')
                 ->with('error', 'O código expirou. Introduza o seu email de novo para receber um novo código.');
         }
 
-        // Constant-time comparison to prevent timing attacks
-        if (!hash_equals($sessionCode, $data['otp'])) {
+        // Brute-force protection: invalidate OTP after 5 failed attempts
+        $attempts = (int) $request->session()->get('account_otp_attempts', 0);
+        if ($attempts >= 5) {
+            $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at', 'account_otp_attempts']);
+            return redirect()->route('account.index')
+                ->with('error', 'Demasiadas tentativas incorrectas. Introduza o seu email de novo para receber outro código.');
+        }
+
+        // Constant-time comparison against stored hash (never compare plaintext)
+        if (!hash_equals($sessionCode, hash('sha256', $data['otp']))) {
+            $request->session()->put('account_otp_attempts', $attempts + 1);
             return redirect()->route('account.index')
                 ->with('error', 'Código incorreto. Verifique o email e tente novamente.');
         }
 
         // OTP valid — establish authenticated session and clean up OTP data
-        $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at']);
+        $request->session()->forget(['account_otp_email', 'account_otp_code', 'account_otp_expires_at', 'account_otp_attempts']);
         $request->session()->regenerate();
         $request->session()->put('customer_email', $sessionEmail);
 
@@ -113,7 +123,7 @@ class CustomerAccountController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->forget(['customer_email', 'account_otp_email', 'account_otp_code', 'account_otp_expires_at']);
+        $request->session()->forget(['customer_email', 'account_otp_email', 'account_otp_code', 'account_otp_expires_at', 'account_otp_attempts']);
 
         return redirect()->route('account.index');
     }
