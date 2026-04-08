@@ -37,8 +37,12 @@
       <div class="product-detail__info">
 
         <div class="product-detail__price-block">
-          <span class="product-detail__price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
-          <span class="product-detail__currency">Kz</span>
+          @if ($product->price_aoa > 0)
+            <span class="product-detail__price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
+            <span class="product-detail__currency">Kz</span>
+          @else
+            <span class="product-detail__price" style="font-size:1.6rem;color:#64748b;font-weight:700;">Preço sob consulta</span>
+          @endif
         </div>
 
         @if ($product->description)

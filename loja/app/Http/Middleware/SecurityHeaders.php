@@ -34,7 +34,7 @@ class SecurityHeaders
             "script-src 'self' 'unsafe-inline'",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' data: https://fonts.gstatic.com",
-            "img-src 'self' data:",
+            "img-src 'self' data: https://sg.angolawifi.ao",
             "connect-src 'self'",
             "frame-src 'none'",
             "frame-ancestors 'none'",

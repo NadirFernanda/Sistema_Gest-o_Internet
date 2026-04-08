@@ -79,8 +79,12 @@
               </h3>
               <div class="equipment-card__footer">
                 <div class="equipment-card__price-wrap">
-                  <span class="equipment-card__price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
-                  <span class="equipment-card__kz">Kz</span>
+                  @if ($product->price_aoa > 0)
+                    <span class="equipment-card__price">{{ number_format($product->price_aoa, 0, ',', '.') }}</span>
+                    <span class="equipment-card__kz">Kz</span>
+                  @else
+                    <span class="equipment-card__price" style="font-size:1rem;color:#64748b;">Sob consulta</span>
+                  @endif
                 </div>
                 <a href="{{ route('equipment.show', $product->slug) }}" class="equipment-card__cta" aria-label="Ver detalhes de {{ $product->name }}">
                   Ver
