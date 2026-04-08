@@ -42,8 +42,15 @@ return [
         'client_secret'       => env('SG_CLIENT_SECRET'),
         // Token partilhado para acesso ao painel da loja a partir do SG
         'admin_token'         => env('SG_LOJA_ADMIN_TOKEN'),
+        // Token de API estático para endpoints protegidos do SG (lookupCliente, syncJanela, activeClients)
+        'api_token'           => env('SG_API_TOKEN'),
         // Endpoint do SG para contagem de clientes activos (stat bar da homepage)
         'active_clients_path' => env('SG_ACTIVE_CLIENTS_PATH', '/api/stats/active-clients'),
+    ],
+
+    // Gateway de pagamentos (webhooks de confirmação de planos familiares)
+    'payment' => [
+        'webhook_secret' => env('PAYMENT_WEBHOOK_SECRET'),
     ],
 
 ];

@@ -24,8 +24,8 @@ class StoreProxyController extends Controller
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
         $tokenPath = env('SG_OAUTH_TOKEN_PATH', '/api/oauth/token');
-        $clientId = env('SG_CLIENT_ID');
-        $clientSecret = env('SG_CLIENT_SECRET');
+        $clientId = config('services.sg.client_id');
+        $clientSecret = config('services.sg.client_secret');
 
         if (! $sg || ! $clientId || ! $clientSecret) return null;
 
@@ -188,7 +188,7 @@ class StoreProxyController extends Controller
         $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         $headers = ['Accept' => 'application/json'];
-        $apiToken = env('SG_API_TOKEN');
+        $apiToken = config('services.sg.api_token');
         if ($apiToken) {
             $headers['X-API-TOKEN'] = $apiToken;
         }
@@ -236,7 +236,7 @@ class StoreProxyController extends Controller
         $sg      = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
         $apiPath = config('services.sg.active_clients_path', '/api/stats/active-clients');
         $headers = ['Accept' => 'application/json'];
-        $apiToken = env('SG_API_TOKEN');
+        $apiToken = config('services.sg.api_token');
         if ($apiToken) {
             $headers['X-API-TOKEN'] = $apiToken;
         }
@@ -271,7 +271,7 @@ class StoreProxyController extends Controller
         $http = new Client(['base_uri' => $sg, 'verify' => false]);
 
         $headers = ['Accept' => 'application/json'];
-        $apiToken = env('SG_API_TOKEN');
+        $apiToken = config('services.sg.api_token');
         if ($apiToken) {
             $headers['X-API-TOKEN'] = $apiToken;
         }

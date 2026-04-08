@@ -37,7 +37,7 @@ class FamilyPlanPaymentController extends Controller
         // ── Verificação da assinatura HMAC ─────────────────────────────────
         // Se PAYMENT_WEBHOOK_SECRET estiver definido no .env, exige que a chamada
         // inclua o header correcto; caso contrário rejeita com 401.
-        $webhookSecret = env('PAYMENT_WEBHOOK_SECRET');
+        $webhookSecret = config('services.payment.webhook_secret');
         if (!$webhookSecret && app()->isProduction()) {
             Log::error('Payment webhook: secret ausente em produção', [
                 'ip' => $request->ip(),

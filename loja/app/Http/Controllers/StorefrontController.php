@@ -53,7 +53,7 @@ class StorefrontController extends Controller
         $sg      = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
         $apiPath = config('services.sg.active_clients_path', '/api/stats/active-clients');
         $headers = ['Accept' => 'application/json'];
-        $apiToken = env('SG_API_TOKEN');
+        $apiToken = config('services.sg.api_token');
         if ($apiToken) {
             $headers['X-API-TOKEN'] = $apiToken;
         }
