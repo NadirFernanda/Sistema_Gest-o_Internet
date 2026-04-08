@@ -180,8 +180,14 @@
       el.href = it.href;
       el.className = 'search-result-item';
       el.setAttribute('role','option');
-      el.innerHTML = '<div class="res-title">' + it.title + '</div>'
-                   + '<div class="res-sub">' + (it.price ? it.price + ' · ' : '') + it.section + '</div>';
+      var titleDiv = document.createElement('div');
+      titleDiv.className = 'res-title';
+      titleDiv.textContent = it.title;
+      var subDiv = document.createElement('div');
+      subDiv.className = 'res-sub';
+      subDiv.textContent = (it.price ? it.price + ' \u00b7 ' : '') + it.section;
+      el.appendChild(titleDiv);
+      el.appendChild(subDiv);
       el.addEventListener('click', function(){ results.innerHTML = ''; results.setAttribute('aria-hidden','true'); });
       results.appendChild(el);
     });
