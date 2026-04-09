@@ -12,6 +12,7 @@ use App\Models\Cobranca;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CompensacoesExport;
+use App\Exports\ClientesExport;
 
 class ClienteController extends Controller
 {
@@ -388,6 +389,48 @@ class ClienteController extends Controller
         // Caso contrário, usa paginação para a listagem na view web
         $clientes = $query->orderBy('nome')->paginate(12)->withQueryString();
         return view('clientes', compact('clientes'));
+    }
+
+    /**
+     * Exporta a lista completa de clientes em Excel (.xlsx)
+     * GET /clientes/export/excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $query = Cliente::query();
+        if ($busca = $request->input('busca')) {
+            $query->where(function ($q) use ($busca) {
+                $q->where('nome', 'like', "%$busca%")
+                  ->orWhere('bi', 'like', "%$busca%")
+                  ->orWhere('email', 'like', "%$busca%")
+                  ->orWhere('contato', 'like', "%$busca%");
+            });
+        }
+        $clientes = $query->orderBy('nome')->get();
+        $filename = 'clientes_' . now()->format('Ymd_His') . '.xlsx';
+        return Excel::download(new ClientesExport($clientes), $filename);
+    }
+
+    /**
+     * Exporta a lista completa de clientes em PDF
+     * GET /clientes/export/pdf
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Cliente::query();
+        if ($busca = $request->input('busca')) {
+            $query->where(function ($q) use ($busca) {
+                $q->where('nome', 'like', "%$busca%")
+                  ->orWhere('bi', 'like', "%$busca%")
+                  ->orWhere('email', 'like', "%$busca%")
+                  ->orWhere('contato', 'like', "%$busca%");
+            });
+        }
+        $clientes = $query->orderBy('nome')->get();
+        $pdf = Pdf::loadView('clientes.lista_pdf', compact('clientes'))
+                  ->setPaper('a4', 'landscape');
+        $filename = 'clientes_' . now()->format('Ymd_His') . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**

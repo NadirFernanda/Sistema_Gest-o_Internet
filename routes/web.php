@@ -24,6 +24,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/clientes', [\App\Http\Controllers\ClienteController::class, 'index'])->name('clientes');
+    Route::get('/clientes/export/excel', [\App\Http\Controllers\ClienteController::class, 'exportExcel'])->name('clientes.export.excel');
+    Route::get('/clientes/export/pdf', [\App\Http\Controllers\ClienteController::class, 'exportPdf'])->name('clientes.export.pdf');
     Route::get('/clientes/create', [\App\Http\Controllers\ClienteController::class, 'create'])
         ->name('clientes.create')
         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':clientes.create');
