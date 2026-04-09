@@ -98,6 +98,7 @@
     <a href="{{ route('admin.autovenda.index') }}">Recargas</a>
     <a href="{{ route('admin.wifi_codes.index') }}">C&oacute;digos WiFi</a>
     <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>
+    <a href="{{ route('admin.manual_voucher_sale.create') }}">Venda Manual</a>
     <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
     <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
     <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
@@ -234,6 +235,14 @@
       <p style="font-size:.82rem;line-height:1.5;">Os 4 n&uacute;meros de destaque na p&aacute;gina inicial.</p>
       <div class="ap-card-actions">
         <a href="{{ route('admin.site_stats.index') }}">Editar &rarr;</a>
+      </div>
+    </div>
+
+    <div class="ap-card" style="border-left: 4px solid var(--a-purple);">
+      <h3 style="display:flex;align-items:center;gap:.45rem;">&#128722; Venda Manual de Vouchers</h3>
+      <p style="font-size:.82rem;line-height:1.5;color:var(--a-muted);">Envie vouchers directamente para o painel de um agente revendedor sem necessidade de pagamento online. Ideal quando o agente tem dificuldade em usar a plataforma.</p>
+      <div class="ap-card-actions">
+        <a href="{{ route('admin.manual_voucher_sale.create') }}" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed;">Vender Manualmente &rarr;</a>
       </div>
     </div>
   </div>

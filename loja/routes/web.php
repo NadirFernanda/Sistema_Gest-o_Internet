@@ -195,4 +195,8 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::post('/planos-voucher', [VoucherPlanAdminController::class, 'store'])->name('admin.voucher_plans.store');
     Route::put('/planos-voucher/{voucherPlan}', [VoucherPlanAdminController::class, 'update'])->name('admin.voucher_plans.update');
     Route::patch('/planos-voucher/{voucherPlan}/toggle', [VoucherPlanAdminController::class, 'toggle'])->name('admin.voucher_plans.toggle');
+
+    // Venda manual de vouchers a revendedores
+    Route::get('/vender-vouchers-manual', [\App\Http\Controllers\Admin\AdminManualVoucherSaleController::class, 'create'])->name('admin.manual_voucher_sale.create');
+    Route::post('/vender-vouchers-manual', [\App\Http\Controllers\Admin\AdminManualVoucherSaleController::class, 'store'])->name('admin.manual_voucher_sale.store');
 });
