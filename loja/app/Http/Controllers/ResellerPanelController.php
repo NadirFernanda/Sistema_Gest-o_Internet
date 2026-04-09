@@ -30,7 +30,7 @@ class ResellerPanelController extends Controller
         $resellerId  = $request->session()->get('reseller_id');
         $application = null;
         $purchases   = collect();
-        $totals      = ['total_invested' => 0, 'vouchers_total' => 0, 'profit_total' => 0, 'vouchers_in_stock' => 0];
+        $totals      = ['total_invested' => 0, 'vouchers_total' => 0, 'profit_total' => 0, 'vouchers_in_stock' => 0, 'tax_total' => 0, 'gross_total' => 0];
         $monthlySpend    = 0;
         $estimatedProfit = 0;
 
@@ -116,6 +116,8 @@ class ResellerPanelController extends Controller
                     $totals['total_invested'] += $p->net_amount_aoa;
                     $totals['vouchers_total'] += $p->codes_count;
                     $totals['profit_total']   += ($p->profit_aoa ?? 0);
+                    $totals['tax_total']      += ($p->tax_aoa ?? 0);
+                    $totals['gross_total']    += ($p->gross_amount_aoa ?? 0);
                     $estimatedProfit          += ($p->profit_aoa ?? ($p->gross_amount_aoa - $p->net_amount_aoa));
 
                     $slug = $p->plan_slug ?? 'desconhecido';

@@ -1130,6 +1130,26 @@
                         </tr>
                       @endforeach
                     </tbody>
+                    @if($totals['vouchers_total'] > 0)
+                    <tfoot>
+                      <tr style="background:#f8fafc;border-top:2px solid #dde2ea;">
+                        <td colspan="3" style="font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#64748b;padding:.65rem 1rem;">Totais gerais</td>
+                        <td class="r" style="font-weight:800;color:#1a202c;">{{ number_format($totals['vouchers_total'], 0, ',', '.') }}</td>
+                        <td></td>
+                        <td class="r" style="font-weight:800;color:#1a202c;">{{ number_format($totals['total_invested'], 0, ',', '.') }}</td>
+                        <td class="r" style="font-weight:800;color:#dc2626;">{{ number_format($totals['tax_total'], 0, ',', '.') }}</td>
+                        <td class="r" style="font-weight:800;color:#16a34a;">+{{ number_format($totals['profit_total'], 0, ',', '.') }}</td>
+                        <td></td>
+                      </tr>
+                      <tr style="background:#fff7ed;border-top:1px dashed #fed7aa;">
+                        <td colspan="9" style="padding:.55rem 1rem;">
+                          <span style="font-size:.78rem;color:#c2410c;font-weight:700;">&#9888; Imposto Industrial retido (6,5%):&nbsp;</span>
+                          <span style="font-size:.9rem;font-weight:800;color:#9a3412;">{{ number_format($totals['tax_total'], 0, ',', '.') }} Kz</span>
+                          <span style="font-size:.75rem;color:#92400e;margin-left:.75rem;">— valor acumulado a entregar &agrave; AGT</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                    @endif
                   </table>
                 </div>
                 <div class="rv-pagination">{{ $purchases->links() }}</div>
