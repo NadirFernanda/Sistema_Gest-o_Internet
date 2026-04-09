@@ -33,10 +33,10 @@
 
         {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="display:flex;flex:1;min-width:0;gap:6px;">
-                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; flex:1; min-width:0; width:100%; padding:8px 14px; border-radius:8px;" />
-                <button type="submit" class="btn btn-search" style="white-space:nowrap;">Pesquisar</button>
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;min-width:0;">
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; width:100%; min-width:0; padding:8px 14px; border-radius:8px;" />
             </form>
+            <button type="submit" form="formBuscaCliente" class="btn btn-search" style="white-space:nowrap;">Pesquisar</button>
             @can('clientes.create')
                 @php $user = auth()->user(); @endphp
                 @if(!$user || !$user->hasRole('colaborador'))
