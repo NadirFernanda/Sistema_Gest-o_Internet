@@ -33,11 +33,12 @@
 
         {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:0 1 320px;min-width:0;">
-                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; flex:1; min-width:0; padding:8px 14px;" />
-                <button type="submit" class="btn btn-search" style="white-space:nowrap;">Pesquisar</button>
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" style="display:contents;">
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." value="{{ request('busca') }}"
+                       style="flex:1;min-width:160px;max-width:260px;height:40px;padding:8px 14px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:0.95rem;color:#1a1a1a;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.04);" />
+                <button type="submit" style="flex-shrink:0;white-space:nowrap;height:40px;padding:0 18px;border-radius:8px;border:none;background:var(--yellow-500);color:#fff;font-weight:700;font-size:0.9rem;cursor:pointer;">Pesquisar</button>
             </form>
-            <div style="width:1px;height:30px;background:#d1d5db;flex-shrink:0;"></div>
+            <div style="width:1px;height:30px;background:#d1d5db;flex-shrink:0;margin:0 4px;"></div>
             @can('clientes.create')
                 @php $user = auth()->user(); @endphp
                 @if(!$user || !$user->hasRole('colaborador'))
