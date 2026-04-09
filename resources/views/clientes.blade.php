@@ -33,10 +33,11 @@
 
         {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
-            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;min-width:0;display:flex;gap:0;">
-                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; flex:1; min-width:0; padding:8px 14px; border-radius:8px 0 0 8px; border-right:none;" />
-                <button type="submit" class="btn btn-search" style="white-space:nowrap;border-radius:0 8px 8px 0;margin:0;flex-shrink:0;">Pesquisar</button>
+            <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" class="search-form-inline" style="flex:1;min-width:0;">
+                <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." class="search-input" value="{{ request('busca') }}" style="height:40px; flex:1; min-width:0; padding:8px 14px;" />
+                <button type="submit" class="btn btn-search" style="white-space:nowrap;">Pesquisar</button>
             </form>
+            <div style="width:1px;height:30px;background:#d1d5db;flex-shrink:0;"></div>
             @can('clientes.create')
                 @php $user = auth()->user(); @endphp
                 @if(!$user || !$user->hasRole('colaborador'))
