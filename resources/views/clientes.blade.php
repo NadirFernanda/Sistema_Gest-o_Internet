@@ -35,6 +35,7 @@
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
             <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" style="display:contents;">
                 <input type="search" name="busca" id="buscaClientes" placeholder="Pesquise por nome etc..." value="{{ request('busca') }}"
+                       onsearch="this.form.submit()"
                        style="flex:1;min-width:160px;max-width:260px;height:40px;padding:8px 14px;border-radius:8px;border:2px solid var(--yellow-500);background:#fff;font-size:0.95rem;color:#1a1a1a;outline:none;" />
                 <button type="submit" style="flex-shrink:0;white-space:nowrap;height:40px;padding:0 18px;border-radius:8px;border:none;background:var(--yellow-500);color:#fff;font-weight:700;font-size:0.9rem;cursor:pointer;">Pesquisar</button>
             </form>
