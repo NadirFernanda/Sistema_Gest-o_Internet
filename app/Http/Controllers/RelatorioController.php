@@ -140,8 +140,21 @@ class RelatorioController extends Controller
                     $basename = basename($path);
                     Log::warning('relatorios.download.fallback_used', ['requested' => $file, 'served' => $basename]);
                 } else {
-                    Log::warning('relatorios.download.missing_file', ['path' => $path]);
-                    abort(404, 'Arquivo de relatório não encontrado: ' . $basename);
+                    // Ficheiro específico não existe — regenerar o relatório do período e servir a versão mais recente
+                    Log::warning('relatorios.download.missing_file_regenerating', ['path' => $path, 'period' => $period]);
+                    $periodMap = ['diario' => 'daily', 'semanal' => 'weekly', 'mensal' => 'monthly'];
+                    Artisan::call('relatorio:geral', ['--period' => $periodMap[$period] ?? $period]);
+                    $regenerated = Storage::files('relatorios');
+                    usort($regenerated, fn($a, $b) => Storage::lastModified($b) <=> Storage::lastModified($a));
+                    $match = collect($regenerated)->first(function ($f) use ($period) {
+                        return str_contains(strtolower(basename($f)), 'relatorio_geral');
+                    });
+                    if (!$match) {
+                        abort(404, 'Arquivo de relatório não encontrado e não foi possível regenerar.');
+                    }
+                    $path     = $match;
+                    $basename = basename($path);
+                    Log::info('relatorios.download.regenerated', ['served' => $basename]);
                 }
             }
             Log::info('relatorios.download.serving', ['path' => $path, 'basename' => $basename, 'size' => Storage::size($path)]);
@@ -180,8 +193,19 @@ class RelatorioController extends Controller
         }
 
         if (empty($matches)) {
-            Log::warning('relatorios.download.no_matches', ['period' => $period]);
-            abort(404, 'Nenhum relatório disponível para o período: ' . $period);
+            // Nenhum ficheiro encontrado — regenerar e tentar novamente
+            Log::warning('relatorios.download.no_matches_regenerating', ['period' => $period]);
+            $periodMap = ['diario' => 'daily', 'semanal' => 'weekly', 'mensal' => 'monthly'];
+            Artisan::call('relatorio:geral', ['--period' => $periodMap[$period] ?? $period]);
+            $files = Storage::files('relatorios');
+            $matches = array_filter($files, function ($f) use ($period) {
+                return str_contains(strtolower(basename($f)), 'relatorio_geral_' . $period)
+                    || str_contains(strtolower(basename($f)), 'relatorio_geral');
+            });
+            if (empty($matches)) {
+                Log::warning('relatorios.download.no_matches', ['period' => $period]);
+                abort(404, 'Nenhum relatório disponível para o período: ' . $period);
+            }
         }
 
         // sort by last modified desc
