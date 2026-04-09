@@ -8,9 +8,12 @@ use App\Models\EquipmentOrder;
 use App\Models\FamilyPlanRequest;
 use App\Models\Product;
 use App\Models\ResellerApplication;
+use App\Models\ResellerPurchase;
+use App\Models\VoucherPlan;
 use App\Models\WifiCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -124,20 +127,82 @@ class AdminDashboardController extends Controller
 
     public function reports()
     {
-        $byStatus = AutovendaOrder::selectRaw('status, COUNT(*) as total, SUM(amount_aoa) as total_amount')
+        // ── Autovenda ────────────────────────────────────────────────────────
+        $autoByStatus = AutovendaOrder::selectRaw('status, COUNT(*) as total, SUM(amount_aoa) as total_amount')
             ->groupBy('status')
             ->orderBy('status')
             ->get();
 
-        $latestDays = AutovendaOrder::selectRaw('DATE(created_at) as day, COUNT(*) as total, SUM(amount_aoa) as total_amount')
-            ->groupBy('day')
-            ->orderByDesc('day')
-            ->limit(14)
+        $autoByPlan = AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)
+            ->selectRaw('plan_name, plan_id, COUNT(*) as total, SUM(amount_aoa) as total_amount')
+            ->groupBy('plan_name', 'plan_id')
+            ->orderByDesc('total_amount')
             ->get();
 
-        return view('admin.reports', [
-            'byStatus' => $byStatus,
-            'latestDays' => $latestDays,
-        ]);
+        $autoLatestDays = AutovendaOrder::selectRaw('DATE(created_at) as day, COUNT(*) as total, SUM(amount_aoa) as total_amount')
+            ->groupBy('day')
+            ->orderByDesc('day')
+            ->limit(30)
+            ->get();
+
+        $autoTotals = [
+            'total_orders'   => AutovendaOrder::count(),
+            'paid_orders'    => AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)->count(),
+            'revenue_aoa'    => AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)->sum('amount_aoa'),
+            'pending_orders' => AutovendaOrder::where('status', AutovendaOrder::STATUS_AWAITING_PAYMENT)->count(),
+        ];
+
+        // ── Vouchers Revendedor (compras normais + venda manual admin) ────────
+        $resellerByPlan = ResellerPurchase::where('status', 'completed')
+            ->selectRaw('plan_name, plan_slug, SUM(codes_count) as total_codes, SUM(net_amount_aoa) as total_paid, SUM(gross_amount_aoa) as total_gross, SUM(profit_aoa) as total_profit, SUM(tax_aoa) as total_tax')
+            ->groupBy('plan_name', 'plan_slug')
+            ->orderByDesc('total_codes')
+            ->get();
+
+        $resellerByMethod = ResellerPurchase::where('status', 'completed')
+            ->selectRaw('payment_method, COUNT(*) as total, SUM(net_amount_aoa) as total_paid, SUM(codes_count) as total_codes')
+            ->groupBy('payment_method')
+            ->orderByDesc('total_paid')
+            ->get();
+
+        $resellerLatestDays = ResellerPurchase::where('status', 'completed')
+            ->selectRaw('DATE(paid_at) as day, COUNT(*) as total, SUM(codes_count) as total_codes, SUM(net_amount_aoa) as total_paid, SUM(profit_aoa) as total_profit, SUM(tax_aoa) as total_tax')
+            ->whereNotNull('paid_at')
+            ->groupBy('day')
+            ->orderByDesc('day')
+            ->limit(30)
+            ->get();
+
+        $resellerTotals = ResellerPurchase::where('status', 'completed')
+            ->selectRaw('COUNT(*) as total_purchases, SUM(codes_count) as total_codes, SUM(net_amount_aoa) as total_paid, SUM(gross_amount_aoa) as total_gross, SUM(profit_aoa) as total_profit, SUM(tax_aoa) as total_tax')
+            ->first();
+
+        // Top 10 revendedores por volume
+        $topResellers = ResellerPurchase::where('status', 'completed')
+            ->with('application')
+            ->select(
+                'reseller_application_id',
+                DB::raw('SUM(net_amount_aoa) as total_paid'),
+                DB::raw('SUM(codes_count) as total_codes'),
+                DB::raw('SUM(profit_aoa) as total_profit'),
+                DB::raw('SUM(tax_aoa) as total_tax'),
+                DB::raw('COUNT(*) as total_purchases')
+            )
+            ->groupBy('reseller_application_id')
+            ->orderByDesc('total_paid')
+            ->limit(10)
+            ->get();
+
+        // Consolidado geral (autovenda + vouchers revendedor)
+        $grandTotalRevenue = ($autoTotals['revenue_aoa'] ?? 0) + ($resellerTotals->total_paid ?? 0);
+        $grandTotalTax     = $resellerTotals->total_tax ?? 0; // imposto só no canal revendedor
+        $grandTotalOrders  = ($autoTotals['paid_orders'] ?? 0) + ($resellerTotals->total_purchases ?? 0);
+
+        return view('admin.reports', compact(
+            'autoByStatus', 'autoByPlan', 'autoLatestDays', 'autoTotals',
+            'resellerByPlan', 'resellerByMethod', 'resellerLatestDays', 'resellerTotals',
+            'topResellers',
+            'grandTotalRevenue', 'grandTotalTax', 'grandTotalOrders'
+        ));
     }
 }

@@ -21,7 +21,7 @@
             <h4>Planos Individuais – Internet por Hotspot</h4>
             <ul class="steps-list">
               <li>Seleccione a rede AngolaWiFi num dos pontos de cobertura</li>
-              <li>Acesse a loja online clicando no link: <a href="https://www.angolawifi.ao" target="_blank">www.angolawifi.ao</a> ou pode fazé-lo por inter do browser;</li>
+              <li>Acesse a loja online clicando no link: <a href="https://www.angolawifi.ao" target="_blank">www.angolawifi.ao</a> ou ainda comprar de forma presencial num Agente Revendedor Autorizado;</li>
               <li>Escolha o Seu Plano Ideal;</li>
               <li>Clique em finalizar compra;</li>
               <li>Preenche os seus dados;</li>
