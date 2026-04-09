@@ -353,7 +353,7 @@ tr.plan-status-row.status-expired td { background: linear-gradient(180deg,#fbfbf
 /* Toolbar: flexible layout matching provided model */
 .toolbar-flex, .clientes-toolbar, .planos-toolbar, .equipamentos-toolbar, .alertas-toolbar{ display:flex; gap:8px; align-items:center; width:100%; max-width:1100px; margin:18px auto; }
 .toolbar-flex .search-input, .clientes-toolbar .busca-planos-input, .planos-toolbar .search-input { flex:1 1 auto; min-width:140px; padding:10px 14px; border-radius:10px; border:2px solid #e67e00; background:#fff; color:var(--gray-900); box-shadow:none; font-size:0.95rem; }
-.toolbar-flex .btn, .clientes-toolbar .btn, .planos-toolbar .btn, .equipamentos-toolbar .btn { padding:8px 12px; border-radius:8px; border:2px solid #e67e00; background:transparent; color:#e67e00; font-weight:700; white-space:nowrap; }
+.toolbar-flex .btn, .clientes-toolbar .btn, .planos-toolbar .btn, .equipamentos-toolbar .btn { padding:7px 10px; border-radius:8px; border:2px solid #e67e00; background:transparent; color:#e67e00; font-weight:700; white-space:nowrap; font-size:0.88rem; }
 .toolbar-flex .btn-primary, .clientes-toolbar .btn-cta, .planos-toolbar .btn-cta { background:var(--yellow-500) !important; border-color:var(--yellow-500) !important; color:var(--white) !important; }
 .toolbar-actions{ display:flex; gap:8px; align-items:center; }
 @media (max-width:900px){ .toolbar-flex{ flex-direction:column; align-items:stretch; gap:10px; } .toolbar-flex .search-input{ width:100%; } .toolbar-actions{ justify-content:flex-start; } }
