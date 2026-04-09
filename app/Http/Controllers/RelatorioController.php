@@ -76,13 +76,20 @@ class RelatorioController extends Controller
     public function gerarAgora(Request $request)
     {
         if (!Auth::check()) abort(403);
-        // usar Artisan para executar o comando de forma síncrona
         try {
-            Artisan::call('relatorio:geral --period=daily');
-            return redirect()->route('relatorios.gerais')->with('status', 'Geração iniciada. Verifique o histórico em alguns instantes.');
-        } catch (\Exception $ex) {
-            Log::error('Erro gerando relatório via UI: ' . $ex->getMessage());
-            return redirect()->route('relatorios.gerais')->with('error', 'Erro ao iniciar geração do relatório: ' . $ex->getMessage());
+            $exitCode = Artisan::call('relatorio:geral', ['--period' => 'daily']);
+            $output   = Artisan::output();
+            if ($exitCode !== 0) {
+                Log::error('relatorio:geral falhou (exit=' . $exitCode . '): ' . $output);
+                return redirect()->route('relatorios.gerais')
+                    ->with('error', 'Erro ao gerar relatório: ' . trim($output));
+            }
+            return redirect()->route('relatorios.gerais')
+                ->with('status', 'Relatório gerado com sucesso. Verifique o histórico.');
+        } catch (\Throwable $ex) {
+            Log::error('Erro inesperado ao gerar relatório via UI: ' . $ex->getMessage());
+            return redirect()->route('relatorios.gerais')
+                ->with('error', 'Erro inesperado: ' . $ex->getMessage());
         }
     }
     /**

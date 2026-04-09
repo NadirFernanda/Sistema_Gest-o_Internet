@@ -15,6 +15,17 @@
 
     <!-- Toolbar and table styles centralized in resources/css/clientes.css -->
 
+    @if(session('status'))
+        <div style="margin:12px 0;padding:12px 18px;background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;color:#155724;">
+            {{ session('status') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="margin:12px 0;padding:12px 18px;background:#f8d7da;border:1px solid #f5c6cb;border-radius:8px;color:#721c24;white-space:pre-wrap;word-break:break-all;">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="clientes-toolbar">
         <form method="GET" action="{{ route('relatorios.gerais') }}" class="search-form-inline">
             <input type="search" name="q" value="{{ request('q') }}" placeholder="Pesquisar por nome do arquivo..." class="search-input" />
