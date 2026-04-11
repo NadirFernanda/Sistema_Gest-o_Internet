@@ -29,11 +29,13 @@ class ResellerApplication extends Model
         'message',
         'status',
         'notified_at',
+        'approved_at',
         'meta',
     ];
 
     protected $casts = [
         'notified_at'          => 'datetime',
+        'approved_at'          => 'datetime',
         'meta'                 => 'array',
         'installation_fee_aoa' => 'integer',
         'bonus_vouchers_aoa'   => 'integer',
@@ -153,6 +155,13 @@ class ResellerApplication extends Model
     /** True if the monthly maintenance fee has not been paid for the current month. */
     public function maintenanceDueThisMonth(): bool
     {
+        // Período de graça: no mês de aprovação a taxa não é cobrada
+        if ($this->approved_at !== null
+            && $this->approved_at->year  === now()->year
+            && $this->approved_at->month === now()->month) {
+            return false;
+        }
+
         return !(($this->maintenance_paid_year  ?? 0) === now()->year
               && ($this->maintenance_paid_month ?? 0) === now()->month);
     }

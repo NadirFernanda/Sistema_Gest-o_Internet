@@ -90,7 +90,11 @@ class ResellerAdminController extends Controller
         $request->validate(['status' => 'required|in:pending,approved,rejected']);
 
         $oldStatus = $application->status;
-        $application->update(['status' => $request->status]);
+        $updateData = ['status' => $request->status];
+        if ($request->status === 'approved' && $oldStatus !== 'approved') {
+            $updateData['approved_at'] = now();
+        }
+        $application->update($updateData);
 
         // Enviar e-mail automático ao revendedor quando o estado muda para aprovado ou rejeitado
         if ($oldStatus !== $request->status && in_array($request->status, ['approved', 'rejected'])) {
