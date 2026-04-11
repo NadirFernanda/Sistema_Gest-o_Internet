@@ -239,6 +239,11 @@
     </tbody>
   </table>
 
+  {{-- ══ NOTA LEGAL ══ --}}
+  <div style="margin-top:14px;border:1px solid #d1a500;background:#fffbe6;padding:7px 12px;font-size:8px;color:#4a3a00;line-height:1.5;">
+    <strong>Nota:</strong> O presente comprovativo n&#227;o serve de factura ou documento equivalente para efeitos fiscais.
+  </div>
+
   {{-- ══ FOOTER ══ --}}
   <div class="footer">
     <div class="footer-inner">
