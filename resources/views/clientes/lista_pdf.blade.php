@@ -17,6 +17,14 @@
             border-bottom: 3px solid #f7b500;
             padding-bottom: 10px;
         }
+        .header img {
+            max-height: 70px;
+            max-width: 160px;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .header h1 {
             font-size: 18px;
             margin: 0 0 4px 0;
@@ -72,6 +80,7 @@
 </head>
 <body>
     <div class="header">
+        <img src="{{ public_path('img/logo2.jpeg') }}" alt="Angola WiFi">
         <h1>Lista de Clientes</h1>
         <p>Total: {{ $clientes->count() }} cliente(s) &nbsp;|&nbsp; Emitido em: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
