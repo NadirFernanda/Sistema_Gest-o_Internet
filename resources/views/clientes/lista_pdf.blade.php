@@ -14,13 +14,13 @@
         .header {
             text-align: center;
             margin-bottom: 18px;
-            border-bottom: 2px solid #1a73e8;
+            border-bottom: 3px solid #f7b500;
             padding-bottom: 10px;
         }
         .header h1 {
             font-size: 18px;
             margin: 0 0 4px 0;
-            color: #1a3a5c;
+            color: #333333;
         }
         .header p {
             margin: 0;
@@ -33,7 +33,7 @@
             margin-top: 10px;
         }
         thead tr {
-            background: #1a3a5c;
+            background: #f7b500;
             color: #fff;
         }
         thead th {
@@ -43,11 +43,11 @@
             font-weight: bold;
         }
         tbody tr:nth-child(even) {
-            background: #f0f4fa;
+            background: #fffbe7;
         }
         tbody td {
             padding: 6px 8px;
-            border-bottom: 1px solid #dde3ef;
+            border-bottom: 1px solid #e8e8e8;
             font-size: 10px;
         }
         .footer {
