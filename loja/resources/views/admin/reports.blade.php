@@ -215,11 +215,11 @@
         <div class="ap-subkpi-val">{{ number_format($resellerTotals->total_codes ?? 0, 0, ',', '.') }}</div>
       </div>
       <div class="ap-subkpi" style="border-color:#bbf7d0;">
-        <div class="ap-subkpi-label">Pago (revendedor)</div>
+        <div class="ap-subkpi-label">Recebimentos (revendedor)</div>
         <div class="ap-subkpi-val" style="color:var(--a-green);">{{ number_format($resellerTotals->total_paid ?? 0, 0, ',', '.') }} Kz</div>
       </div>
       <div class="ap-subkpi" style="border-color:#d8b4fe;">
-        <div class="ap-subkpi-label">Lucro (revendedor)</div>
+        <div class="ap-subkpi-label">Descontos (revendedor)</div>
         <div class="ap-subkpi-val" style="color:var(--a-purple);">{{ number_format($resellerTotals->total_profit ?? 0, 0, ',', '.') }} Kz</div>
       </div>
       <div class="ap-subkpi" style="border-color:#fecaca;">
@@ -237,7 +237,7 @@
           <p class="ap-empty">Nenhuma compra registada.</p>
         @else
           <table class="ap-table">
-            <thead><tr><th>Plano</th><th>Cód.</th><th>Pago (Kz)</th><th>Lucro (Kz)</th><th>Imposto (Kz)</th></tr></thead>
+            <thead><tr><th>Plano</th><th>Cód.</th><th>Recebimentos (Kz)</th><th>Descontos (Kz)</th><th>Imposto (Kz)</th></tr></thead>
             <tbody>
               @foreach($resellerByPlan as $row)
                 <tr>
@@ -311,7 +311,7 @@
         <p class="ap-empty">Nenhuma actividade recente.</p>
       @else
         <table class="ap-table">
-          <thead><tr><th>Data</th><th>Compras</th><th>Códigos</th><th>Pago (Kz)</th><th>Lucro (Kz)</th><th>Imposto (Kz)</th></tr></thead>
+          <thead><tr><th>Data</th><th>Compras</th><th>Códigos</th><th>Recebimentos (Kz)</th><th>Descontos (Kz)</th><th>Imposto (Kz)</th></tr></thead>
           <tbody>
             @foreach($resellerLatestDays as $row)
               <tr>
@@ -345,7 +345,7 @@
         <p class="ap-empty">Nenhum revendedor com compras concluídas.</p>
       @else
         <table class="ap-table">
-          <thead><tr><th>#</th><th>Revendedor</th><th>Compras</th><th>Códigos</th><th>Pago (Kz)</th><th>Lucro (Kz)</th><th>Imposto (Kz)</th></tr></thead>
+          <thead><tr><th>#</th><th>Revendedor</th><th>Compras</th><th>Códigos</th><th>Recebimentos (Kz)</th><th>Descontos (Kz)</th><th>Imposto (Kz)</th></tr></thead>
           <tbody>
             @foreach($topResellers as $i => $row)
               <tr>
