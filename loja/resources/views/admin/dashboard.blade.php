@@ -178,7 +178,7 @@
         @foreach(['diario','semanal','mensal'] as $pid)
           @php $n = $wifiCodesByPlan[$pid] ?? 0; $pct = min(100, round($n / $maxPlan * 100)); @endphp
           <div class="plan-bar">
-            <span class="plan-bar-name">{!! $wifiPlanText[$pid] !!}</span>
+            <span class="plan-bar-name">{{ $wifiPlanText[$pid] }}</span>
             <div class="plan-bar-track"><div class="plan-bar-fill fill-{{ $pid === 'diario' ? 'blue' : ($pid === 'semanal' ? 'purple' : 'amber') }}" style="width:{{ $pct }}%"></div></div>
             <span class="plan-bar-count {{ $n===0 ? 'c-out' : ($n<5 ? 'c-low' : 'c-ok') }}">{{ $n }}</span>
           </div>

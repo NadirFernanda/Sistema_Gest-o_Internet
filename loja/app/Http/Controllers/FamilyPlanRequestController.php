@@ -96,7 +96,7 @@ class FamilyPlanRequestController extends Controller
                 'found'  => true,
                 'name'   => $record->customer_name,
                 'email'  => $record->customer_email ?? '',
-                'nif'    => $record->customer_nif ?? '',
+                // NIF não é devolvido pelo lookup público (reduz exposição de PII)
                 'source' => 'loja',
             ]);
         }
@@ -109,7 +109,7 @@ class FamilyPlanRequestController extends Controller
                 'found'  => true,
                 'name'   => $sgResult['name']  ?? '',
                 'email'  => $sgResult['email'] ?? '',
-                'nif'    => $sgResult['nif']   ?? '',
+                // NIF não é devolvido pelo lookup público (reduz exposição de PII)
                 'source' => 'sg',
             ]);
         }

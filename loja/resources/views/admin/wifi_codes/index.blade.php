@@ -183,7 +183,7 @@
     $available = $statusCounts['available'] ?? 0;
     $used      = $statusCounts['used']      ?? 0;
     $reserved  = $statusCounts['reserved']  ?? 0;
-    $planLabels = ['diario' => 'Di&aacute;rio', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
+    $planLabels = ['diario' => 'Diário', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
     $planText   = ['diario' => 'Diário',        'semanal' => 'Semanal', 'mensal' => 'Mensal'];
   @endphp
   <div class="ap-stats">
@@ -209,7 +209,7 @@
         $cls = $n === 0 ? 'c-out' : ($n < 5 ? 'c-low' : 'c-ok');
       @endphp
       <div class="ap-plan ap-plan-{{ $pid }}">
-        <p class="ap-plan-name">{!! $planLabels[$pid] !!}</p>
+        <p class="ap-plan-name">{{ $planLabels[$pid] }}</p>
         <p class="ap-plan-val {{ $cls }}">{{ $n }}</p>
         <p class="ap-plan-note {{ $cls }}">
           @if($n === 0) &otimes; Stock esgotado

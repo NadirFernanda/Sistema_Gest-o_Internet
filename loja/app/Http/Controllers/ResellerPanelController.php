@@ -741,9 +741,10 @@ class ResellerPanelController extends Controller
 
         if (!Storage::disk('local')->exists($purchase->csv_path)) abort(404, 'CSV não encontrado.');
 
+        $safeSlug = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $purchase->plan_slug ?? 'compra');
         return response()->streamDownload(function () use ($purchase) {
             echo Storage::disk('local')->get($purchase->csv_path);
-        }, 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.csv', [
+        }, 'vouchers_' . $safeSlug . '_' . $purchase->id . '.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -770,10 +771,11 @@ class ResellerPanelController extends Controller
             $lines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
         }
 
-        $filename = 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.csv';
+        $safeSlug = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $purchase->plan_slug ?? 'compra');
+        $filename = 'vouchers_' . $safeSlug . '_' . $purchase->id . '.csv';
         return response(implode("\n", $lines) . "\n")
             ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -884,7 +886,8 @@ class ResellerPanelController extends Controller
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        $filename = 'vouchers_' . ($purchase->plan_slug ?? 'compra') . '_' . $purchase->id . '.pdf';
+        $safeSlug = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $purchase->plan_slug ?? 'compra');
+        $filename = 'vouchers_' . $safeSlug . '_' . $purchase->id . '.pdf';
 
         return response($dompdf->output())
             ->header('Content-Type', 'application/pdf')
