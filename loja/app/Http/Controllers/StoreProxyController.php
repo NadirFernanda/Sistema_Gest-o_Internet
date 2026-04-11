@@ -15,6 +15,15 @@ class StoreProxyController extends Controller
         return json_decode($raw, true) ?: null;
     }
 
+    /**
+     * Em produção, verificar o certificado TLS do SG (previne MITM).
+     * Em local/testing, desactivar para permitir certificados auto-assinados.
+     */
+    private function tlsVerify(): bool
+    {
+        return app()->isProduction();
+    }
+
     protected function getToken(): ?string
     {
         // Cache do token OAuth por 50 minutos (tokens tipicamente duram 1 hora)
@@ -29,7 +38,7 @@ class StoreProxyController extends Controller
 
         if (! $sg || ! $clientId || ! $clientSecret) return null;
 
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
         try {
             $res = $http->post($tokenPath, [
                 'form_params' => [
@@ -58,7 +67,7 @@ class StoreProxyController extends Controller
         // Aqui fazemos apenas um proxy HTTP, sem simulações nem mocks.
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
 
         try {
             $res = $http->get('/api/planos', [
@@ -90,7 +99,7 @@ class StoreProxyController extends Controller
         }
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
 
         try {
             $res = $http->get('/api/plan-templates', [
@@ -127,7 +136,7 @@ class StoreProxyController extends Controller
         }
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
 
         try {
             $res = $http->get('/api/equipment-catalog', [
@@ -160,7 +169,7 @@ class StoreProxyController extends Controller
 
         $payload = $request->all();
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
         $res = $http->post('/api/orders/sync', [
             'headers' => [
                 'Authorization' => "Bearer $token",
@@ -185,7 +194,7 @@ class StoreProxyController extends Controller
     public function lookupClienteSG(string $phone): array
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
 
         $headers = ['Accept' => 'application/json'];
         $apiToken = config('services.sg.api_token');
@@ -242,7 +251,7 @@ class StoreProxyController extends Controller
         }
 
         try {
-            $res = (new Client(['timeout' => 4, 'verify' => false]))->get($sg . $apiPath, [
+            $res = (new Client(['timeout' => 4, 'verify' => $this->tlsVerify()]))->get($sg . $apiPath, [
                 'headers'     => $headers,
                 'http_errors' => false,
             ]);
@@ -268,7 +277,7 @@ class StoreProxyController extends Controller
     public function syncJanela(array $data): array
     {
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')), '/');
-        $http = new Client(['base_uri' => $sg, 'verify' => false]);
+        $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
 
         $headers = ['Accept' => 'application/json'];
         $apiToken = config('services.sg.api_token');

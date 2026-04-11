@@ -161,17 +161,20 @@
           @php
             $planLower = mb_strtolower($req->plan_name);
             if (str_contains($planLower, 'institucional')) {
-                $typeBadge = '<span class="badge bg-sky">Institucional</span>';
+                $typeLabel = 'Institucional';
+                $typeClass = 'badge bg-sky';
             } elseif (str_contains($planLower, 'empresarial')) {
-                $typeBadge = '<span class="badge bg-orange">Empresarial</span>';
+                $typeLabel = 'Empresarial';
+                $typeClass = 'badge bg-orange';
             } else {
-                $typeBadge = '<span class="badge bg-blue">Familiar</span>';
+                $typeLabel = 'Familiar';
+                $typeClass = 'badge bg-blue';
             }
           @endphp
           <tr>
             <td class="dim">{{ $req->id }}</td>
             <td>
-              {!! $typeBadge !!}
+              <span class="{{ $typeClass }}">{{ $typeLabel }}</span>
               <br><span style="font-weight:600;font-size:.85rem;">{{ $req->plan_name }}</span>
               @if($req->plan_preco)
                 <br><span class="dim">{{ number_format($req->plan_preco, 0, ',', '.') }} AOA/m&ecirc;s</span>

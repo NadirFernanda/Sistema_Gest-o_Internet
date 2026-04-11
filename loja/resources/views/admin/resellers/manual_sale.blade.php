@@ -204,7 +204,7 @@ function addItem() {
   div.className = 'ms-item';
   div.id = 'item_' + itemIndex;
 
-  const planOptions = `{!! implode('', $voucherPlans->map(fn($vp) => '<option value="' . $vp->slug . '" data-price="' . $vp->price_reseller_aoa . '" data-public="' . $vp->price_public_aoa . '" data-stock="' . $vp->availableStock() . '" data-name="' . addslashes($vp->name) . '">' . addslashes($vp->name) . ' — ' . number_format($vp->price_public_aoa, 0, ',', '.') . ' Kz (stock: ' . $vp->availableStock() . ')</option>')->toArray()) !!}`;
+  const planOptions = `{!! implode('', $voucherPlans->map(fn($vp) => '<option value="' . e($vp->slug) . '" data-price="' . (int)$vp->price_reseller_aoa . '" data-public="' . (int)$vp->price_public_aoa . '" data-stock="' . (int)$vp->availableStock() . '" data-name="' . e($vp->name) . '">' . e($vp->name) . ' — ' . number_format($vp->price_public_aoa, 0, ',', '.') . ' Kz (stock: ' . (int)$vp->availableStock() . ')</option>')->toArray()) !!}`;
 
   div.innerHTML = `
     <div>
