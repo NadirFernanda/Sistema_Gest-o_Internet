@@ -549,8 +549,11 @@ main .container {
 .reseller-form { display:flex; flex-direction:column; gap:.75rem; }
 .reseller-form-row { display:flex; flex-direction:column; gap:.25rem; }
 .reseller-form-row label { font-size:.9rem; font-weight:600; color:var(--text-dark); }
-.reseller-form-row input { width:100%; box-sizing:border-box; padding:.7rem .9rem; border-radius:8px; border:1px solid rgba(226,232,240,.9); font-size:.95rem; transition: border-color .15s, box-shadow .15s; }
-.reseller-form-row input:focus { outline:none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(247,181,0,.15); }
+.reseller-form-row input:not([type=radio]) { width:100%; box-sizing:border-box; padding:.7rem .9rem; border-radius:8px; border:1px solid rgba(226,232,240,.9); font-size:.95rem; transition: border-color .15s, box-shadow .15s; }
+.reseller-form-row input:not([type=radio]):focus { outline:none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(247,181,0,.15); }
+.reseller-radio-group { display:flex; flex-direction:column; gap:.55rem; margin-top:.15rem; }
+.reseller-radio-option { display:flex; align-items:center; gap:.6rem; cursor:pointer; font-size:.95rem; font-weight:500; color:var(--text-dark); }
+.reseller-radio-option input[type=radio] { width:1.1rem; height:1.1rem; flex-shrink:0; accent-color:var(--brand); cursor:pointer; }
 
 /* Checkout page */
 .checkout-page { margin-top: 2rem; margin-bottom: 3rem; }
