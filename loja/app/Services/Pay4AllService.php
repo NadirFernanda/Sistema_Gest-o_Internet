@@ -17,6 +17,7 @@ class Pay4AllService
     private string $apiUrl;
     private string $merchantIdentifier;
     private string $apiKey;
+    private string $webhookUrl;
 
     public function __construct()
     {
@@ -29,6 +30,7 @@ class Pay4AllService
         $this->apiUrl             = rtrim(config('services.pay4all.api_url'), '/');
         $this->merchantIdentifier = config('services.pay4all.merchant_identifier', '');
         $this->apiKey             = config('services.pay4all.api_key', '');
+        $this->webhookUrl         = config('services.pay4all.webhook_url', '');
     }
 
     /**
@@ -89,6 +91,10 @@ class Pay4AllService
                 'smsNotification' => true,
             ],
         ];
+
+        if ($this->webhookUrl) {
+            $payload['notificationUrl'] = $this->webhookUrl;
+        }
 
         if ($this->merchantIdentifier && $this->apiKey) {
             $payload['options'] = [
