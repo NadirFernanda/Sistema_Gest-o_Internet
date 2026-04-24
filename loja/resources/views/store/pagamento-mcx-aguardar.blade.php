@@ -33,7 +33,14 @@
       {{-- Estado dinâmico --}}
       <p style="margin-top:1rem;">
         <span class="label">Estado: </span>
-        <strong id="statusTexto">{{ ucfirst($order->status) }}</strong>
+        <strong id="statusTexto">{{ match(strtolower($order->status ?? '')) {
+            'awaiting_payment', 'pending', 'pendente' => 'A aguardar pagamento',
+            'paid', 'aprovado', 'approved'            => 'Pago',
+            'failed', 'erro'                          => 'Falhou',
+            'cancelled', 'recusado', 'rejected'       => 'Recusado',
+            'expired'                                 => 'Expirado',
+            default                                   => ucfirst($order->status ?? 'Pendente'),
+        } }}</strong>
       </p>
 
       {{-- Código WiFi (aparece após aprovação) --}}
@@ -103,7 +110,7 @@
       .then(r => r.json())
       .then(data => {
         document.getElementById('statusTexto').textContent =
-          data.status.charAt(0).toUpperCase() + data.status.slice(1);
+          data.status_pt || data.status;
 
         if (data.is_paid) {
           mostrarAprovado(data.wifi_code, data.redirect_url);

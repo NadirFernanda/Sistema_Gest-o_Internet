@@ -108,9 +108,19 @@ class Pay4AllController extends Controller
     {
         $order->refresh();
 
+        $statusPt = match(strtolower($order->status ?? '')) {
+            'awaiting_payment', 'pending', 'pendente' => 'A aguardar pagamento',
+            'paid', 'aprovado', 'approved'            => 'Pago',
+            'failed', 'erro'                          => 'Falhou',
+            'cancelled', 'recusado', 'rejected'       => 'Recusado',
+            'expired', 'expirado'                     => 'Expirado',
+            default                                   => ucfirst($order->status ?? 'Desconhecido'),
+        };
+
         $data = [
-            'status'  => $order->status,
-            'is_paid' => $order->isPaid(),
+            'status'    => $order->status,
+            'status_pt' => $statusPt,
+            'is_paid'   => $order->isPaid(),
         ];
 
         if ($order->isPaid()) {
