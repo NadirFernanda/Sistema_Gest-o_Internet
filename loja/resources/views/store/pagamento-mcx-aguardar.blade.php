@@ -54,10 +54,10 @@
       <div id="mensagemAguardar">
         <h2>Como autorizar</h2>
         <ol style="padding-left:1.2rem; line-height:2;">
-          <li>Abra a app <strong>Multicaixa Express</strong> no seu telemóvel.</li>
-          <li>Toque em <strong>Notificações</strong> ou <strong>Pedidos</strong>.</li>
-          <li>Localize o pedido de <strong>{{ number_format($order->amount_aoa, 0, ',', '.') }} AOA</strong> da AngolaWiFi.</li>
-          <li>Autorize o pagamento com o seu PIN.</li>
+          <li>Verifique as <strong>notificações do telemóvel</strong> — a app Multicaixa Express envia um alerta de pagamento.</li>
+          <li>Toque na notificação para abrir o pedido de <strong>{{ number_format($order->amount_aoa, 0, ',', '.') }} AOA</strong>.</li>
+          <li>Se não recebeu notificação, abra a app e toque em <strong>Pagamentos</strong> → <strong>GPO</strong>.</li>
+          <li>Introduza o seu <strong>PIN</strong> para autorizar.</li>
         </ol>
         <p class="checkout-note">Esta página atualiza automaticamente. Não feche o navegador.</p>
       </div>
