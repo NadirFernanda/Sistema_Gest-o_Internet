@@ -30,9 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\TrackOnlineVisitors::class,
         ]);
 
-        // Gateway de pagamento não pode enviar token CSRF — isentar o webhook
+        // Gateways de pagamento não podem enviar token CSRF — isentar os webhooks
         $middleware->validateCsrfTokens(except: [
             'payment/familia/webhook',
+            'webhooks/pay4all',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

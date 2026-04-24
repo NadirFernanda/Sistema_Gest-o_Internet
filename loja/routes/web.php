@@ -46,6 +46,15 @@ Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'sh
 // Checkout rápido pode receber o plano pela URL ou por query string ?plan=
 Route::get('/checkout/{plan?}', [\App\Http\Controllers\StorefrontController::class, 'checkout'])->name('store.checkout');
 Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'processCheckout'])->middleware('throttle:10,1')->name('store.checkout.process');
+Route::get('/checkout/confirmacao/{order}', [\App\Http\Controllers\StorefrontController::class, 'checkoutConfirm'])->name('store.checkout.confirm');
+
+// Pay4All (Multicaixa Express GPO) — planos individuais
+// POST /webhooks/pay4all é CSRF-exempt (ver bootstrap/app.php)
+Route::get('/pagar/mcx/{order}', [\App\Http\Controllers\Pay4AllController::class, 'iniciar'])->name('pay4all.iniciar');
+Route::post('/pagar/mcx/{order}', [\App\Http\Controllers\Pay4AllController::class, 'processar'])->middleware('throttle:5,1')->name('pay4all.processar');
+Route::get('/pagar/mcx/{order}/aguardar', [\App\Http\Controllers\Pay4AllController::class, 'aguardar'])->name('pay4all.aguardar');
+Route::get('/pagar/mcx/{order}/status', [\App\Http\Controllers\Pay4AllController::class, 'status'])->middleware('throttle:60,1')->name('pay4all.status');
+Route::post('/webhooks/pay4all', [\App\Http\Controllers\Pay4AllController::class, 'webhook'])->middleware('throttle:30,1')->name('webhooks.pay4all');
 
 // Planos Familiares & Empresariais — checkout com identificação do cliente
 // (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
