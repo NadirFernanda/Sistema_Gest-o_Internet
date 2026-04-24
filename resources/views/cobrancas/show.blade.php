@@ -23,5 +23,11 @@
         </div>
     </div>
     <a href="{{ route('cobrancas.comprovante', $cobranca->id) }}" class="btn btn-primary mt-3" target="_blank">Gerar Comprovante PDF</a>
+
+    @if($cobranca->status !== 'pago')
+        <a href="{{ route('pagamentos.iniciar', $cobranca) }}" class="btn btn-danger mt-3">
+            💳 Pagar via Multicaixa Express
+        </a>
+    @endif
 </div>
 @endsection

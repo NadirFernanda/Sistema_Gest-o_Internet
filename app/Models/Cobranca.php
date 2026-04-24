@@ -29,6 +29,16 @@ class Cobranca extends Model
         return $this->belongsTo(Cliente::class);
     }
 
+    public function pagamentos()
+    {
+        return $this->hasMany(Pagamento::class);
+    }
+
+    public function ultimoPagamento()
+    {
+        return $this->hasOne(Pagamento::class)->latestOfMany();
+    }
+
     // Presentation helpers (use in views/controllers without extra parsing)
     public function getValorFormatadoAttribute()
     {

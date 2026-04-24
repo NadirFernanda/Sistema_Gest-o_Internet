@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // API routes use X-API-TOKEN header for internal SG frontend calls.
         // Do NOT add StartSession here — it would overwrite the web session cookie
         // and log the user out on every API call made by the frontend JS.
+
+        // Excluir o webhook Pay4All da verificação CSRF
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/pay4all',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

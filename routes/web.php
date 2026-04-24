@@ -155,6 +155,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/plan-templates/list.json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson']);
     Route::get('/plan-templates-list-json', [\App\Http\Controllers\PlanTemplateController::class, 'listJson'])->name('plan-templates.list.json');
 
+    // Rotas de pagamento via Pay4All (Multicaixa Express GPO)
+    Route::prefix('pagamentos')->name('pagamentos.')->group(function () {
+        Route::get('/cobranca/{cobranca}/iniciar', [\App\Http\Controllers\PagamentoController::class, 'iniciar'])
+            ->name('iniciar');
+        Route::post('/cobranca/{cobranca}/processar', [\App\Http\Controllers\PagamentoController::class, 'processar'])
+            ->name('processar');
+        Route::get('/{pagamento}/aguardar', [\App\Http\Controllers\PagamentoController::class, 'aguardar'])
+            ->name('aguardar');
+        Route::get('/{pagamento}/status', [\App\Http\Controllers\PagamentoController::class, 'status'])
+            ->name('status');
+    });
+
     // Debug routes only available when APP_DEBUG=true
     if (config('app.debug')) {
         Route::get('/debug/plan-template-counts', [\App\Http\Controllers\PlanTemplateController::class, 'debugCounts'])->name('debug.plan-template-counts');
@@ -164,6 +176,10 @@ Route::middleware('auth')->group(function () {
     // Export routes removed per request
 
 });
+// Webhook Pay4All — rota pública, sem autenticação nem CSRF
+Route::post('/webhooks/pay4all', [\App\Http\Controllers\PagamentoController::class, 'webhook'])
+    ->name('webhooks.pay4all');
+
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'index'])->name('estoque_equipamentos.index');

@@ -58,6 +58,17 @@ return [
         ],
     ],
 
+    'pay4all' => [
+        'client_id'          => env('PAY4ALL_CLIENT_ID', '04278597'),
+        'client_secret'      => env('PAY4ALL_CLIENT_SECRET', ''),
+        'resource'           => env('PAY4ALL_RESOURCE', ''),
+        'payment_method'     => env('PAY4ALL_PAYMENT_METHOD', ''),
+        'notification_token' => env('PAY4ALL_NOTIFICATION_TOKEN', ''),
+        'token_url'          => env('PAY4ALL_TOKEN_URL', 'https://login.microsoftonline.com/appypaydev.onmicrosoft.com/oauth2/token'),
+        'api_url'            => env('PAY4ALL_API_URL', 'https://gwy-api-tst.appypay.co.ao/v2.0'),
+        'test_mode'          => env('PAY4ALL_TEST_MODE', true),
+    ],
+
     // Integração com a loja (Storefront)
     // Usado pelo dashboard do SG para montar o link do painel da loja
     'sg' => [
