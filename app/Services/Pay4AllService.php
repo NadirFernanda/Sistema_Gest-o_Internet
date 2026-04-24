@@ -37,7 +37,7 @@ class Pay4AllService
     public function getToken(): string
     {
         return Cache::remember('pay4all_access_token', 3300, function () {
-            $response = Http::asForm()->get($this->tokenUrl, [
+            $response = Http::asForm()->post($this->tokenUrl, [
                 'grant_type'    => 'client_credentials',
                 'client_id'     => $this->clientId,
                 'client_secret' => $this->clientSecret,
@@ -52,7 +52,13 @@ class Pay4AllService
                 throw new \RuntimeException('Não foi possível autenticar com o gateway de pagamento Pay4All.');
             }
 
-            return $response->json('access_token');
+            $token = $response->json('access_token');
+            if (empty($token)) {
+                Log::error('Pay4All: token vazio na resposta', ['body' => $response->body()]);
+                throw new \RuntimeException('Resposta inválida do gateway de pagamento Pay4All.');
+            }
+
+            return $token;
         });
     }
 
