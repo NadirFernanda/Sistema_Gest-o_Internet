@@ -72,12 +72,10 @@ class PagamentoController extends Controller
                 customerName:  $cobranca->cliente->nome ?? null,
             );
 
-            // Atualizar com o ID do gateway se retornado imediatamente
+            // A resposta 202 (async) não contém responseStatus — apenas regista o ID se presente
             $pagamento->update([
                 'gateway_transaction_id' => $resposta['id'] ?? null,
-                'gateway_status'         => $resposta['responseStatus']['status'] ?? null,
-                'gateway_code'           => $resposta['responseStatus']['code'] ?? null,
-                'gateway_message'        => $resposta['responseStatus']['message'] ?? null,
+                'gateway_status'         => $resposta['operationStatus'] ?? null,
             ]);
 
             return redirect()->route('pagamentos.aguardar', $pagamento)
@@ -133,12 +131,12 @@ class PagamentoController extends Controller
             return response()->json(['error' => 'Transaction not found'], 404);
         }
 
-        // Mapear status do gateway para status local
-        $statusLocal = match (strtolower($dados['status'])) {
-            'success'   => 'aprovado',
-            'failed'    => 'recusado',
-            'pending'   => 'pendente',
-            'requested' => 'processando',
+        // Mapear status normalizado (vem de parseWebhookPayload) para status local
+        $statusLocal = match ($dados['status']) {
+            'approved'  => 'aprovado',
+            'rejected'  => 'recusado',
+            'cancelled' => 'recusado',
+            'failed'    => 'erro',
             default     => 'erro',
         };
 

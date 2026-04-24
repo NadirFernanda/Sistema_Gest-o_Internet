@@ -15,16 +15,20 @@ class Pay4AllService
     private string $notificationToken;
     private string $tokenUrl;
     private string $apiUrl;
+    private string $merchantIdentifier;
+    private string $apiKey;
 
     public function __construct()
     {
-        $this->clientId          = config('services.pay4all.client_id');
-        $this->clientSecret      = config('services.pay4all.client_secret');
-        $this->resource          = config('services.pay4all.resource');
-        $this->paymentMethod     = config('services.pay4all.payment_method');
-        $this->notificationToken = config('services.pay4all.notification_token');
-        $this->tokenUrl          = config('services.pay4all.token_url');
-        $this->apiUrl            = rtrim(config('services.pay4all.api_url'), '/');
+        $this->clientId           = config('services.pay4all.client_id');
+        $this->clientSecret       = config('services.pay4all.client_secret');
+        $this->resource           = config('services.pay4all.resource');
+        $this->paymentMethod      = config('services.pay4all.payment_method');
+        $this->notificationToken  = config('services.pay4all.notification_token');
+        $this->tokenUrl           = config('services.pay4all.token_url');
+        $this->apiUrl             = rtrim(config('services.pay4all.api_url'), '/');
+        $this->merchantIdentifier = config('services.pay4all.merchant_identifier', '');
+        $this->apiKey             = config('services.pay4all.api_key', '');
     }
 
     /**
@@ -80,6 +84,13 @@ class Pay4AllService
             ],
         ];
 
+        if ($this->merchantIdentifier && $this->apiKey) {
+            $payload['options'] = [
+                'MerchantIdentifier' => $this->merchantIdentifier,
+                'ApiKey'             => $this->apiKey,
+            ];
+        }
+
         $response = Http::withToken($token)
             ->withHeaders([
                 'Content-Type'    => 'application/json',
@@ -116,18 +127,33 @@ class Pay4AllService
 
     /**
      * Processa o payload do webhook e retorna os dados normalizados.
+     *
+     * Estrutura do webhook GPO (conforme PDF Pay4All v2.7):
+     *   operationStatus: 1=Sucesso, 3=Cancelado/Expirado, 4=Falhado/Recusado, 5=Erro
      */
     public function parseWebhookPayload(array $payload): array
     {
+        $operationStatus = (int) ($payload['operationStatus'] ?? -1);
+
+        $successful = $operationStatus === 1;
+        $status = match ($operationStatus) {
+            1       => 'approved',
+            3       => 'cancelled',
+            4       => 'rejected',
+            5       => 'failed',
+            default => 'unknown',
+        };
+
         return [
-            'transaction_id' => $payload['id'] ?? null,
-            'merchant_tx_id' => $payload['merchantTransactionId'] ?? null,
-            'status'         => strtolower($payload['responseStatus']['status'] ?? 'unknown'),
-            'code'           => $payload['responseStatus']['code'] ?? null,
-            'message'        => $payload['responseStatus']['message'] ?? null,
-            'successful'     => (bool) ($payload['responseStatus']['successful'] ?? false),
-            'amount'         => $payload['amount'] ?? null,
-            'currency'       => $payload['currency'] ?? 'AOA',
+            'transaction_id'   => $payload['ekwanzaTransactionId'] ?? ($payload['id'] ?? null),
+            'merchant_tx_id'   => $payload['merchantTransactionId'] ?? null,
+            'status'           => $status,
+            'operation_status' => $operationStatus,
+            'successful'       => $successful,
+            'amount'           => $payload['operationData']['amount'] ?? ($payload['amount'] ?? null),
+            'currency'         => 'AOA',
+            'message'          => null,
+            'code'             => null,
         ];
     }
 
