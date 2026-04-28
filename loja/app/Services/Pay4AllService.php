@@ -103,13 +103,17 @@ class Pay4AllService
             ];
         }
 
-        $response = Http::withToken($token)
-            ->withHeaders([
-                'Content-Type'    => 'application/json',
-                'Accept'          => 'application/vnd.appypay.asyncapi+json',
-                'Accept-Language' => 'pt-BR',
-            ])
-            ->post("{$this->apiUrl}/charges", $payload);
+        $response = $this->doChargeRequest($token, $payload);
+
+        // Token expirado: limpa cache e retenta uma vez com token novo
+        if ($response->status() === 401) {
+            Cache::forget('pay4all_access_token_loja');
+            Log::warning('Pay4All[loja]: token expirado (401), a renovar e a retentar', [
+                'transactionId' => $transactionId,
+            ]);
+            $token    = $this->getToken();
+            $response = $this->doChargeRequest($token, $payload);
+        }
 
         Log::info('Pay4All[loja]: createCharge', [
             'transactionId' => $transactionId,
@@ -127,6 +131,17 @@ class Pay4AllService
         }
 
         return $response->json() ?? [];
+    }
+
+    private function doChargeRequest(string $token, array $payload): \Illuminate\Http\Client\Response
+    {
+        return Http::withToken($token)
+            ->withHeaders([
+                'Content-Type'    => 'application/json',
+                'Accept'          => 'application/vnd.appypay.asyncapi+json',
+                'Accept-Language' => 'pt-BR',
+            ])
+            ->post("{$this->apiUrl}/charges", $payload);
     }
 
     /**
