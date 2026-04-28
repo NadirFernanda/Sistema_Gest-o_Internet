@@ -135,12 +135,19 @@ class Pay4AllService
 
     private function doChargeRequest(string $token, array $payload): \Illuminate\Http\Client\Response
     {
+        $headers = [
+            'Content-Type'    => 'application/json',
+            'Accept'          => 'application/vnd.appypay.asyncapi+json',
+            'Accept-Language' => 'pt-BR',
+        ];
+
+        // Azure APIM gateway requer a chave de subscrição como header HTTP
+        if ($this->apiKey) {
+            $headers['Ocp-Apim-Subscription-Key'] = $this->apiKey;
+        }
+
         return Http::withToken($token)
-            ->withHeaders([
-                'Content-Type'    => 'application/json',
-                'Accept'          => 'application/vnd.appypay.asyncapi+json',
-                'Accept-Language' => 'pt-BR',
-            ])
+            ->withHeaders($headers)
             ->post("{$this->apiUrl}/charges", $payload);
     }
 
