@@ -78,7 +78,6 @@ class Pay4AllController extends Controller
                 phoneNumber:   $phone,
                 transactionId: $merchantId,
                 description:   'AngolaWiFi ' . $order->plan_name,
-                customerName:  $order->customer_name ?? 'Cliente',
             );
         } catch (\Throwable $e) {
             Log::error('Pay4All[loja]: erro ao iniciar cobrança', [

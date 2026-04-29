@@ -71,8 +71,7 @@ class Pay4AllService
         float $amount,
         string $phoneNumber,
         string $transactionId,
-        string $description = 'Compra AngolaWiFi',
-        ?string $customerName = null
+        string $description = 'Compra AngolaWiFi'
     ): array {
         $token = $this->getToken();
 
@@ -82,25 +81,17 @@ class Pay4AllService
             'description'          => $this->sanitizeDescription($description),
             'merchantTransactionId' => substr(preg_replace('/[^a-zA-Z0-9]/', '', $transactionId), 0, 15),
             'paymentMethod'        => $this->paymentMethod,
+            'options'              => [
+                'MerchantIdentifier' => $this->merchantIdentifier,
+                'ApiKey'             => $this->apiKey,
+            ],
             'paymentInfo'          => [
                 'phoneNumber' => $phoneNumber,
-            ],
-            'notify' => [
-                'name'            => $customerName ?? 'Cliente',
-                'telephone'       => $phoneNumber,
-                'smsNotification' => true,
             ],
         ];
 
         if ($this->webhookUrl) {
             $payload['notificationUrl'] = $this->webhookUrl;
-        }
-
-        if ($this->merchantIdentifier && $this->apiKey) {
-            $payload['options'] = [
-                'MerchantIdentifier' => $this->merchantIdentifier,
-                'ApiKey'             => $this->apiKey,
-            ];
         }
 
         $response = $this->doChargeRequest($token, $payload);
@@ -135,19 +126,11 @@ class Pay4AllService
 
     private function doChargeRequest(string $token, array $payload): \Illuminate\Http\Client\Response
     {
-        $headers = [
-            'Content-Type'    => 'application/json',
-            'Accept'          => 'application/vnd.appypay.asyncapi+json',
-            'Accept-Language' => 'pt-BR',
-        ];
-
-        // Azure APIM gateway requer a chave de subscrição como header HTTP
-        if ($this->apiKey) {
-            $headers['Ocp-Apim-Subscription-Key'] = $this->apiKey;
-        }
-
         return Http::withToken($token)
-            ->withHeaders($headers)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept'       => 'application/json',
+            ])
             ->post("{$this->apiUrl}/charges", $payload);
     }
 
