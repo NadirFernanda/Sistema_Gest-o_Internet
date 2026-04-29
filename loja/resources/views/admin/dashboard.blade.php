@@ -100,6 +100,7 @@
     <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>
     <a href="{{ route('admin.manual_voucher_sale.create') }}">Venda Manual</a>
     <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
+    <a href="{{ route('admin.appointments.index') }}">Agendamentos</a>
     <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
     <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
     <a href="{{ route('admin.family_requests.index') }}">Planos</a>

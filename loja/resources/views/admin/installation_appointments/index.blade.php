@@ -50,6 +50,9 @@
 .ap-toggle{background:none;border:1px solid var(--a-border);border-radius:7px;padding:.25rem .65rem;font-size:.78rem;font-weight:600;color:var(--a-muted);cursor:pointer;font-family:inherit;transition:border-color .15s;}
 .ap-toggle:hover{border-color:var(--a-brand);color:var(--a-text);}
 .ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
+.ap-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.75rem;}
+.ap-nav a{font-size:.8rem;font-weight:600;padding:.38rem .85rem;border-radius:7px;border:1px solid var(--a-border);background:var(--a-surf);color:var(--a-muted);text-decoration:none;}
+.ap-nav a:hover,.ap-nav a.here{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;}
 </style>
 
 <div class="ap"><div class="ap-wrap">
@@ -61,6 +64,21 @@
     </div>
     <a href="{{ route('admin.dashboard') }}" class="ap-back">&larr; Dashboard</a>
   </div>
+
+  <nav class="ap-nav">
+    <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ route('admin.autovenda.index') }}">Recargas</a>
+    <a href="{{ route('admin.wifi_codes.index') }}">C&oacute;digos WiFi</a>
+    <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>
+    <a href="{{ route('admin.manual_voucher_sale.create') }}">Venda Manual</a>
+    <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
+    <a href="{{ route('admin.appointments.index') }}" class="here">Agendamentos</a>
+    <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
+    <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
+    <a href="{{ route('admin.family_requests.index') }}">Planos</a>
+    <a href="{{ route('admin.site_stats.index') }}">Estat&iacute;sticas</a>
+    <a href="{{ route('admin.reports') }}">Relat&oacute;rios</a>
+  </nav>
 
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
