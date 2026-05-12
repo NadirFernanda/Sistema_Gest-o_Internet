@@ -45,6 +45,13 @@
 
         <form method="POST" action="{{ route('reseller.apply.submit') }}" class="reseller-form">
           @csrf
+          <input type="hidden" name="_form_time" value="{{ time() }}">
+
+          {{-- Honeypot anti-bot: invisível a humanos, preenchido por bots --}}
+          <div style="position:absolute;left:-9999px;top:-9999px;height:0;overflow:hidden;" aria-hidden="true">
+            <label for="hp_website">Website</label>
+            <input type="text" name="website" id="hp_website" tabindex="-1" autocomplete="off" value="">
+          </div>
 
           <div class="reseller-form-row">
             <label for="full_name">Nome Completo *</label>

@@ -72,7 +72,7 @@ Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class,
 
 // Módulo Revendedor - página de adesão
 Route::get('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'showForm'])->name('reseller.apply');
-Route::post('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'submit'])->middleware('throttle:3,1')->name('reseller.apply.submit');
+Route::post('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'submit'])->middleware('throttle:2,1')->name('reseller.apply.submit');
 Route::get('/quero-ser-revendedor/obrigado', [\App\Http\Controllers\ResellerController::class, 'thankYou'])->name('reseller.apply.thankyou');
 
 // Área do Revendedor (pós-aprovação)
