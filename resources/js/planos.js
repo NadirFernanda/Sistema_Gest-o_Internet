@@ -477,13 +477,11 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                         // 6-9 => amarelo
                         // >=10 => verde
                         if (dias < 0) {
-                            statusClass = 'status-expired';
+                            statusClass = 'status-expired'; // vermelho
                         } else if (dias <= 5) {
-                            statusClass = 'status-red';
-                        } else if (dias <= 9) {
-                            statusClass = 'status-yellow';
+                            statusClass = 'status-yellow'; // amarelo
                         } else {
-                            statusClass = 'status-green';
+                            statusClass = 'status-green'; // verde
                         }
                     }
                 } catch (_) { statusClass = ''; }
