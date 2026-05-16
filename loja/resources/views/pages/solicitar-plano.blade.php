@@ -108,7 +108,14 @@
             placeholder="Ex: 5417623LA041">
         </div>
 
+        {{-- Método de pagamento fixo: GPO (EMIS) --}}
         <input type="hidden" name="payment_method" value="gpo">
+        <div class="checkout-payment">
+          <p class="checkout-payment-title">Método de pagamento</p>
+          <div style="padding:0.65rem 1rem; background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; font-size:0.88rem; color:#0369a1; font-weight:600;">
+            💳 Cartão / Multicaixa Express — Pagamento seguro via EMIS (GPO)
+          </div>
+        </div>
 
         <p class="checkout-note">* Campos obrigatórios. Contactamos pelo telefone indicado em caso de dúvida.</p>
 
