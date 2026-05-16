@@ -73,48 +73,60 @@ class FamilyPlanRequestController extends Controller
      */
     public function lookup(Request $request)
     {
-        // Strip non-digit characters and require a full phone number (9+ digits)
-        // to prevent partial-number fishing that could leak customer PII.
-        $phone = preg_replace('/\D/', '', $request->query('phone', ''));
+        // Always return JSON — wrapping everything ensures no HTML error leaks to the JS caller.
+        try {
+            // Strip non-digit characters and require a full phone number (9+ digits)
+            // to prevent partial-number fishing that could leak customer PII.
+            $phone = preg_replace('/\D/', '', $request->query('phone', ''));
 
-        if (mb_strlen($phone) < 9) {
+            if (mb_strlen($phone) < 9) {
+                return response()->json(['found' => false]);
+            }
+
+            // ── 1. Pesquisa local (pedidos anteriores na loja) ────────────────
+            // LIKE search strips stored formatting (spaces/dashes) via SQL REPLACE
+            // so "923 883 971" and "923883971" are treated as the same number.
+            $record = FamilyPlanRequest::whereRaw(
+                    "REPLACE(REPLACE(customer_phone, ' ', ''), '-', '') LIKE ?",
+                    ['%' . $phone . '%']
+                )
+                ->whereIn('status', [
+                    FamilyPlanRequest::STATUS_ACTIVATED,
+                    FamilyPlanRequest::STATUS_PENDING,
+                    FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
+                ])
+                ->orderByDesc('created_at')
+                ->first(['customer_name', 'customer_email', 'customer_nif']);
+
+            if ($record) {
+                return response()->json([
+                    'found'  => true,
+                    'name'   => $record->customer_name,
+                    'email'  => $record->customer_email ?? '',
+                    'source' => 'loja',
+                ]);
+            }
+
+            // ── 2. Fallback: pesquisa no SG (clientes pré-existentes antes da loja) ──
+            $sgResult = app(StoreProxyController::class)->lookupClienteSG($phone);
+
+            if (! empty($sgResult['found'])) {
+                return response()->json([
+                    'found'  => true,
+                    'name'   => $sgResult['name']  ?? '',
+                    'email'  => $sgResult['email'] ?? '',
+                    'source' => 'sg',
+                ]);
+            }
+
             return response()->json(['found' => false]);
-        }
 
-        // ── 1. Pesquisa local (pedidos anteriores na loja) ────────────────
-        $record = FamilyPlanRequest::where('customer_phone', $phone)
-            ->whereIn('status', [
-                FamilyPlanRequest::STATUS_ACTIVATED,
-                FamilyPlanRequest::STATUS_PENDING,
-                FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
-            ])
-            ->orderByDesc('created_at')
-            ->first(['customer_name', 'customer_email', 'customer_nif']);
-
-        if ($record) {
-            return response()->json([
-                'found'  => true,
-                'name'   => $record->customer_name,
-                'email'  => $record->customer_email ?? '',
-                // NIF não é devolvido pelo lookup público (reduz exposição de PII)
-                'source' => 'loja',
+        } catch (\Throwable $e) {
+            Log::warning('FamilyPlanRequest lookup error: ' . $e->getMessage(), [
+                'phone' => substr(preg_replace('/\D/', '', $request->query('phone', '')), 0, 4) . '***',
             ]);
+            return response()->json(['found' => false, 'error' => true], 200);
         }
-
-        // ── 2. Fallback: pesquisa no SG (clientes pré-existentes antes da loja) ──
-        $sgResult = app(StoreProxyController::class)->lookupClienteSG($phone);
-
-        if (! empty($sgResult['found'])) {
-            return response()->json([
-                'found'  => true,
-                'name'   => $sgResult['name']  ?? '',
-                'email'  => $sgResult['email'] ?? '',
-                // NIF não é devolvido pelo lookup público (reduz exposição de PII)
-                'source' => 'sg',
-            ]);
-        }
-
-        return response()->json(['found' => false]);
     }
 
     /**
@@ -186,7 +198,10 @@ class FamilyPlanRequestController extends Controller
         // Planos familiares/empresariais são exclusivos para clientes já instalados.
         // Novos clientes devem contactar para agendar a instalação física primeiro.
         $phone = preg_replace('/\D/', '', $validated['customer_phone']);
-        $customerExists = FamilyPlanRequest::where('customer_phone', $phone)
+        $customerExists = FamilyPlanRequest::whereRaw(
+                "REPLACE(REPLACE(customer_phone, ' ', ''), '-', '') LIKE ?",
+                ['%' . $phone . '%']
+            )
             ->whereIn('status', [
                 FamilyPlanRequest::STATUS_ACTIVATED,
                 FamilyPlanRequest::STATUS_PENDING,

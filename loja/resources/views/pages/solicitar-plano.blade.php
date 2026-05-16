@@ -193,7 +193,7 @@
     setFeedback('', '');
 
     try {
-      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone));
+      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
 
       if (data.found) {
