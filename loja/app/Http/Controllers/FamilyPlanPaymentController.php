@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\FamilyPlanRequest;
+use App\Services\GpoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 /**
  * FamilyPlanPaymentController — Gestão do fluxo de pagamento dos planos familiares/empresariais.
@@ -123,6 +125,134 @@ class FamilyPlanPaymentController extends Controller
 
         $this->activate($req);
         return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $id]));
+    }
+
+    // ── GPO ───────────────────────────────────────────────────────────────────
+
+    /**
+     * Mostra a página de pagamento GPO (iframe EMIS) para planos familiares/empresariais.
+     */
+    public function showGpo(int $id, GpoService $gpo)
+    {
+        $familyRequest = FamilyPlanRequest::findOrFail($id);
+
+        if ($familyRequest->payment_method !== FamilyPlanRequest::METHOD_GPO) {
+            return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $id]));
+        }
+
+        if ($familyRequest->status === FamilyPlanRequest::STATUS_ACTIVATED) {
+            return view('pages.pagar-plano', compact('familyRequest'));
+        }
+
+        // Gerar ou reutilizar referência GPO (FAM{id}{4random}, max 15 chars)
+        $reference = $familyRequest->gpo_reference;
+        if (! $reference) {
+            $reference = 'FAM' . $familyRequest->id . strtoupper(Str::random(4));
+            $reference = substr(preg_replace('/[^a-zA-Z0-9]/', '', $reference), 0, 15);
+            $familyRequest->update(['gpo_reference' => $reference]);
+        }
+
+        $callbackUrl = route('webhooks.gpo.family');
+
+        try {
+            $iframeUrl = $gpo->createPurchaseToken((float) $familyRequest->plan_preco, $reference, $callbackUrl);
+        } catch (\Throwable $e) {
+            Log::error('GPO Família: erro ao iniciar pagamento', [
+                'request_id' => $familyRequest->id,
+                'error'      => $e->getMessage(),
+            ]);
+            return back()->withErrors(['gateway' => 'Não foi possível iniciar o pagamento. Tente novamente ou escolha outro método.']);
+        }
+
+        return view('pages.pagar-plano-gpo', compact('familyRequest', 'iframeUrl', 'reference'));
+    }
+
+    /**
+     * Polling JSON do estado do pagamento GPO (para o JS da view).
+     */
+    public function gpoStatus(int $id)
+    {
+        $familyRequest = FamilyPlanRequest::findOrFail($id);
+        $familyRequest->refresh();
+
+        $isPaid   = $familyRequest->status === FamilyPlanRequest::STATUS_ACTIVATED;
+        $isFailed = $familyRequest->status === FamilyPlanRequest::STATUS_CANCELLED;
+
+        return response()->json([
+            'is_paid'      => $isPaid,
+            'status'       => $isPaid ? 'paid' : ($isFailed ? 'failed' : 'pending'),
+            'redirect_url' => $isPaid ? route('family.payment.gpo.confirm', $id) : null,
+            'cancel_url'   => $isFailed ? route('family.payment.gpo.cancel', $id) : null,
+        ]);
+    }
+
+    /**
+     * Confirmação após polling bem-sucedido — mostra página de sucesso.
+     */
+    public function gpoConfirm(int $id)
+    {
+        $familyRequest = FamilyPlanRequest::findOrFail($id);
+        return view('pages.pagar-plano', compact('familyRequest'));
+    }
+
+    /**
+     * Cancelar pagamento GPO — volta ao formulário para escolher outro método.
+     */
+    public function gpoCancel(int $id)
+    {
+        $familyRequest = FamilyPlanRequest::findOrFail($id);
+        $familyRequest->update(['status' => FamilyPlanRequest::STATUS_CANCELLED]);
+
+        return redirect()->route('family.request.show', [
+            'plan_id'    => $familyRequest->plan_id,
+            'plan_name'  => $familyRequest->plan_name,
+            'plan_preco' => $familyRequest->plan_preco,
+            'plan_ciclo' => $familyRequest->plan_ciclo_dias,
+        ])->with('error', 'Pagamento não concluído. Pode tentar novamente.');
+    }
+
+    /**
+     * Callback server-to-server do GPO para planos familiares/empresariais.
+     * CSRF-exempt — ver bootstrap/app.php.
+     */
+    public function gpoCallback(Request $request)
+    {
+        $data = $request->all();
+
+        Log::info('GPO Família: callback recebido', [
+            'ip'   => $request->ip(),
+            'body' => $data,
+        ]);
+
+        $gpoService = app(\App\Services\GpoService::class);
+        $parsed     = $gpoService->parseCallback($data);
+
+        $gpoRef = $parsed['merchant_ref'];
+        if (! $gpoRef) {
+            return response()->json(['error' => 'missing_reference'], 400);
+        }
+
+        $familyRequest = FamilyPlanRequest::where('gpo_reference', $gpoRef)->first();
+        if (! $familyRequest) {
+            Log::warning('GPO Família: pedido não encontrado', ['ref' => $gpoRef]);
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
+        // Idempotência
+        if ($familyRequest->status === FamilyPlanRequest::STATUS_ACTIVATED) {
+            return response()->json(['status' => 'already_processed']);
+        }
+
+        if ($parsed['successful']) {
+            $familyRequest->update([
+                'payment_reference' => $parsed['transaction_id'] ?? $familyRequest->payment_reference,
+            ]);
+            $this->activate($familyRequest);
+        } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
+            $familyRequest->update(['status' => FamilyPlanRequest::STATUS_CANCELLED]);
+        }
+
+        return response()->json(['status' => 'processed']);
     }
 
     /**

@@ -133,7 +133,7 @@ class FamilyPlanRequestController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'required|string|max:50',
             'customer_nif'   => 'nullable|string|max:50',
-            'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_MULTICAIXA . ',' . FamilyPlanRequest::METHOD_PAYPAL,
+            'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_MULTICAIXA . ',' . FamilyPlanRequest::METHOD_PAYPAL . ',' . FamilyPlanRequest::METHOD_GPO,
         ]);
 
         // ── Verifica o plano junto ao SG para evitar adulteração de preço ────────
@@ -196,14 +196,16 @@ class FamilyPlanRequestController extends Controller
             'notes'           => null,
         ]);
 
-        // Generate and persist the payment reference (requires the DB-assigned ID)
         $requestRecord->payment_reference = 'AW-' . str_pad($requestRecord->id, 6, '0', STR_PAD_LEFT);
         $requestRecord->save();
 
-        // Notifica o admin do novo pedido pendente de pagamento
         $this->notifyAdmin($requestRecord);
 
-        // Redireciona para a página de pagamento (URL assinada)
+        // GPO: redireciona para a página de pagamento online (iframe EMIS)
+        if ($validated['payment_method'] === FamilyPlanRequest::METHOD_GPO) {
+            return redirect()->route('family.payment.gpo', $requestRecord->id);
+        }
+
         return redirect()->to(URL::signedRoute('family.payment.show', ['id' => $requestRecord->id]));
     }
 

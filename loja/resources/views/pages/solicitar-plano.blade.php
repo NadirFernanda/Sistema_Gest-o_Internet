@@ -109,9 +109,14 @@
           <p class="checkout-payment-title">Método de pagamento *</p>
           <div class="checkout-payment-options">
             <label>
+              <input type="radio" name="payment_method" value="gpo"
+                {{ old('payment_method', 'gpo') === 'gpo' ? 'checked' : '' }}>
+              <span>💳 Cartão / Multicaixa Express (Online)</span>
+            </label>
+            <label>
               <input type="radio" name="payment_method" value="multicaixa_express"
-                {{ old('payment_method', 'multicaixa_express') === 'multicaixa_express' ? 'checked' : '' }}>
-              <span>Multicaixa Express</span>
+                {{ old('payment_method') === 'multicaixa_express' ? 'checked' : '' }}>
+              <span>Multicaixa Express (Manual)</span>
             </label>
             <label>
               <input type="radio" name="payment_method" value="paypal"

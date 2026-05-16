@@ -31,6 +31,7 @@ class FamilyPlanRequest extends Model
         'customer_nif',
         'payment_method',
         'payment_reference',
+        'gpo_reference',
         'status',
         'notes',
     ];
@@ -43,4 +44,5 @@ class FamilyPlanRequest extends Model
 
     public const METHOD_MULTICAIXA = 'multicaixa_express';
     public const METHOD_PAYPAL     = 'paypal';
+    public const METHOD_GPO        = 'gpo';
 }

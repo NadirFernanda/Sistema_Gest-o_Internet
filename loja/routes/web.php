@@ -71,6 +71,13 @@ Route::get('/pagar-plano/{id}', [FamilyPlanPaymentController::class, 'show'])
 Route::post('/payment/familia/webhook', [FamilyPlanPaymentController::class, 'webhook'])->middleware('throttle:30,1')->name('family.payment.webhook');
 Route::get('/payment/familia/simular/{id}', [FamilyPlanPaymentController::class, 'simulateSuccess'])->name('family.payment.simulate');
 
+// Pagamento GPO para planos familiares/empresariais/institucionais
+Route::get('/pagar-plano-gpo/{id}', [FamilyPlanPaymentController::class, 'showGpo'])->name('family.payment.gpo');
+Route::get('/pagar-plano-gpo/{id}/status', [FamilyPlanPaymentController::class, 'gpoStatus'])->middleware('throttle:60,1')->name('family.payment.gpo.status');
+Route::get('/pagar-plano-gpo/{id}/confirmar', [FamilyPlanPaymentController::class, 'gpoConfirm'])->name('family.payment.gpo.confirm');
+Route::post('/pagar-plano-gpo/{id}/cancelar', [FamilyPlanPaymentController::class, 'gpoCancel'])->name('family.payment.gpo.cancel');
+Route::post('/webhooks/gpo/family', [FamilyPlanPaymentController::class, 'gpoCallback'])->name('webhooks.gpo.family');
+
 // Módulo Revendedor - página de adesão
 Route::get('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'showForm'])->name('reseller.apply');
 Route::post('/quero-ser-revendedor', [\App\Http\Controllers\ResellerController::class, 'submit'])->middleware('throttle:2,1')->name('reseller.apply.submit');
