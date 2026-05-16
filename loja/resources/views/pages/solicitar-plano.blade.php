@@ -1,8 +1,7 @@
 {{--
     CHECKOUT — PLANOS FAMILIARES & EMPRESARIAIS
     ═══════════════════════════════════════════
-    Fluxo simplificado: telefone → pesquisa no SG → confirmar → pagar (GPO/EMIS).
-    O cliente apenas digita o telefone; os dados são preenchidos automaticamente.
+    Fluxo: telefone → pesquisa no SG → confirmar → pagar (GPO/EMIS).
 --}}
 @extends('layouts.app')
 
@@ -17,9 +16,9 @@
     {{-- Resumo do plano --}}
     <section class="checkout-summary-card">
       <h2>Plano Selecionado</h2>
-      <p><span class="label">Plano:</span> {{ $plan['name'] }}</p>
+      <p><span class="label">{{ $plan['name'] }}</span></p>
       @if(!empty($plan['preco']))
-        <p class="total">{{ number_format($plan['preco'], 0, ',', '.') }} Kz<span style="font-size:0.8rem;font-weight:400;">/mês</span></p>
+        <p class="total">{{ number_format($plan['preco'], 0, ',', '.') }} Kz<span style="font-size:0.8rem;font-weight:400;"> / mês</span></p>
       @else
         <p><span class="label">Valor:</span> Sob consulta</p>
       @endif
@@ -27,9 +26,13 @@
         <p><span class="label">Duração:</span> {{ $plan['ciclo'] }} dias</p>
       @endif
 
-      <div style="margin-top:1rem;padding:0.75rem;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;font-size:0.82rem;color:#166534;">
-        ✅ <strong>Activação automática</strong><br>
+      <div class="sp-info-box">
+        <strong>Activação automática</strong><br>
         Após o pagamento o seu plano é activado de imediato — sem esperas.
+      </div>
+
+      <div class="sp-emis-badge">
+        💳 Pagamento seguro via <strong>EMIS · GPO</strong>
       </div>
     </section>
 
@@ -48,20 +51,16 @@
 
       <form method="POST" action="{{ route('family.request.store') }}" id="planForm">
         @csrf
+        <input type="hidden" name="plan_id"       value="{{ $plan['id'] }}">
+        <input type="hidden" name="plan_name"      value="{{ $plan['name'] }}">
+        <input type="hidden" name="plan_preco"     value="{{ $plan['preco'] ?? '' }}">
+        <input type="hidden" name="plan_ciclo"     value="{{ $plan['ciclo'] ?? '' }}">
+        <input type="hidden" name="payment_method" value="gpo">
+        <input type="hidden" id="hName"  name="customer_name"  value="{{ old('customer_name') }}">
+        <input type="hidden" id="hEmail" name="customer_email" value="{{ old('customer_email') }}">
+        <input type="hidden" id="hNif"   name="customer_nif"   value="{{ old('customer_nif') }}">
 
-        {{-- Dados do plano (hidden) --}}
-        <input type="hidden" name="plan_id"         value="{{ $plan['id'] }}">
-        <input type="hidden" name="plan_name"        value="{{ $plan['name'] }}">
-        <input type="hidden" name="plan_preco"       value="{{ $plan['preco'] ?? '' }}">
-        <input type="hidden" name="plan_ciclo"       value="{{ $plan['ciclo'] ?? '' }}">
-        <input type="hidden" name="payment_method"   value="gpo">
-
-        {{-- Dados do cliente (preenchidos pelo JS após lookup) --}}
-        <input type="hidden" id="hCustomerName"  name="customer_name"  value="{{ old('customer_name') }}">
-        <input type="hidden" id="hCustomerEmail" name="customer_email" value="{{ old('customer_email') }}">
-        <input type="hidden" id="hCustomerNif"   name="customer_nif"   value="{{ old('customer_nif') }}">
-
-        {{-- ── PASSO 1: Telefone ── --}}
+        {{-- Passo 1: Telefone --}}
         <div id="stepPhone">
           <label class="sp-label" for="customer_phone">O seu número de telefone</label>
           <div class="sp-phone-row">
@@ -71,37 +70,40 @@
               class="sp-phone-input">
             <button type="button" id="lookupBtn" class="sp-search-btn">
               <span id="lookupBtnText">Pesquisar</span>
-              <svg id="lookupSpinner" style="display:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              <svg id="lookupSpinner" style="display:none;flex-shrink:0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </button>
           </div>
-          <p class="sp-hint">Introduza o número registado na AngolaWiFi</p>
+          <p class="sp-hint">Introduza o número com que se registou na AngolaWiFi</p>
         </div>
 
-        {{-- ── PASSO 2: Confirmação (oculto até ao lookup) ── --}}
+        {{-- Passo 2: Confirmação (oculto até lookup com sucesso) --}}
         <div id="stepConfirm" style="display:none; margin-top:1.25rem;">
           <div class="sp-confirm-card">
             <div class="sp-confirm-check">✓</div>
-            <div>
+            <div style="flex:1; min-width:0;">
               <div class="sp-confirm-name" id="confirmName"></div>
               <div class="sp-confirm-sub">Número verificado — pronto para pagar</div>
             </div>
             <button type="button" class="sp-change-btn" id="changeBtn">Alterar</button>
           </div>
 
-          <div style="margin-top:1.25rem; padding:0.75rem 1rem; background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; font-size:0.85rem; color:#0369a1;">
-            💳 Pagamento seguro via <strong>EMIS · GPO</strong>
-          </div>
-
-          <button type="submit" id="submitBtn" class="btn-primary" style="width:100%; margin-top:1.25rem; font-size:1.05rem; padding:0.85rem;">
+          <button type="submit" id="submitBtn" class="btn-primary sp-pay-btn">
             Pagar Agora →
           </button>
         </div>
 
-        {{-- Banner: cliente não encontrado --}}
-        <div id="notFoundBanner" style="display:none; margin-top:1rem; padding:0.85rem 1rem; background:#fff7ed; border:1.5px solid #fed7aa; border-radius:8px; font-size:0.85rem; color:#9a3412;">
+        {{-- Número não registado --}}
+        <div id="notFoundBanner" style="display:none; margin-top:1rem;" class="sp-banner sp-banner--warn">
           <strong>Número não registado.</strong><br>
           Os planos familiares e empresariais são exclusivos para clientes já instalados.
-          Contacte-nos para agendar a sua instalação — depois pode gerir o plano aqui.
+          Contacte-nos para agendar a sua instalação.
+        </div>
+
+        {{-- Erro de rede/servidor --}}
+        <div id="errorBanner" style="display:none; margin-top:1rem;" class="sp-banner sp-banner--error">
+          <strong>Não foi possível verificar o número.</strong><br>
+          <span id="errorDetail"></span>
+          <button type="button" id="retryBtn" class="sp-retry-btn" style="margin-top:0.5rem;">Tentar novamente</button>
         </div>
 
       </form>
@@ -114,130 +116,120 @@
 @push('scripts')
 <script>
 (function () {
-  const phoneInput    = document.getElementById('customer_phone');
-  const lookupBtn     = document.getElementById('lookupBtn');
-  const lookupText    = document.getElementById('lookupBtnText');
-  const lookupSpinner = document.getElementById('lookupSpinner');
-  const stepPhone     = document.getElementById('stepPhone');
-  const stepConfirm   = document.getElementById('stepConfirm');
-  const confirmName   = document.getElementById('confirmName');
-  const changeBtn     = document.getElementById('changeBtn');
+  const phoneInput   = document.getElementById('customer_phone');
+  const lookupBtn    = document.getElementById('lookupBtn');
+  const lookupText   = document.getElementById('lookupBtnText');
+  const lookupSpin   = document.getElementById('lookupSpinner');
+  const stepConfirm  = document.getElementById('stepConfirm');
+  const confirmName  = document.getElementById('confirmName');
+  const changeBtn    = document.getElementById('changeBtn');
   const notFoundBanner = document.getElementById('notFoundBanner');
-  const hName         = document.getElementById('hCustomerName');
-  const hEmail        = document.getElementById('hCustomerEmail');
-  const hNif          = document.getElementById('hCustomerNif');
-  const lookupUrl     = '{{ route('family.request.lookup') }}';
+  const errorBanner  = document.getElementById('errorBanner');
+  const errorDetail  = document.getElementById('errorDetail');
+  const retryBtn     = document.getElementById('retryBtn');
+  const hName        = document.getElementById('hName');
+  const hEmail       = document.getElementById('hEmail');
+  const hNif         = document.getElementById('hNif');
+  const lookupUrl    = '{{ route('family.request.lookup') }}';
 
   let verified = false;
 
-  function setLoading(on) {
-    lookupBtn.disabled = on;
-    lookupText.style.display  = on ? 'none' : 'inline';
-    lookupSpinner.style.display = on ? 'inline' : 'none';
-    if (on) lookupSpinner.classList.add('sp-spin');
-  }
-
-  function showConfirm(name) {
-    confirmName.textContent = name;
-    stepConfirm.style.display  = 'block';
-    notFoundBanner.style.display = 'none';
-    verified = true;
-  }
-
-  function showNotFound() {
-    stepConfirm.style.display  = 'none';
-    notFoundBanner.style.display = 'block';
-    hName.value = hEmail.value = hNif.value = '';
-    verified = false;
-  }
-
-  function resetStep() {
+  function hideAll() {
     stepConfirm.style.display    = 'none';
     notFoundBanner.style.display = 'none';
+    errorBanner.style.display    = 'none';
     hName.value = hEmail.value = hNif.value = '';
     verified = false;
+  }
+
+  function setLoading(on) {
+    lookupBtn.disabled = on;
+    lookupText.style.display = on ? 'none'   : 'inline';
+    lookupSpin.style.display = on ? 'inline' : 'none';
+    if (on) lookupSpin.classList.add('sp-spin');
+    else    lookupSpin.classList.remove('sp-spin');
   }
 
   async function doLookup() {
     const phone = phoneInput.value.replace(/[\s\-().+]/g, '');
-    if (phone.length < 9) {
-      phoneInput.focus();
-      return;
-    }
+    if (phone.length < 9) { phoneInput.focus(); return; }
 
     setLoading(true);
-    resetStep();
+    hideAll();
 
+    let rawText = '';
     try {
-      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), {
-        headers: { 'Accept': 'application/json' }
+      const res = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
       });
-      const data = await res.json();
+
+      rawText = await res.text();
+
+      // Tenta fazer parse do JSON — se falhar, o servidor devolveu HTML (erro 500, etc.)
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (_) {
+        errorDetail.textContent = 'Erro do servidor (código ' + res.status + '). Verifique os logs.';
+        errorBanner.style.display = 'block';
+        return;
+      }
 
       if (data.found) {
         hName.value  = data.name  || '';
         hEmail.value = data.email || '';
         hNif.value   = data.nif   || '';
-        showConfirm(data.name || 'Cliente verificado');
+        confirmName.textContent = data.name || 'Cliente verificado';
+        stepConfirm.style.display = 'block';
+        verified = true;
       } else {
-        showNotFound();
+        notFoundBanner.style.display = 'block';
       }
-    } catch (e) {
-      // Falha de rede — deixa avançar, servidor valida
-      notFoundBanner.innerHTML = '<strong>Não foi possível verificar.</strong> Verifique a ligação e tente novamente.';
-      notFoundBanner.style.background = '#fefce8';
-      notFoundBanner.style.borderColor = '#fde68a';
-      notFoundBanner.style.color = '#854d0e';
-      notFoundBanner.style.display = 'block';
+
+    } catch (netErr) {
+      errorDetail.textContent = 'Sem ligação ao servidor. Verifique a sua rede.';
+      errorBanner.style.display = 'block';
     } finally {
       setLoading(false);
     }
   }
 
   lookupBtn.addEventListener('click', doLookup);
+  retryBtn.addEventListener('click', doLookup);
 
-  // Auto-pesquisa quando o utilizador sai do campo com número completo
   phoneInput.addEventListener('blur', function () {
-    const phone = this.value.replace(/[\s\-().+]/g, '');
-    if (phone.length >= 9) doLookup();
+    if (this.value.replace(/[\s\-().+]/g, '').length >= 9) doLookup();
   });
 
-  // Reset ao editar o número
   phoneInput.addEventListener('input', function () {
-    if (verified) resetStep();
+    if (verified) hideAll();
   });
 
-  // "Alterar" — volta ao campo de telefone
   changeBtn.addEventListener('click', function () {
-    resetStep();
+    hideAll();
     phoneInput.value = '';
     phoneInput.focus();
   });
 
-  // Guarda do form
   document.getElementById('planForm').addEventListener('submit', function (e) {
-    if (!verified) {
-      e.preventDefault();
-      if (!hName.value) doLookup();
-    }
+    if (!verified) { e.preventDefault(); doLookup(); }
   });
 
-  // Se o telefone já veio preenchido (old() após erro), pesquisa automaticamente
-  if (phoneInput.value.replace(/[\s\-().+]/g, '').length >= 9) {
-    doLookup();
-  }
+  // Se voltou com erros do servidor e telefone já preenchido, repesquisa
+  if (phoneInput.value.replace(/[\s\-().+]/g, '').length >= 9) doLookup();
 })();
 </script>
 @endpush
 
 @push('styles')
 <style>
+/* ── Campo de telefone ── */
 .sp-label {
   display: block;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  color: #1e293b;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-dark);
 }
 .sp-phone-row {
   display: flex;
@@ -246,86 +238,166 @@
 .sp-phone-input {
   flex: 1;
   font-size: 1.15rem;
-  padding: 0.75rem 1rem;
-  border: 2px solid #e2e8f0;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--muted-border);
   border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color .15s, box-shadow .15s;
+  font-family: var(--font-sans);
+  color: var(--text-dark);
 }
-.sp-phone-input:focus { border-color: #0ea5e9; }
+.sp-phone-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-glow);
+}
 .sp-search-btn {
   flex-shrink: 0;
   padding: 0 1.25rem;
-  background: #0ea5e9;
-  color: #fff;
+  background: var(--brand);
+  color: #111827;
   border: none;
   border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background 0.15s;
+  transition: background .15s, transform .15s;
   white-space: nowrap;
+  font-family: var(--font-sans);
 }
-.sp-search-btn:hover    { background: #0284c7; }
-.sp-search-btn:disabled { background: #94a3b8; cursor: default; }
+.sp-search-btn:hover    { background: var(--brand-dark); transform: translateY(-1px); }
+.sp-search-btn:disabled { background: #cbd5e1; color: #64748b; cursor: default; transform: none; }
 .sp-hint {
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--text-light);
 }
+
+/* ── Card de confirmação ── */
 .sp-confirm-card {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.85rem 1rem;
-  background: #f0fdf4;
-  border: 1.5px solid #86efac;
+  padding: 0.9rem 1rem;
+  background: rgba(247,181,0,0.08);
+  border: 1.5px solid var(--brand);
   border-radius: 10px;
 }
 .sp-confirm-check {
   width: 2.2rem;
   height: 2.2rem;
-  background: #16a34a;
-  color: #fff;
+  background: var(--brand);
+  color: #111827;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 900;
   flex-shrink: 0;
 }
 .sp-confirm-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #166534;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sp-confirm-sub {
   font-size: 0.78rem;
-  color: #4ade80;
-  color: #15803d;
+  color: var(--brand-dark);
+  font-weight: 500;
 }
 .sp-change-btn {
   margin-left: auto;
   background: none;
-  border: 1px solid #86efac;
+  border: 1px solid var(--brand);
   border-radius: 6px;
-  color: #166534;
+  color: var(--brand-dark);
   font-size: 0.78rem;
-  padding: 0.25rem 0.65rem;
+  font-weight: 600;
+  padding: 0.28rem 0.65rem;
   cursor: pointer;
   white-space: nowrap;
+  font-family: var(--font-sans);
+  transition: background .15s;
 }
-.sp-change-btn:hover { background: #dcfce7; }
+.sp-change-btn:hover { background: rgba(247,181,0,0.12); }
+
+/* ── Botão Pagar ── */
+.sp-pay-btn {
+  width: 100%;
+  margin-top: 1.1rem;
+  font-size: 1.05rem;
+  padding: 0.9rem 1.5rem;
+}
+
+/* ── Banners ── */
+.sp-banner {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.sp-banner--warn {
+  background: #fffbeb;
+  border: 1.5px solid #fcd34d;
+  color: #78350f;
+}
+.sp-banner--error {
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+  display: flex;
+  flex-direction: column;
+}
+.sp-retry-btn {
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  background: var(--brand);
+  color: #111827;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background .15s;
+}
+.sp-retry-btn:hover { background: var(--brand-dark); }
+
+/* ── Info boxes no resumo ── */
+.sp-info-box {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(247,181,0,0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(247,181,0,0.3);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+.sp-info-box strong { color: var(--text-dark); }
+.sp-emis-badge {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--surface-2);
+  border: 1px solid var(--muted-border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ── Spinner ── */
 @keyframes sp-spin { to { transform: rotate(360deg); } }
-.sp-spin { animation: sp-spin 0.8s linear infinite; }
+.sp-spin { animation: sp-spin 0.75s linear infinite; }
 
 @media (max-width: 480px) {
   .sp-phone-row { flex-direction: column; }
-  .sp-search-btn { padding: 0.7rem 1rem; justify-content: center; }
+  .sp-search-btn { padding: 0.75rem 1rem; justify-content: center; }
 }
 </style>
 @endpush
