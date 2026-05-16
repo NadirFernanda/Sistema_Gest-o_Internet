@@ -110,15 +110,12 @@ class StorefrontController extends Controller
         $validated = $request->validate([
             'plan_id'        => 'required|string',
             'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_GPO,
-            'customer_name'  => 'required|string|max:100',
-            'customer_email' => 'required|email|max:150',
-            'customer_phone' => ['required', 'regex:/^(244)?9[0-9]{8}$/'],
+            'customer_name'  => 'nullable|string|max:100',
+            'customer_email' => 'nullable|email|max:150',
+            'customer_phone' => ['nullable', 'regex:/^(244)?9[0-9]{8}$/'],
         ], [
-            'customer_name.required'  => 'O nome é obrigatório.',
-            'customer_email.required' => 'O e-mail é obrigatório.',
-            'customer_email.email'    => 'Introduza um e-mail válido.',
-            'customer_phone.required' => 'O número de telemóvel é obrigatório.',
-            'customer_phone.regex'    => 'Número inválido. Formato: 9XXXXXXXX ou 2449XXXXXXXX.',
+            'customer_email.email' => 'Introduza um e-mail válido.',
+            'customer_phone.regex' => 'Número inválido. Formato: 9XXXXXXXX ou 2449XXXXXXXX.',
         ]);
 
         $plan = VoucherPlan::where('slug', $validated['plan_id'])->where('active', true)->first();
