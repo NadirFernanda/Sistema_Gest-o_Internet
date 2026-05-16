@@ -61,7 +61,8 @@ Route::post('/webhooks/gpo/maintenance', [\App\Http\Controllers\GpoController::c
 // (NÃO confundir com individual plans — ver StorefrontController / autovenda_orders)
 Route::get('/solicitar-plano', [FamilyPlanRequestController::class, 'show'])->name('family.request.show');
 Route::post('/solicitar-plano', [FamilyPlanRequestController::class, 'store'])->middleware('throttle:5,1')->name('family.request.store');
-Route::get('/checkout/lookup', [FamilyPlanRequestController::class, 'lookup'])->middleware('throttle:30,1')->name('family.request.lookup');
+// NOTA: não usar /checkout/* — esse prefixo é roteado pelo nginx para o SG (Sistema de Gestão)
+Route::get('/cliente-lookup', [FamilyPlanRequestController::class, 'lookup'])->middleware('throttle:30,1')->name('family.request.lookup');
 
 // Pagamento dos planos familiares/empresariais
 // POST /payment/familia/webhook é CSRF-exempt (ver bootstrap/app.php)
