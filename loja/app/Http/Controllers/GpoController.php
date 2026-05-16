@@ -161,13 +161,22 @@ class GpoController extends Controller
             try {
                 DB::transaction(function () use ($purchases, $planMap, $merchantRef) {
                     foreach ($purchases as $purchase) {
-                        $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
-                            ->where('status', 'reserved')
+                        // Atribuir códigos disponíveis agora que o pagamento foi confirmado
+                        $codes = WifiCode::where('plan_id', $purchase->plan_slug)
+                            ->where('status', WifiCode::STATUS_AVAILABLE)
+                            ->lockForUpdate()
+                            ->limit($purchase->quantity)
                             ->get();
 
-                        if ($codes->isEmpty()) {
-                            Log::warning('GPO Revendedor: sem códigos reservados', ['purchase_id' => $purchase->id]);
-                            continue;
+                        if ($codes->count() < $purchase->quantity) {
+                            Log::error('GPO Revendedor: stock insuficiente no momento do pagamento', [
+                                'purchase_id' => $purchase->id,
+                                'plan'        => $purchase->plan_slug,
+                                'needed'      => $purchase->quantity,
+                                'available'   => $codes->count(),
+                            ]);
+                            // Entregar o que há e registar a diferença para o admin resolver
+                            if ($codes->isEmpty()) continue;
                         }
 
                         $validityLabel = optional($planMap->get($purchase->plan_slug))->validity_label
@@ -180,13 +189,15 @@ class GpoController extends Controller
                         Storage::disk('local')->put($purchase->csv_path, implode("\n", $codeLines) . "\n");
 
                         WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                            'status'  => 'used',
-                            'used_at' => now(),
+                            'status'               => WifiCode::STATUS_USED,
+                            'used_at'              => now(),
+                            'reseller_purchase_id' => $purchase->id,
                         ]);
 
                         $purchase->update([
-                            'status'  => 'completed',
-                            'paid_at' => now(),
+                            'status'       => 'completed',
+                            'codes_count'  => $codes->count(),
+                            'paid_at'      => now(),
                         ]);
                     }
                 });
@@ -198,24 +209,10 @@ class GpoController extends Controller
                 return response()->json(['error' => 'completion_failed'], 500);
             }
         } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
-            $purchaseIds = $purchases->pluck('id');
-
-            // Liberta os códigos reservados de volta ao stock disponível
-            WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
-                ->where('status', WifiCode::STATUS_RESERVED)
-                ->update([
-                    'status'               => WifiCode::STATUS_AVAILABLE,
-                    'reseller_purchase_id' => null,
-                ]);
-
+            // Sem códigos reservados — apenas cancelar o registo de compra
             ResellerPurchase::where('payment_reference', $merchantRef)
                 ->where('status', 'pending')
                 ->update(['status' => 'cancelled']);
-
-            Log::info('GPO Revendedor: pagamento falhado — códigos libertados', [
-                'reference'    => $merchantRef,
-                'purchase_ids' => $purchaseIds->toArray(),
-            ]);
         }
 
         return response()->json(['status' => 'processed']);

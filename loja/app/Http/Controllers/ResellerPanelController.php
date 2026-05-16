@@ -380,7 +380,8 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Checkout — reserva vouchers do stock e aguarda pagamento
+    //  Checkout — cria pedidos pendentes sem reservar códigos
+    //  Os códigos só saem do stock quando o pagamento for confirmado
     // ─────────────────────────────────────────────────────────────
     public function checkout(Request $request)
     {
@@ -416,20 +417,20 @@ class ResellerPanelController extends Controller
                 ->with('error', "O valor mínimo de compra é {$formatted} Kz. O seu carrinho totaliza " . number_format($cartTotal, 0, ',', '.') . " Kz.");
         }
 
-        // Pre-validation: verify available stock for each plan
+        // Verificação de stock (indicativa — o desconto só ocorre após pagamento)
         foreach ($cart as $slug => $qty) {
             $plan = $voucherPlans->get($slug);
             if (!$plan) {
                 return redirect()->route('reseller.panel')->with('error', "Plano \"$slug\" não encontrado.");
             }
             $stock = WifiCode::where('plan_id', $slug)->where('status', 'available')->count();
-            if ($stock < $qty) {
+            if ($stock < (int) $qty) {
                 return redirect()->route('reseller.panel')
                     ->with('error', "Stock insuficiente para \"{$plan->name}\": pediu {$qty}, disponível {$stock}.");
             }
         }
 
-        // Reserve codes and create pending purchases (DB transaction)
+        // Criar registos de compra pendentes (sem reservar códigos)
         $purchaseIds = [];
         try {
             DB::transaction(function () use ($cart, $voucherPlans, $application, &$purchaseIds) {
@@ -437,24 +438,14 @@ class ResellerPanelController extends Controller
                     $plan = $voucherPlans->get($slug);
                     $qty  = (int) $qty;
 
-                    $codes = WifiCode::where('plan_id', $slug)
-                        ->where('status', 'available')
-                        ->lockForUpdate()
-                        ->limit($qty)
-                        ->get();
-
-                    if ($codes->count() < $qty) {
-                        throw new \RuntimeException("Stock insuficiente para {$plan->name} no momento do checkout.");
-                    }
-
-                    $unitPrice   = $plan->resellerPriceFor($application);
-                    $grossAmt    = $plan->price_public_aoa * $qty;
+                    $unitPrice    = $plan->resellerPriceFor($application);
+                    $grossAmt     = $plan->price_public_aoa * $qty;
                     $resellerCost = $unitPrice * $qty;
-                    $grossProfit = $grossAmt - $resellerCost;
-                    $taxAoa      = (int) round($grossProfit * 0.065); // 6,5% retido para impostos
-                    $netProfit   = $grossProfit - $taxAoa;            // lucro líquido após impostos
-                    $netAmount   = $resellerCost + $taxAoa;           // valor a pagar = custo + impostos
-                    $discPct     = $plan->price_public_aoa > 0
+                    $grossProfit  = $grossAmt - $resellerCost;
+                    $taxAoa       = (int) round($grossProfit * 0.065);
+                    $netProfit    = $grossProfit - $taxAoa;
+                    $netAmount    = $resellerCost + $taxAoa;
+                    $discPct      = $plan->price_public_aoa > 0
                         ? round((1 - $unitPrice / $plan->price_public_aoa) * 100, 1)
                         : 0;
 
@@ -475,13 +466,6 @@ class ResellerPanelController extends Controller
                         'tax_aoa'                  => $taxAoa,
                         'csv_path'                 => $path,
                         'status'                   => 'pending',
-                        'meta'                     => ['code_preview' => $codes->take(3)->pluck('code')->toArray()],
-                    ]);
-
-                    // Reserve codes — linked to this purchase, not yet 'used'
-                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                        'status'               => 'reserved',
-                        'reseller_purchase_id' => $purchase->id,
                     ]);
 
                     $purchaseIds[] = $purchase->id;
@@ -491,7 +475,6 @@ class ResellerPanelController extends Controller
             return redirect()->route('reseller.panel')->with('error', $e->getMessage());
         }
 
-        // Clear cart — the pending order now holds the reservation
         $request->session()->forget(self::CART_SESSION);
         $request->session()->put('reseller_pending_order', $purchaseIds);
 
@@ -593,31 +576,32 @@ class ResellerPanelController extends Controller
                     ->get();
 
                 foreach ($purchases as $purchase) {
-                    $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
-                        ->where('status', 'reserved')
+                    // Atribuir códigos disponíveis agora que o pagamento foi confirmado
+                    $codes = WifiCode::where('plan_id', $purchase->plan_slug)
+                        ->where('status', WifiCode::STATUS_AVAILABLE)
+                        ->lockForUpdate()
+                        ->limit($purchase->quantity)
                         ->get();
 
-                    if ($codes->isEmpty()) {
-                        throw new \RuntimeException("Códigos não encontrados para o plano {$purchase->plan_name}.");
+                    if ($codes->count() < $purchase->quantity) {
+                        throw new \RuntimeException("Stock insuficiente para \"{$purchase->plan_name}\": necessário {$purchase->quantity}, disponível {$codes->count()}.");
                     }
 
                     $validityLabel = optional($planMap->get($purchase->plan_slug))->validity_label
                         ?? $purchase->plan_slug;
 
-                    // Build and store CSV
                     $codeLines = ['plano,codigo,validade'];
                     foreach ($codes as $wc) {
                         $codeLines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
                     }
                     Storage::disk('local')->put($purchase->csv_path, implode("\n", $codeLines) . "\n");
 
-                    // Mark codes as used
                     WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                        'status'  => 'used',
-                        'used_at' => now(),
+                        'status'               => WifiCode::STATUS_USED,
+                        'used_at'              => now(),
+                        'reseller_purchase_id' => $purchase->id,
                     ]);
 
-                    // Finalise purchase
                     $purchase->update([
                         'status'            => 'completed',
                         'payment_method'    => $method,
@@ -648,31 +632,16 @@ class ResellerPanelController extends Controller
         $purchaseIds = $request->session()->get('reseller_pending_order', []);
         if (!empty($purchaseIds)) {
             $application = ResellerApplication::findOrFail($resellerId);
-            DB::transaction(function () use ($purchaseIds, $application) {
-                // Release codes for both pending and already-cancelled purchases
-                // (handles race condition where GPO callback fired before user clicked cancel)
-                $purchases = ResellerPurchase::whereIn('id', $purchaseIds)
-                    ->where('reseller_application_id', $application->id)
-                    ->whereIn('status', ['pending', 'cancelled'])
-                    ->get();
-
-                foreach ($purchases as $purchase) {
-                    WifiCode::where('reseller_purchase_id', $purchase->id)
-                        ->where('status', WifiCode::STATUS_RESERVED)
-                        ->update([
-                            'status'               => WifiCode::STATUS_AVAILABLE,
-                            'reseller_purchase_id' => null,
-                        ]);
-                    if ($purchase->status === 'pending') {
-                        $purchase->delete();
-                    }
-                }
-            });
+            // Apagar compras pendentes — os códigos nunca foram descontados
+            ResellerPurchase::whereIn('id', $purchaseIds)
+                ->where('reseller_application_id', $application->id)
+                ->where('status', 'pending')
+                ->delete();
         }
 
         $request->session()->forget('reseller_pending_order');
         return redirect()->route('reseller.panel')
-            ->with('error', 'Compra cancelada. Os vouchers reservados foram libertados e o seu carrinho foi restaurado.');
+            ->with('error', 'Compra cancelada.');
     }
 
     // ─────────────────────────────────────────────────────────────
