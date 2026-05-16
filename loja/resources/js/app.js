@@ -42,7 +42,7 @@ function renderFamilyCard(plan) {
 			+ '&plan_name=' + encodeURIComponent(plan.name || '')
 			+ '&plan_preco=' + encodeURIComponent(plan.preco || '')
 			+ '&plan_ciclo=' + encodeURIComponent(plan.ciclo || '')
-			+ '">Comprar Agora</a>'
+			+ '">Pagar Agora</a>'
 		+ '</div></div></div>';
 }
 
