@@ -461,16 +461,7 @@
           Suporte 24/7
         </span>
         <span class="co-trust-emis">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82 26" height="22" style="display:block;overflow:visible">
-            <text x="0" y="20"
-                  font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
-                  font-size="21" font-weight="900"
-                  fill="#F05323">a</text>
-            <text x="15" y="20"
-                  font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
-                  font-size="21" font-weight="900"
-                  fill="#1B2845">emis</text>
-          </svg>
+          <img src="/img/emis.png" alt="EMIS" height="26" style="display:block;">
         </span>
       </div>
     </div>
