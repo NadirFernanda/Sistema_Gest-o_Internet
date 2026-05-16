@@ -68,12 +68,12 @@
     <form method="POST" action="{{ route('appointment.store') }}" id="appt-form">
       @csrf
 
-      {{-- SECÇÃO 1: Criar conta --}}
+      {{-- SECÇÃO 1: Pré-Cadastro --}}
       <div class="ai-section">
         <div class="ai-section-header">
           <div class="ai-section-badge">1</div>
           <div>
-            <p class="ai-section-title">Criar conta</p>
+            <p class="ai-section-title">Pré-Cadastro</p>
             <p class="ai-section-sub">Os seus dados de identificação para o registo</p>
           </div>
         </div>
