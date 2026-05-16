@@ -20,13 +20,14 @@ Route::get('/stats/active-clients', function () {
 // Public catalog of equipment for sale (used by the loja equipment page)
 Route::get('/equipment-catalog', [\App\Http\Controllers\PublicEquipmentCatalogController::class, 'index']);
 
+// Client lookup by phone — read-only, public (no token required).
+// Used by the loja checkout form to pre-fill fields for returning customers.
+Route::get('/cliente-lookup', [\App\Http\Controllers\AutovendaJanelaController::class, 'lookup'])->middleware('throttle:30,1');
+
 // Loja autovenda: create/extend client plan window after payment confirmation
-// Called by the loja admin when confirming a family/business plan request.
-// Uses the same VerifyApiToken if API_CLIENTES_TOKEN is set; otherwise public.
+// Called by the loja webhook after GPO payment is confirmed.
 Route::middleware([\App\Http\Middleware\VerifyApiToken::class])->group(function () {
     Route::post('/janela-autovenda', [\App\Http\Controllers\AutovendaJanelaController::class, 'store']);
-    // Client lookup by phone — used by loja checkout form to pre-fill fields for returning clients
-    Route::get('/cliente-lookup', [\App\Http\Controllers\AutovendaJanelaController::class, 'lookup']);
 });
 // Clients endpoints: protect with VerifyApiToken middleware + rate limiting.
 // Use fully-qualified class name to avoid relying on route middleware alias resolution.
