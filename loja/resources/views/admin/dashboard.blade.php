@@ -149,7 +149,7 @@
         <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0d9488;flex-shrink:0;"></span>
         {{ $activeUsers }}
       </p>
-      <p class="ap-kpi-lbl">Utilizadores activos</p>
+      <p class="ap-kpi-lbl">Utilizadores online na loja</p>
       <p class="ap-kpi-sub">Sess&otilde;es &uacute;nicas &middot; &uacute;lt. 5&nbsp;min</p>
     </div>
   </div>
