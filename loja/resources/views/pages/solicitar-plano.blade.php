@@ -63,16 +63,14 @@
         {{-- Passo 1: Telefone --}}
         <div id="stepPhone">
           <label class="sp-label" for="customer_phone">O seu número de telefone</label>
-          <div class="sp-phone-row">
-            <input type="tel" id="customer_phone" name="customer_phone"
-              value="{{ old('customer_phone') }}" required
-              placeholder="9XX XXX XXX" autocomplete="tel"
-              class="sp-phone-input">
-            <button type="button" id="lookupBtn" class="sp-search-btn">
-              <span id="lookupBtnText">Pesquisar</span>
-              <svg id="lookupSpinner" style="display:none;flex-shrink:0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            </button>
-          </div>
+          <input type="tel" id="customer_phone" name="customer_phone"
+            value="{{ old('customer_phone') }}" required
+            placeholder="9XX XXX XXX" autocomplete="tel"
+            class="sp-phone-input">
+          <button type="button" id="lookupBtn" class="sp-search-btn">
+            <span id="lookupBtnText">Pesquisar</span>
+            <svg id="lookupSpinner" style="display:none;flex-shrink:0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </button>
           <p class="sp-hint">Introduza o número com que se registou na AngolaWiFi</p>
         </div>
 
@@ -170,7 +168,8 @@
       try {
         data = JSON.parse(rawText);
       } catch (_) {
-        errorDetail.textContent = 'Erro do servidor (código ' + res.status + '). Verifique os logs.';
+        console.error('[AngolaWiFi lookup] resposta não-JSON (código ' + res.status + '):\n', rawText);
+        errorDetail.textContent = 'Erro do servidor (código ' + res.status + '). Resposta: ' + rawText.substring(0, 120);
         errorBanner.style.display = 'block';
         return;
       }
@@ -231,12 +230,10 @@
   margin-bottom: 0.6rem;
   color: var(--text-dark);
 }
-.sp-phone-row {
-  display: flex;
-  gap: 0.5rem;
-}
 .sp-phone-input {
-  flex: 1;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   font-size: 1.15rem;
   padding: 0.8rem 1rem;
   border: 2px solid var(--muted-border);
@@ -251,24 +248,26 @@
   box-shadow: 0 0 0 3px var(--brand-glow);
 }
 .sp-search-btn {
-  flex-shrink: 0;
-  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.75rem 1rem;
   background: var(--brand);
   color: #111827;
   border: none;
   border-radius: 10px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   transition: background .15s, transform .15s;
-  white-space: nowrap;
   font-family: var(--font-sans);
+  box-shadow: var(--shadow-brand);
 }
 .sp-search-btn:hover    { background: var(--brand-dark); transform: translateY(-1px); }
-.sp-search-btn:disabled { background: #cbd5e1; color: #64748b; cursor: default; transform: none; }
+.sp-search-btn:disabled { background: #cbd5e1; color: #64748b; cursor: default; transform: none; box-shadow: none; }
 .sp-hint {
   margin-top: 0.45rem;
   font-size: 0.78rem;
@@ -395,9 +394,5 @@
 @keyframes sp-spin { to { transform: rotate(360deg); } }
 .sp-spin { animation: sp-spin 0.75s linear infinite; }
 
-@media (max-width: 480px) {
-  .sp-phone-row { flex-direction: column; }
-  .sp-search-btn { padding: 0.75rem 1rem; justify-content: center; }
-}
 </style>
 @endpush
