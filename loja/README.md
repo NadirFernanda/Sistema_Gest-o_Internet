@@ -344,6 +344,10 @@ php artisan migrate --force
 php artisan optimize:clear
 php artisan optimize
 npm run build
+
+# Verificar que a Frame Token GPO está configurada
+grep "GPO_FRAME_TOKEN" /var/www/sgmr/loja/.env
+
 # Corrigir permissões após deploy como root (evita 419 por sessões inacessíveis ao php-fpm)
 chown -R www-data:www-data /var/www/sgmr/loja/storage /var/www/sgmr/loja/bootstrap/cache
 sudo systemctl reload php8.4-fpm nginx

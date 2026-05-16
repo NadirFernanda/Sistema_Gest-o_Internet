@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Gateways de pagamento não podem enviar token CSRF — isentar os webhooks
         $middleware->validateCsrfTokens(except: [
             'payment/familia/webhook',
-            'webhooks/pay4all',
+            'webhooks/gpo',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -69,8 +69,7 @@ class AutovendaOrder extends Model
     public const STATUS_FAILED = 'failed';
     public const STATUS_EXPIRED = 'expired';
 
-    public const METHOD_MULTICAIXA = 'multicaixa_express';
-    public const METHOD_PAYPAL = 'paypal';
+    public const METHOD_GPO = 'gpo';
 
     public function isPaid(): bool
     {

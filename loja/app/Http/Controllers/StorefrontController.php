@@ -129,7 +129,7 @@ class StorefrontController extends Controller
         // Apenas plan_id e payment_method — sem dados pessoais para planos individuais.
         $validated = $request->validate([
             'plan_id'        => 'required|string',
-            'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_MULTICAIXA . ',' . AutovendaOrder::METHOD_PAYPAL,
+            'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_GPO,
         ]);
 
         // Planos individuais carregados da base de dados — VoucherPlan é a fonte de verdade.
@@ -141,9 +141,6 @@ class StorefrontController extends Controller
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
         }
 
-        // Cria a ordem de autovenda em estado "awaiting_payment".
-        // Sem dados de cliente — os planos individuais não requerem identificação aqui;
-        // o número MCX é recolhido na etapa seguinte do fluxo Pay4All.
         $order = AutovendaOrder::create([
             'plan_id'               => $plan->slug,
             'plan_name'             => $plan->name,
@@ -160,40 +157,13 @@ class StorefrontController extends Controller
             'payment_method'        => $validated['payment_method'],
         ]);
 
-        // Multicaixa Express: redireciona para o fluxo Pay4All (introdução do nº MCX).
-        if ($validated['payment_method'] === AutovendaOrder::METHOD_MULTICAIXA) {
-            return redirect()->route('pay4all.iniciar', $order);
-        }
-
-        // PayPal ou outros: simulação apenas em local/dev.
-        if (!app()->environment('local', 'testing')) {
-            return redirect()
-                ->route('store.checkout', ['plan' => $plan->slug])
-                ->withErrors(['gateway' => 'Este método de pagamento ainda não está disponível. Utilize Multicaixa Express ou contacte o suporte.']);
-        }
-
-        try {
-            $orderService->confirmPaymentAndDeliver($order, 'SIMULATED');
-        } catch (\Throwable $e) {
-            return redirect()
-                ->route('store.checkout', ['plan' => $plan->slug])
-                ->withErrors(['stock' => 'Sem códigos WiFi disponíveis de momento. Tente novamente mais tarde ou contacte o suporte.']);
-        }
-
-        return view('store.checkout-confirmation', [
-            'plan'  => $plan,
-            'order' => $order,
-        ]);
+        return redirect()->route('gpo.show', $order);
     }
 
-    /**
-     * Página de confirmação pós-pagamento Pay4All.
-     * Mostra o código WiFi após confirmação do gateway.
-     */
     public function checkoutConfirm(\App\Models\AutovendaOrder $order)
     {
         if (! $order->isPaid()) {
-            return redirect()->route('pay4all.aguardar', $order);
+            return redirect()->route('gpo.show', $order);
         }
 
         $plan = \App\Models\VoucherPlan::where('slug', $order->plan_id)->first();

@@ -48,12 +48,8 @@
             <p class="checkout-payment-title">Método de Pagamento *</p>
             <div class="checkout-payment-options">
               <label>
-                <input type="radio" name="payment_method" value="multicaixa_express" checked>
-                <span>Multicaixa Express</span>
-              </label>
-              <label>
-                <input type="radio" name="payment_method" value="paypal">
-                <span>PayPal</span>
+                <input type="radio" name="payment_method" value="gpo" checked>
+                <span>Pagamento Online (Cartão / Multicaixa Express)</span>
               </label>
             </div>
           </div>

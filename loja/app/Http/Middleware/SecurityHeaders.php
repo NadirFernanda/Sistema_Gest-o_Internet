@@ -36,7 +36,7 @@ class SecurityHeaders
             "font-src 'self' data: https://fonts.gstatic.com",
             "img-src 'self' data: https://sg.angolawifi.ao",
             "connect-src 'self'",
-            "frame-src 'none'",
+            "frame-src 'none' https://gpo.emis.co.ao",
             "frame-ancestors 'none'",
             "form-action 'self'",
             "object-src 'none'",
