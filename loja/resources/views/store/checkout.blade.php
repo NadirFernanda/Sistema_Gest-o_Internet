@@ -492,7 +492,7 @@
             <div class="ck-payment-header">Método de Pagamento</div>
             <label class="ck-payment-option">
               <input type="radio" name="_payment_display" checked>
-              <img src="/img/emis.png" alt="EMIS" height="26" style="display:block;flex-shrink:0;">
+              <img src="/img/emis_logo.jpg" alt="EMIS" height="26" style="display:block;flex-shrink:0;">
               <div class="ck-payment-info">
                 <div class="ck-payment-name">Pagamento Online Seguro</div>
                 <div class="ck-payment-desc">Cartão bancário · Multicaixa Express</div>
