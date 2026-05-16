@@ -207,6 +207,10 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/estatisticas', [SiteStatsAdminController::class, 'index'])->name('admin.site_stats.index');
     Route::put('/estatisticas/{stat}', [SiteStatsAdminController::class, 'update'])->name('admin.site_stats.update');
 
+    // Histórico de actividade da loja (gráficos)
+    Route::get('/actividade', [\App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('admin.activity.index');
+    Route::get('/actividade/data', [\App\Http\Controllers\Admin\ActivityController::class, 'data'])->name('admin.activity.data');
+
     // Pedidos de planos familiares / empresariais — confirmação activa janela no SG
     Route::get('/pedidos-planos-familiares', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'index'])->name('admin.family_requests.index');
     Route::post('/pedidos-planos-familiares/{familyPlanRequest}/confirmar', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'confirmar'])->name('admin.family_requests.confirmar');
