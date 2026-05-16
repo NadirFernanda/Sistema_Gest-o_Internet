@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
+use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
 use App\Models\VoucherPlan;
 use App\Models\WifiCode;
@@ -200,6 +201,64 @@ class GpoController extends Controller
             ResellerPurchase::where('payment_reference', $merchantRef)
                 ->where('status', 'pending')
                 ->update(['status' => 'cancelled']);
+        }
+
+        return response()->json(['status' => 'processed']);
+    }
+
+    /**
+     * Callback server-to-server do GPO para taxa de manutenção de revendedores.
+     * Referência: MN{applicationId}Y{year}M{month} — parse direto, sem tabela extra.
+     */
+    public function maintenanceCallback(Request $request)
+    {
+        $data = $request->all();
+
+        Log::info('GPO Manutenção: callback recebido', [
+            'ip'   => $request->ip(),
+            'body' => $data,
+        ]);
+
+        $parsed = $this->gpo->parseCallback($data);
+
+        $merchantRef = $parsed['merchant_ref'];
+        if (! $merchantRef) {
+            return response()->json(['error' => 'missing_reference'], 400);
+        }
+
+        // Parse referência: MN{id}Y{year}M{month}
+        if (! preg_match('/^MN(\d+)Y(\d+)M(\d+)$/', $merchantRef, $m)) {
+            Log::warning('GPO Manutenção: referência inválida', ['ref' => $merchantRef]);
+            return response()->json(['error' => 'invalid_reference'], 400);
+        }
+
+        $applicationId = (int) $m[1];
+        $year          = (int) $m[2];
+        $month         = (int) $m[3];
+
+        $application = ResellerApplication::find($applicationId);
+        if (! $application) {
+            Log::warning('GPO Manutenção: revendedor não encontrado', ['id' => $applicationId]);
+            return response()->json(['error' => 'reseller_not_found'], 404);
+        }
+
+        // Idempotência
+        if ((int) ($application->maintenance_paid_year ?? 0)  === $year
+            && (int) ($application->maintenance_paid_month ?? 0) === $month) {
+            return response()->json(['status' => 'already_processed']);
+        }
+
+        if ($parsed['successful']) {
+            $application->update([
+                'maintenance_paid_year'  => $year,
+                'maintenance_paid_month' => $month,
+                'maintenance_status'     => ResellerApplication::MAINTENANCE_OK,
+            ]);
+
+            Log::info('GPO Manutenção: paga com sucesso', [
+                'reseller_id' => $applicationId,
+                'period'      => "$year/$month",
+            ]);
         }
 
         return response()->json(['status' => 'processed']);

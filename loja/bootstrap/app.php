@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/familia/webhook',
             'webhooks/gpo',
             'webhooks/gpo/reseller',
+            'webhooks/gpo/maintenance',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

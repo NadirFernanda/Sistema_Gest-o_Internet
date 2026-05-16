@@ -830,6 +830,177 @@ class ResellerPanelController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
+    //  Taxa de manutenção — pagamento GPO (iframe EMIS)
+    // ─────────────────────────────────────────────────────────────
+
+    public function showMaintenanceGpoPayment(Request $request, GpoService $gpo)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        if (!$application->maintenanceDueThisMonth()) {
+            return redirect()->route('reseller.panel')
+                ->with('status', 'Não há taxa de manutenção em dívida no mês actual.');
+        }
+
+        $amount      = (float) $application->maintenanceFeeAoa();
+        $year        = now()->year;
+        $month       = now()->month;
+        $reference   = 'MN' . $application->id . 'Y' . $year . 'M' . str_pad($month, 2, '0', STR_PAD_LEFT);
+        $reference   = substr(preg_replace('/[^a-zA-Z0-9]/', '', $reference), 0, 15);
+        $periodLabel = now()->locale('pt')->isoFormat('MMMM [de] YYYY');
+
+        $request->session()->put('maintenance_gpo_ref', $reference);
+
+        $callbackUrl = route('webhooks.gpo.maintenance');
+
+        try {
+            $iframeUrl = $gpo->createPurchaseToken($amount, $reference, $callbackUrl);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('GPO Manutenção: erro ao iniciar pagamento', [
+                'reseller_id' => $resellerId,
+                'error'       => $e->getMessage(),
+            ]);
+            return redirect()->route('reseller.maintenance.payment')
+                ->with('error', 'Não foi possível iniciar o pagamento. Tente novamente.');
+        }
+
+        return view('reseller.manutencao-gpo', compact('application', 'amount', 'reference', 'periodLabel', 'iframeUrl'));
+    }
+
+    public function maintenanceGpoStatus(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return response()->json(['status' => 'unauthenticated'], 403);
+
+        $application = ResellerApplication::findOrFail($resellerId);
+        $isPaid      = !$application->maintenanceDueThisMonth();
+
+        return response()->json([
+            'is_paid'   => $isPaid,
+            'status'    => $isPaid ? 'paid' : 'pending',
+            'status_pt' => $isPaid ? 'Pago ✅' : 'A aguardar pagamento',
+        ]);
+    }
+
+    public function maintenanceGpoConfirm(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $request->session()->forget('maintenance_gpo_ref');
+
+        return redirect()->route('reseller.panel')
+            ->with('status', '✅ Pagamento da taxa de manutenção confirmado com sucesso!');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Facturas PDF
+    // ─────────────────────────────────────────────────────────────
+
+    public function downloadInvoice(Request $request, ResellerPurchase $purchase)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId || (int) $purchase->reseller_application_id !== (int) $resellerId) abort(403);
+        if ($purchase->status !== 'completed') abort(404, 'Factura disponível apenas para compras concluídas.');
+
+        $application  = ResellerApplication::findOrFail($resellerId);
+
+        // Agrupar todas as compras do mesmo lote (mesma referência de pagamento)
+        $purchases = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('payment_reference', $purchase->payment_reference)
+            ->where('status', 'completed')
+            ->get();
+
+        $plans = VoucherPlan::whereIn('slug', $purchases->pluck('plan_slug'))->get()->keyBy('slug');
+
+        $grossTotal    = $purchases->sum('gross_amount_aoa');
+        $netTotal      = $purchases->sum('net_amount_aoa');
+        $taxTotal      = $purchases->sum('tax_aoa');
+        $discountAmount = $grossTotal - $netTotal + $taxTotal;
+        $discountPct   = $grossTotal > 0 ? round($discountAmount / $grossTotal * 100, 1) : 0;
+
+        $methodMap = [
+            'gpo'                 => 'EMIS GPO',
+            'multicaixa'          => 'Multicaixa',
+            'transferencia'       => 'Transferência Bancária',
+            'multicaixa_express'  => 'Multicaixa Express',
+            'manual_admin'        => 'Manual (Admin)',
+        ];
+        $paymentMethodLabel = $methodMap[$purchase->payment_method] ?? ucfirst($purchase->payment_method ?? 'N/D');
+
+        $invoiceNumber = 'FACT-' . now()->year . '/' . str_pad($purchase->id, 4, '0', STR_PAD_LEFT);
+        $invoiceDate   = optional($purchase->paid_at)->format('d/m/Y') ?? now()->format('d/m/Y');
+        $paidAt        = optional($purchase->paid_at)->format('d/m/Y H:i') ?? now()->format('d/m/Y H:i');
+
+        $html = view('pdf.factura-revendedor', compact(
+            'application', 'purchases', 'plans',
+            'grossTotal', 'netTotal', 'taxTotal', 'discountAmount', 'discountPct',
+            'invoiceNumber', 'invoiceDate', 'paidAt', 'paymentMethodLabel', 'purchase'
+        ))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'factura_' . str_replace('/', '_', $invoiceNumber) . '.pdf';
+
+        return response($dompdf->output())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function downloadMaintenanceInvoice(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        if (!$application->maintenance_paid_year || !$application->maintenance_paid_month) {
+            abort(404, 'Sem taxa de manutenção paga registada.');
+        }
+
+        $amount      = $application->maintenanceFeeAoa();
+        $year        = $application->maintenance_paid_year;
+        $month       = $application->maintenance_paid_month;
+        $periodLabel = \Illuminate\Support\Carbon::create($year, $month, 1)->locale('pt')->isoFormat('MMMM [de] YYYY');
+        $reference   = 'MN' . $application->id . 'Y' . $year . 'M' . str_pad($month, 2, '0', STR_PAD_LEFT);
+        $invoiceNumber = 'MNT-' . $year . '/' . str_pad($application->id, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+        $invoiceDate   = now()->format('d/m/Y');
+        $paidAt        = now()->format('d/m/Y');
+        $paymentMethodLabel = 'EMIS GPO';
+        $modeLabel = $application->reseller_mode === 'own' ? 'Modo 1 – Internet Própria' : 'Modo 2 – AngolaWiFi';
+
+        $html = view('pdf.factura-manutencao', compact(
+            'application', 'amount', 'periodLabel', 'reference',
+            'invoiceNumber', 'invoiceDate', 'paidAt', 'paymentMethodLabel', 'modeLabel'
+        ))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'factura_manutencao_' . $year . '_' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.pdf';
+
+        return response($dompdf->output())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    // ─────────────────────────────────────────────────────────────
     //  Compra legacy (mantida para compatibilidade)
     // ─────────────────────────────────────────────────────────────
     public function storePurchase(Request $request)

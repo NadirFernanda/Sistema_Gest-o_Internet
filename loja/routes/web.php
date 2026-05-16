@@ -54,6 +54,7 @@ Route::get('/pagar/gpo/{order}', [\App\Http\Controllers\GpoController::class, 's
 Route::get('/pagar/gpo/{order}/status', [\App\Http\Controllers\GpoController::class, 'status'])->middleware('throttle:60,1')->name('gpo.status');
 Route::post('/webhooks/gpo', [\App\Http\Controllers\GpoController::class, 'callback'])->middleware('throttle:30,1')->name('webhooks.gpo');
 Route::post('/webhooks/gpo/reseller', [\App\Http\Controllers\GpoController::class, 'resellerCallback'])->middleware('throttle:30,1')->name('webhooks.gpo.reseller');
+Route::post('/webhooks/gpo/maintenance', [\App\Http\Controllers\GpoController::class, 'maintenanceCallback'])->middleware('throttle:30,1')->name('webhooks.gpo.maintenance');
 
 
 // Planos Familiares & Empresariais — checkout com identificação do cliente
@@ -106,8 +107,12 @@ Route::get('/painel-revendedor/pagamento/gpo/status', [ResellerPanelController::
 Route::get('/painel-revendedor/pagamento/gpo/confirmar', [ResellerPanelController::class, 'gpoConfirm'])->name('reseller.panel.payment.gpo.confirm');
 
 // Taxa de manutenção — pagamento pelo revendedor
-Route::get('/painel-revendedor/taxa-manutencao', [ResellerPanelController::class, 'showMaintenancePayment'])->name('reseller.maintenance.payment');
+Route::get('/painel-revendedor/taxa-manutencao', [ResellerPanelController::class, 'showMaintenanceGpoPayment'])->name('reseller.maintenance.payment');
 Route::post('/painel-revendedor/taxa-manutencao/confirmar', [ResellerPanelController::class, 'confirmMaintenancePayment'])->name('reseller.maintenance.payment.confirm');
+Route::get('/painel-revendedor/taxa-manutencao/gpo/status', [ResellerPanelController::class, 'maintenanceGpoStatus'])->middleware('throttle:60,1')->name('reseller.maintenance.gpo.status');
+Route::get('/painel-revendedor/taxa-manutencao/gpo/confirmar', [ResellerPanelController::class, 'maintenanceGpoConfirm'])->name('reseller.maintenance.gpo.confirm');
+Route::get('/painel-revendedor/compras/{purchase}/factura', [ResellerPanelController::class, 'downloadInvoice'])->name('reseller.panel.purchase.invoice');
+Route::get('/painel-revendedor/taxa-manutencao/factura', [ResellerPanelController::class, 'downloadMaintenanceInvoice'])->name('reseller.maintenance.invoice');
 
 // Carrinho de vouchers do revendedor
 Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
