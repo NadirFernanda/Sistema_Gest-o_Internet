@@ -1,13 +1,8 @@
 {{--
     CHECKOUT — PLANOS FAMILIARES & EMPRESARIAIS
     ═══════════════════════════════════════════
-    Este formulário é EXCLUSIVO para planos familiares e empresariais carregados
-    do Sistema de Gestão (SG) via /sg/plan-templates.
-
-    NÃO confundir com store/checkout.blade.php (planos individuais):
-     - Aqui: identificação obrigatória (nome, e-mail, telefone)
-     - Aqui: activação feita pelo admin no SG após confirmação do pagamento
-     - Checkout individual: sem dados pessoais, código WiFi imediato
+    Fluxo simplificado: telefone → pesquisa no SG → confirmar → pagar (GPO/EMIS).
+    O cliente apenas digita o telefone; os dados são preenchidos automaticamente.
 --}}
 @extends('layouts.app')
 
@@ -16,7 +11,6 @@
 @section('content')
 <div class="container--720 checkout-page">
   <h1 class="checkout-title">Aderir ao Plano</h1>
-  <p class="checkout-subtitle">Preencha os seus dados para solicitar a adesão ao plano familiar ou empresarial.</p>
 
   <div class="checkout-layout">
 
@@ -25,7 +19,7 @@
       <h2>Plano Selecionado</h2>
       <p><span class="label">Plano:</span> {{ $plan['name'] }}</p>
       @if(!empty($plan['preco']))
-        <p class="total">Valor: {{ number_format($plan['preco'], 0, ',', '.') }} AOA<span style="font-size:0.8rem;font-weight:400;">/mês</span></p>
+        <p class="total">{{ number_format($plan['preco'], 0, ',', '.') }} Kz<span style="font-size:0.8rem;font-weight:400;">/mês</span></p>
       @else
         <p><span class="label">Valor:</span> Sob consulta</p>
       @endif
@@ -33,16 +27,14 @@
         <p><span class="label">Duração:</span> {{ $plan['ciclo'] }} dias</p>
       @endif
 
-      <div style="margin-top:1rem;padding:0.75rem;background:#fffaf0;border-radius:8px;border:1px solid rgba(247,181,0,0.3);font-size:0.82rem;color:#64748b;">
-        <strong style="color:#1e293b;">Como funciona?</strong><br>
-        Após o pagamento, o seu plano é activado automaticamente. Não precisa de aguardar
-        nenhuma confirmação manual — receberá uma notificação assim que o acesso estiver disponível.
+      <div style="margin-top:1rem;padding:0.75rem;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;font-size:0.82rem;color:#166534;">
+        ✅ <strong>Activação automática</strong><br>
+        Após o pagamento o seu plano é activado de imediato — sem esperas.
       </div>
     </section>
 
-    {{-- Formulário de identificação + pagamento --}}
+    {{-- Formulário --}}
     <section class="checkout-form-card">
-      <h2>Os seus dados</h2>
 
       @if ($errors->any())
         <div class="checkout-errors">
@@ -54,74 +46,64 @@
         </div>
       @endif
 
-      <form method="POST" action="{{ route('family.request.store') }}" class="checkout-form">
+      <form method="POST" action="{{ route('family.request.store') }}" id="planForm">
         @csrf
 
         {{-- Dados do plano (hidden) --}}
-        <input type="hidden" name="plan_id"    value="{{ $plan['id'] }}">
-        <input type="hidden" name="plan_name"  value="{{ $plan['name'] }}">
-        <input type="hidden" name="plan_preco" value="{{ $plan['preco'] ?? '' }}">
-        <input type="hidden" name="plan_ciclo" value="{{ $plan['ciclo'] ?? '' }}">
+        <input type="hidden" name="plan_id"         value="{{ $plan['id'] }}">
+        <input type="hidden" name="plan_name"        value="{{ $plan['name'] }}">
+        <input type="hidden" name="plan_preco"       value="{{ $plan['preco'] ?? '' }}">
+        <input type="hidden" name="plan_ciclo"       value="{{ $plan['ciclo'] ?? '' }}">
+        <input type="hidden" name="payment_method"   value="gpo">
 
-        {{-- Telefone — primeiro campo, serve também de lookup --}}
-        <div class="checkout-form-row">
-          <label for="customer_phone">Telefone / WhatsApp *</label>
-          <div class="checkout-phone-group">
+        {{-- Dados do cliente (preenchidos pelo JS após lookup) --}}
+        <input type="hidden" id="hCustomerName"  name="customer_name"  value="{{ old('customer_name') }}">
+        <input type="hidden" id="hCustomerEmail" name="customer_email" value="{{ old('customer_email') }}">
+        <input type="hidden" id="hCustomerNif"   name="customer_nif"   value="{{ old('customer_nif') }}">
+
+        {{-- ── PASSO 1: Telefone ── --}}
+        <div id="stepPhone">
+          <label class="sp-label" for="customer_phone">O seu número de telefone</label>
+          <div class="sp-phone-row">
             <input type="tel" id="customer_phone" name="customer_phone"
               value="{{ old('customer_phone') }}" required
-              placeholder="9XX XXX XXX" autocomplete="tel">
-            <button type="button" id="lookup-btn" class="checkout-lookup-btn" title="Preencher dados automaticamente">
-              Já sou cliente
+              placeholder="9XX XXX XXX" autocomplete="tel"
+              class="sp-phone-input">
+            <button type="button" id="lookupBtn" class="sp-search-btn">
+              <span id="lookupBtnText">Pesquisar</span>
+              <svg id="lookupSpinner" style="display:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </button>
           </div>
-          <small id="lookup-feedback" class="checkout-lookup-feedback"></small>
-          <div id="new-customer-banner" style="display:none; margin-top:0.75rem; padding:0.85rem 1rem; background:#fff7ed; border:1.5px solid #fed7aa; border-radius:8px; font-size:0.82rem; color:#9a3412;">
-            <strong>Número não registado.</strong><br>
-            Os planos familiares e empresariais são para clientes já instalados. Se ainda não é nosso cliente, contacte-nos para agendar a instalação — depois de instalado pode gerir o seu plano aqui.
+          <p class="sp-hint">Introduza o número registado na AngolaWiFi</p>
+        </div>
+
+        {{-- ── PASSO 2: Confirmação (oculto até ao lookup) ── --}}
+        <div id="stepConfirm" style="display:none; margin-top:1.25rem;">
+          <div class="sp-confirm-card">
+            <div class="sp-confirm-check">✓</div>
+            <div>
+              <div class="sp-confirm-name" id="confirmName"></div>
+              <div class="sp-confirm-sub">Número verificado — pronto para pagar</div>
+            </div>
+            <button type="button" class="sp-change-btn" id="changeBtn">Alterar</button>
           </div>
-        </div>
 
-        {{-- Nome --}}
-        <div class="checkout-form-row">
-          <label for="customer_name">Nome completo *</label>
-          <input type="text" id="customer_name" name="customer_name"
-            value="{{ old('customer_name') }}" required
-            placeholder="Ex: João Silva" autocomplete="name">
-        </div>
-
-        {{-- E-mail --}}
-        <div class="checkout-form-row">
-          <label for="customer_email">
-            E-mail
-            <span style="font-weight:400;color:#94a3b8;">(opcional — para notificações)</span>
-          </label>
-          <input type="email" id="customer_email" name="customer_email"
-            value="{{ old('customer_email') }}"
-            placeholder="exemplo@gmail.com" autocomplete="email">
-        </div>
-
-        {{-- NIF (opcional) --}}
-        <div class="checkout-form-row">
-          <label for="customer_nif">NIF <span style="font-weight:400;color:#94a3b8;">(opcional — para emissão de fatura)</span></label>
-          <input type="text" id="customer_nif" name="customer_nif"
-            value="{{ old('customer_nif') }}"
-            placeholder="Ex: 5417623LA041">
-        </div>
-
-        {{-- Método de pagamento fixo: GPO (EMIS) --}}
-        <input type="hidden" name="payment_method" value="gpo">
-        <div class="checkout-payment">
-          <p class="checkout-payment-title">Método de pagamento</p>
-          <div style="padding:0.65rem 1rem; background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; font-size:0.88rem; color:#0369a1; font-weight:600;">
-            💳 Cartão / Multicaixa Express — Pagamento seguro via EMIS (GPO)
+          <div style="margin-top:1.25rem; padding:0.75rem 1rem; background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; font-size:0.85rem; color:#0369a1;">
+            💳 Pagamento seguro via <strong>EMIS · GPO</strong>
           </div>
+
+          <button type="submit" id="submitBtn" class="btn-primary" style="width:100%; margin-top:1.25rem; font-size:1.05rem; padding:0.85rem;">
+            Pagar Agora →
+          </button>
         </div>
 
-        <p class="checkout-note">* Campos obrigatórios. Contactamos pelo telefone indicado em caso de dúvida.</p>
-
-        <div class="checkout-actions">
-          <button type="submit" id="submitBtn" class="btn-primary">Avançar para Pagamento →</button>
+        {{-- Banner: cliente não encontrado --}}
+        <div id="notFoundBanner" style="display:none; margin-top:1rem; padding:0.85rem 1rem; background:#fff7ed; border:1.5px solid #fed7aa; border-radius:8px; font-size:0.85rem; color:#9a3412;">
+          <strong>Número não registado.</strong><br>
+          Os planos familiares e empresariais são exclusivos para clientes já instalados.
+          Contacte-nos para agendar a sua instalação — depois pode gerir o plano aqui.
         </div>
+
       </form>
     </section>
 
@@ -132,174 +114,218 @@
 @push('scripts')
 <script>
 (function () {
-  const phoneInput       = document.getElementById('customer_phone');
-  const nameInput        = document.getElementById('customer_name');
-  const emailInput       = document.getElementById('customer_email');
-  const nifInput         = document.getElementById('customer_nif');
-  const lookupBtn        = document.getElementById('lookup-btn');
-  const feedback         = document.getElementById('lookup-feedback');
-  const newCustomerBanner = document.getElementById('new-customer-banner');
-  const submitBtn        = document.getElementById('submitBtn');
-  const lookupUrl        = '{{ route('family.request.lookup') }}';
+  const phoneInput    = document.getElementById('customer_phone');
+  const lookupBtn     = document.getElementById('lookupBtn');
+  const lookupText    = document.getElementById('lookupBtnText');
+  const lookupSpinner = document.getElementById('lookupSpinner');
+  const stepPhone     = document.getElementById('stepPhone');
+  const stepConfirm   = document.getElementById('stepConfirm');
+  const confirmName   = document.getElementById('confirmName');
+  const changeBtn     = document.getElementById('changeBtn');
+  const notFoundBanner = document.getElementById('notFoundBanner');
+  const hName         = document.getElementById('hCustomerName');
+  const hEmail        = document.getElementById('hCustomerEmail');
+  const hNif          = document.getElementById('hCustomerNif');
+  const lookupUrl     = '{{ route('family.request.lookup') }}';
 
-  // null = not yet checked, true = found, false = explicitly not found
-  let customerVerified = null;
-  let verifiedPhone    = '';
+  let verified = false;
 
-  function setFeedback(msg, type) {
-    feedback.textContent = msg;
-    feedback.className = 'checkout-lookup-feedback checkout-lookup-feedback--' + type;
-    feedback.style.display = msg ? 'block' : 'none';
+  function setLoading(on) {
+    lookupBtn.disabled = on;
+    lookupText.style.display  = on ? 'none' : 'inline';
+    lookupSpinner.style.display = on ? 'inline' : 'none';
+    if (on) lookupSpinner.classList.add('sp-spin');
   }
 
-  function markAutoFilled(input) {
-    input.classList.add('checkout-autofilled');
+  function showConfirm(name) {
+    confirmName.textContent = name;
+    stepConfirm.style.display  = 'block';
+    notFoundBanner.style.display = 'none';
+    verified = true;
   }
 
-  function blockSubmit() {
-    submitBtn.disabled = true;
-    submitBtn.style.opacity = '0.5';
-    newCustomerBanner.style.display = 'block';
+  function showNotFound() {
+    stepConfirm.style.display  = 'none';
+    notFoundBanner.style.display = 'block';
+    hName.value = hEmail.value = hNif.value = '';
+    verified = false;
   }
 
-  function enableSubmit() {
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = '';
-    newCustomerBanner.style.display = 'none';
+  function resetStep() {
+    stepConfirm.style.display    = 'none';
+    notFoundBanner.style.display = 'none';
+    hName.value = hEmail.value = hNif.value = '';
+    verified = false;
   }
 
   async function doLookup() {
-    const phone = phoneInput.value.replace(/[\s\-().]/g, '');
-    if (phone.length < 7) {
-      setFeedback('Introduza o número completo.', 'warn');
+    const phone = phoneInput.value.replace(/[\s\-().+]/g, '');
+    if (phone.length < 9) {
+      phoneInput.focus();
       return;
     }
 
-    lookupBtn.disabled = true;
-    lookupBtn.textContent = '…';
-    setFeedback('', '');
+    setLoading(true);
+    resetStep();
 
     try {
-      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), { headers: { 'Accept': 'application/json' } });
+      const res  = await fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), {
+        headers: { 'Accept': 'application/json' }
+      });
       const data = await res.json();
 
       if (data.found) {
-        nameInput.value  = data.name  || '';
-        emailInput.value = data.email || '';
-        nifInput.value   = data.nif   || '';
-        [nameInput, emailInput, nifInput].forEach(markAutoFilled);
-        setFeedback('✓ Cliente encontrado — dados preenchidos. Confirme antes de avançar.', 'ok');
-        customerVerified = true;
-        verifiedPhone    = phone;
-        enableSubmit();
+        hName.value  = data.name  || '';
+        hEmail.value = data.email || '';
+        hNif.value   = data.nif   || '';
+        showConfirm(data.name || 'Cliente verificado');
       } else {
-        setFeedback('', '');
-        customerVerified = false;
-        verifiedPhone    = '';
-        blockSubmit();
+        showNotFound();
       }
     } catch (e) {
-      // Network error: don't block (server will validate)
-      setFeedback('Não foi possível verificar. Preencha os dados manualmente.', 'warn');
-      customerVerified = null;
-      enableSubmit();
+      // Falha de rede — deixa avançar, servidor valida
+      notFoundBanner.innerHTML = '<strong>Não foi possível verificar.</strong> Verifique a ligação e tente novamente.';
+      notFoundBanner.style.background = '#fefce8';
+      notFoundBanner.style.borderColor = '#fde68a';
+      notFoundBanner.style.color = '#854d0e';
+      notFoundBanner.style.display = 'block';
     } finally {
-      lookupBtn.disabled = false;
-      lookupBtn.textContent = 'Já sou cliente';
+      setLoading(false);
     }
   }
 
   lookupBtn.addEventListener('click', doLookup);
 
-  // Auto-dispara quando o campo de telefone fica com tamanho suficiente e o utilizador sai do campo
+  // Auto-pesquisa quando o utilizador sai do campo com número completo
   phoneInput.addEventListener('blur', function () {
-    const phone = this.value.replace(/[\s\-().]/g, '');
-    if (phone.length >= 9 && !nameInput.value.trim()) {
-      doLookup();
-    }
+    const phone = this.value.replace(/[\s\-().+]/g, '');
+    if (phone.length >= 9) doLookup();
   });
 
-  // Quando o telefone é alterado após um lookup, repõe o estado de verificação
+  // Reset ao editar o número
   phoneInput.addEventListener('input', function () {
-    const phone = this.value.replace(/[\s\-().]/g, '');
-    if (customerVerified !== null && phone !== verifiedPhone) {
-      customerVerified = null;
-      verifiedPhone    = '';
-      enableSubmit();
-      setFeedback('', '');
-    }
+    if (verified) resetStep();
   });
 
-  // Guarda do formulário: impede submissão se o número foi explicitamente rejeitado
-  document.querySelector('.checkout-form').addEventListener('submit', function (e) {
-    if (customerVerified === false) {
+  // "Alterar" — volta ao campo de telefone
+  changeBtn.addEventListener('click', function () {
+    resetStep();
+    phoneInput.value = '';
+    phoneInput.focus();
+  });
+
+  // Guarda do form
+  document.getElementById('planForm').addEventListener('submit', function (e) {
+    if (!verified) {
       e.preventDefault();
-      blockSubmit();
+      if (!hName.value) doLookup();
     }
   });
 
-  // Remove marca de auto-preenchido se o utilizador editar o campo manualmente
-  [nameInput, emailInput, nifInput].forEach(function (input) {
-    input.addEventListener('input', function () {
-      this.classList.remove('checkout-autofilled');
-    });
-  });
+  // Se o telefone já veio preenchido (old() após erro), pesquisa automaticamente
+  if (phoneInput.value.replace(/[\s\-().+]/g, '').length >= 9) {
+    doLookup();
+  }
 })();
 </script>
 @endpush
 
 @push('styles')
 <style>
-.checkout-phone-group {
+.sp-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+}
+.sp-phone-row {
   display: flex;
   gap: 0.5rem;
-  align-items: stretch;
 }
-.checkout-phone-group input {
+.sp-phone-input {
   flex: 1;
-  min-width: 0;
+  font-size: 1.15rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s;
 }
-.checkout-lookup-btn {
+.sp-phone-input:focus { border-color: #0ea5e9; }
+.sp-search-btn {
   flex-shrink: 0;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
   background: #0ea5e9;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.sp-search-btn:hover    { background: #0284c7; }
+.sp-search-btn:disabled { background: #94a3b8; cursor: default; }
+.sp-hint {
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+.sp-confirm-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+}
+.sp-confirm-check {
+  width: 2.2rem;
+  height: 2.2rem;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.sp-confirm-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #166534;
+}
+.sp-confirm-sub {
+  font-size: 0.78rem;
+  color: #4ade80;
+  color: #15803d;
+}
+.sp-change-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  color: #166534;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s;
 }
-.checkout-lookup-btn:hover  { background: #0284c7; }
-.checkout-lookup-btn:disabled { background: #94a3b8; cursor: default; }
-
-.checkout-lookup-feedback {
-  display: none;
-  margin-top: 0.4rem;
-  font-size: 0.8rem;
-  border-radius: 5px;
-  padding: 0.3rem 0.6rem;
-}
-.checkout-lookup-feedback--ok   { background: #f0fdf4; color: #166534; }
-.checkout-lookup-feedback--info { background: #f0f9ff; color: #0369a1; }
-.checkout-lookup-feedback--warn { background: #fefce8; color: #854d0e; }
-
-.checkout-autofilled {
-  border-color: #86efac !important;
-  background: #f0fdf4 !important;
-}
+.sp-change-btn:hover { background: #dcfce7; }
+@keyframes sp-spin { to { transform: rotate(360deg); } }
+.sp-spin { animation: sp-spin 0.8s linear infinite; }
 
 @media (max-width: 480px) {
-  .checkout-phone-group {
-    flex-direction: column;
-  }
-  .checkout-lookup-btn {
-    width: 100%;
-    padding: .6rem 1rem;
-    text-align: center;
-  }
+  .sp-phone-row { flex-direction: column; }
+  .sp-search-btn { padding: 0.7rem 1rem; justify-content: center; }
 }
 </style>
 @endpush
