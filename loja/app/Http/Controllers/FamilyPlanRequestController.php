@@ -145,7 +145,7 @@ class FamilyPlanRequestController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'required|string|max:50',
             'customer_nif'   => 'nullable|string|max:50',
-            'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_MULTICAIXA . ',' . FamilyPlanRequest::METHOD_PAYPAL . ',' . FamilyPlanRequest::METHOD_GPO,
+            'payment_method' => 'required|in:' . FamilyPlanRequest::METHOD_GPO,
         ]);
 
         // ── Verifica o plano junto ao SG para evitar adulteração de preço ────────
