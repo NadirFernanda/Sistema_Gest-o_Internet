@@ -182,6 +182,42 @@ class FamilyPlanRequestController extends Controller
                 ->withErrors(['plan_id' => 'O Sistema de Gestão está indisponível. Tente novamente dentro de alguns minutos.']);
         }
 
+        // ── Verifica se o cliente já existe (loja local ou SG) ──────────────────
+        // Planos familiares/empresariais são exclusivos para clientes já instalados.
+        // Novos clientes devem contactar para agendar a instalação física primeiro.
+        $phone = preg_replace('/\D/', '', $validated['customer_phone']);
+        $customerExists = FamilyPlanRequest::where('customer_phone', $phone)
+            ->whereIn('status', [
+                FamilyPlanRequest::STATUS_ACTIVATED,
+                FamilyPlanRequest::STATUS_PENDING,
+                FamilyPlanRequest::STATUS_AWAITING_PAYMENT,
+            ])
+            ->exists();
+
+        if (! $customerExists) {
+            try {
+                $sgResult = app(StoreProxyController::class)->lookupClienteSG($phone);
+                if (! empty($sgResult['found'])) {
+                    $customerExists = true;
+                }
+            } catch (\Throwable $e) {
+                Log::warning('FamilyPlanRequest: não foi possível verificar existência do cliente no SG', [
+                    'phone' => substr($phone, 0, 4) . '***',
+                    'error' => $e->getMessage(),
+                ]);
+                // SG inacessível — bloqueia para evitar adesões de não-clientes
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['customer_phone' => 'Não foi possível verificar o seu registo de momento. Tente novamente mais tarde.']);
+            }
+        }
+
+        if (! $customerExists) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['customer_phone' => 'O seu número não está registado no sistema. Os planos familiares e empresariais são exclusivos para clientes já instalados. Contacte-nos para agendar a sua instalação.']);
+        }
+
         $requestRecord = FamilyPlanRequest::create([
             'plan_id'         => $validated['plan_id'],
             'plan_name'       => $sgVerifiedName,

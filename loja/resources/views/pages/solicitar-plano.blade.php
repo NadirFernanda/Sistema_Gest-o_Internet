@@ -75,6 +75,10 @@
             </button>
           </div>
           <small id="lookup-feedback" class="checkout-lookup-feedback"></small>
+          <div id="new-customer-banner" style="display:none; margin-top:0.75rem; padding:0.85rem 1rem; background:#fff7ed; border:1.5px solid #fed7aa; border-radius:8px; font-size:0.82rem; color:#9a3412;">
+            <strong>Número não registado.</strong><br>
+            Os planos familiares e empresariais são para clientes já instalados. Se ainda não é nosso cliente, contacte-nos para agendar a instalação — depois de instalado pode gerir o seu plano aqui.
+          </div>
         </div>
 
         {{-- Nome --}}
@@ -129,7 +133,7 @@
         <p class="checkout-note">* Campos obrigatórios. Contactamos pelo telefone indicado em caso de dúvida.</p>
 
         <div class="checkout-actions">
-          <button type="submit" class="btn-primary">Avançar para Pagamento →</button>
+          <button type="submit" id="submitBtn" class="btn-primary">Avançar para Pagamento →</button>
         </div>
       </form>
     </section>
@@ -141,13 +145,19 @@
 @push('scripts')
 <script>
 (function () {
-  const phoneInput    = document.getElementById('customer_phone');
-  const nameInput     = document.getElementById('customer_name');
-  const emailInput    = document.getElementById('customer_email');
-  const nifInput      = document.getElementById('customer_nif');
-  const lookupBtn     = document.getElementById('lookup-btn');
-  const feedback      = document.getElementById('lookup-feedback');
-  const lookupUrl     = '{{ route('family.request.lookup') }}';
+  const phoneInput       = document.getElementById('customer_phone');
+  const nameInput        = document.getElementById('customer_name');
+  const emailInput       = document.getElementById('customer_email');
+  const nifInput         = document.getElementById('customer_nif');
+  const lookupBtn        = document.getElementById('lookup-btn');
+  const feedback         = document.getElementById('lookup-feedback');
+  const newCustomerBanner = document.getElementById('new-customer-banner');
+  const submitBtn        = document.getElementById('submitBtn');
+  const lookupUrl        = '{{ route('family.request.lookup') }}';
+
+  // null = not yet checked, true = found, false = explicitly not found
+  let customerVerified = null;
+  let verifiedPhone    = '';
 
   function setFeedback(msg, type) {
     feedback.textContent = msg;
@@ -157,6 +167,18 @@
 
   function markAutoFilled(input) {
     input.classList.add('checkout-autofilled');
+  }
+
+  function blockSubmit() {
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.5';
+    newCustomerBanner.style.display = 'block';
+  }
+
+  function enableSubmit() {
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '';
+    newCustomerBanner.style.display = 'none';
   }
 
   async function doLookup() {
@@ -180,11 +202,20 @@
         nifInput.value   = data.nif   || '';
         [nameInput, emailInput, nifInput].forEach(markAutoFilled);
         setFeedback('✓ Cliente encontrado — dados preenchidos. Confirme antes de avançar.', 'ok');
+        customerVerified = true;
+        verifiedPhone    = phone;
+        enableSubmit();
       } else {
-        setFeedback('Número não encontrado — preencha os seus dados abaixo.', 'info');
+        setFeedback('', '');
+        customerVerified = false;
+        verifiedPhone    = '';
+        blockSubmit();
       }
     } catch (e) {
+      // Network error: don't block (server will validate)
       setFeedback('Não foi possível verificar. Preencha os dados manualmente.', 'warn');
+      customerVerified = null;
+      enableSubmit();
     } finally {
       lookupBtn.disabled = false;
       lookupBtn.textContent = 'Já sou cliente';
@@ -198,6 +229,25 @@
     const phone = this.value.replace(/[\s\-().]/g, '');
     if (phone.length >= 9 && !nameInput.value.trim()) {
       doLookup();
+    }
+  });
+
+  // Quando o telefone é alterado após um lookup, repõe o estado de verificação
+  phoneInput.addEventListener('input', function () {
+    const phone = this.value.replace(/[\s\-().]/g, '');
+    if (customerVerified !== null && phone !== verifiedPhone) {
+      customerVerified = null;
+      verifiedPhone    = '';
+      enableSubmit();
+      setFeedback('', '');
+    }
+  });
+
+  // Guarda do formulário: impede submissão se o número foi explicitamente rejeitado
+  document.querySelector('.checkout-form').addEventListener('submit', function (e) {
+    if (customerVerified === false) {
+      e.preventDefault();
+      blockSubmit();
     }
   });
 
