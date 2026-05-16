@@ -47,7 +47,7 @@ class AutovendaJanelaController extends Controller
                 ['%' . $phone . '%']
             )
             ->orderByDesc('created_at')
-            ->first(['nome', 'email', 'bi']);
+            ->first(['id', 'nome', 'email', 'bi']);
 
         if (! $cliente) {
             return response()->json(['found' => false]);
@@ -59,11 +59,19 @@ class AutovendaJanelaController extends Controller
             $nif = $cliente->bi;
         }
 
+        // Return the client's current active plan so the loja can prevent plan mismatches (fraud)
+        $currentPlan = Plano::where('cliente_id', $cliente->id)
+            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN ('ativo', 'pendente')")
+            ->orderByDesc('data_ativacao')
+            ->first(['template_id', 'nome']);
+
         return response()->json([
-            'found' => true,
-            'name'  => $cliente->nome,
-            'email' => $cliente->email ?? '',
-            'nif'   => $nif ?? '',
+            'found'             => true,
+            'name'              => $cliente->nome,
+            'email'             => $cliente->email ?? '',
+            'nif'               => $nif ?? '',
+            'current_plan_id'   => $currentPlan?->template_id,
+            'current_plan_name' => $currentPlan?->nome,
         ]);
     }
 

@@ -543,6 +543,14 @@
           <a href="/agendar-instalacao" class="co-banner-cta">Agendar instalação →</a>
         </div>
 
+        {{-- Plan mismatch --}}
+        <div id="mismatchBanner" style="display:none;" class="co-banner co-banner--error">
+          <strong>Plano incompatível</strong>
+          Este número está associado ao <span id="mismatchPlanName">seu plano actual</span>.
+          Não é possível pagar um plano diferente do que tem contratado.
+          <span style="display:block;margin-top:.25rem;font-size:.8rem;opacity:.85;">Para alterar o seu plano, contacte o suporte.</span>
+        </div>
+
         {{-- Error --}}
         <div id="errorBanner" style="display:none;" class="co-banner co-banner--error">
           <strong>Não foi possível verificar o número</strong>
@@ -561,27 +569,31 @@
 @push('scripts')
 <script>
 (function () {
-  var phoneInput    = document.getElementById('customer_phone');
-  var lookupBtn     = document.getElementById('lookupBtn');
-  var lookupText    = document.getElementById('lookupBtnText');
-  var lookupSpin    = document.getElementById('lookupSpinner');
-  var stepConfirm   = document.getElementById('stepConfirm');
-  var confirmName   = document.getElementById('confirmName');
-  var changeBtn     = document.getElementById('changeBtn');
+  var phoneInput     = document.getElementById('customer_phone');
+  var lookupBtn      = document.getElementById('lookupBtn');
+  var lookupText     = document.getElementById('lookupBtnText');
+  var lookupSpin     = document.getElementById('lookupSpinner');
+  var stepConfirm    = document.getElementById('stepConfirm');
+  var confirmName    = document.getElementById('confirmName');
+  var changeBtn      = document.getElementById('changeBtn');
   var notFoundBanner = document.getElementById('notFoundBanner');
-  var errorBanner   = document.getElementById('errorBanner');
-  var errorDetail   = document.getElementById('errorDetail');
-  var retryBtn      = document.getElementById('retryBtn');
-  var hName         = document.getElementById('hName');
-  var hEmail        = document.getElementById('hEmail');
-  var hNif          = document.getElementById('hNif');
-  var lookupUrl     = '{{ route('family.request.lookup') }}';
+  var mismatchBanner = document.getElementById('mismatchBanner');
+  var mismatchPlanName = document.getElementById('mismatchPlanName');
+  var errorBanner    = document.getElementById('errorBanner');
+  var errorDetail    = document.getElementById('errorDetail');
+  var retryBtn       = document.getElementById('retryBtn');
+  var hName          = document.getElementById('hName');
+  var hEmail         = document.getElementById('hEmail');
+  var hNif           = document.getElementById('hNif');
+  var lookupUrl      = '{{ route('family.request.lookup') }}';
+  var pagePlanId     = '{{ $plan["id"] }}';
 
   var verified = false;
 
   function hideAll() {
     stepConfirm.style.display    = 'none';
     notFoundBanner.style.display = 'none';
+    mismatchBanner.style.display = 'none';
     errorBanner.style.display    = 'none';
     hName.value = hEmail.value = hNif.value = '';
     verified = false;
@@ -616,6 +628,13 @@
       }
 
       if (data.found) {
+        // Verifica se o plano solicitado corresponde ao plano actual do cliente
+        if (data.current_plan_id && String(data.current_plan_id) !== String(pagePlanId)) {
+          var planLabel = data.current_plan_name ? '"' + data.current_plan_name + '"' : 'plano actual';
+          mismatchPlanName.textContent = planLabel;
+          mismatchBanner.style.display = 'block';
+          return;
+        }
         hName.value  = data.name  || '';
         hEmail.value = data.email || '';
         hNif.value   = data.nif   || '';

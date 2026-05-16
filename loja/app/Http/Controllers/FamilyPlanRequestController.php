@@ -87,10 +87,10 @@ class FamilyPlanRequestController extends Controller
             // ── 1. Pesquisa local (pedidos anteriores na loja) ────────────────
             // LIKE search strips stored formatting (spaces/dashes) via SQL REPLACE
             // so "923 883 971" and "923883971" are treated as the same number.
-            $record = FamilyPlanRequest::whereRaw(
-                    "REPLACE(REPLACE(customer_phone, ' ', ''), '-', '') LIKE ?",
-                    ['%' . $phone . '%']
-                )
+            $phonePattern = ['%' . $phone . '%'];
+            $phoneRaw     = "REPLACE(REPLACE(customer_phone, ' ', ''), '-', '') LIKE ?";
+
+            $record = FamilyPlanRequest::whereRaw($phoneRaw, $phonePattern)
                 ->whereIn('status', [
                     FamilyPlanRequest::STATUS_ACTIVATED,
                     FamilyPlanRequest::STATUS_PENDING,
@@ -99,12 +99,19 @@ class FamilyPlanRequestController extends Controller
                 ->orderByDesc('created_at')
                 ->first(['customer_name', 'customer_email', 'customer_nif']);
 
+            // Current plan from the most recently activated local order
+            $localCurrentPlanId = FamilyPlanRequest::whereRaw($phoneRaw, $phonePattern)
+                ->where('status', FamilyPlanRequest::STATUS_ACTIVATED)
+                ->orderByDesc('created_at')
+                ->value('plan_id');
+
             if ($record) {
                 return response()->json([
-                    'found'  => true,
-                    'name'   => $record->customer_name,
-                    'email'  => $record->customer_email ?? '',
-                    'source' => 'loja',
+                    'found'           => true,
+                    'name'            => $record->customer_name,
+                    'email'           => $record->customer_email ?? '',
+                    'source'          => 'loja',
+                    'current_plan_id' => $localCurrentPlanId,
                 ]);
             }
 
@@ -113,10 +120,12 @@ class FamilyPlanRequestController extends Controller
 
             if (! empty($sgResult['found'])) {
                 return response()->json([
-                    'found'  => true,
-                    'name'   => $sgResult['name']  ?? '',
-                    'email'  => $sgResult['email'] ?? '',
-                    'source' => 'sg',
+                    'found'             => true,
+                    'name'              => $sgResult['name']  ?? '',
+                    'email'             => $sgResult['email'] ?? '',
+                    'source'            => 'sg',
+                    'current_plan_id'   => $sgResult['current_plan_id']  ?? null,
+                    'current_plan_name' => $sgResult['current_plan_name'] ?? null,
                 ]);
             }
 
@@ -232,6 +241,47 @@ class FamilyPlanRequestController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['customer_phone' => 'O seu número não está registado no sistema. Os planos familiares e empresariais são exclusivos para clientes já instalados. Contacte-nos para agendar a sua instalação.']);
+        }
+
+        // ── Verifica se o plano coincide com o plano actual do cliente ──────────
+        // Impede fraude: cliente com plano de 10MBPS a pagar plano de 6MBPS.
+        $currentPlanId = null;
+
+        // 1. Verificar registos locais (mais recente activado)
+        $localActivatedPlanId = FamilyPlanRequest::whereRaw(
+                "REPLACE(REPLACE(customer_phone, ' ', ''), '-', '') LIKE ?",
+                ['%' . $phone . '%']
+            )
+            ->where('status', FamilyPlanRequest::STATUS_ACTIVATED)
+            ->orderByDesc('created_at')
+            ->value('plan_id');
+
+        if ($localActivatedPlanId) {
+            $currentPlanId = (string) $localActivatedPlanId;
+        } elseif ($sgAvailable) {
+            // 2. Verificar no SG (cliente pré-existente sem histórico na loja)
+            try {
+                $sgLookup = app(StoreProxyController::class)->lookupClienteSG($phone);
+                if (! empty($sgLookup['current_plan_id'])) {
+                    $currentPlanId = (string) $sgLookup['current_plan_id'];
+                }
+            } catch (\Throwable $e) {
+                Log::warning('FamilyPlanRequest store: não foi possível verificar plano actual do cliente', [
+                    'phone' => substr($phone, 0, 4) . '***',
+                ]);
+            }
+        }
+
+        if ($currentPlanId !== null && $currentPlanId !== (string) $validated['plan_id']) {
+            Log::warning('FamilyPlanRequest: tentativa de pagamento com plano incompatível', [
+                'phone'           => substr($phone, 0, 4) . '***',
+                'plan_solicitado' => $validated['plan_id'],
+                'plan_atual'      => $currentPlanId,
+                'ip'              => $request->ip(),
+            ]);
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['plan_id' => 'O plano seleccionado não corresponde ao seu plano actual. Contacte o suporte se pretender alterar o seu plano.']);
         }
 
         $requestRecord = FamilyPlanRequest::create([
