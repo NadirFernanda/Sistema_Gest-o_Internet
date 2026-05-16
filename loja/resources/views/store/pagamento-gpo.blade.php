@@ -88,7 +88,7 @@
 <script>
 (function() {
   const statusUrl    = '{{ route("gpo.status", $order) }}';
-  const gpoOrigin    = 'https://gpo.emis.co.ao';
+  const gpoOrigin    = 'https://pagamentonline.emis.co.ao';
   let tentativas     = 0;
   const maxTentativas = 36; // ~3 minutos
 

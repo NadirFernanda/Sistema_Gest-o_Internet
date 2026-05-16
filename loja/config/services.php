@@ -56,8 +56,8 @@ return [
     // EMIS GPO — Gateway de Pagamentos Online (cartão + Multicaixa Express via webframe)
     'gpo' => [
         'frame_token'     => env('GPO_FRAME_TOKEN', ''),
-        'frame_token_url' => env('GPO_FRAME_TOKEN_URL', 'https://gpo.emis.co.ao/online-payment-gateway/webframe/v1/frameToken'),
-        'webframe_url'    => env('GPO_WEBFRAME_URL', 'https://gpo.emis.co.ao/online-payment-gateway/webframe'),
+        'frame_token_url' => env('GPO_FRAME_TOKEN_URL', 'https://pagamentonline.emis.co.ao/online-payment-gateway/webframe/v1/frameToken'),
+        'webframe_url'    => env('GPO_WEBFRAME_URL', 'https://pagamentonline.emis.co.ao/online-payment-gateway/webframe'),
     ],
 
 
