@@ -41,9 +41,22 @@ class GpoController extends Controller
             return redirect()->route('store.checkout.confirm', $order->id);
         }
 
-        // Gera referência única (max 15 chars alfanumérico)
-        $reference = 'AW' . $order->id . strtoupper(Str::random(4));
-        $reference = substr(preg_replace('/[^a-zA-Z0-9]/', '', $reference), 0, 15);
+        // Reutiliza a referência existente se a ordem já está em pagamento pendente.
+        // Gerar uma nova referência a cada refresh sobrescreveria a BD, tornando
+        // callbacks anteriores do GPO incapazes de encontrar a ordem ("order_not_found").
+        $needsNewReference = empty($order->payment_reference)
+            || in_array($order->status, [
+                AutovendaOrder::STATUS_FAILED,
+                AutovendaOrder::STATUS_CANCELLED,
+                AutovendaOrder::STATUS_EXPIRED,
+            ], true);
+
+        if ($needsNewReference) {
+            $reference = 'AW' . $order->id . strtoupper(Str::random(4));
+            $reference = substr(preg_replace('/[^a-zA-Z0-9]/', '', $reference), 0, 15);
+        } else {
+            $reference = $order->payment_reference;
+        }
 
         $callbackUrl = route('webhooks.gpo');
 
