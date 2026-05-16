@@ -128,6 +128,7 @@
           <th>#</th>
           <th>Nome</th>
           <th>Telefone</th>
+          <th>E-mail</th>
           <th>Tipo</th>
           <th>Estado</th>
           <th>Data</th>
@@ -152,6 +153,7 @@
                 {{ $appt->phone }}
               </a>
             </td>
+            <td class="dim">{{ $appt->email ?: '—' }}</td>
             <td><span class="badge {{ $tcls }}">{{ \App\Models\InstallationAppointment::typeLabel($appt->type) }}</span></td>
             <td><span class="badge {{ $scls }}">{{ \App\Models\InstallationAppointment::statusLabel($appt->status) }}</span></td>
             <td class="dim">{{ $appt->created_at->format('d/m/Y H:i') }}</td>
@@ -161,13 +163,30 @@
           </tr>
           {{-- Detail / status update row --}}
           <tr class="ap-detail-row" id="detail-{{ $appt->id }}" style="display:none;">
-            <td colspan="7">
-              <div class="ap-detail-inner">
-                {{-- Message --}}
-                <div>
-                  <p style="font-size:.78rem;font-weight:700;color:#374151;margin:0 0 .35rem;">Mensagem do cliente</p>
-                  <p style="font-size:.84rem;color:#4b5563;margin:0;white-space:pre-wrap;">{{ $appt->message ?: '—' }}</p>
+            <td colspan="8">
+              <div class="ap-detail-inner" style="grid-template-columns:1fr 1fr 1fr;">
+                {{-- Client info --}}
+                <div style="display:flex;flex-direction:column;gap:.45rem;">
+                  <p style="font-size:.78rem;font-weight:700;color:#374151;margin:0 0 .1rem;">Dados do cliente</p>
+                  @if($appt->email)
+                    <p style="font-size:.83rem;color:#4b5563;margin:0;">&#128231; {{ $appt->email }}</p>
+                  @endif
+                  @if($appt->nif)
+                    <p style="font-size:.83rem;color:#4b5563;margin:0;">NIF: {{ $appt->nif }}</p>
+                  @endif
+                  @if($appt->morada)
+                    <p style="font-size:.83rem;color:#4b5563;margin:0;">&#128205; {{ $appt->morada }}</p>
+                  @endif
+                  @if($appt->message)
+                    <p style="font-size:.78rem;font-weight:700;color:#374151;margin:.5rem 0 .1rem;">Mensagem</p>
+                    <p style="font-size:.83rem;color:#4b5563;margin:0;white-space:pre-wrap;">{{ $appt->message }}</p>
+                  @endif
+                  @if(!$appt->email && !$appt->nif && !$appt->morada && !$appt->message)
+                    <p style="font-size:.83rem;color:#94a3b8;margin:0;">—</p>
+                  @endif
                 </div>
+                {{-- spacer --}}
+                <div></div>
                 {{-- Update form --}}
                 <form method="POST"
                       action="{{ route('admin.appointments.status', $appt->id) }}"
@@ -196,7 +215,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="7">
+            <td colspan="8">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhum agendamento encontrado</p>
                 <p class="ap-empty-s">Os pedidos submetidos pelos clientes aparecem aqui.</p>

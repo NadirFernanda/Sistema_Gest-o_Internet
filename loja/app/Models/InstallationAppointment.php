@@ -11,6 +11,9 @@ class InstallationAppointment extends Model
     protected $fillable = [
         'name',
         'phone',
+        'email',
+        'nif',
+        'morada',
         'type',
         'message',
         'status',

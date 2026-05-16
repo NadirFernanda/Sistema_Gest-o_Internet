@@ -17,6 +17,9 @@ class InstallationAppointmentController extends Controller
         $validated = $request->validate([
             'name'    => ['required', 'string', 'min:2', 'max:120'],
             'phone'   => ['required', 'string', 'min:7', 'max:30'],
+            'email'   => ['required', 'email', 'max:254'],
+            'nif'     => ['nullable', 'string', 'max:50'],
+            'morada'  => ['nullable', 'string', 'max:500'],
             'type'    => ['required', 'in:familia,empresa,instituicao'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
