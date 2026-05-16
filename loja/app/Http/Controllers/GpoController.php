@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ResellerMaintenancePaidMail;
 use App\Models\AutovendaOrder;
 use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
@@ -12,6 +13,7 @@ use App\Services\GpoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -277,6 +279,20 @@ class GpoController extends Controller
                     'allocated' => $allocated,
                 ];
                 $application->update(['meta' => $meta]);
+            }
+
+            // Enviar email de confirmação ao revendedor
+            if ($application->email) {
+                $bonusAoa = (int) ($application->bonus_vouchers_aoa ?? 0);
+                try {
+                    Mail::to($application->email)
+                        ->send(new ResellerMaintenancePaidMail($application, $year, $month, $bonusAoa));
+                } catch (\Throwable $e) {
+                    Log::warning('GPO Manutenção: erro ao enviar email de confirmação', [
+                        'reseller_id' => $applicationId,
+                        'error'       => $e->getMessage(),
+                    ]);
+                }
             }
 
             Log::info('GPO Manutenção: paga com sucesso', [
