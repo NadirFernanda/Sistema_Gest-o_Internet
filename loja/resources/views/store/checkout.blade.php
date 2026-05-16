@@ -138,6 +138,21 @@
 
         </div>
 
+        {{-- Criar conta (opcional, aparece quando o email é preenchido) --}}
+        <div id="criarContaSection" style="display:none; background:#fffbeb; border:1.5px solid #fde68a; border-radius:0.75rem; padding:1rem 1.1rem; margin-bottom:1.5rem;">
+          <label style="display:flex; align-items:flex-start; gap:0.75rem; cursor:pointer;">
+            <input type="checkbox" id="criarContaCheck" name="create_account" value="1"
+              style="accent-color:#f7b500; width:16px; height:16px; margin-top:0.15rem; flex-shrink:0;"
+              {{ old('create_account') ? 'checked' : '' }}>
+            <div>
+              <span style="font-size:0.88rem; font-weight:700; color:#111827;">Criar conta AngolaWiFi</span>
+              <p style="font-size:0.78rem; color:#6b7280; margin:0.2rem 0 0;">
+                Guarde o histórico das suas compras e aceda aos seus códigos a qualquer momento em <strong>Minha Conta</strong>. Sem passwords — basta o seu e-mail.
+              </p>
+            </div>
+          </label>
+        </div>
+
         {{-- Método de pagamento --}}
         <div style="border:1.5px solid #e5e7eb; border-radius:0.75rem; overflow:hidden; margin-bottom:1.5rem;">
           <div style="padding:0.6rem 1rem; background:#f9fafb; border-bottom:1px solid #e5e7eb; font-size:0.78rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">
@@ -186,5 +201,23 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function() {
   document.getElementById('btnSpinner').style.display = 'inline';
   document.getElementById('btnSubmit').disabled = true;
 });
+
+// Mostrar secção "Criar conta" apenas quando o email estiver preenchido
+(function() {
+  const emailInput   = document.getElementById('customer_email');
+  const criarSection = document.getElementById('criarContaSection');
+  const criarCheck   = document.getElementById('criarContaCheck');
+  if (!emailInput || !criarSection) return;
+
+  function toggle() {
+    const hasEmail = emailInput.value.trim().length > 0;
+    criarSection.style.display = hasEmail ? 'block' : 'none';
+    if (!hasEmail) criarCheck.checked = false;
+  }
+
+  emailInput.addEventListener('input', toggle);
+  // Restaurar estado após validação falhada (old values)
+  toggle();
+})();
 </script>
 @endpush

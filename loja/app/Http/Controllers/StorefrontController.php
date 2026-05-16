@@ -113,6 +113,7 @@ class StorefrontController extends Controller
             'customer_name'  => 'nullable|string|max:100',
             'customer_email' => 'nullable|email|max:150',
             'customer_phone' => ['nullable', 'regex:/^(244)?9[0-9]{8}$/'],
+            'create_account' => 'nullable|boolean',
         ], [
             'customer_email.email' => 'Introduza um e-mail válido.',
             'customer_phone.regex' => 'Número inválido. Formato: 9XXXXXXXX ou 2449XXXXXXXX.',
@@ -147,10 +148,15 @@ class StorefrontController extends Controller
             'payment_method'        => $validated['payment_method'],
         ]);
 
+        // Se o cliente pediu conta e forneceu email, guardar para auto-login após pagamento
+        if (!empty($validated['create_account']) && !empty($validated['customer_email'])) {
+            $request->session()->put('checkout_create_account_email', strtolower(trim($validated['customer_email'])));
+        }
+
         return redirect()->route('gpo.show', $order);
     }
 
-    public function checkoutConfirm(\App\Models\AutovendaOrder $order)
+    public function checkoutConfirm(\App\Models\AutovendaOrder $order, \Illuminate\Http\Request $request)
     {
         if (! $order->isPaid()) {
             return redirect()->route('gpo.show', $order);
@@ -158,6 +164,16 @@ class StorefrontController extends Controller
 
         $plan = \App\Models\VoucherPlan::where('slug', $order->plan_id)->first();
 
-        return view('store.checkout-confirmation', compact('plan', 'order'));
+        // Auto-login se o cliente pediu conta durante o checkout
+        $accountCreated = false;
+        $pendingEmail   = $request->session()->pull('checkout_create_account_email');
+        if ($pendingEmail && $order->customer_email
+            && strtolower($order->customer_email) === $pendingEmail
+        ) {
+            $request->session()->put('customer_email', $pendingEmail);
+            $accountCreated = true;
+        }
+
+        return view('store.checkout-confirmation', compact('plan', 'order', 'accountCreated'));
     }
 }

@@ -80,6 +80,15 @@
         </p>
       @endisset
 
+      @if (!empty($accountCreated))
+        <div style="background:#d1fae5; border:1.5px solid #6ee7b7; border-radius:0.75rem; padding:0.9rem 1.1rem; margin-top:1.25rem; font-size:0.85rem; color:#065f46;">
+          <strong>✅ Conta criada com sucesso!</strong><br>
+          Aceda ao histórico das suas compras em qualquer momento em
+          <a href="{{ route('account.index') }}" style="color:#059669; font-weight:700;">Minha Conta</a>
+          — basta introduzir o seu e-mail.
+        </div>
+      @endif
+
       <div class="checkout-actions" style="margin-top:1.5rem;">
         <a href="{{ url('/') }}" class="btn-primary">Comprar outro plano</a>
       </div>
