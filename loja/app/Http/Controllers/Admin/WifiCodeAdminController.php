@@ -179,4 +179,26 @@ class WifiCodeAdminController extends Controller
             ->route('admin.wifi_codes.index')
             ->with('success', "Todos os {$deleted} código(s) disponíveis do plano «{$request->input('plan_id')}» foram eliminados.");
     }
+
+    /**
+     * Liberta códigos 'reserved' presos — ligados a compras canceladas.
+     * Ocorre quando o pagamento GPO falha mas o callback não liberou os códigos
+     * (bug corrigido, mas pode haver reservas antigas ainda presas).
+     */
+    public function releaseStuckReservations()
+    {
+        $cancelledIds = \App\Models\ResellerPurchase::whereIn('status', ['cancelled', 'failed'])
+            ->pluck('id');
+
+        $released = WifiCode::whereIn('reseller_purchase_id', $cancelledIds)
+            ->where('status', WifiCode::STATUS_RESERVED)
+            ->update([
+                'status'               => WifiCode::STATUS_AVAILABLE,
+                'reseller_purchase_id' => null,
+            ]);
+
+        return redirect()
+            ->route('admin.wifi_codes.index')
+            ->with('success', "{$released} código(s) reservado(s) libertado(s) e devolvido(s) ao stock.");
+    }
 }

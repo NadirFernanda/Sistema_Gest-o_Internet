@@ -649,19 +649,23 @@ class ResellerPanelController extends Controller
         if (!empty($purchaseIds)) {
             $application = ResellerApplication::findOrFail($resellerId);
             DB::transaction(function () use ($purchaseIds, $application) {
+                // Release codes for both pending and already-cancelled purchases
+                // (handles race condition where GPO callback fired before user clicked cancel)
                 $purchases = ResellerPurchase::whereIn('id', $purchaseIds)
                     ->where('reseller_application_id', $application->id)
-                    ->where('status', 'pending')
+                    ->whereIn('status', ['pending', 'cancelled'])
                     ->get();
 
                 foreach ($purchases as $purchase) {
                     WifiCode::where('reseller_purchase_id', $purchase->id)
-                        ->where('status', 'reserved')
+                        ->where('status', WifiCode::STATUS_RESERVED)
                         ->update([
-                            'status'               => 'available',
+                            'status'               => WifiCode::STATUS_AVAILABLE,
                             'reseller_purchase_id' => null,
                         ]);
-                    $purchase->delete();
+                    if ($purchase->status === 'pending') {
+                        $purchase->delete();
+                    }
                 }
             });
         }
@@ -756,6 +760,7 @@ class ResellerPanelController extends Controller
             'status'         => $allPaid ? 'paid' : ($anyFailed ? 'failed' : 'pending'),
             'status_pt'      => $allPaid ? 'Pago ✅' : 'A aguardar pagamento',
             'redirect_url'   => $allPaid ? route('reseller.panel.payment.gpo.confirm') : null,
+            'cancel_url'     => $anyFailed ? route('reseller.panel.payment.cancel') : null,
             'total_vouchers' => $purchases->sum('codes_count'),
         ]);
     }

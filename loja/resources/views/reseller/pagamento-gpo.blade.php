@@ -116,11 +116,15 @@
           return;
         }
         if (data.status === 'failed') {
-          mostrarRecusado();
+          mostrarRecusado(data.cancel_url);
           return;
         }
         tentativas++;
-        if (tentativas < maxTentativas) setTimeout(poll, 5000);
+        if (tentativas < maxTentativas) {
+          setTimeout(poll, 5000);
+        } else {
+          mostrarTimeout();
+        }
       })
       .catch(() => {
         tentativas++;
@@ -145,11 +149,22 @@
     document.getElementById('linkConfirmacao').href = url;
   }
 
-  function mostrarRecusado() {
+  function mostrarRecusado(cancelUrl) {
     document.getElementById('painelIframe').style.display    = 'none';
     document.getElementById('painelAprovado').style.display  = 'none';
     document.getElementById('painelRecusado').style.display  = 'block';
     document.getElementById('statusTexto').textContent       = 'Não concluído';
+    if (cancelUrl) {
+      var form = document.querySelector('#painelRecusado form');
+      if (form) form.action = cancelUrl;
+    }
+  }
+
+  function mostrarTimeout() {
+    document.getElementById('statusTexto').textContent = 'Tempo esgotado';
+    var recusado = document.getElementById('painelRecusado');
+    recusado.style.display = 'block';
+    recusado.querySelector('div').innerHTML = '⏱️ <strong>Tempo limite atingido.</strong> Se completou o pagamento, aguarde — o sistema confirma automaticamente. Se não concluiu, cancele abaixo.';
   }
 
   setTimeout(poll, 6000);

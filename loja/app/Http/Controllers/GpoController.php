@@ -198,9 +198,24 @@ class GpoController extends Controller
                 return response()->json(['error' => 'completion_failed'], 500);
             }
         } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
+            $purchaseIds = $purchases->pluck('id');
+
+            // Liberta os códigos reservados de volta ao stock disponível
+            WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+                ->where('status', WifiCode::STATUS_RESERVED)
+                ->update([
+                    'status'               => WifiCode::STATUS_AVAILABLE,
+                    'reseller_purchase_id' => null,
+                ]);
+
             ResellerPurchase::where('payment_reference', $merchantRef)
                 ->where('status', 'pending')
                 ->update(['status' => 'cancelled']);
+
+            Log::info('GPO Revendedor: pagamento falhado — códigos libertados', [
+                'reference'    => $merchantRef,
+                'purchase_ids' => $purchaseIds->toArray(),
+            ]);
         }
 
         return response()->json(['status' => 'processed']);

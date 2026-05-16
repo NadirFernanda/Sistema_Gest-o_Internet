@@ -192,6 +192,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::post('/wifi-codes/import-csv', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'importCsv'])->name('admin.wifi_codes.import_csv');
     Route::post('/wifi-codes/bulk-delete', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'destroyBulk'])->name('admin.wifi_codes.bulk_destroy');
     Route::post('/wifi-codes/delete-all-available', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'destroyAllAvailable'])->name('admin.wifi_codes.destroy_all_available');
+    Route::post('/wifi-codes/release-stuck', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'releaseStuckReservations'])->name('admin.wifi_codes.release_stuck');
     Route::delete('/wifi-codes/{wifiCode}', [\App\Http\Controllers\Admin\WifiCodeAdminController::class, 'destroy'])->name('admin.wifi_codes.destroy');
 
     // Estatísticas da página inicial

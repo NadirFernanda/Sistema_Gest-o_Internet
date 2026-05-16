@@ -201,6 +201,22 @@
     </div>
   </div>
 
+  @if($reserved > 0)
+  <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:.6rem;padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <div style="font-size:.88rem;color:#92400e;">
+      <strong>⚠️ {{ $reserved }} código(s) reservado(s)</strong> — bloqueados por compras de revendedores não concluídas.
+      Estes códigos não aparecem como disponíveis. Se as compras foram canceladas, liberte-os para repor o stock.
+    </div>
+    <form method="POST" action="{{ route('admin.wifi_codes.release_stuck') }}"
+          onsubmit="return confirm('Libertar todos os códigos reservados ligados a compras canceladas/falhadas?')">
+      @csrf
+      <button type="submit" style="padding:.45rem 1rem;background:#d97706;color:#fff;border:none;border-radius:.5rem;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+        🔓 Libertar reservas canceladas
+      </button>
+    </form>
+  </div>
+  @endif
+
   {{-- ── Stock por plano ──────────────────────────────────── --}}
   <div class="ap-plans">
     @foreach(['diario','semanal','mensal'] as $pid)
