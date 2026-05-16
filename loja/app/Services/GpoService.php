@@ -95,10 +95,10 @@ class GpoService
     {
         $state = strtoupper($data['state'] ?? $data['transactionStatus'] ?? $data['status'] ?? '');
 
-        $successful = in_array($state, ['PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true);
+        $successful = in_array($state, ['ACCEPTED', 'PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true);
 
         $status = match (true) {
-            in_array($state, ['PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true) => 'approved',
+            in_array($state, ['ACCEPTED', 'PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true) => 'approved',
             in_array($state, ['DECLINED', 'REJECTED'], true)                                   => 'rejected',
             in_array($state, ['CANCELLED'], true)                                              => 'cancelled',
             in_array($state, ['REVERSED'], true)                                               => 'reversed',
