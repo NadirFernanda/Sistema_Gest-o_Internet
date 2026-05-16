@@ -279,16 +279,16 @@
   justify-content: center;
   gap: .5rem;
   padding: .85rem 1.75rem;
-  background: #1a202c;
-  color: #f7b500;
+  background: #f7b500;
+  color: #1a202c;
   border-radius: 12px;
   font-weight: 800;
   font-size: .95rem;
   text-decoration: none;
-  transition: background .15s, transform .12s;
-  box-shadow: 0 2px 12px rgba(26,32,44,.2);
+  transition: filter .15s, transform .12s;
+  box-shadow: 0 2px 12px rgba(247,181,0,.35);
 }
-.gpo-success-link:hover { background: #111827; transform: translateY(-1px); }
+.gpo-success-link:hover { filter: brightness(.95); transform: translateY(-1px); }
 
 /* ── Error panel ───────────────────────────── */
 .gpo-error {
@@ -334,15 +334,16 @@
   justify-content: center;
   gap: .5rem;
   padding: .85rem 1.5rem;
-  background: #1a202c;
-  color: #f7b500;
+  background: #f7b500;
+  color: #1a202c;
   border-radius: 12px;
   font-weight: 800;
   font-size: .9rem;
   text-decoration: none;
-  transition: background .15s;
+  transition: filter .15s;
+  box-shadow: 0 2px 12px rgba(247,181,0,.3);
 }
-.gpo-retry-btn:hover { background: #111827; }
+.gpo-retry-btn:hover { filter: brightness(.95); }
 .gpo-back-btn {
   display: flex;
   align-items: center;

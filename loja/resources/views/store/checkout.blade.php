@@ -312,21 +312,21 @@
   gap: .6rem;
   width: 100%;
   padding: 1rem 1.5rem;
-  background: #1a202c;
-  color: #f7b500;
+  background: #f7b500;
+  color: #1a202c;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s, transform .12s;
+  transition: filter .15s, transform .12s;
   letter-spacing: -.01em;
-  box-shadow: 0 2px 12px rgba(26,32,44,.2);
+  box-shadow: 0 2px 12px rgba(247,181,0,.35);
 }
-.ck-submit:hover  { background: #111827; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,32,44,.28); }
-.ck-submit:active { transform: translateY(0); }
-.ck-submit:disabled { background: #6b7280; color: #9ca3af; cursor: default; transform: none; box-shadow: none; }
+.ck-submit:hover  { filter: brightness(.95); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,181,0,.45); }
+.ck-submit:active { transform: translateY(0); filter: brightness(.92); }
+.ck-submit:disabled { background: #e2e8f0; color: #94a3b8; cursor: default; transform: none; box-shadow: none; filter: none; }
 
 .ck-terms {
   text-align: center;

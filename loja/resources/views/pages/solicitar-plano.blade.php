@@ -309,20 +309,20 @@
   width: 100%;
   margin-top: .85rem;
   padding: 1rem 1.5rem;
-  background: #1a202c;
-  color: #f7b500;
+  background: #f7b500;
+  color: #1a202c;
   border: none;
   border-radius: 12px;
   font-size: 1.05rem;
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s, transform .12s;
+  transition: filter .15s, transform .12s;
   letter-spacing: -.01em;
-  box-shadow: 0 2px 12px rgba(26,32,44,.2);
+  box-shadow: 0 2px 12px rgba(247,181,0,.35);
 }
-.co-pay-btn:hover  { background: #111827; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,32,44,.28); }
-.co-pay-btn:active { transform: translateY(0); }
+.co-pay-btn:hover  { filter: brightness(.95); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,181,0,.45); }
+.co-pay-btn:active { transform: translateY(0); filter: brightness(.92); }
 .co-pay-btn svg { flex-shrink: 0; }
 
 /* Banners */
