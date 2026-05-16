@@ -73,6 +73,7 @@ class FamilyPlanRequestController extends Controller
      */
     public function lookup(Request $request)
     {
+        Log::info('lookup: chamado', ['phone' => $request->query('phone', '?'), 'ip' => $request->ip()]);
         // Always return JSON — wrapping everything ensures no HTML error leaks to the JS caller.
         try {
             // Strip non-digit characters and require a full phone number (9+ digits)
