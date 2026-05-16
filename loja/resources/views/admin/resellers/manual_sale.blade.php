@@ -9,8 +9,7 @@
   --a-text:   #1a202c;
   --a-muted:  #64748b;
   --a-faint:  #9aa5b4;
-  --a-indigo: #4f46e5;
-  --a-blue:   #3b82f6;
+  --a-brand:  #f7b500;
   --a-green:  #16a34a;
   --a-amber:  #d97706;
   --a-red:    #dc2626;
@@ -20,9 +19,9 @@
 .ms-topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
 .ms-topbar h1 { font-size: 1.25rem; font-weight: 800; margin: 0; letter-spacing: -.02em; }
 .ms-back { font-size: .82rem; font-weight: 600; padding: .38rem .9rem; border-radius: 7px; border: 1px solid var(--a-border); background: var(--a-surf); color: var(--a-muted); text-decoration: none; }
-.ms-back:hover { background: #eef2ff; border-color: #c7d2fe; color: var(--a-indigo); }
+.ms-back:hover { background: rgba(247,181,0,.13); border-color: var(--a-brand); color: #7a4f00; }
 .ms-card { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 14px; overflow: hidden; }
-.ms-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 1.5rem 1.75rem; color: #fff; }
+.ms-header { background: linear-gradient(135deg, #c8920a 0%, #f7b500 100%); padding: 1.5rem 1.75rem; color: #1a202c; }
 .ms-header h2 { font-size: 1.05rem; font-weight: 800; margin: 0 0 .3rem; }
 .ms-header p  { font-size: .82rem; opacity: .85; margin: 0; line-height: 1.5; }
 .ms-body { padding: 1.75rem; }
@@ -36,7 +35,7 @@
   transition: border-color .15s;
 }
 .ms-select:focus, .ms-input:focus, .ms-textarea:focus {
-  outline: none; border-color: var(--a-indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+  outline: none; border-color: var(--a-brand); box-shadow: 0 0 0 3px rgba(247,181,0,.18);
 }
 .ms-field { margin-bottom: 1.25rem; }
 .ms-divider { margin: 1.5rem 0; border: none; border-top: 1px solid var(--a-border); }
@@ -46,10 +45,10 @@
 .ms-item { display: grid; grid-template-columns: 1fr 120px 36px; gap: .6rem; align-items: end; }
 .ms-item-remove { width: 36px; height: 36px; border: 1px solid #fecaca; background: #fff1f2; color: var(--a-red); border-radius: 7px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ms-item-remove:hover { background: #fecaca; }
-.ms-add-btn { font-size: .82rem; font-weight: 600; padding: .42rem .9rem; border: 1px dashed #c7d2fe; border-radius: 7px; background: #eef2ff; color: var(--a-indigo); cursor: pointer; font-family: inherit; width: 100%; margin-top: .25rem; }
-.ms-add-btn:hover { background: #e0e7ff; }
-.ms-submit { width: 100%; padding: .75rem 1rem; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; border-radius: 9px; font-weight: 800; font-size: 1rem; cursor: pointer; font-family: inherit; margin-top: .25rem; }
-.ms-submit:hover { opacity: .92; }
+.ms-add-btn { font-size: .82rem; font-weight: 600; padding: .42rem .9rem; border: 1px dashed var(--a-brand); border-radius: 7px; background: rgba(247,181,0,.1); color: #7a4f00; cursor: pointer; font-family: inherit; width: 100%; margin-top: .25rem; }
+.ms-add-btn:hover { background: rgba(247,181,0,.2); }
+.ms-submit { width: 100%; padding: .75rem 1rem; background: var(--a-brand); color: #1a202c; border: none; border-radius: 9px; font-weight: 800; font-size: 1rem; cursor: pointer; font-family: inherit; margin-top: .25rem; }
+.ms-submit:hover { filter: brightness(.95); }
 .ms-reseller-info { background: #f8fafc; border: 1px solid var(--a-border); border-radius: 8px; padding: .75rem 1rem; font-size: .82rem; color: var(--a-muted); display: none; margin-top: .4rem; }
 .ms-reseller-info.show { display: block; }
 .ms-stock-badge { font-size: .72rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; }

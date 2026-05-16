@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 <style>
@@ -10,8 +10,7 @@
   --a-text:   #1a202c;
   --a-muted:  #64748b;
   --a-faint:  #9aa5b4;
-  --a-blue:   #3b82f6;
-  --a-indigo: #4f46e5;
+  --a-brand:  #f7b500;
   --a-green:  #16a34a;
   --a-amber:  #d97706;
   --a-red:    #dc2626;
@@ -41,7 +40,7 @@
 .ap-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 2rem; }
 @media (max-width: 600px) { .ap-plans { grid-template-columns: 1fr; } }
 .ap-plan { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid; }
-.ap-plan-diario  { border-top-color: var(--a-blue); }
+.ap-plan-diario  { border-top-color: var(--a-brand); }
 .ap-plan-semanal { border-top-color: var(--a-purple); }
 .ap-plan-mensal  { border-top-color: var(--a-amber); }
 .ap-plan-name { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); margin: 0 0 .35rem; }
@@ -69,20 +68,20 @@
 .ap-label { display: block; font-size: .77rem; font-weight: 600; color: #374151; margin-bottom: .3rem; }
 .ap-label sup { color: var(--a-red); }
 .ap-ctrl  { width: 100%; box-sizing: border-box; padding: .55rem .75rem; border: 1.5px solid var(--a-border); border-radius: 8px; font-size: .875rem; color: var(--a-text); background: #f8fafc; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; }
-.ap-ctrl:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,.12); background: #fff; }
+.ap-ctrl:focus { border-color: var(--a-brand); box-shadow: 0 0 0 3px rgba(247,181,0,.18); background: #fff; }
 .ap-ctrl-mono { font-family: 'Courier New', monospace; }
 .ap-file-zone { border: 2px dashed var(--a-border); border-radius: 9px; padding: 1.5rem 1rem; text-align: center; background: #f8fafc; cursor: pointer; transition: border-color .2s, background .2s; position: relative; margin-top: .3rem; }
-.ap-file-zone:hover, .ap-file-zone.ready { border-color: #818cf8; background: #eef2ff; }
+.ap-file-zone:hover, .ap-file-zone.ready { border-color: var(--a-brand); background: rgba(247,181,0,.07); }
 .ap-file-zone input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .ap-file-label  { font-size: .82rem; color: var(--a-muted); }
 .ap-file-hint   { font-size: .72rem; color: var(--a-faint); margin-top: .25rem; }
-.ap-file-chosen { font-size: .82rem; color: var(--a-indigo); font-weight: 600; margin-top: .25rem; display: none; }
+.ap-file-chosen { font-size: .82rem; color: #b8860b; font-weight: 600; margin-top: .25rem; display: none; }
 
 /* button */
 .ap-foot { margin-top: auto; padding-top: 1rem; }
-.ap-btn  { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem 1.2rem; border-radius: 8px; font-size: .875rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: background .15s; text-decoration: none; white-space: nowrap; }
-.ap-btn-primary { background: var(--a-indigo); color: #fff; width: 100%; justify-content: center; }
-.ap-btn-primary:hover { background: #4338ca; }
+.ap-btn  { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem 1.2rem; border-radius: 8px; font-size: .875rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: filter .15s; text-decoration: none; white-space: nowrap; }
+.ap-btn-primary { background: var(--a-brand); color: #1a202c; width: 100%; justify-content: center; }
+.ap-btn-primary:hover { filter: brightness(.95); }
 .ap-btn-outline { background: var(--a-surf); color: var(--a-muted); border: 1.5px solid var(--a-border); }
 .ap-btn-outline:hover { background: var(--a-border); color: var(--a-text); }
 .ap-btn-sm { padding: .35rem .75rem; font-size: .8rem; }
@@ -122,7 +121,7 @@
 .ap-table th { text-align: left; padding: .65rem 1rem; font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); border-bottom: 1px solid var(--a-border); white-space: nowrap; }
 .ap-table td { padding: .6rem 1rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; color: #374151; }
 .ap-table tbody tr:last-child td { border-bottom: none; }
-.ap-table tbody tr:hover td { background: #fafbff; }
+.ap-table tbody tr:hover td { background: #fffdf5; }
 .ap-table .mono { font-family: 'Courier New', monospace; font-weight: 700; font-size: .82rem; }
 .ap-table .dim  { color: var(--a-faint); font-size: .82rem; }
 
@@ -423,7 +422,7 @@
               <td>
                 @if($code->autovenda_order_id)
                   <a href="{{ route('admin.autovenda.index', ['q' => $code->autovenda_order_id]) }}"
-                     style="color:var(--a-indigo);font-weight:600;text-decoration:none;">#{{ $code->autovenda_order_id }}</a>
+                     style="color:#b8860b;font-weight:600;text-decoration:none;">#{{ $code->autovenda_order_id }}</a>
                 @else <span class="dim">&mdash;</span>
                 @endif
               </td>

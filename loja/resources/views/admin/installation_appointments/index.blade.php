@@ -26,7 +26,7 @@
 .ap-table th{text-align:left;padding:.65rem 1rem;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a-faint);border-bottom:1px solid var(--a-border);white-space:nowrap;}
 .ap-table td{padding:.6rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
 .ap-table tbody tr:last-child td{border-bottom:none;}
-.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table tbody tr:hover td{background:#fffdf5;}
 .ap-table .dim{color:var(--a-faint);font-size:.82rem;}
 .badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
 .bg-amber{background:#fef3c7;color:#b45309;}.bg-green{background:#dcfce7;color:#15803d;}
@@ -38,7 +38,7 @@
 .ap-empty-s{font-size:.82rem;margin:0;}
 /* Inline status form inside expanded row */
 .ap-detail-row td{padding:0!important;border-bottom:1px solid #e8ecf0;}
-.ap-detail-inner{padding:.85rem 1rem;background:#fafbff;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.ap-detail-inner{padding:.85rem 1rem;background:#fffdf5;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
 @media(max-width:600px){.ap-detail-inner{grid-template-columns:1fr;}}
 .ap-ctrl label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:.3rem;}
 .ap-ctrl select,.ap-ctrl textarea{width:100%;padding:.45rem .75rem;border:1px solid var(--a-border);border-radius:7px;font-size:.85rem;font-family:inherit;color:var(--a-text);background:#fff;outline:none;}
@@ -52,7 +52,7 @@
 .ap-note{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;line-height:1.55;}
 .ap-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.75rem;}
 .ap-nav a{font-size:.8rem;font-weight:600;padding:.38rem .85rem;border-radius:7px;border:1px solid var(--a-border);background:var(--a-surf);color:var(--a-muted);text-decoration:none;}
-.ap-nav a:hover,.ap-nav a.here{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;}
+.ap-nav a:hover,.ap-nav a.here{background:rgba(247,181,0,.13);border-color:#f7b500;color:#7a4f00;}
 </style>
 
 <div class="ap"><div class="ap-wrap">

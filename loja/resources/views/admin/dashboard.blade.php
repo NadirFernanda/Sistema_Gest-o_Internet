@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 <style>
@@ -10,11 +10,11 @@
   --a-text:   #1a202c;
   --a-muted:  #64748b;
   --a-faint:  #9aa5b4;
-  --a-indigo: #4f46e5;
-  --a-blue:   #3b82f6;
+  --a-brand:  #f7b500;
   --a-green:  #16a34a;
   --a-amber:  #d97706;
   --a-red:    #dc2626;
+  --a-teal:   #0d9488;
   --a-purple: #7c3aed;
   --a-rose:   #e11d48;
 }
@@ -27,17 +27,17 @@
 .ap-btn-logout:hover { background: #fecaca; }
 .ap-nav { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.75rem; }
 .ap-nav a { font-size: .8rem; font-weight: 600; padding: .38rem .85rem; border-radius: 7px; border: 1px solid var(--a-border); background: var(--a-surf); color: var(--a-muted); text-decoration: none; white-space: nowrap; }
-.ap-nav a:hover, .ap-nav a.here { background: #eef2ff; border-color: #c7d2fe; color: var(--a-indigo); }
+.ap-nav a:hover, .ap-nav a.here { background: rgba(247,181,0,.13); border-color: var(--a-brand); color: #7a4f00; }
 .ap-sec { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--a-faint); margin: 2rem 0 1rem; display: flex; align-items: center; gap: .6rem; }
 .ap-sec::after { content: ''; flex: 1; height: 1px; background: var(--a-border); }
 .ap-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .85rem; margin-bottom: 1.5rem; }
 .ap-kpi { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1.2rem 1.3rem; border-left: 4px solid var(--a-border); }
-.ap-kpi.k-blue   { border-left-color: var(--a-blue); }
+.ap-kpi.k-brand  { border-left-color: var(--a-brand); }
 .ap-kpi.k-green  { border-left-color: var(--a-green); }
 .ap-kpi.k-amber  { border-left-color: var(--a-amber); }
 .ap-kpi.k-purple { border-left-color: var(--a-purple); }
 .ap-kpi.k-rose   { border-left-color: var(--a-rose); }
-.ap-kpi.k-teal   { border-left-color: #0d9488; }
+.ap-kpi.k-teal   { border-left-color: var(--a-teal); }
 .ap-kpi-val { font-size: 1.75rem; font-weight: 800; line-height: 1; margin: 0 0 .2rem; }
 .ap-kpi-lbl { font-size: .75rem; color: var(--a-muted); font-weight: 500; line-height: 1.3; }
 .ap-kpi-sub { font-size: .72rem; color: var(--a-faint); margin: .35rem 0 0; padding-top: .35rem; border-top: 1px solid var(--a-border); }
@@ -49,13 +49,13 @@
 .ap-card p strong { color: var(--a-text); }
 .ap-card-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; padding-top: .75rem; border-top: 1px solid var(--a-border); }
 .ap-card-actions a { font-size: .78rem; font-weight: 600; padding: .32rem .75rem; border-radius: 6px; background: #f1f5f9; color: #374151; text-decoration: none; border: 1px solid var(--a-border); }
-.ap-card-actions a:hover { background: #eef2ff; border-color: #c7d2fe; color: var(--a-indigo); }
+.ap-card-actions a:hover { background: rgba(247,181,0,.13); border-color: var(--a-brand); color: #7a4f00; }
 .plan-bars { display: flex; flex-direction: column; gap: .45rem; margin: .5rem 0; }
 .plan-bar { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
 .plan-bar-name  { width: 52px; font-weight: 600; color: var(--a-muted); flex-shrink: 0; }
 .plan-bar-track { flex: 1; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
 .plan-bar-fill  { height: 100%; border-radius: 999px; }
-.fill-blue   { background: var(--a-blue); }
+.fill-brand  { background: var(--a-brand); }
 .fill-purple { background: var(--a-purple); }
 .fill-amber  { background: var(--a-amber); }
 .plan-bar-count { font-weight: 700; min-width: 24px; text-align: right; }
@@ -69,13 +69,13 @@
 .ap-tcard { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; overflow: hidden; margin-top: 2rem; }
 .ap-tcard-head { padding: .75rem 1.1rem; border-bottom: 1px solid var(--a-border); display: flex; justify-content: space-between; align-items: center; }
 .ap-tcard-head strong { font-size: .84rem; font-weight: 700; }
-.ap-tcard-head a { font-size: .78rem; color: var(--a-indigo); text-decoration: none; font-weight: 600; }
+.ap-tcard-head a { font-size: .78rem; color: #b8860b; text-decoration: none; font-weight: 600; }
 .ap-table { width: 100%; border-collapse: collapse; font-size: .845rem; }
 .ap-table thead { background: #f8fafc; }
 .ap-table th { text-align: left; padding: .65rem 1rem; font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); border-bottom: 1px solid var(--a-border); white-space: nowrap; }
 .ap-table td { padding: .6rem 1rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; color: #374151; }
 .ap-table tbody tr:last-child td { border-bottom: none; }
-.ap-table tbody tr:hover td { background: #fafbff; }
+.ap-table tbody tr:hover td { background: #fffdf5; }
 .ap-table .dim { color: var(--a-faint); font-size: .82rem; }
 </style>
 
@@ -119,7 +119,7 @@
 
   <p class="ap-sec">Resumo</p>
   <div class="ap-kpis">
-    <div class="ap-kpi k-blue">
+    <div class="ap-kpi k-brand">
       <p class="ap-kpi-val">{{ $paidOrders }}</p>
       <p class="ap-kpi-lbl">Vendas confirmadas</p>
       <p class="ap-kpi-sub">{{ $totalOrders }} total &middot; {{ $awaitingPayment }} pendentes</p>
@@ -180,7 +180,7 @@
           @php $n = $wifiCodesByPlan[$pid] ?? 0; $pct = min(100, round($n / $maxPlan * 100)); @endphp
           <div class="plan-bar">
             <span class="plan-bar-name">{{ $wifiPlanText[$pid] }}</span>
-            <div class="plan-bar-track"><div class="plan-bar-fill fill-{{ $pid === 'diario' ? 'blue' : ($pid === 'semanal' ? 'purple' : 'amber') }}" style="width:{{ $pct }}%"></div></div>
+            <div class="plan-bar-track"><div class="plan-bar-fill fill-{{ $pid === 'diario' ? 'brand' : ($pid === 'semanal' ? 'purple' : 'amber') }}" style="width:{{ $pct }}%"></div></div>
             <span class="plan-bar-count {{ $n===0 ? 'c-out' : ($n<5 ? 'c-low' : 'c-ok') }}">{{ $n }}</span>
           </div>
         @endforeach

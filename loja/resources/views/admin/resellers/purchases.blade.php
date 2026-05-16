@@ -30,7 +30,7 @@
 .ap-table th{text-align:left;padding:.65rem 1rem;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a-faint);border-bottom:1px solid var(--a-border);white-space:nowrap;}
 .ap-table td{padding:.6rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
 .ap-table tbody tr:last-child td{border-bottom:none;}
-.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table tbody tr:hover td{background:#fffdf5;}
 .ap-table .dim{color:var(--a-faint);font-size:.82rem;}
 .ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
 .ap-empty{padding:3rem 1rem;text-align:center;color:var(--a-faint);}

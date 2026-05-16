@@ -47,7 +47,7 @@
 .ap-table th.r,.ap-table td.r{text-align:right;}
 .ap-table td{padding:.55rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
 .ap-table tbody tr:last-child td{border-bottom:none;}
-.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table tbody tr:hover td{background:#fffdf5;}
 .ap-table .dim{color:var(--a-faint);font-size:.82rem;}
 .ap-pager{padding:.7rem 1rem;border-top:1px solid var(--a-border);background:#f8fafc;}
 .ap-tcard-head{display:flex;justify-content:space-between;align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--a-border);}

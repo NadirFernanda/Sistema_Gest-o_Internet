@@ -33,7 +33,7 @@
 .ap-table th.c,.ap-table td.c{text-align:center;}
 .ap-table td{padding:.6rem 1rem;border-bottom:1px solid #f4f6f9;vertical-align:middle;color:#374151;}
 .ap-table tbody tr:last-child td{border-bottom:none;}
-.ap-table tbody tr:hover td{background:#fafbff;}
+.ap-table tbody tr:hover td{background:#fffdf5;}
 .ap-table .dim{color:var(--a-faint);font-size:.82rem;}
 .badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.73rem;font-weight:700;white-space:nowrap;}
 .bg-green{background:#dcfce7;color:#15803d;}.bg-gray{background:#f1f5f9;color:#475569;}.bg-red{background:#fee2e2;color:#b91c1c;}
