@@ -141,13 +141,10 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: .3rem .7rem;
-  font-size: .72rem;
-  font-weight: 700;
-  color: #374151;
+  padding: .3rem .75rem;
   display: flex;
   align-items: center;
-  gap: .3rem;
+  line-height: 1;
 }
 
 /* Form section */
@@ -464,7 +461,16 @@
           Suporte 24/7
         </span>
         <span class="co-trust-emis">
-          💳 EMIS · GPO
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82 26" height="22" style="display:block;overflow:visible">
+            <text x="0" y="20"
+                  font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
+                  font-size="21" font-weight="900"
+                  fill="#F05323">a</text>
+            <text x="15" y="20"
+                  font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
+                  font-size="21" font-weight="900"
+                  fill="#1B2845">emis</text>
+          </svg>
         </span>
       </div>
     </div>
