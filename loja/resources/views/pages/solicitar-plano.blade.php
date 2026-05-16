@@ -402,7 +402,7 @@
   .co-page { padding: 1.25rem .75rem 4rem; }
   .co-plan-header, .co-form-body { padding-left: 1.25rem; padding-right: 1.25rem; }
   .co-plan-price-val { font-size: 2rem; }
-  .co-trust-emis { display: none; }
+  .co-trust-emis { margin-left: 0; }
 }
 </style>
 @endpush
