@@ -105,40 +105,33 @@ class StorefrontController extends Controller
         ]);
     }
  
-    /**
-     * AUTOVENDA — PLANOS INDIVIDUAIS (Dia, Semana, Mês)
-     * ─────────────────────────────────────────────────
-     * Esta acção é EXCLUSIVA para planos individuais vendidos directamente
-     * pela loja, sem qualquer integração com o Sistema de Gestão (SG).
-     *
-     * Regras de negócio (doc: autovenda.md §3.1-a):
-     *  - Os planos estão definidos localmente em config/store_plans.php — o SG
-     *    não é consultado em nenhum passo deste fluxo.
-     *  - Não são recolhidos dados pessoais do cliente (sem nome, e-mail, telefone).
-     *  - O cliente escolhe apenas o plano e o método de pagamento.
-     *  - Após confirmação do pagamento, o código WiFi é entregue directamente
-     *    no ecrã de confirmação.
-     *
-     * NÃO CONFUNDIR com o checkout de planos familiares/empresariais:
-     *  - Esses planos são carregados do SG via API (/sg/plan-templates).
-     *  - Esse fluxo requer identificação do cliente (nome, e-mail, telefone).
-     *  - Aqui: nada disso. Só plano + método de pagamento.
-     */
     public function processCheckout(Request $request, AutovendaOrderService $orderService)
     {
-        // Apenas plan_id e payment_method — sem dados pessoais para planos individuais.
         $validated = $request->validate([
             'plan_id'        => 'required|string',
             'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_GPO,
+            'customer_name'  => 'required|string|max:100',
+            'customer_email' => 'required|email|max:150',
+            'customer_phone' => ['required', 'regex:/^(244)?9[0-9]{8}$/'],
+        ], [
+            'customer_name.required'  => 'O nome é obrigatório.',
+            'customer_email.required' => 'O e-mail é obrigatório.',
+            'customer_email.email'    => 'Introduza um e-mail válido.',
+            'customer_phone.required' => 'O número de telemóvel é obrigatório.',
+            'customer_phone.regex'    => 'Número inválido. Formato: 9XXXXXXXX ou 2449XXXXXXXX.',
         ]);
 
-        // Planos individuais carregados da base de dados — VoucherPlan é a fonte de verdade.
         $plan = VoucherPlan::where('slug', $validated['plan_id'])->where('active', true)->first();
 
         if (!$plan) {
             return redirect()
                 ->route('store.checkout')
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
+        }
+
+        $phone = $validated['customer_phone'];
+        if (!str_starts_with($phone, '244')) {
+            $phone = '244' . $phone;
         }
 
         $order = AutovendaOrder::create([
@@ -149,9 +142,9 @@ class StorefrontController extends Controller
             'quantity'              => 1,
             'amount_aoa'            => $plan->price_public_aoa,
             'currency'              => 'AOA',
-            'customer_name'         => null,
-            'customer_email'        => null,
-            'customer_phone'        => null,
+            'customer_name'         => $validated['customer_name'],
+            'customer_email'        => $validated['customer_email'],
+            'customer_phone'        => $phone,
             'customer_nif'          => null,
             'status'                => AutovendaOrder::STATUS_AWAITING_PAYMENT,
             'payment_method'        => $validated['payment_method'],
