@@ -7,6 +7,7 @@ use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
 use App\Models\VoucherPlan;
 use App\Models\WifiCode;
+use App\Services\GpoService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\Request;
@@ -484,7 +485,7 @@ class ResellerPanelController extends Controller
         $request->session()->forget(self::CART_SESSION);
         $request->session()->put('reseller_pending_order', $purchaseIds);
 
-        return redirect()->route('reseller.panel.payment');
+        return redirect()->route('reseller.panel.payment.gpo');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -542,7 +543,7 @@ class ResellerPanelController extends Controller
 
         $request->session()->put('reseller_pending_order', $pendingIds);
 
-        return redirect()->route('reseller.panel.payment');
+        return redirect()->route('reseller.panel.payment.gpo');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -658,6 +659,112 @@ class ResellerPanelController extends Controller
         $request->session()->forget('reseller_pending_order');
         return redirect()->route('reseller.panel')
             ->with('error', 'Compra cancelada. Os vouchers reservados foram libertados e o seu carrinho foi restaurado.');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Pagamento GPO (iframe EMIS) para compras de revendedores
+    // ─────────────────────────────────────────────────────────────
+
+    public function showGpoPayment(Request $request, GpoService $gpo)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        if (empty($purchaseIds)) {
+            return redirect()->route('reseller.panel')->with('error', 'Nenhum pedido pendente encontrado.');
+        }
+
+        $application = ResellerApplication::findOrFail($resellerId);
+        $purchases   = ResellerPurchase::whereIn('id', $purchaseIds)
+            ->where('reseller_application_id', $application->id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($purchases->isEmpty()) {
+            $request->session()->forget('reseller_pending_order');
+            return redirect()->route('reseller.panel')->with('error', 'Pedido já processado ou expirado.');
+        }
+
+        $total = (float) $purchases->sum('net_amount_aoa');
+
+        // Gerar referência GPO única para este lote (ou reutilizar se já foi gerada)
+        $existing  = $purchases->first()->payment_reference;
+        $reference = ($existing && str_starts_with($existing, 'RV'))
+            ? $existing
+            : 'RV' . $purchases->first()->id . strtoupper(Str::random(4));
+
+        $reference = substr(preg_replace('/[^a-zA-Z0-9]/', '', $reference), 0, 15);
+
+        // Guardar referência em todas as compras do lote
+        ResellerPurchase::whereIn('id', $purchaseIds)->update([
+            'payment_method'    => 'gpo',
+            'payment_reference' => $reference,
+        ]);
+
+        $callbackUrl = route('webhooks.gpo.reseller');
+
+        try {
+            $iframeUrl = $gpo->createPurchaseToken($total, $reference, $callbackUrl);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('GPO Revendedor: erro ao iniciar pagamento', [
+                'reseller_id' => $resellerId,
+                'reference'   => $reference,
+                'error'       => $e->getMessage(),
+            ]);
+            return redirect()->route('reseller.panel')
+                ->with('error', 'Não foi possível iniciar o pagamento. Tente novamente ou contacte o suporte.');
+        }
+
+        return view('reseller.pagamento-gpo', compact('application', 'purchases', 'total', 'iframeUrl', 'reference'));
+    }
+
+    public function gpoStatus(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return response()->json(['status' => 'unauthenticated'], 403);
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        if (empty($purchaseIds)) {
+            return response()->json(['status' => 'not_found']);
+        }
+
+        $application = ResellerApplication::findOrFail($resellerId);
+        $purchases   = ResellerPurchase::whereIn('id', $purchaseIds)
+            ->where('reseller_application_id', $application->id)
+            ->get();
+
+        if ($purchases->isEmpty()) {
+            return response()->json(['status' => 'not_found']);
+        }
+
+        $allPaid   = $purchases->every(fn ($p) => $p->status === 'completed');
+        $anyFailed = $purchases->contains(fn ($p) => in_array($p->status, ['cancelled', 'failed'], true));
+
+        return response()->json([
+            'is_paid'        => $allPaid,
+            'status'         => $allPaid ? 'paid' : ($anyFailed ? 'failed' : 'pending'),
+            'status_pt'      => $allPaid ? 'Pago ✅' : 'A aguardar pagamento',
+            'redirect_url'   => $allPaid ? route('reseller.panel.payment.gpo.confirm') : null,
+            'total_vouchers' => $purchases->sum('codes_count'),
+        ]);
+    }
+
+    public function gpoConfirm(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $purchaseIds = $request->session()->get('reseller_pending_order', []);
+        $vouchers    = 0;
+
+        if (!empty($purchaseIds)) {
+            $vouchers = ResellerPurchase::whereIn('id', $purchaseIds)->sum('codes_count');
+            $request->session()->forget('reseller_pending_order');
+        }
+
+        return redirect()->route('reseller.panel')
+            ->with('status', "✅ Pagamento confirmado! {$vouchers} voucher(s) transferidos para a sua conta. Faça download na tabela abaixo.");
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -49,10 +49,11 @@ Route::post('/checkout', [\App\Http\Controllers\StorefrontController::class, 'pr
 Route::get('/checkout/confirmacao/{order}', [\App\Http\Controllers\StorefrontController::class, 'checkoutConfirm'])->name('store.checkout.confirm');
 
 // EMIS GPO (webframe: cartão + Multicaixa Express) — planos individuais
-// POST /webhooks/gpo é CSRF-exempt (ver bootstrap/app.php)
+// POST /webhooks/gpo* são CSRF-exempt (ver bootstrap/app.php)
 Route::get('/pagar/gpo/{order}', [\App\Http\Controllers\GpoController::class, 'show'])->name('gpo.show');
 Route::get('/pagar/gpo/{order}/status', [\App\Http\Controllers\GpoController::class, 'status'])->middleware('throttle:60,1')->name('gpo.status');
 Route::post('/webhooks/gpo', [\App\Http\Controllers\GpoController::class, 'callback'])->middleware('throttle:30,1')->name('webhooks.gpo');
+Route::post('/webhooks/gpo/reseller', [\App\Http\Controllers\GpoController::class, 'resellerCallback'])->middleware('throttle:30,1')->name('webhooks.gpo.reseller');
 
 
 // Planos Familiares & Empresariais — checkout com identificação do cliente
@@ -100,6 +101,9 @@ Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'sho
 Route::post('/painel-revendedor/pagamento/confirmar', [ResellerPanelController::class, 'confirmPayment'])->name('reseller.panel.payment.confirm');
 Route::post('/painel-revendedor/pagamento/cancelar', [ResellerPanelController::class, 'cancelPayment'])->name('reseller.panel.payment.cancel');
 Route::get('/painel-revendedor/compras/{purchase}/retomar', [ResellerPanelController::class, 'resumePayment'])->name('reseller.panel.resume.payment');
+Route::get('/painel-revendedor/pagamento/gpo', [ResellerPanelController::class, 'showGpoPayment'])->name('reseller.panel.payment.gpo');
+Route::get('/painel-revendedor/pagamento/gpo/status', [ResellerPanelController::class, 'gpoStatus'])->middleware('throttle:60,1')->name('reseller.panel.payment.gpo.status');
+Route::get('/painel-revendedor/pagamento/gpo/confirmar', [ResellerPanelController::class, 'gpoConfirm'])->name('reseller.panel.payment.gpo.confirm');
 
 // Taxa de manutenção — pagamento pelo revendedor
 Route::get('/painel-revendedor/taxa-manutencao', [ResellerPanelController::class, 'showMaintenancePayment'])->name('reseller.maintenance.payment');

@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'payment/familia/webhook',
             'webhooks/gpo',
+            'webhooks/gpo/reseller',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

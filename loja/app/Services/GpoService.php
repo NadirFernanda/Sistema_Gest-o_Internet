@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\AutovendaOrder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -20,15 +19,15 @@ class GpoService
     }
 
     /**
-     * Solicita ao GPO um token de compra (purchase token) para a ordem indicada.
+     * Solicita ao GPO um token de compra (purchase token).
      * Devolve o URL completo do iframe a embutir na página de pagamento.
      */
     public function createPurchaseToken(
-        AutovendaOrder $order,
+        float $amountAoa,
         string $reference,
         string $callbackUrl,
     ): string {
-        $amount = number_format((float) $order->amount_aoa, 2, '.', '');
+        $amount = number_format($amountAoa, 2, '.', '');
 
         $payload = [
             'reference'   => $reference,
@@ -46,9 +45,9 @@ class GpoService
 
         if ($response->failed()) {
             Log::error('GPO: falha ao criar token de compra', [
-                'order_id' => $order->id,
-                'status'   => $response->status(),
-                'body'     => $response->body(),
+                'reference' => $reference,
+                'status'    => $response->status(),
+                'body'      => $response->body(),
             ]);
             throw new \RuntimeException('Não foi possível iniciar o pagamento GPO. Tente novamente.');
         }
@@ -58,18 +57,17 @@ class GpoService
             $code    = $response->json('code') ?? $response->json('error');
             $message = $response->json('message') ?? '';
             Log::error('GPO: resposta sem token de compra', [
-                'order_id' => $order->id,
-                'code'     => $code,
-                'message'  => $message,
-                'body'     => $response->body(),
+                'reference' => $reference,
+                'code'      => $code,
+                'message'   => $message,
+                'body'      => $response->body(),
             ]);
             throw new \RuntimeException('Resposta inválida do gateway GPO (código: ' . ($code ?? 'desconhecido') . ').');
         }
 
         Log::info('GPO: token de compra criado', [
-            'order_id'   => $order->id,
-            'reference'  => $reference,
-            'token_id'   => $tokenId,
+            'reference'    => $reference,
+            'token_id'     => $tokenId,
             'time_to_live' => $response->json('timeToLive'),
         ]);
 

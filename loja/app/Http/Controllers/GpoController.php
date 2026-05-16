@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
+use App\Models\ResellerPurchase;
+use App\Models\VoucherPlan;
+use App\Models\WifiCode;
 use App\Services\AutovendaOrderService;
 use App\Services\GpoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -40,7 +45,7 @@ class GpoController extends Controller
         $callbackUrl = route('webhooks.gpo');
 
         try {
-            $iframeUrl = $this->gpo->createPurchaseToken($order, $reference, $callbackUrl);
+            $iframeUrl = $this->gpo->createPurchaseToken((float) $order->amount_aoa, $reference, $callbackUrl);
         } catch (\Throwable $e) {
             Log::error('GPO: erro ao iniciar pagamento', [
                 'order_id' => $order->id,
@@ -107,6 +112,94 @@ class GpoController extends Controller
             }
         } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
             $order->update(['status' => AutovendaOrder::STATUS_FAILED]);
+        }
+
+        return response()->json(['status' => 'processed']);
+    }
+
+    /**
+     * Callback server-to-server do GPO para compras de revendedores.
+     * CSRF-exempt — ver bootstrap/app.php.
+     */
+    public function resellerCallback(Request $request)
+    {
+        $data = $request->all();
+
+        Log::info('GPO Revendedor: callback recebido', [
+            'ip'   => $request->ip(),
+            'body' => $data,
+        ]);
+
+        $parsed = $this->gpo->parseCallback($data);
+
+        $merchantRef = $parsed['merchant_ref'];
+        if (! $merchantRef) {
+            Log::warning('GPO Revendedor: callback sem merchantReference', ['body' => $data]);
+            return response()->json(['error' => 'missing_reference'], 400);
+        }
+
+        // Verificar se é uma referência de revendedor (RV...)
+        $purchases = ResellerPurchase::where('payment_reference', $merchantRef)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($purchases->isEmpty()) {
+            Log::warning('GPO Revendedor: compras não encontradas', ['ref' => $merchantRef]);
+            return response()->json(['error' => 'purchases_not_found'], 404);
+        }
+
+        // Idempotência — se já processado, ignorar
+        if ($purchases->every(fn ($p) => $p->status === 'completed')) {
+            return response()->json(['status' => 'already_processed']);
+        }
+
+        if ($parsed['successful']) {
+            $planSlugs = $purchases->pluck('plan_slug')->toArray();
+            $planMap   = VoucherPlan::whereIn('slug', $planSlugs)->get()->keyBy('slug');
+
+            try {
+                DB::transaction(function () use ($purchases, $planMap, $merchantRef) {
+                    foreach ($purchases as $purchase) {
+                        $codes = WifiCode::where('reseller_purchase_id', $purchase->id)
+                            ->where('status', 'reserved')
+                            ->get();
+
+                        if ($codes->isEmpty()) {
+                            Log::warning('GPO Revendedor: sem códigos reservados', ['purchase_id' => $purchase->id]);
+                            continue;
+                        }
+
+                        $validityLabel = optional($planMap->get($purchase->plan_slug))->validity_label
+                            ?? $purchase->plan_slug;
+
+                        $codeLines = ['plano,codigo,validade'];
+                        foreach ($codes as $wc) {
+                            $codeLines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
+                        }
+                        Storage::disk('local')->put($purchase->csv_path, implode("\n", $codeLines) . "\n");
+
+                        WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                            'status'  => 'used',
+                            'used_at' => now(),
+                        ]);
+
+                        $purchase->update([
+                            'status'  => 'completed',
+                            'paid_at' => now(),
+                        ]);
+                    }
+                });
+            } catch (\Throwable $e) {
+                Log::error('GPO Revendedor: erro ao completar compras', [
+                    'reference' => $merchantRef,
+                    'error'     => $e->getMessage(),
+                ]);
+                return response()->json(['error' => 'completion_failed'], 500);
+            }
+        } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
+            ResellerPurchase::where('payment_reference', $merchantRef)
+                ->where('status', 'pending')
+                ->update(['status' => 'cancelled']);
         }
 
         return response()->json(['status' => 'processed']);
