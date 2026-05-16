@@ -34,13 +34,18 @@ class AutovendaJanelaController extends Controller
      */
     public function lookup(Request $request)
     {
-        $phone = preg_replace('/[\s\-\.()]/', '', $request->query('phone', ''));
+        $phone = preg_replace('/\D/', '', $request->query('phone', ''));
 
         if (mb_strlen($phone) < 7) {
             return response()->json(['found' => false], 400);
         }
 
-        $cliente = Cliente::where('contato', 'like', '%' . $phone . '%')
+        // Strip all non-digit chars from the stored contato before comparing,
+        // so numbers stored as "923 883 971" or "+244923883971" are still found.
+        $cliente = Cliente::whereRaw(
+                "REPLACE(REPLACE(REPLACE(REPLACE(contato, ' ', ''), '-', ''), '.', ''), '+', '') LIKE ?",
+                ['%' . $phone . '%']
+            )
             ->orderByDesc('created_at')
             ->first(['nome', 'email', 'bi']);
 
