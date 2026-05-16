@@ -461,7 +461,7 @@
           Suporte 24/7
         </span>
         <span class="co-trust-emis">
-          <img src="/img/emis_logo.jpg" alt="EMIS" height="26" style="display:block;">
+          <img src="/img/emis_logo.jpg" alt="EMIS" height="48" style="display:block;width:auto;">
         </span>
       </div>
     </div>

@@ -439,7 +439,7 @@
         <div class="gpo-payment-header">
           <span class="gpo-payment-title">Pagamento seguro</span>
           <span class="gpo-emis-badge">
-            <img src="/img/emis_logo.jpg" alt="EMIS" height="24" style="display:block;">
+            <img src="/img/emis_logo.jpg" alt="EMIS" height="44" style="display:block;width:auto;">
           </span>
         </div>
         <div class="gpo-iframe-wrap">

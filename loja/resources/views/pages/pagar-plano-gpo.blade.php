@@ -389,7 +389,7 @@
       <div id="painelIframe">
         <div class="fgpo-payment-header">
           <span class="fgpo-payment-title">Pagamento seguro</span>
-          <img src="/img/emis_logo.jpg" alt="EMIS" height="24" style="display:block;">
+          <img src="/img/emis_logo.jpg" alt="EMIS" height="44" style="display:block;width:auto;">
         </div>
         <div class="fgpo-iframe-wrap">
           <iframe
