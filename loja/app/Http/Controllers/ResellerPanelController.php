@@ -44,6 +44,16 @@ class ResellerPanelController extends Controller
             }
         }
 
+        // Verificar se há notificação de bónus pendente no meta (colocada pelo callback GPO)
+        if ($application && !$request->session()->has('reseller_bonus_notification')) {
+            $meta = $application->meta ?? [];
+            if (!empty($meta['bonus_notification'])) {
+                $request->session()->put('reseller_bonus_notification', $meta['bonus_notification']);
+                unset($meta['bonus_notification']);
+                $application->update(['meta' => $meta]);
+            }
+        }
+
         $voucherPlans = VoucherPlan::active()->get();
         $cart         = $request->session()->get(self::CART_SESSION, []);
 
@@ -819,11 +829,24 @@ class ResellerPanelController extends Controller
                 ->with('error', 'A confirmação expirou. Atualize a página e tente novamente.');
         }
 
+        $year  = now()->year;
+        $month = now()->month;
+
         $application->update([
-            'maintenance_paid_year'  => now()->year,
-            'maintenance_paid_month' => now()->month,
+            'maintenance_paid_year'  => $year,
+            'maintenance_paid_month' => $month,
             'maintenance_status'    => ResellerApplication::MAINTENANCE_OK,
         ]);
+
+        // Alocar vouchers bónus
+        $allocated = $this->allocateMaintenanceBonusVouchers($application, $year, $month);
+        if (! empty($allocated)) {
+            $request->session()->put('reseller_bonus_notification', [
+                'year'      => $year,
+                'month'     => $month,
+                'allocated' => $allocated,
+            ]);
+        }
 
         return redirect()->route('reseller.panel')
             ->with('status', '✅ Pagamento da taxa de manutenção registado com sucesso! Obrigado.');
@@ -891,6 +914,17 @@ class ResellerPanelController extends Controller
         if (!$resellerId) return redirect()->route('reseller.panel');
 
         $request->session()->forget('maintenance_gpo_ref');
+
+        // Ler notificação de bónus guardada pelo callback e transferir para sessão
+        $application = ResellerApplication::find($resellerId);
+        if ($application) {
+            $meta = $application->meta ?? [];
+            if (!empty($meta['bonus_notification'])) {
+                $request->session()->put('reseller_bonus_notification', $meta['bonus_notification']);
+                unset($meta['bonus_notification']);
+                $application->update(['meta' => $meta]);
+            }
+        }
 
         return redirect()->route('reseller.panel')
             ->with('status', '✅ Pagamento da taxa de manutenção confirmado com sucesso!');
@@ -998,6 +1032,96 @@ class ResellerPanelController extends Controller
         return response($dompdf->output())
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Aloca vouchers bónus ao revendedor após pagamento da taxa de manutenção.
+     * Idempotente — usa referência BONUS-MNT-{year}-{month} para evitar duplicados.
+     */
+    private function allocateMaintenanceBonusVouchers(
+        ResellerApplication $application,
+        int $year,
+        int $month
+    ): array {
+        $bonus = (int) ($application->bonus_vouchers_aoa ?? 0);
+        if ($bonus <= 0) return [];
+
+        $bonusRef = 'BONUS-MNT-' . $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+
+        if (ResellerPurchase::where('reseller_application_id', $application->id)
+                ->where('payment_reference', $bonusRef)->exists()) {
+            return [];
+        }
+
+        $plans    = VoucherPlan::active()->orderBy('sort_order')->get();
+        if ($plans->isEmpty()) return [];
+
+        $perPlanValue = (int) floor($bonus / $plans->count());
+        $allocated    = [];
+
+        try {
+            DB::transaction(function () use ($plans, $perPlanValue, $application, $bonusRef, &$allocated) {
+                foreach ($plans as $plan) {
+                    $qty   = max(1, (int) floor($perPlanValue / $plan->price_public_aoa));
+                    $codes = WifiCode::where('plan_id', $plan->slug)
+                        ->where('status', 'available')
+                        ->lockForUpdate()
+                        ->limit($qty)
+                        ->get();
+
+                    if ($codes->isEmpty()) continue;
+
+                    $actualQty = $codes->count();
+                    $path      = 'resellers/' . $application->id
+                                 . '/bonus_' . $plan->slug . '_' . now()->format('Ymd_His') . '.csv';
+
+                    $purchase = ResellerPurchase::create([
+                        'reseller_application_id' => $application->id,
+                        'voucher_plan_id'          => $plan->id,
+                        'plan_slug'                => $plan->slug,
+                        'plan_name'                => $plan->name,
+                        'quantity'                 => $actualQty,
+                        'unit_price_aoa'           => 0,
+                        'gross_amount_aoa'         => $plan->price_public_aoa * $actualQty,
+                        'discount_percent'         => 100,
+                        'net_amount_aoa'           => 0,
+                        'codes_count'              => $actualQty,
+                        'profit_aoa'               => $plan->price_public_aoa * $actualQty,
+                        'tax_aoa'                  => 0,
+                        'csv_path'                 => $path,
+                        'status'                   => 'completed',
+                        'payment_method'           => 'bonus_manutencao',
+                        'payment_reference'        => $bonusRef,
+                        'paid_at'                  => now(),
+                    ]);
+
+                    $codeLines = ['plano,codigo,validade'];
+                    foreach ($codes as $wc) {
+                        $codeLines[] = "{$plan->name},{$wc->code},{$plan->validity_label}";
+                    }
+                    Storage::disk('local')->put($path, implode("\n", $codeLines) . "\n");
+
+                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                        'status'               => 'used',
+                        'used_at'              => now(),
+                        'reseller_purchase_id' => $purchase->id,
+                    ]);
+
+                    $allocated[] = [
+                        'plan'        => $plan->name,
+                        'qty'         => $actualQty,
+                        'purchase_id' => $purchase->id,
+                    ];
+                }
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Bónus manutenção: erro ao alocar', [
+                'reseller_id' => $application->id,
+                'error'       => $e->getMessage(),
+            ]);
+        }
+
+        return $allocated;
     }
 
     // ─────────────────────────────────────────────────────────────

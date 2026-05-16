@@ -625,6 +625,44 @@
     </div>
   @endif
 
+  {{-- Notificação de bónus de manutenção --}}
+  @if(session('reseller_bonus_notification'))
+    @php
+      $bonus = session('reseller_bonus_notification');
+      $allocated = $bonus['allocated'] ?? [];
+      $monthLabel = isset($bonus['year'], $bonus['month'])
+        ? \Illuminate\Support\Carbon::create($bonus['year'], $bonus['month'], 1)->locale('pt')->isoFormat('MMMM [de] YYYY')
+        : '';
+    @endphp
+    <div style="max-width:{{ $application ? '1100px' : '460px' }};margin:0 auto 1.5rem;">
+      <div style="background:linear-gradient(135deg,#f7b500 0%,#fbbf24 100%);border-radius:1rem;padding:1.5rem 1.75rem;box-shadow:0 4px 24px rgba(247,181,0,.25);">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+          <span style="font-size:2.2rem;line-height:1;">🎉</span>
+          <div>
+            <div style="font-size:1.2rem;font-weight:800;color:#1a1100;line-height:1.2;">Parabéns! A sua taxa de manutenção foi recompensada.</div>
+            @if($monthLabel)
+              <div style="font-size:0.82rem;color:#4a3a00;margin-top:0.2rem;">Bónus de {{ $monthLabel }} já está na sua conta.</div>
+            @endif
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+          @foreach($allocated as $item)
+            <div style="background:#fff;border-radius:0.6rem;padding:0.6rem 1.1rem;display:flex;align-items:center;gap:0.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+              <span style="font-size:1.3rem;">🎟️</span>
+              <div>
+                <div style="font-size:1.1rem;font-weight:800;color:#1a1100;line-height:1;">{{ $item['qty'] }}</div>
+                <div style="font-size:0.75rem;color:#6b7280;font-weight:600;">{{ $item['plan'] }}</div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+        <p style="font-size:0.82rem;color:#4a3a00;margin:0;">
+          💡 A taxa de instalação foi recompensada em vouchers — consulte as suas compras para descarregar os códigos.
+        </p>
+      </div>
+    </div>
+  @endif
+
   {{-- Pending payment banner --}}
   @if(session()->has('reseller_pending_order') && $application)
     <div style="max-width:1100px;margin:0 auto 1rem;">
