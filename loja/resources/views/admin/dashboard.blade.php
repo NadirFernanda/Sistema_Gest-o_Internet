@@ -116,6 +116,9 @@
   @if($pendingFamilyRequests > 0)
     <div class="ap-banner-warn">&#9888; {{ $pendingFamilyRequests }} pedido(s) de plano familiar aguardam confirma&ccedil;&atilde;o.</div>
   @endif
+  @if($pendingAppointments > 0)
+    <div class="ap-banner-warn">&#9888; {{ $pendingAppointments }} pr&eacute;-cadastro(s) de instala&ccedil;&atilde;o aguardam contacto. <a href="{{ route('admin.appointments.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;">Ver agora &rarr;</a></div>
+  @endif
 
   <p class="ap-sec">Resumo</p>
   <div class="ap-kpis">
@@ -228,6 +231,21 @@
       </p>
       <div class="ap-card-actions">
         <a href="{{ route('admin.family_requests.index') }}">Ver pedidos &rarr;</a>
+      </div>
+    </div>
+
+    <div class="ap-card">
+      <h3>Pr&eacute;-Cadastros / Instala&ccedil;&otilde;es</h3>
+      <p>Pendentes (por contactar):
+        @if($pendingAppointments > 0)
+          <span class="badge bg-amber">{{ $pendingAppointments }}</span>
+        @else <strong>0</strong>
+        @endif
+      </p>
+      <p>Total de pedidos: <strong>{{ $totalAppointments }}</strong></p>
+      <div class="ap-card-actions">
+        <a href="{{ route('admin.appointments.index') }}">Ver pedidos &rarr;</a>
+        <a href="{{ route('admin.appointments.index') }}?status=pending">Pendentes</a>
       </div>
     </div>
 

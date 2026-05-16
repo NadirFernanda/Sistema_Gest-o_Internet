@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AutovendaOrder;
 use App\Models\EquipmentOrder;
 use App\Models\FamilyPlanRequest;
+use App\Models\InstallationAppointment;
 use App\Models\Product;
 use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
@@ -91,6 +92,10 @@ class AdminDashboardController extends Controller
         // Family/business plan requests
         $pendingFamilyRequests = FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_PENDING)->count();
 
+        // Installation appointments (pré-cadastros)
+        $pendingAppointments = InstallationAppointment::where('status', InstallationAppointment::STATUS_PENDING)->count();
+        $totalAppointments   = InstallationAppointment::count();
+
         // Active store visitors in the last 5 minutes
         $activeUsers = count(Cache::get('store_online_visitors', []));
 
@@ -122,6 +127,8 @@ class AdminDashboardController extends Controller
             'wifiCodesByPlan'        => $wifiCodesByPlan,
             'pendingFamilyRequests'  => $pendingFamilyRequests,
             'activeUsers'            => $activeUsers,
+            'pendingAppointments'    => $pendingAppointments,
+            'totalAppointments'      => $totalAppointments,
         ]);
     }
 
