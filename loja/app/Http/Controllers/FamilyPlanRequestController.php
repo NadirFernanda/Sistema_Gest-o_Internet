@@ -140,7 +140,7 @@ class FamilyPlanRequestController extends Controller
         $validated = $request->validate([
             'plan_id'        => 'required|string|max:100',
             'plan_name'      => 'required|string|max:255',
-            'plan_preco'     => 'nullable|integer|min:0',
+            'plan_preco'     => 'nullable|numeric|min:0',
             'plan_ciclo'     => 'nullable|integer|min:1',
             'customer_name'  => 'required|string|max:255',
             'customer_email' => 'nullable|email|max:255',
