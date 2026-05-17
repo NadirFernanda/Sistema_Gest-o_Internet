@@ -291,11 +291,15 @@
 @section('content')
 @php
   $waText = rawurlencode(
-    "Olá! O seu código WiFi AngolaWiFi é: " . ($order->wifi_code ?? '') . "\n\n"
-    . "Plano: " . ($order->plan_name ?? ($order->plan_id ?? '')) . "\n"
-    . "Referência: #" . ($order->id ?? '') . "\n\n"
-    . "Para usar: ligue-se à rede AngolaWiFi e introduza este código no portal de acesso.\n\n"
-    . "Obrigado pela sua compra!"
+    "Olá! Seja bem-vindo(a) à AngolaWiFi\n\n"
+    . "O seu código de acesso é: " . ($order->wifi_code ?? '') . "\n\n"
+    . "📶 Plano: " . ($order->plan_name ?? ($order->plan_id ?? '')) . "\n"
+    . "🧾 Referência: #" . ($order->id ?? '') . "\n\n"
+    . "Para utilizar:\n\n"
+    . "1. Ligue-se à rede AngolaWiFi;\n"
+    . "2. Abra o portal de acesso;\n"
+    . "3. Introduza o código acima, valide e comece a navegar sem limites.\n\n"
+    . "Agradecemos pela sua compra e desejamos uma excelente navegação!"
   );
   $waPhone = !empty($order->customer_phone) ? preg_replace('/[^0-9]/', '', $order->customer_phone) : '';
 @endphp
