@@ -471,17 +471,14 @@ const csrfToken = __csrfMeta ? __csrfMeta.getAttribute('content') : (function(){
                 let statusClass = '';
                 try {
                     if (dias !== null) {
-                        // apply stripes so that plans with 10 or more days show green
-                        // dias < 0 => expirado (cinza)
-                        // 0-5 => vermelho
-                        // 6-9 => amarelo
-                        // >=10 => verde
-                        if (dias < 0) {
-                            statusClass = 'status-expired'; // vermelho
+                        if (dias <= -90) {
+                            statusClass = 'status-archived'; // cinza = vencido há 90+ dias
+                        } else if (dias < 0) {
+                            statusClass = 'status-expired';  // vermelho = vencido recente
                         } else if (dias <= 5) {
-                            statusClass = 'status-yellow'; // amarelo
+                            statusClass = 'status-yellow';   // amarelo = a vencer
                         } else {
-                            statusClass = 'status-green'; // verde
+                            statusClass = 'status-green';    // verde = vigente
                         }
                     }
                 } catch (_) { statusClass = ''; }
