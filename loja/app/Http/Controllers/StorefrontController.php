@@ -127,8 +127,8 @@ class StorefrontController extends Controller
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
         }
 
-        $phone = $validated['customer_phone'];
-        if (!str_starts_with($phone, '244')) {
+        $phone = $validated['customer_phone'] ?? null;
+        if ($phone !== null && !str_starts_with($phone, '244')) {
             $phone = '244' . $phone;
         }
 
