@@ -361,7 +361,7 @@
             Método
           </span>
           <span class="cc-detail-val" style="display:flex;align-items:center;gap:.5rem;">
-            <img src="/img/emis_logo.jpg" alt="EMIS" height="28" style="display:block;width:auto;">
+            <img src="/img/emis_logo.jpg" alt="EMIS" height="48" style="display:block;width:auto;">
           </span>
         </div>
         @if($plan)
