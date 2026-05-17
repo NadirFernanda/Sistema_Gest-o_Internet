@@ -165,7 +165,13 @@ class CustomerAccountController extends Controller
             return redirect()->route('account.index')->with('status', 'Só é possível abrir o WhatsApp para pedidos pagos com código disponível.');
         }
 
-        $waText = rawurlencode('Seu código AngolaWiFi: '.$order->wifi_code."\nPlano: ".($order->plan_name ?? $order->plan_id));
+        $waText = rawurlencode(
+            "Olá! O seu código WiFi AngolaWiFi é: ".$order->wifi_code."\n\n"
+            ."Plano: ".($order->plan_name ?? $order->plan_id)."\n"
+            ."Referência: #".$order->id."\n\n"
+            ."Para usar: ligue-se à rede AngolaWiFi e introduza este código no portal de acesso.\n\n"
+            ."Obrigado pela sua compra!"
+        );
         $phoneDigits = $order->customer_phone ? preg_replace('/[^0-9]/', '', $order->customer_phone) : '';
         $waBase = 'https://wa.me/';
         $waUrl = $waBase.($phoneDigits ?: '').'?text='.$waText;
