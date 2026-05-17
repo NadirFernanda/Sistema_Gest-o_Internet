@@ -605,8 +605,16 @@
     setLoading(true);
     hideAll();
 
-    fetch(lookupUrl + '?phone=' + encodeURIComponent(phone), {
-      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    fetch(lookupUrl, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': csrfToken,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'phone=' + encodeURIComponent(phone)
     })
     .then(function (res) { return res.text(); })
     .then(function (rawText) {

@@ -69,7 +69,6 @@ class AutovendaJanelaController extends Controller
             'found'             => true,
             'name'              => $cliente->nome,
             'email'             => $cliente->email ?? '',
-            'nif'               => $nif ?? '',
             'current_plan_id'   => $currentPlan?->template_id,
             'current_plan_name' => $currentPlan?->nome,
         ]);

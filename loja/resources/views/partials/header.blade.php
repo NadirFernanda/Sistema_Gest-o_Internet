@@ -45,7 +45,7 @@
       <a href="{{ route('equipment.index') }}" class="{{ request()->is('equipamentos*') ? 'store-link active' : 'store-link' }}">Equipamentos</a>
       <a href="/minha-conta" class="{{ request()->is('minha-conta') ? 'store-link active' : 'store-link' }}">A minha conta</a>
 
-      @auth
+      @if(session('sg_admin_authenticated'))
       <div class="store-dropdown">
         <a href="/admin" class="{{ request()->is('admin*') ? 'store-link active store-link--muted' : 'store-link store-link--muted' }}" aria-haspopup="true" aria-expanded="false">Administração ▾</a>
         <div class="store-dropdown-menu" role="menu" aria-hidden="true">
@@ -81,7 +81,7 @@
           </a>
         </div>
       </div>
-      @endauth
+      @endif
       </nav>
 
       <div class="store-actions">
@@ -109,7 +109,7 @@
     <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
     <a href="{{ route('equipment.index') }}" class="store-mobile-link">Equipamentos</a>
     <a href="/minha-conta" class="store-mobile-link">A minha conta</a>
-    @auth
+    @if(session('sg_admin_authenticated'))
     <a href="/admin" class="store-mobile-link">Administração</a>
     <div class="store-mobile-submenu">
       <a href="/admin/recargas" class="store-mobile-link">Gestão de recargas</a>
@@ -118,7 +118,7 @@
       <a href="{{ route('admin.equipment.orders.index') }}" class="store-mobile-link">Encomendas</a>
       <a href="{{ route('admin.appointments.index') }}" class="store-mobile-link">Agendamentos</a>
     </div>
-    @endauth
+    @endif
   </div>
 
 <script>
