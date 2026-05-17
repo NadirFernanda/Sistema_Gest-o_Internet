@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 /**
@@ -38,7 +39,7 @@ class GpoController extends Controller
     public function show(AutovendaOrder $order)
     {
         if ($order->isPaid()) {
-            return redirect()->route('store.checkout.confirm', $order->id);
+            return redirect()->away(URL::signedRoute('store.checkout.confirm', ['order' => $order->id]));
         }
 
         // Reutiliza a referência existente se a ordem já está em pagamento pendente.
@@ -435,7 +436,7 @@ class GpoController extends Controller
 
         if ($order->isPaid()) {
             $data['wifi_code']    = $order->wifi_code;
-            $data['redirect_url'] = route('store.checkout.confirm', $order->id);
+            $data['redirect_url'] = URL::signedRoute('store.checkout.confirm', ['order' => $order->id]);
         }
 
         return response()->json($data);

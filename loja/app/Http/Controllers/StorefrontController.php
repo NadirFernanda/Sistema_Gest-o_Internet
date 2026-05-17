@@ -158,6 +158,11 @@ class StorefrontController extends Controller
 
     public function checkoutConfirm(\App\Models\AutovendaOrder $order, \Illuminate\Http\Request $request)
     {
+        // Apenas URLs assinadas são válidas — impede enumeração de IDs (IDOR)
+        if (! $request->hasValidSignature()) {
+            abort(403, 'Ligação de confirmação inválida. Por favor volte à página de pagamento.');
+        }
+
         if (! $order->isPaid()) {
             return redirect()->route('gpo.show', $order);
         }

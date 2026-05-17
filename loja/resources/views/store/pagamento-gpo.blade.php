@@ -580,7 +580,7 @@
   };
 
   @if($order->isPaid())
-    mostrarAprovado('{{ $order->wifi_code }}', '{{ route("store.checkout.confirm", $order->id) }}');
+    mostrarAprovado('{{ $order->wifi_code }}', '{{ \Illuminate\Support\Facades\URL::signedRoute("store.checkout.confirm", ["order" => $order->id]) }}');
   @else
     setTimeout(poll, 6000);
   @endif
