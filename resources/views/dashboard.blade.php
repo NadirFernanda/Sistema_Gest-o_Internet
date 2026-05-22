@@ -57,9 +57,9 @@
             @endcan
 
             <!-- Button to change password -->
-            <a href="{{ route('password.change') }}" class="btn btn-primary" style="width:100%;">Alterar senha</a>
+            <a href="{{ route('password.change') }}" class="btn btn-primary" style="width:100%;grid-column:1/-1;">Alterar senha</a>
 
-            <form action="{{ route('logout') }}" method="POST" style="width:100%;margin:0;padding:0;">
+            <form action="{{ route('logout') }}" method="POST" style="width:100%;margin:0;padding:0;grid-column:1/-1;">
                 @csrf
                 <button type="submit" class="btn btn-logout" style="width:100%;">Sair</button>
             </form>
