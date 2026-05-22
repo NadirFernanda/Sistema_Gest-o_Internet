@@ -88,24 +88,18 @@ class AutovendaJanelaController extends Controller
 
         $template = PlanTemplate::findOrFail($validated['template_id']);
 
-        // ── 1. Find or create the client ──────────────────────────────────
-        // Search by email first (most reliable), fallback to phone if no email provided.
-        $cliente = null;
-        if (! empty($validated['email'])) {
+        // ── 1. Find the client (must already exist — loja blocks unregistered numbers) ──
+        $cliente = Cliente::where('contato', $validated['contato'])->first();
+
+        if (! $cliente && ! empty($validated['email'])) {
             $cliente = Cliente::where('email', $validated['email'])->first();
-        }
-        if (! $cliente) {
-            $cliente = Cliente::where('contato', $validated['contato'])->first();
         }
 
         if (! $cliente) {
-            $bi = $validated['nif'] ?? ('LOJA:' . strtoupper(substr(md5($validated['contato']), 0, 8)));
-            $cliente = Cliente::create([
-                'bi'      => $bi,
-                'nome'    => $validated['nome'],
-                'email'   => $validated['email'] ?? null,
-                'contato' => $validated['contato'],
-            ]);
+            return response()->json([
+                'success' => false,
+                'error'   => 'Cliente não registado no SGA. Contacte a AngolaWiFi para agendar instalação.',
+            ], 422);
         }
 
         // ── 2. Find an active plan for this client + template ─────────────
