@@ -103,6 +103,19 @@
                     @endif
             </div>
 
+            @if($sites->isNotEmpty())
+            <div class="field full">
+                <label for="mikrotik_site_id">Site MikroTik</label>
+                <select id="mikrotik_site_id" name="mikrotik_site_id" class="select">
+                    <option value="">— Seleccionar site —</option>
+                    @foreach($sites as $id => $nome)
+                        <option value="{{ $id }}" {{ old('mikrotik_site_id') == $id ? 'selected' : '' }}>{{ $nome }}</option>
+                    @endforeach
+                </select>
+                @error('mikrotik_site_id') <span style="color:#c0392b;font-size:0.9rem;">{{ $message }}</span> @enderror
+            </div>
+            @endif
+
             <div class="actions full">
                 <button type="submit" class="btn-primary btn-cta">
                     <!-- simple SVG icon -->

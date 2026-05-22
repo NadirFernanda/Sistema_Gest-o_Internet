@@ -438,7 +438,8 @@ class ClienteController extends Controller
      */
     public function create()
     {
-        return view('clientes.create');
+        $sites = \App\Models\MikroTikSite::where('active', true)->orderBy('nome')->pluck('nome', 'id');
+        return view('clientes.create', compact('sites'));
     }
 
     public function show($id)
@@ -457,7 +458,8 @@ class ClienteController extends Controller
         // Return a dedicated edit view for the cliente. This is
         // cleaner than relying on redirect+hash and fragile JS.
         $cliente = Cliente::findOrFail($id);
-        return view('clientes.edit', compact('cliente'));
+        $sites = \App\Models\MikroTikSite::where('active', true)->orderBy('nome')->pluck('nome', 'id');
+        return view('clientes.edit', compact('cliente', 'sites'));
     }
 
     /**
@@ -819,12 +821,13 @@ class ClienteController extends Controller
         \Log::info('Entrou no método store do ClienteController');
         try {
             $validated = $request->validate([
-                'bi_tipo' => 'required|string|in:BI,NIF,Outro',
-                'bi_numero' => 'required|string|max:64',
-                'bi_tipo_outro' => 'nullable|string|max:64',
-                'nome' => 'required|string|max:255',
-                'email' => 'required|email',
-                'contato' => 'required|string|max:20',
+                'bi_tipo'          => 'required|string|in:BI,NIF,Outro',
+                'bi_numero'        => 'required|string|max:64',
+                'bi_tipo_outro'    => 'nullable|string|max:64',
+                'nome'             => 'required|string|max:255',
+                'email'            => 'required|email',
+                'contato'          => 'required|string|max:20',
+                'mikrotik_site_id' => 'nullable|exists:mikrotik_sites,id',
             ], [
                 'bi_tipo.required' => 'Por favor selecione o tipo de documento.',
                 'bi_numero.required' => 'Por favor preencha o número do BI/NIF.',
@@ -839,10 +842,11 @@ class ClienteController extends Controller
             }
 
             $data = [
-                'bi' => $biValue,
-                'nome' => $validated['nome'],
-                'email' => $validated['email'],
-                'contato' => $validated['contato'],
+                'bi'               => $biValue,
+                'nome'             => $validated['nome'],
+                'email'            => $validated['email'],
+                'contato'          => $validated['contato'],
+                'mikrotik_site_id' => $validated['mikrotik_site_id'] ?? null,
             ];
 
             // Use transaction to ensure atomicity
@@ -899,13 +903,14 @@ class ClienteController extends Controller
     {
         // Refactored update: validate, normalize, check uniqueness, update, and respond
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'bi' => 'sometimes|string|max:128',
-            'bi_tipo' => 'sometimes|required_with:bi_numero|string|in:BI,NIF,Outro',
-            'bi_numero' => 'sometimes|required_with:bi_tipo|string|max:64',
-            'bi_tipo_outro' => 'nullable|string|max:64',
-            'nome' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|email',
-            'contato' => 'sometimes|required|string|max:20',
+            'bi'               => 'sometimes|string|max:128',
+            'bi_tipo'          => 'sometimes|required_with:bi_numero|string|in:BI,NIF,Outro',
+            'bi_numero'        => 'sometimes|required_with:bi_tipo|string|max:64',
+            'bi_tipo_outro'    => 'nullable|string|max:64',
+            'nome'             => 'sometimes|required|string|max:255',
+            'email'            => 'sometimes|email',
+            'contato'          => 'sometimes|required|string|max:20',
+            'mikrotik_site_id' => 'nullable|exists:mikrotik_sites,id',
         ]);
 
         if ($validator->fails()) {
@@ -940,7 +945,11 @@ class ClienteController extends Controller
             $data['bi'] = $bi;
         }
 
-        $updatable = array_intersect_key($data, array_flip(['bi', 'nome', 'email', 'contato']));
+        $updatable = array_intersect_key($data, array_flip(['bi', 'nome', 'email', 'contato', 'mikrotik_site_id']));
+        // Permite limpar o site (envio de string vazia = null)
+        if ($request->has('mikrotik_site_id')) {
+            $updatable['mikrotik_site_id'] = $request->input('mikrotik_site_id') ?: null;
+        }
 
         try {
             $cliente = Cliente::findOrFail($id);

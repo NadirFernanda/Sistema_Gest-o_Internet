@@ -33,6 +33,21 @@
                 <input id="editContato" name="contato" type="text" value="{{ old('contato', $cliente->contato) }}" class="form-control">
                 @error('contato') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
+
+            @if($sites->isNotEmpty())
+            <div style="grid-column:1/-1;">
+                <label for="editSite"><strong>Site MikroTik</strong></label>
+                <select id="editSite" name="mikrotik_site_id" class="form-control" style="margin-top:4px;">
+                    <option value="">— Sem site atribuído —</option>
+                    @foreach($sites as $siteId => $siteNome)
+                        <option value="{{ $siteId }}" {{ old('mikrotik_site_id', $cliente->mikrotik_site_id) == $siteId ? 'selected' : '' }}>
+                            {{ $siteNome }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('mikrotik_site_id') <div class="text-danger">{{ $message }}</div> @enderror
+            </div>
+            @endif
         </div>
 
         <div style="margin-top:16px;display:flex;gap:8px;align-items:center;">
