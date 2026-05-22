@@ -144,10 +144,15 @@ class MikroTikAdminController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
-    /** Disparar sync completo em background. */
+    /** Disparar sync completo. */
     public function runSync()
     {
-        \Artisan::queue('mikrotik:sync-plans');
-        return response()->json(['ok' => true, 'message' => 'Sync iniciado em background.']);
+        try {
+            \Artisan::call('mikrotik:sync-plans');
+            $output = trim(\Artisan::output());
+            return response()->json(['ok' => true, 'message' => $output ?: 'Sync concluído.']);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }
