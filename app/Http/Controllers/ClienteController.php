@@ -444,7 +444,7 @@ class ClienteController extends Controller
 
     public function show($id)
     {
-        $cliente = Cliente::with(['equipamentos', 'clienteEquipamentos.equipamento'])->findOrFail($id);
+        $cliente = Cliente::with(['mikrotikSite', 'equipamentos', 'clienteEquipamentos.equipamento'])->findOrFail($id);
         return view('clientes', compact('cliente'));
     }
 

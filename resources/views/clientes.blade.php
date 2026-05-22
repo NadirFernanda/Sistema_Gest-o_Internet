@@ -120,6 +120,7 @@
                                 <div style="text-align:center"><strong>Nome:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->nome }}</div></div>
                             <div style="text-align:center"><strong>Email:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->email ?? '-' }}</div></div>
                             <div style="text-align:center"><strong>Contacto (WhatsApp):</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->contato ?? '-' }}</div></div>
+                            <div style="text-align:center;grid-column:1/-1"><strong>Site MikroTik:</strong><div style="margin-top:6px;font-size:1.05rem">{{ $cliente->mikrotikSite?->nome ?? '—' }}</div></div>
                         </div>
                     </div>
                     {{-- estilos movidos para resources/css/clientes.css (importados via resources/css/app.css) --}}
