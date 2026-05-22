@@ -468,6 +468,7 @@ class ClienteController extends Controller
     public function ficha($id)
     {
         $cliente = Cliente::with([
+            'mikrotikSite',
             'equipamentos',
             'planos',
             'clienteEquipamentos.equipamento',

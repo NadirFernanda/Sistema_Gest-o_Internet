@@ -27,6 +27,7 @@
                             <div><span class="muted">Contacto (WhatsApp):</span><br><strong>{{ $cliente->contato }}</strong></div>
                             <div><span class="muted">Email:</span><br><strong>{{ $cliente->email }}</strong></div>
                             <div><span class="muted">Estado:</span><br><strong>{{ $cliente->estado ?? '—' }}</strong></div>
+                            <div><span class="muted">Site MikroTik:</span><br><strong>{{ $cliente->mikrotikSite?->nome ?? '—' }}</strong></div>
                         </div>
                     </div>
                 </div>
