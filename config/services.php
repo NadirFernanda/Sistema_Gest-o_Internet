@@ -72,6 +72,16 @@ return [
         'test_mode'           => env('PAY4ALL_TEST_MODE', true),
     ],
 
+    // Integração MikroTik (RouterOS API)
+    'mikrotik' => [
+        'host'            => env('MIKROTIK_HOST', ''),
+        'port'            => env('MIKROTIK_PORT', 8728),
+        'username'        => env('MIKROTIK_USER', 'admin'),
+        'password'        => env('MIKROTIK_PASSWORD', ''),
+        'user_prefix'     => env('MIKROTIK_USER_PREFIX', ''),
+        'default_profile' => env('MIKROTIK_DEFAULT_PROFILE', 'default'),
+    ],
+
     // Integração com a loja (Storefront)
     // Usado pelo dashboard do SG para montar o link do painel da loja
     'sg' => [

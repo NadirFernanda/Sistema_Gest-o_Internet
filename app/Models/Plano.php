@@ -18,13 +18,16 @@ class Plano extends Model
         'estado',
         'data_ativacao',
         'proxima_renovacao',
+        'mikrotik_username',
+        'mikrotik_synced_at',
     ];
 
     protected $casts = [
-        'ativo' => 'boolean',
-        'data_ativacao' => 'date',
-        'proxima_renovacao' => 'date',
-        'tipo' => 'string',
+        'ativo'              => 'boolean',
+        'data_ativacao'      => 'date',
+        'proxima_renovacao'  => 'date',
+        'mikrotik_synced_at' => 'datetime',
+        'tipo'               => 'string',
     ];
 
     public function template()

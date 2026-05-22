@@ -19,6 +19,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ResetAdminPassword::class,
         \App\Console\Commands\AuditBackfillCommand::class,
         \App\Console\Commands\EnviarNotificacaoDevolucao::class,
+        \App\Console\Commands\MikroTikSyncPlans::class,
+        \App\Console\Commands\MikroTikExpirePlans::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -50,7 +52,19 @@ class Kernel extends ConsoleKernel
             ->timezone(config('app.timezone'))
             ->withoutOverlapping()
             ->runInBackground();
-        // Scheduled tasks for general reports have been removed (legacy audit reports)
+        // MikroTik: sincroniza planos activos a cada 5 minutos
+        $schedule->command('mikrotik:sync-plans')
+            ->everyFiveMinutes()
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // MikroTik: suspende utilizadores com plano vencido (corre de madrugada)
+        $schedule->command('mikrotik:expire-plans')
+            ->dailyAt('01:00')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     protected function commands()

@@ -172,7 +172,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/debug/plan-template-counts', [\App\Http\Controllers\PlanTemplateController::class, 'debugCounts'])->name('debug.plan-template-counts');
     }
 
-    
+    // MikroTik admin panel (Administrador only)
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador')
+        ->prefix('mikrotik')->name('mikrotik.')->group(function () {
+            Route::get('/',                [\App\Http\Controllers\MikroTikAdminController::class, 'index'])->name('index');
+            Route::get('/test',            [\App\Http\Controllers\MikroTikAdminController::class, 'testConnection'])->name('test');
+            Route::post('/run-sync',       [\App\Http\Controllers\MikroTikAdminController::class, 'runSync'])->name('run-sync');
+            Route::post('/sync/{plano}',   [\App\Http\Controllers\MikroTikAdminController::class, 'syncPlano'])->name('sync');
+            Route::post('/suspend/{plano}',[\App\Http\Controllers\MikroTikAdminController::class, 'suspendPlano'])->name('suspend');
+            Route::post('/remove/{plano}', [\App\Http\Controllers\MikroTikAdminController::class, 'removePlano'])->name('remove');
+        });
+
     // Export routes removed per request
 
 });
