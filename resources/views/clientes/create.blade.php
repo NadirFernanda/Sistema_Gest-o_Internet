@@ -103,18 +103,23 @@
                     @endif
             </div>
 
-            @if($sites->isNotEmpty())
             <div class="field full">
                 <label for="mikrotik_site_id">Site MikroTik</label>
-                <select id="mikrotik_site_id" name="mikrotik_site_id" class="select">
-                    <option value="">— Seleccionar site —</option>
-                    @foreach($sites as $id => $nome)
-                        <option value="{{ $id }}" {{ old('mikrotik_site_id') == $id ? 'selected' : '' }}>{{ $nome }}</option>
-                    @endforeach
-                </select>
+                @if($sites->isNotEmpty())
+                    <select id="mikrotik_site_id" name="mikrotik_site_id" class="select" style="margin-top:4px;">
+                        <option value="">— Seleccionar site —</option>
+                        @foreach($sites as $siteId => $siteNome)
+                            <option value="{{ $siteId }}" {{ old('mikrotik_site_id') == $siteId ? 'selected' : '' }}>{{ $siteNome }}</option>
+                        @endforeach
+                    </select>
+                @else
+                    <div style="margin-top:6px;padding:10px 14px;background:#fffbe7;border:1px solid #f7b500;border-radius:8px;font-size:0.9rem;color:#7a5c00;">
+                        Nenhum site configurado.
+                        <a href="{{ route('mikrotik.index') }}" target="_blank" style="font-weight:600;color:#7a5c00;">Criar site em /mikrotik</a>
+                    </div>
+                @endif
                 @error('mikrotik_site_id') <span style="color:#c0392b;font-size:0.9rem;">{{ $message }}</span> @enderror
             </div>
-            @endif
 
             <div class="actions full">
                 <button type="submit" class="btn-primary btn-cta">
