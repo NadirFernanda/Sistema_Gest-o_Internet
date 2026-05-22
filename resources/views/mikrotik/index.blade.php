@@ -12,18 +12,21 @@
         'subtitle' => 'Gestão de sites e utilizadores HotSpot',
     ])
 
-    {{-- ── Barra de acções ─────────────────────────────────────────────────── --}}
-    <div style="max-width:1100px;margin:18px auto 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="height:36px;font-size:0.9rem;display:inline-flex;align-items:center;gap:6px;">
-            + Novo Site
-        </a>
-        <button onclick="runSync()" class="btn btn-ghost" style="height:36px;font-size:0.9rem;">▶ Sync todos agora</button>
-        <div style="flex:1 1 180px;text-align:right;">
-            <span style="font-size:0.88rem;color:#888;">
-                {{ $planosPending }} plano(s) por sincronizar
-            </span>
-        </div>
-        <div id="syncResult" style="font-size:0.88rem;color:#555;"></div>
+    {{-- ── Toolbar padrão ──────────────────────────────────────────────────── --}}
+    <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto 0;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
+        <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
+
+        <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;" title="Percorre todos os sites e actualiza/cria utilizadores HotSpot para planos activos ainda não sincronizados">
+            ▶ Sync todos agora
+        </button>
+
+        <span style="font-size:0.88rem;color:#888;white-space:nowrap;">
+            {{ $planosPending }} por sincronizar
+        </span>
+
+        <div id="syncResult" style="font-size:0.88rem;color:#555;flex:1;"></div>
+
+        <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
     </div>
 
     {{-- ── Sites / RouterBoards ─────────────────────────────────────────────── --}}
@@ -131,14 +134,28 @@ function testSite(id, btn) {
     .catch(() => { el.textContent = '✗ Falha de rede'; btn.disabled = false; btn.textContent = 'Testar'; });
 }
 
-function runSync() {
-    document.getElementById('syncResult').textContent = 'A iniciar sync…';
+function runSync(btn) {
+    var el = document.getElementById('syncResult');
+    btn.disabled = true;
+    btn.textContent = 'A sincronizar…';
+    el.textContent = '';
     fetch('{{ route('mikrotik.run-sync') }}', {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
-    .then(d => { document.getElementById('syncResult').textContent = d.message || (d.ok ? 'Sync iniciado.' : 'Erro.'); });
+    .then(d => {
+        el.textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
+        el.style.color = d.ok ? '#3bb273' : '#e05a4f';
+        btn.disabled = false;
+        btn.textContent = '▶ Sync todos agora';
+    })
+    .catch(() => {
+        el.textContent = 'Falha de rede.';
+        el.style.color = '#e05a4f';
+        btn.disabled = false;
+        btn.textContent = '▶ Sync todos agora';
+    });
 }
 
 function syncPlano(id, btn) {
