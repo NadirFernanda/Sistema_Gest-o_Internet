@@ -121,15 +121,13 @@
                 @error('mikrotik_site_id') <span style="color:#c0392b;font-size:0.9rem;">{{ $message }}</span> @enderror
             </div>
 
-            <div class="actions full">
-                <button type="submit" class="btn-primary btn-cta">
-                    <!-- simple SVG icon -->
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;">
-                        <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+            <div class="actions full" style="display:flex;gap:12px;justify-content:flex-end;">
+                <button type="submit" class="btn-primary btn-cta" style="flex:1;max-width:200px;justify-content:center;">
                     Cadastrar Cliente
                 </button>
-                <a href="{{ route('clientes') }}" class="btn btn-ghost">Cancelar</a>
+                <a href="{{ route('clientes') }}" class="btn btn-ghost" style="flex:1;max-width:200px;display:inline-flex;align-items:center;justify-content:center;">
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>
