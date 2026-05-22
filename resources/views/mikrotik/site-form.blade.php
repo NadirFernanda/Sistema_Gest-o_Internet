@@ -7,12 +7,19 @@
 @section('content')
 <div class="estoque-container-moderna">
 
-    @include('layouts.partials.clientes-hero', [
-        'title'    => $site->exists ? 'Editar Site MikroTik' : 'Novo Site MikroTik',
-        'subtitle' => 'Credenciais do RouterBoard instalado no site',
-    ])
+    <div style="max-width:600px;margin:24px auto 0;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+            <a href="{{ route('mikrotik.index') }}" class="btn btn-ghost" style="height:36px;display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;">
+                ← Voltar
+            </a>
+            <div>
+                <h2 style="margin:0;font-size:1.2rem;font-weight:700;">{{ $site->exists ? 'Editar Site MikroTik' : 'Novo Site MikroTik' }}</h2>
+                <p style="margin:0;font-size:0.85rem;color:#888;">Credenciais do RouterBoard instalado no site</p>
+            </div>
+        </div>
+    </div>
 
-    <div style="max-width:600px;margin:24px auto 0;background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 14px rgba(0,0,0,0.07);">
+    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 14px rgba(0,0,0,0.07);">
 
         <form method="POST" action="{{ $site->exists ? route('mikrotik.sites.update', $site) : route('mikrotik.sites.store') }}">
             @csrf
@@ -93,13 +100,10 @@
 
             </div>
 
-            <div style="margin-top:22px;display:flex;gap:10px;">
+            <div style="margin-top:22px;">
                 <button type="submit" class="btn btn-cta" style="height:40px;font-size:0.93rem;">
                     {{ $site->exists ? 'Guardar alterações' : 'Criar site' }}
                 </button>
-                <a href="{{ route('mikrotik.index') }}" class="btn btn-ghost" style="height:40px;font-size:0.93rem;display:inline-flex;align-items:center;">
-                    Cancelar
-                </a>
             </div>
         </form>
     </div>
