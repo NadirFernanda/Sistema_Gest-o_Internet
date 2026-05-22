@@ -426,7 +426,7 @@ class ClienteController extends Controller
                   ->orWhere('contato', 'like', "%$busca%");
             });
         }
-        $clientes = $query->orderBy('nome')->get();
+        $clientes = $query->with('planos')->orderBy('nome')->get();
         $pdf = Pdf::loadView('clientes.lista_pdf', compact('clientes'))
                   ->setPaper('a4', 'landscape');
         $filename = 'clientes_' . now()->format('Ymd_His') . '.pdf';

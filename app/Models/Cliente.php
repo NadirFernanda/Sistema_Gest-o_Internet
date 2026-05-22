@@ -41,4 +41,28 @@ class Cliente extends Model
     {
         return $this->hasMany(Cobranca::class);
     }
+
+    /**
+     * Estado calculado a partir dos planos do cliente.
+     * Requer que a relação 'planos' esteja carregada (eager load).
+     */
+    public function getEstadoAttribute($value): string
+    {
+        if (! $this->relationLoaded('planos')) {
+            return $value ?? 'Ativo';
+        }
+
+        $planos = $this->planos;
+
+        if ($planos->isEmpty()) {
+            return 'Sem plano';
+        }
+        if ($planos->whereIn('estado', ['Ativo', 'Em aviso'])->isNotEmpty()) {
+            return 'Ativo';
+        }
+        if ($planos->where('estado', 'Suspenso')->isNotEmpty()) {
+            return 'Suspenso';
+        }
+        return 'Inativo';
+    }
 }
