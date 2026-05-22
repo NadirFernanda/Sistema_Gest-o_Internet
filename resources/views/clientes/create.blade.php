@@ -1,115 +1,81 @@
 @extends('layouts.app')
 
 @section('content')
-@if(session('success'))
-    <div class="alert alert-success" style="margin-bottom:18px; border-radius:8px; background:#eafaf1; color:#218c5b; padding:12px 18px; font-size:1.08rem;">
-        <strong>Sucesso:</strong> Cliente cadastrado com sucesso!
-    </div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger" style="margin-bottom:18px; border-radius:8px; background:#faeaea; color:#c0392b; padding:12px 18px; font-size:1.08rem;">
-        <strong>Erro:</strong> {{ session('error') }}
-    </div>
-@endif
+<div class="container" style="max-width:960px;margin:18px auto;">
+    <h1>Cadastrar Cliente</h1>
 
-    <div class="container">
-    <!-- botão de voltar removido do header -->
-    <div class="client-card">
-        <header class="client-card-header">
-            <h2>Cadastrar Cliente</h2>
-            <p class="muted">Preencha os dados do cliente. Campos obrigatórios marcados com *</p>
-        </header>
+    @if(session('success'))
+        <div class="alert alert-success" style="margin-bottom:14px;border-radius:8px;background:#eafaf1;color:#218c5b;padding:12px 18px;">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-bottom:14px;border-radius:8px;background:#faeaea;color:#c0392b;padding:12px 18px;">
+            {{ session('error') }}
+        </div>
+    @endif
 
-        <form id="formClienteCreate" class="form-cadastro form-grid" method="POST" action="{{ route('clientes.store') }}">
-            @csrf
+    <form id="formClienteCreate" method="POST" action="{{ route('clientes.store') }}"
+          style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.06);">
+        @csrf
 
-            <div class="field full">
-                <label for="nome">Nome completo *</label>
-                <input type="text" id="nome" name="nome" class="input" placeholder="Nome completo" value="{{ old('nome') }}">
-                    @if($errors->has('nome'))
-                        <div class="text-danger">
-                            @if($errors->first('nome') == 'O campo nome é obrigatório.')
-                                Por favor preencha o nome do cliente.
-                            @else
-                                {{ $errors->first('nome') }}
-                            @endif
-                        </div>
-                    @endif
-            </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 
-            <div class="field">
-                <label for="bi_tipo">Tipo de documento *</label>
-                <select id="bi_tipo" name="bi_tipo" class="select" data-placeholder="Tipo de documento (BI, NIF...)">
-                    <option value="BI" @if(old('bi_tipo')=='BI') selected @endif>BI</option>
-                    <option value="NIF" @if(old('bi_tipo')=='NIF') selected @endif>NIF</option>
-                    <option value="Outro" @if(old('bi_tipo')=='Outro') selected @endif>Outro</option>
+            <div>
+                <label for="bi_tipo"><strong>Tipo de documento *</strong></label>
+                <select id="bi_tipo" name="bi_tipo" class="form-control">
+                    <option value="BI"    {{ old('bi_tipo') == 'BI'    ? 'selected' : '' }}>BI</option>
+                    <option value="NIF"   {{ old('bi_tipo') == 'NIF'   ? 'selected' : '' }}>NIF</option>
+                    <option value="Outro" {{ old('bi_tipo') == 'Outro' ? 'selected' : '' }}>Outro</option>
                 </select>
-                @if($errors->has('bi_tipo'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('bi_tipo') }}</span>
-                @endif
+                @error('bi_tipo') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="field">
-                <label for="bi_numero" id="labelBiNumero">BI / NIF *</label>
-                <input type="text" id="bi_numero" name="bi_numero" class="input" placeholder="BI / NIF" value="{{ old('bi_numero') }}">
-                    @if($errors->has('bi_numero'))
-                        <div class="text-danger">
-                            @if($errors->first('bi_numero') == 'O campo bi numero é obrigatório.')
-                                Por favor preencha o número do BI.
-                            @else
-                                {{ $errors->first('bi_numero') }}
-                            @endif
-                        </div>
-                    @endif
+            <div>
+                <label for="bi_numero" id="labelBiNumero"><strong>BI / NIF *</strong></label>
+                <input id="bi_numero" name="bi_numero" type="text" value="{{ old('bi_numero') }}"
+                       placeholder="Número do documento" class="form-control" required>
+                @error('bi_numero') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="field full" id="bi_tipo_outro_wrap" style="display:none;">
-                <label for="bi_tipo_outro">Especificar (Outro) *</label>
-                <input type="text" id="bi_tipo_outro" name="bi_tipo_outro" class="input" placeholder="Ex: Passaporte, Cartão Estrangeiro" value="{{ old('bi_tipo_outro') }}">
-                @if($errors->has('bi_tipo_outro'))
-                    <span style="color:#c0392b; margin-top:6px; font-size:0.95rem; display:block;">{{ $errors->first('bi_tipo_outro') }}</span>
-                @endif
+            <div id="bi_tipo_outro_wrap" style="display:none;grid-column:1/-1;">
+                <label for="bi_tipo_outro"><strong>Especificar documento *</strong></label>
+                <input id="bi_tipo_outro" name="bi_tipo_outro" type="text"
+                       value="{{ old('bi_tipo_outro') }}"
+                       placeholder="Ex: Passaporte, Cartão Estrangeiro" class="form-control">
+                @error('bi_tipo_outro') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="field">
-                <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" class="input" placeholder="email@exemplo.com" value="">
-                    @if($errors->has('email'))
-                            <div class="text-danger">
-                                @if($errors->first('email') == 'O campo email é obrigatório.')
-                                    Por favor preencha o e-mail do cliente.
-                                @elseif(str_contains($errors->first('email'), 'taken'))
-                                    Este e-mail já está cadastrado.
-                                @else
-                                    {{ $errors->first('email') }}
-                                @endif
-                            </div>
-                    @endif
+            <div style="grid-column:1/-1;">
+                <label for="nome"><strong>Nome completo *</strong></label>
+                <input id="nome" name="nome" type="text" value="{{ old('nome') }}"
+                       placeholder="Nome completo" class="form-control" required>
+                @error('nome') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="field">
-                <label for="contato">Contacto (WhatsApp) *</label>
-                <input type="text" id="contato" name="contato" class="input" placeholder="+244 9XX XXX XXX" value="">
-                    @if($errors->has('contato'))
-                            <div class="text-danger">
-                                @if($errors->first('contato') == 'O campo contato é obrigatório.')
-                                    Por favor preencha o contato do cliente.
-                                @elseif(str_contains($errors->first('contato'), 'taken'))
-                                    Este contato já está cadastrado.
-                                @else
-                                    {{ $errors->first('contato') }}
-                                @endif
-                            </div>
-                    @endif
+            <div>
+                <label for="email"><strong>Email *</strong></label>
+                <input id="email" name="email" type="email"
+                       placeholder="email@exemplo.com" class="form-control" required>
+                @error('email') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="field full">
-                <label for="mikrotik_site_id">Site MikroTik</label>
+            <div>
+                <label for="contato"><strong>Contacto (WhatsApp) *</strong></label>
+                <input id="contato" name="contato" type="text"
+                       placeholder="+244 9XX XXX XXX" class="form-control" required>
+                @error('contato') <div class="text-danger">{{ $message }}</div> @enderror
+            </div>
+
+            <div style="grid-column:1/-1;">
+                <label for="mikrotik_site_id"><strong>Site MikroTik</strong></label>
                 @if($sites->isNotEmpty())
-                    <select id="mikrotik_site_id" name="mikrotik_site_id" class="select" style="margin-top:4px;">
+                    <select id="mikrotik_site_id" name="mikrotik_site_id" class="form-control" style="margin-top:4px;">
                         <option value="">— Seleccionar site —</option>
                         @foreach($sites as $siteId => $siteNome)
-                            <option value="{{ $siteId }}" {{ old('mikrotik_site_id') == $siteId ? 'selected' : '' }}>{{ $siteNome }}</option>
+                            <option value="{{ $siteId }}" {{ old('mikrotik_site_id') == $siteId ? 'selected' : '' }}>
+                                {{ $siteNome }}
+                            </option>
                         @endforeach
                     </select>
                 @else
@@ -118,83 +84,38 @@
                         <a href="{{ route('mikrotik.index') }}" target="_blank" style="font-weight:600;color:#7a5c00;">Criar site em /mikrotik</a>
                     </div>
                 @endif
-                @error('mikrotik_site_id') <span style="color:#c0392b;font-size:0.9rem;">{{ $message }}</span> @enderror
+                @error('mikrotik_site_id') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="actions full" style="display:flex;gap:12px;justify-content:flex-end;">
-                <button type="submit" class="btn-primary btn-cta" style="flex:1;max-width:200px;justify-content:center;">
-                    Cadastrar Cliente
-                </button>
-                <a href="{{ route('clientes') }}" class="btn btn-ghost" style="flex:1;max-width:200px;display:inline-flex;align-items:center;justify-content:center;">
-                    Cancelar
-                </a>
-            </div>
-        </form>
-    </div>
+        </div>
 
-    <style>
-    /* Modern form styles (sem card para erro) */
-    .client-card { max-width:880px; margin:20px auto; background:#fff; border-radius:12px; padding:20px 22px; box-shadow:0 8px 30px rgba(2,6,23,0.08); }
-    .client-card-header h2 { margin:0 0 6px; font-size:1.65rem; text-align:center; }
-    .client-card-header .muted { color:#666; text-align:center; margin-bottom:12px; }
-
-    .form-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:14px 18px; align-items:start; }
-    .form-grid .full { grid-column: 1 / -1; }
-    .field label { display:block; margin-bottom:6px; font-weight:600; color:#333; }
-    .input, .select { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #e6e6e6; box-shadow:inset 0 1px 0 rgba(255,255,255,0.6); font-size:1rem; transition:box-shadow .12s, border-color .12s; }
-    .input:focus, .select:focus { outline:none; border-color:#f7b500; box-shadow:0 6px 24px rgba(247,181,0,0.12); }
-
-    /* Mensagem de erro personalizada: texto simples, sem card */
-    .field span[style*="color:#c0392b"] { margin-top:6px; font-size:0.95rem; display:block; font-weight:400; background:none; border:none; padding:0; }
-
-    .actions { display:flex; gap:12px; justify-content:flex-end; align-items:center; }
-    .btn-cta { background:#f7b500; color:#fff; border:none; padding:12px 22px; border-radius:10px; font-weight:700; display:inline-flex; align-items:center; box-shadow:0 6px 18px rgba(247,181,0,0.18); cursor:pointer; }
-    .btn-cta:hover { background:#e0a800; }
-    .btn-ghost { padding:10px 18px; border-radius:10px; border:1px solid #ddd; color:#444; text-decoration:none; background:transparent; }
-
-    /* Responsividade */
-    @media (max-width:900px) { .form-grid { grid-template-columns: 1fr; } .actions { justify-content:stretch; flex-direction:column-reverse; } .btn-cta, .btn-ghost { width:100%; } }
-    </style>
+        <div style="margin-top:16px;display:flex;gap:8px;align-items:center;">
+            <button type="submit" class="btn btn-primary">Cadastrar Cliente</button>
+            <a href="{{ route('clientes') }}" class="btn btn-ghost">Cancelar</a>
+        </div>
+    </form>
 </div>
-@endsection
-
-<!-- No client-side JS needed: form submits normally to the controller -->
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Select logic
-    const biTipo = document.getElementById('bi_tipo');
-    const biNumeroLabel = document.getElementById('labelBiNumero');
-    const biOutroWrap = document.getElementById('bi_tipo_outro_wrap');
-    function updateBiTipo() {
-        if (biTipo.value === 'BI') {
-            biNumeroLabel.textContent = 'BI *';
-            biOutroWrap.style.display = 'none';
-        } else if (biTipo.value === 'NIF') {
-            biNumeroLabel.textContent = 'NIF *';
-            biOutroWrap.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function () {
+    const biTipo       = document.getElementById('bi_tipo');
+    const biLabel      = document.getElementById('labelBiNumero');
+    const outroWrap    = document.getElementById('bi_tipo_outro_wrap');
+
+    function updateTipo() {
+        if (biTipo.value === 'Outro') {
+            biLabel.innerHTML = '<strong>Nº do documento *</strong>';
+            outroWrap.style.display = 'block';
         } else {
-            biNumeroLabel.textContent = 'Outro documento *';
-            biOutroWrap.style.display = 'block';
+            biLabel.innerHTML = '<strong>' + biTipo.value + ' *</strong>';
+            outroWrap.style.display = 'none';
         }
     }
-    biTipo.addEventListener('change', updateBiTipo);
-    updateBiTipo();
 
-    // Hide error messages on input
-    const fields = ['nome','bi_numero','bi_tipo_outro','email','contato'];
-    fields.forEach(function(field) {
-        const input = document.getElementById(field);
-        if (input) {
-            input.addEventListener('input', function() {
-                const errorDiv = input.parentNode.querySelector('.text-danger');
-                if (errorDiv) errorDiv.style.display = 'none';
-                const errorSpan = input.parentNode.querySelector('span[style*="color:#c0392b"]');
-                if (errorSpan) errorSpan.style.display = 'none';
-            });
-        }
-    });
+    biTipo.addEventListener('change', updateTipo);
+    updateTipo();
 });
 </script>
 @endpush
+@endsection
