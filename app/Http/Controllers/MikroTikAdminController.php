@@ -2,46 +2,112 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
 use Illuminate\Http\Request;
 
 class MikroTikAdminController extends Controller
 {
-    public function __construct(private readonly MikroTikService $mikrotik) {}
-
-    /** Painel de estado e listagem de planos. */
+    /** Painel principal — lista todos os sites e planos sincronizados. */
     public function index()
     {
-        $connection = $this->mikrotik->testConnection();
-        $profiles   = $connection['ok'] ? $this->mikrotik->listProfiles() : [];
+        $sites = MikroTikSite::withCount('clientes')->orderBy('nome')->get();
 
-        // Planos com username MikroTik atribuído
         $planosSync = Plano::with('cliente', 'template')
             ->whereNotNull('mikrotik_username')
             ->orderByDesc('mikrotik_synced_at')
             ->paginate(30);
 
-        // Planos activos sem username (nunca sincronizados)
-        $planosPending = Plano::with('cliente')
+        $planosPending = Plano::whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
             ->whereNull('mikrotik_username')
             ->whereIn('estado', ['Ativo', 'Em aviso'])
             ->count();
 
-        return view('mikrotik.index', compact('connection', 'profiles', 'planosSync', 'planosPending'));
+        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending'));
     }
 
-    /** Testar ligação ao MikroTik (AJAX). */
-    public function testConnection()
+    /** Formulário de criação de site. */
+    public function createSite()
     {
-        return response()->json($this->mikrotik->testConnection());
+        return view('mikrotik.site-form', ['site' => new MikroTikSite()]);
+    }
+
+    /** Guardar novo site. */
+    public function storeSite(Request $request)
+    {
+        $data = $request->validate([
+            'nome'            => 'required|string|max:100',
+            'localizacao'     => 'nullable|string|max:255',
+            'host'            => 'required|string|max:100',
+            'port'            => 'required|integer|min:1|max:65535',
+            'username'        => 'required|string|max:100',
+            'password'        => 'required|string|max:255',
+            'user_prefix'     => 'nullable|string|max:20',
+            'default_profile' => 'required|string|max:100',
+            'active'          => 'boolean',
+        ]);
+
+        $data['active']      = $request->boolean('active', true);
+        $data['user_prefix'] = $data['user_prefix'] ?? '';
+
+        MikroTikSite::create($data);
+
+        return redirect()->route('mikrotik.index')->with('success', 'Site criado com sucesso.');
+    }
+
+    /** Formulário de edição de site. */
+    public function editSite(MikroTikSite $site)
+    {
+        return view('mikrotik.site-form', compact('site'));
+    }
+
+    /** Actualizar site. */
+    public function updateSite(Request $request, MikroTikSite $site)
+    {
+        $data = $request->validate([
+            'nome'            => 'required|string|max:100',
+            'localizacao'     => 'nullable|string|max:255',
+            'host'            => 'required|string|max:100',
+            'port'            => 'required|integer|min:1|max:65535',
+            'username'        => 'required|string|max:100',
+            'password'        => 'nullable|string|max:255',
+            'user_prefix'     => 'nullable|string|max:20',
+            'default_profile' => 'required|string|max:100',
+            'active'          => 'boolean',
+        ]);
+
+        $data['active']      = $request->boolean('active', true);
+        $data['user_prefix'] = $data['user_prefix'] ?? '';
+
+        // Só actualiza password se foi preenchida
+        if (empty($data['password'])) {
+            unset($data['password']);
+        }
+
+        $site->update($data);
+
+        return redirect()->route('mikrotik.index')->with('success', 'Site actualizado.');
+    }
+
+    /** Testar ligação a um site (AJAX). */
+    public function testSite(MikroTikSite $site)
+    {
+        $result = MikroTikService::forSite($site)->testConnection();
+        return response()->json($result);
     }
 
     /** Sincronizar manualmente um plano. */
     public function syncPlano(Request $request, Plano $plano)
     {
-        $plano->load(['cliente', 'template']);
-        $ok = $this->mikrotik->activateUser($plano);
+        $plano->load(['cliente.mikrotikSite', 'template']);
+
+        $site = $plano->cliente?->mikrotikSite;
+        if (! $site) {
+            return response()->json(['ok' => false, 'error' => 'Cliente sem site MikroTik atribuído']);
+        }
+
+        $ok = MikroTikService::forSite($site)->activateUser($plano);
 
         return response()->json([
             'ok'                 => $ok,
@@ -53,22 +119,32 @@ class MikroTikAdminController extends Controller
     /** Suspender manualmente um plano no MikroTik. */
     public function suspendPlano(Plano $plano)
     {
-        $plano->load('cliente');
-        $ok = $this->mikrotik->suspendUser($plano);
+        $plano->load(['cliente.mikrotikSite']);
+        $site = $plano->cliente?->mikrotikSite;
 
+        if (! $site) {
+            return response()->json(['ok' => false, 'error' => 'Cliente sem site MikroTik atribuído']);
+        }
+
+        $ok = MikroTikService::forSite($site)->suspendUser($plano);
         return response()->json(['ok' => $ok]);
     }
 
     /** Remover utilizador do MikroTik. */
     public function removePlano(Plano $plano)
     {
-        $plano->load('cliente');
-        $ok = $this->mikrotik->removeUser($plano);
+        $plano->load(['cliente.mikrotikSite']);
+        $site = $plano->cliente?->mikrotikSite;
 
+        if (! $site) {
+            return response()->json(['ok' => false, 'error' => 'Cliente sem site MikroTik atribuído']);
+        }
+
+        $ok = MikroTikService::forSite($site)->removeUser($plano);
         return response()->json(['ok' => $ok]);
     }
 
-    /** Disparar sync completo (chama o artisan command em background). */
+    /** Disparar sync completo em background. */
     public function runSync()
     {
         \Artisan::queue('mikrotik:sync-plans');

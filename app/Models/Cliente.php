@@ -11,11 +11,17 @@ class Cliente extends Model
 {
     use HasFactory, Notifiable;
     protected $fillable = [
-        'bi', // número do bilhete de identidade
+        'mikrotik_site_id',
+        'bi',
         'nome',
         'email',
         'contato',
     ];
+    public function mikrotikSite()
+    {
+        return $this->belongsTo(MikroTikSite::class, 'mikrotik_site_id');
+    }
+
     public function planos()
     {
         return $this->hasMany(Plano::class);

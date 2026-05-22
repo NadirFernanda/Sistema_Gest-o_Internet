@@ -175,12 +175,17 @@ Route::middleware('auth')->group(function () {
     // MikroTik admin panel (Administrador only)
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador')
         ->prefix('mikrotik')->name('mikrotik.')->group(function () {
-            Route::get('/',                [\App\Http\Controllers\MikroTikAdminController::class, 'index'])->name('index');
-            Route::get('/test',            [\App\Http\Controllers\MikroTikAdminController::class, 'testConnection'])->name('test');
-            Route::post('/run-sync',       [\App\Http\Controllers\MikroTikAdminController::class, 'runSync'])->name('run-sync');
-            Route::post('/sync/{plano}',   [\App\Http\Controllers\MikroTikAdminController::class, 'syncPlano'])->name('sync');
-            Route::post('/suspend/{plano}',[\App\Http\Controllers\MikroTikAdminController::class, 'suspendPlano'])->name('suspend');
-            Route::post('/remove/{plano}', [\App\Http\Controllers\MikroTikAdminController::class, 'removePlano'])->name('remove');
+            Route::get('/',                        [\App\Http\Controllers\MikroTikAdminController::class, 'index'])->name('index');
+            Route::post('/run-sync',               [\App\Http\Controllers\MikroTikAdminController::class, 'runSync'])->name('run-sync');
+            Route::post('/sync/{plano}',           [\App\Http\Controllers\MikroTikAdminController::class, 'syncPlano'])->name('sync');
+            Route::post('/suspend/{plano}',        [\App\Http\Controllers\MikroTikAdminController::class, 'suspendPlano'])->name('suspend');
+            Route::post('/remove/{plano}',         [\App\Http\Controllers\MikroTikAdminController::class, 'removePlano'])->name('remove');
+            // Sites (RouterBoards)
+            Route::get('/sites/create',            [\App\Http\Controllers\MikroTikAdminController::class, 'createSite'])->name('sites.create');
+            Route::post('/sites',                  [\App\Http\Controllers\MikroTikAdminController::class, 'storeSite'])->name('sites.store');
+            Route::get('/sites/{site}/edit',       [\App\Http\Controllers\MikroTikAdminController::class, 'editSite'])->name('sites.edit');
+            Route::put('/sites/{site}',            [\App\Http\Controllers\MikroTikAdminController::class, 'updateSite'])->name('sites.update');
+            Route::get('/sites/{site}/test',       [\App\Http\Controllers\MikroTikAdminController::class, 'testSite'])->name('sites.test');
         });
 
     // Export routes removed per request

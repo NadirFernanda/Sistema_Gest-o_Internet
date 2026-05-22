@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
 use Carbon\Carbon;
@@ -12,40 +13,47 @@ class MikroTikExpirePlans extends Command
     protected $signature   = 'mikrotik:expire-plans';
     protected $description = 'Suspende no MikroTik os planos cuja proxima_renovacao já passou';
 
-    public function handle(MikroTikService $mikrotik): int
+    public function handle(): int
     {
-        if (! $mikrotik->isConfigured()) {
-            $this->warn('MikroTik não configurado. Defina MIKROTIK_HOST no .env');
+        $sites = MikroTikSite::where('active', true)->get();
+
+        if ($sites->isEmpty()) {
+            $this->warn('Sem sites MikroTik activos configurados.');
             return self::SUCCESS;
         }
 
-        // Plans that are past renewal date AND have a MikroTik username (were activated)
-        $expired = Plano::with('cliente')
-            ->whereNotNull('mikrotik_username')
-            ->where('proxima_renovacao', '<', Carbon::today())
-            ->whereNotIn('estado', ['Cancelado', 'Suspenso'])
-            ->get();
+        $totalOk   = 0;
+        $totalFail = 0;
 
-        if ($expired->isEmpty()) {
-            $this->info('Sem planos vencidos por suspender.');
-            return self::SUCCESS;
-        }
+        foreach ($sites as $site) {
+            $mikrotik = MikroTikService::forSite($site);
 
-        $this->info("A suspender {$expired->count()} plano(s) vencido(s)…");
+            $expired = Plano::with('cliente')
+                ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                ->whereNotNull('mikrotik_username')
+                ->where('proxima_renovacao', '<', Carbon::today())
+                ->whereNotIn('estado', ['Cancelado', 'Suspenso'])
+                ->get();
 
-        $ok = $failed = 0;
+            if ($expired->isEmpty()) {
+                $this->line("  [{$site->nome}] Sem planos vencidos por suspender.");
+                continue;
+            }
 
-        foreach ($expired as $plano) {
-            if ($mikrotik->suspendUser($plano)) {
-                $ok++;
-            } else {
-                $failed++;
-                $this->warn("  ✗ Plano #{$plano->id} — {$plano->cliente?->nome}");
+            $this->info("  [{$site->nome}] A suspender {$expired->count()} plano(s) vencido(s)…");
+
+            foreach ($expired as $plano) {
+                if ($mikrotik->suspendUser($plano)) {
+                    $totalOk++;
+                } else {
+                    $totalFail++;
+                    $this->warn("    ✗ Plano #{$plano->id} — {$plano->cliente?->nome}");
+                }
             }
         }
 
-        $this->info("Concluído — suspensos: $ok | Falhas: $failed");
+        $this->info("Concluído — suspensos: $totalOk | Falhas: $totalFail");
 
-        return $failed > 0 ? self::FAILURE : self::SUCCESS;
+        return $totalFail > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

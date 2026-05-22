@@ -3,18 +3,18 @@
 namespace App\Services;
 
 use App\Models\Cliente;
+use App\Models\MikroTikSite;
 use App\Models\Plano;
 use Illuminate\Support\Facades\Log;
 
 /**
  * High-level MikroTik HotSpot management service.
  *
- * All operations are best-effort: if MikroTik is unreachable,
- * a warning is logged and the payment/activation flow is not blocked.
- * The scheduler (mikrotik:sync-plans) will retry on the next run.
+ * Each instance is bound to one site (RouterBoard).
+ * Use MikroTikService::forSite($site) to get a configured instance.
  *
- * Username strategy: phone digits (e.g. "923456789") with optional prefix.
- * Profile mapping:   PlanTemplate.metadata['mikrotik_profile'] or MIKROTIK_DEFAULT_PROFILE.
+ * Username strategy: phone digits with optional prefix from site config.
+ * Profile mapping:   PlanTemplate.name (matches MikroTik profile name directly).
  */
 class MikroTikService
 {
@@ -27,16 +27,31 @@ class MikroTikService
     private string $userPrefix;
     private string $defaultProfile;
 
-    public function __construct()
+    public function __construct(?MikroTikSite $site = null)
     {
-        $this->host           = (string)  config('services.mikrotik.host',            '');
-        $this->port           = (int)     config('services.mikrotik.port',            8728);
-        $this->username       = (string)  config('services.mikrotik.username',        'admin');
-        $this->password       = (string)  config('services.mikrotik.password',        '');
-        $this->userPrefix     = (string)  config('services.mikrotik.user_prefix',     '');
-        $this->defaultProfile = (string)  config('services.mikrotik.default_profile', 'default');
+        if ($site) {
+            $this->host           = $site->host;
+            $this->port           = $site->port;
+            $this->username       = $site->username;
+            $this->password       = $site->password;
+            $this->userPrefix     = $site->user_prefix;
+            $this->defaultProfile = $site->default_profile;
+        } else {
+            // fallback para .env (sem site configurado na BD)
+            $this->host           = (string) config('services.mikrotik.host',            '');
+            $this->port           = (int)    config('services.mikrotik.port',            8728);
+            $this->username       = (string) config('services.mikrotik.username',        'admin');
+            $this->password       = (string) config('services.mikrotik.password',        '');
+            $this->userPrefix     = (string) config('services.mikrotik.user_prefix',     '');
+            $this->defaultProfile = (string) config('services.mikrotik.default_profile', 'default');
+        }
 
         $this->api = new MikroTikApiClient($this->host, $this->port);
+    }
+
+    public static function forSite(MikroTikSite $site): self
+    {
+        return new self($site);
     }
 
     public function isConfigured(): bool
@@ -76,7 +91,7 @@ class MikroTikService
                     'comment'  => $comment,
                 ]);
                 Log::info('MikroTik: utilizador actualizado', [
-                    'username' => $username, 'plano_id' => $plano->id,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             } else {
                 $this->api->command('/ip/hotspot/user/add', [
@@ -87,7 +102,7 @@ class MikroTikService
                     'comment'  => $comment,
                 ]);
                 Log::info('MikroTik: utilizador criado', [
-                    'username' => $username, 'plano_id' => $plano->id,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
 
@@ -98,8 +113,7 @@ class MikroTikService
             return true;
         } catch (\Throwable $e) {
             Log::error('MikroTik: activação falhada', [
-                'plano_id' => $plano->id,
-                'error'    => $e->getMessage(),
+                'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
         } finally {
@@ -126,7 +140,7 @@ class MikroTikService
                     'comment'  => ($existing['comment'] ?? '') . '|SUSPENSO',
                 ]);
                 Log::info('MikroTik: utilizador suspenso', [
-                    'username' => $username, 'plano_id' => $plano->id,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
 
@@ -136,7 +150,7 @@ class MikroTikService
             return true;
         } catch (\Throwable $e) {
             Log::error('MikroTik: suspensão falhada', [
-                'plano_id' => $plano->id, 'error' => $e->getMessage(),
+                'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
         } finally {
@@ -159,7 +173,7 @@ class MikroTikService
             if ($existing) {
                 $this->api->command('/ip/hotspot/user/remove', ['.id' => $existing['.id']]);
                 Log::info('MikroTik: utilizador removido', [
-                    'username' => $username, 'plano_id' => $plano->id,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
 
@@ -170,50 +184,9 @@ class MikroTikService
             return true;
         } catch (\Throwable $e) {
             Log::error('MikroTik: remoção falhada', [
-                'plano_id' => $plano->id, 'error' => $e->getMessage(),
+                'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
-        } finally {
-            $this->safeDisconnect();
-        }
-    }
-
-    /**
-     * Check if a user is currently online (active HotSpot session).
-     */
-    public function getUserStatus(string $username): ?array
-    {
-        if (! $this->isConfigured()) return null;
-
-        try {
-            $this->connect();
-            $active   = $this->api->command('/ip/hotspot/active/print', [], ['user' => $username]);
-            $sessions = array_filter($active, fn($r) => ($r['type'] ?? '') === '!re');
-            return ['online' => count($sessions) > 0, 'sessions' => count($sessions)];
-        } catch (\Throwable $e) {
-            Log::warning('MikroTik: getUserStatus falhado', [
-                'username' => $username, 'error' => $e->getMessage(),
-            ]);
-            return null;
-        } finally {
-            $this->safeDisconnect();
-        }
-    }
-
-    /**
-     * Return all HotSpot users from MikroTik (for admin panel).
-     */
-    public function listUsers(): array
-    {
-        if (! $this->isConfigured()) return [];
-
-        try {
-            $this->connect();
-            $result = $this->api->command('/ip/hotspot/user/print');
-            return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
-        } catch (\Throwable $e) {
-            Log::error('MikroTik: listUsers falhado', ['error' => $e->getMessage()]);
-            return [];
         } finally {
             $this->safeDisconnect();
         }
@@ -231,7 +204,7 @@ class MikroTikService
             $result = $this->api->command('/ip/hotspot/user/profile/print');
             return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
         } catch (\Throwable $e) {
-            Log::error('MikroTik: listProfiles falhado', ['error' => $e->getMessage()]);
+            Log::error('MikroTik: listProfiles falhado', ['host' => $this->host, 'error' => $e->getMessage()]);
             return [];
         } finally {
             $this->safeDisconnect();
@@ -244,7 +217,7 @@ class MikroTikService
     public function testConnection(): array
     {
         if (! $this->isConfigured()) {
-            return ['ok' => false, 'error' => 'MIKROTIK_HOST não definido no .env'];
+            return ['ok' => false, 'error' => 'Host não definido'];
         }
 
         try {
@@ -258,7 +231,7 @@ class MikroTikService
             }
             return ['ok' => true, 'identity' => $identity, 'host' => $this->host];
         } catch (\Throwable $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
+            return ['ok' => false, 'error' => $e->getMessage(), 'host' => $this->host];
         } finally {
             $this->safeDisconnect();
         }
@@ -273,18 +246,14 @@ class MikroTikService
 
     private function safeDisconnect(): void
     {
-        try {
-            $this->api->disconnect();
-        } catch (\Throwable) {}
+        try { $this->api->disconnect(); } catch (\Throwable) {}
     }
 
     private function findUser(string $username): ?array
     {
         $result = $this->api->command('/ip/hotspot/user/print', [], ['name' => $username]);
         foreach ($result as $r) {
-            if (($r['type'] ?? '') === '!re') {
-                return $r;
-            }
+            if (($r['type'] ?? '') === '!re') return $r;
         }
         return null;
     }
@@ -302,16 +271,13 @@ class MikroTikService
     private function buildPassword(Cliente $cliente): string
     {
         $phone = preg_replace('/\D/', '', $cliente->contato ?? '');
-        // Default password = phone number; if unavailable, derive from client ID
         return $phone !== '' ? $phone : substr(md5($cliente->id . $cliente->nome), 0, 8);
     }
 
     private function resolveProfile(Plano $plano): string
     {
-        $template = $plano->template;
-        if ($template && ! empty($template->metadata['mikrotik_profile'])) {
-            return $template->metadata['mikrotik_profile'];
-        }
-        return $this->defaultProfile;
+        // Profile name = PlanTemplate name (must match exactly in MikroTik)
+        $templateName = $plano->template?->name ?? '';
+        return $templateName !== '' ? $templateName : $this->defaultProfile;
     }
 }

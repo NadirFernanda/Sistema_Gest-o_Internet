@@ -154,7 +154,11 @@ class AutovendaJanelaController extends Controller
 
             // Sync renewed plan to MikroTik (best-effort, does not block response)
             try {
-                app(MikroTikService::class)->activateUser($plano->fresh(['cliente', 'template']));
+                $freshPlano = $plano->fresh(['cliente.mikrotikSite', 'template']);
+                $site = $freshPlano->cliente?->mikrotikSite;
+                if ($site) {
+                    MikroTikService::forSite($site)->activateUser($freshPlano);
+                }
             } catch (\Throwable $e) {
                 \Log::warning('MikroTik: sync pós-renovação falhado', ['plano_id' => $plano->id, 'error' => $e->getMessage()]);
             }
@@ -192,7 +196,11 @@ class AutovendaJanelaController extends Controller
 
         // Activate new plan on MikroTik (best-effort, does not block response)
         try {
-            app(MikroTikService::class)->activateUser($plano->load(['cliente', 'template']));
+            $plano->load(['cliente.mikrotikSite', 'template']);
+            $site = $plano->cliente?->mikrotikSite;
+            if ($site) {
+                MikroTikService::forSite($site)->activateUser($plano);
+            }
         } catch (\Throwable $e) {
             \Log::warning('MikroTik: activação pós-criação falhada', ['plano_id' => $plano->id, 'error' => $e->getMessage()]);
         }
