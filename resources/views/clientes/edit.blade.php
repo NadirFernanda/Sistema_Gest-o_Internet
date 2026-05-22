@@ -34,20 +34,25 @@
                 @error('contato') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            @if($sites->isNotEmpty())
             <div style="grid-column:1/-1;">
                 <label for="editSite"><strong>Site MikroTik</strong></label>
-                <select id="editSite" name="mikrotik_site_id" class="form-control" style="margin-top:4px;">
-                    <option value="">— Sem site atribuído —</option>
-                    @foreach($sites as $siteId => $siteNome)
-                        <option value="{{ $siteId }}" {{ old('mikrotik_site_id', $cliente->mikrotik_site_id) == $siteId ? 'selected' : '' }}>
-                            {{ $siteNome }}
-                        </option>
-                    @endforeach
-                </select>
+                @if($sites->isNotEmpty())
+                    <select id="editSite" name="mikrotik_site_id" class="form-control" style="margin-top:4px;">
+                        <option value="">— Sem site atribuído —</option>
+                        @foreach($sites as $siteId => $siteNome)
+                            <option value="{{ $siteId }}" {{ old('mikrotik_site_id', $cliente->mikrotik_site_id) == $siteId ? 'selected' : '' }}>
+                                {{ $siteNome }}
+                            </option>
+                        @endforeach
+                    </select>
+                @else
+                    <div style="margin-top:6px;padding:10px 14px;background:#fffbe7;border:1px solid #f7b500;border-radius:8px;font-size:0.9rem;color:#7a5c00;">
+                        Nenhum site MikroTik configurado.
+                        <a href="{{ route('mikrotik.index') }}" target="_blank" style="font-weight:600;color:#7a5c00;">Criar site em /mikrotik</a>
+                    </div>
+                @endif
                 @error('mikrotik_site_id') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
-            @endif
         </div>
 
         <div style="margin-top:16px;display:flex;gap:8px;align-items:center;">
