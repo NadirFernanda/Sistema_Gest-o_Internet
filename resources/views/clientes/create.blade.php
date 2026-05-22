@@ -129,7 +129,7 @@
                     </svg>
                     Cadastrar Cliente
                 </button>
-                <a href="{{ route('clientes') }}" class="btn-secondary btn-ghost">Cancelar</a>
+                <a href="{{ route('clientes') }}" class="btn btn-ghost">Cancelar</a>
             </div>
         </form>
     </div>
