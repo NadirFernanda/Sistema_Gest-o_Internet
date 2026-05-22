@@ -25,6 +25,12 @@
             @csrf
             @if($site->exists) @method('PUT') @endif
 
+            @if(session('success'))
+            <div style="background:#eafaf1;border-left:4px solid #3bb273;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:0.9rem;color:#1e7e50;">
+                ✓ {{ session('success') }}
+            </div>
+            @endif
+
             @if($errors->any())
             <div style="background:#fdecea;border-left:4px solid #e05a4f;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:0.9rem;color:#c0392b;">
                 @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach

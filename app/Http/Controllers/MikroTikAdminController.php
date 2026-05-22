@@ -54,7 +54,7 @@ class MikroTikAdminController extends Controller
 
         MikroTikSite::create($data);
 
-        return redirect()->route('mikrotik.index')->with('success', 'Site criado com sucesso.');
+        return redirect()->route('mikrotik.sites.create')->with('success', "Site \"{$data['nome']}\" criado. Pode criar o próximo.");
     }
 
     /** Formulário de edição de site. */
@@ -88,7 +88,7 @@ class MikroTikAdminController extends Controller
 
         $site->update($data);
 
-        return redirect()->route('mikrotik.index')->with('success', 'Site actualizado.');
+        return redirect()->route('mikrotik.sites.edit', $site)->with('success', 'Alterações guardadas.');
     }
 
     /** Testar ligação a um site (AJAX). */
