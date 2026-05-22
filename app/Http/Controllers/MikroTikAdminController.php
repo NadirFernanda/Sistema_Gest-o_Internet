@@ -6,6 +6,7 @@ use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class MikroTikAdminController extends Controller
 {
@@ -148,8 +149,8 @@ class MikroTikAdminController extends Controller
     public function runSync()
     {
         try {
-            \Artisan::call('mikrotik:sync-plans');
-            $output = trim(\Artisan::output());
+            Artisan::call('mikrotik:sync-plans');
+            $output = trim(Artisan::output());
             return response()->json(['ok' => true, 'message' => $output ?: 'Sync concluído.']);
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 500);
