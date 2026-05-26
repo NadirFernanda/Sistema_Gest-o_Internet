@@ -128,6 +128,12 @@ class MikroTikAdminController extends Controller
         }
 
         $ok = MikroTikService::forSite($site)->suspendUser($plano);
+
+        if ($ok) {
+            $plano->estado = 'Suspenso';
+            $plano->saveQuietly();
+        }
+
         return response()->json(['ok' => $ok]);
     }
 

@@ -28,6 +28,7 @@ class MikroTikExpirePlans extends Command
         foreach ($sites as $site) {
             $mikrotik = MikroTikService::forSite($site);
 
+            // Planos vencidos que ainda não foram suspensos
             $expired = Plano::with('cliente')
                 ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
                 ->whereNotNull('mikrotik_username')
@@ -35,15 +36,30 @@ class MikroTikExpirePlans extends Command
                 ->whereNotIn('estado', ['Cancelado', 'Suspenso'])
                 ->get();
 
-            if ($expired->isEmpty()) {
-                $this->line("  [{$site->nome}] Sem planos vencidos por suspender.");
+            // Planos já marcados como Suspenso na BD mas ainda não sincronizados ao MikroTik
+            $pendingSuspend = Plano::with('cliente')
+                ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                ->whereNotNull('mikrotik_username')
+                ->where('estado', 'Suspenso')
+                ->where(function ($q) {
+                    $q->whereNull('mikrotik_synced_at')
+                      ->orWhereColumn('mikrotik_synced_at', '<', 'updated_at');
+                })
+                ->get();
+
+            $toSuspend = $expired->merge($pendingSuspend)->unique('id');
+
+            if ($toSuspend->isEmpty()) {
+                $this->line("  [{$site->nome}] Sem planos por suspender.");
                 continue;
             }
 
-            $this->info("  [{$site->nome}] A suspender {$expired->count()} plano(s) vencido(s)…");
+            $this->info("  [{$site->nome}] A suspender {$toSuspend->count()} plano(s)…");
 
-            foreach ($expired as $plano) {
+            foreach ($toSuspend as $plano) {
                 if ($mikrotik->suspendUser($plano)) {
+                    $plano->estado = 'Suspenso';
+                    $plano->saveQuietly();
                     $totalOk++;
                 } else {
                     $totalFail++;
