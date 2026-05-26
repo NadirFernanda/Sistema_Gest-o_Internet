@@ -183,7 +183,17 @@ function suspendPlano(id, btn) {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
-    .then(d => { btn.textContent = d.ok ? '✓' : '✗'; setTimeout(() => { btn.disabled = false; btn.textContent = '⏸'; }, 2000); });
+    .then(d => {
+        if (d.ok) {
+            var row = document.getElementById('row-' + id);
+            if (row) {
+                var estadoCell = row.cells[4];
+                estadoCell.innerHTML = '<span style="color:#e05a4f;font-weight:700;">Suspenso</span>';
+            }
+        }
+        btn.textContent = d.ok ? '✓' : '✗';
+        setTimeout(() => { btn.disabled = false; btn.textContent = '⏸'; }, 2000);
+    });
 }
 
 function removePlano(id, btn) {
