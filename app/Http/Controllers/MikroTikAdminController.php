@@ -18,13 +18,7 @@ class MikroTikAdminController extends Controller
         $planosSync = Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
             ->select('planos.*')
-            ->where(function ($q) {
-                $q->whereNotNull('planos.mikrotik_username')
-                  ->orWhere(function ($q2) {
-                      $q2->where('planos.estado', 'Suspenso')
-                         ->whereHas('cliente', fn($q3) => $q3->whereNotNull('mikrotik_site_id'));
-                  });
-            })
+            ->whereNotNull('planos.mikrotik_username')
             ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
             ->paginate(30);
 
