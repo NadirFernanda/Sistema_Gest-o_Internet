@@ -3,86 +3,73 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <style>
-        .mkt-page { max-width: 1200px; margin: 0 auto; padding: 0 16px 40px; }
-
-        /* ── Toolbar ── */
-        .mkt-toolbar {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-            margin: 18px 0 0;
-        }
-        .mkt-toolbar .spacer { flex: 1; }
-
         /* ── Site cards ── */
-        .mkt-sites { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
-        .mkt-site-card {
-            flex: 1 1 300px; background: #fff; border-radius: 12px;
-            padding: 18px 22px; box-shadow: 0 4px 18px rgba(0,0,0,0.07);
-            border-left: 6px solid #3bb273; transition: box-shadow .2s;
+        .mkt-sites { display:flex; gap:14px; flex-wrap:wrap; max-width:1100px; margin:20px auto 0; }
+        .mkt-card {
+            flex:1 1 280px; background:#fff; border-radius:12px;
+            padding:18px 20px; box-shadow:0 2px 12px rgba(0,0,0,0.07);
+            border-top:4px solid #f5a623; position:relative; transition:box-shadow .2s;
         }
-        .mkt-site-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
-        .mkt-site-card.inactive { border-left-color: #b0b8c1; }
-        .mkt-site-card__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-        .mkt-site-card__name { font-weight: 700; font-size: 1rem; color: #222; }
-        .mkt-site-card__loc { font-size: 0.82rem; color: #888; margin-top: 3px; }
-        .mkt-site-card__meta { margin-top: 8px; font-size: 0.85rem; color: #555; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .mkt-site-card__badge {
-            display: inline-block; padding: 2px 9px; border-radius: 20px;
-            font-size: 0.78rem; font-weight: 600;
-        }
-        .badge-active   { background: #e8f7ef; color: #2a8a55; }
-        .badge-inactive { background: #f0f0f0; color: #999; }
-        .mkt-site-card__actions { display: flex; gap: 6px; flex-shrink: 0; margin-top: 2px; }
-        .mkt-test-result { margin-top: 8px; font-size: 0.82rem; }
+        .mkt-card:hover { box-shadow:0 6px 22px rgba(0,0,0,0.11); }
+        .mkt-card.inactive { border-top-color:#b0b8c1; opacity:.8; }
+        .mkt-card__name  { font-weight:800; font-size:1rem; color:#222; }
+        .mkt-card__loc   { font-size:0.81rem; color:#999; margin-top:3px; }
+        .mkt-card__meta  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
+        .mkt-card__ip    { background:#f4f6f9; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-family:monospace; color:#555; }
+        .mkt-card__count { font-size:0.83rem; color:#666; }
+        .mkt-card__status { font-size:0.75rem; font-weight:700; padding:2px 9px; border-radius:20px; }
+        .status-on  { background:#e8f7ef; color:#2a8a55; }
+        .status-off { background:#f0f0f0; color:#999; }
+        .mkt-card__btns  { display:flex; gap:6px; margin-top:12px; }
+        .mkt-test-result { margin-top:8px; font-size:0.81rem; min-height:18px; }
 
-        /* ── Section header ── */
-        .mkt-section-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin: 28px 0 12px;
+        /* ── Section ── */
+        .mkt-section { max-width:1100px; margin:24px auto 0; }
+        .mkt-section-head {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:12px;
         }
-        .mkt-section-header h3 { font-size: 1rem; font-weight: 700; margin: 0; color: #222; }
-        .mkt-total-badge {
-            font-size: 0.82rem; color: #666; background: #f0f4f8;
-            padding: 3px 10px; border-radius: 20px;
-        }
+        .mkt-section-head h3 { font-size:1rem; font-weight:700; color:#222; margin:0; }
+        .mkt-count-pill { background:#f4f6f9; color:#666; font-size:0.8rem; padding:3px 11px; border-radius:20px; }
 
         /* ── Table ── */
-        .mkt-table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.07); overflow-x: auto; }
-        .mkt-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .mkt-table thead tr { background: #f7f9fb; border-bottom: 2px solid #e8ecf0; }
+        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.07); overflow:hidden; }
+        .mkt-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+        .mkt-table thead { background:#f7f9fb; }
         .mkt-table th {
-            padding: 11px 14px; text-align: left; font-size: 0.78rem;
-            font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+            padding:10px 14px; text-align:left; font-size:0.75rem; font-weight:700;
+            color:#999; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+            border-bottom:2px solid #edf0f4;
         }
-        .mkt-table td { padding: 11px 14px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
-        .mkt-table tbody tr:last-child td { border-bottom: none; }
-        .mkt-table tbody tr:hover { background: #fafbfd; }
-        .mkt-table .col-num  { width: 44px; text-align: center; color: #aaa; font-size: 0.82rem; }
-        .mkt-table .col-name { min-width: 180px; font-weight: 600; color: #222; }
-        .mkt-table .col-site { min-width: 140px; font-size: 0.83rem; color: #666; }
-        .mkt-table .col-plan { min-width: 150px; font-size: 0.85rem; color: #444; }
-        .mkt-table .col-user { font-size: 0.83rem; }
-        .mkt-table .col-actions { white-space: nowrap; }
+        .mkt-table td { padding:11px 14px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
+        .mkt-table tbody tr:last-child td { border-bottom:none; }
+        .mkt-table tbody tr:hover { background:#fafbfd; }
+
+        .col-n   { width:40px; text-align:center; }
+        .col-n td, .col-n th { color:#bbb; font-size:0.8rem; }
+        .col-name { min-width:170px; font-weight:600; color:#222; }
+        .col-site { min-width:130px; color:#777; font-size:0.84rem; }
+        .col-plan { min-width:140px; color:#555; }
+        .col-user code { background:#f4f6f9; padding:2px 7px; border-radius:5px; font-size:0.82rem; color:#555; }
+        .col-renov { font-size:0.84rem; color:#555; }
+        .col-sync  { font-size:0.81rem; color:#aaa; }
+        .col-acts  { white-space:nowrap; }
 
         /* ── Estado badges ── */
-        .estado-badge {
-            display: inline-block; padding: 3px 10px; border-radius: 20px;
-            font-size: 0.78rem; font-weight: 700;
-        }
-        .estado-ativo     { background: #e8f7ef; color: #2a8a55; }
-        .estado-suspenso  { background: #fdecea; color: #c0392b; }
-        .estado-emaviso   { background: #fef9e7; color: #b7770d; }
-        .estado-outro     { background: #f0f0f0; color: #777; }
+        .ebadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
+        .eb-ativo    { background:#e8f7ef; color:#2a8a55; }
+        .eb-suspenso { background:#fdecea; color:#c0392b; }
+        .eb-aviso    { background:#fef9e7; color:#b7770d; }
+        .eb-outro    { background:#f0f0f0; color:#888; }
 
         /* ── Action buttons ── */
-        .btn-act {
-            width: 32px; height: 32px; border-radius: 7px; border: none;
-            cursor: pointer; font-size: 0.95rem; display: inline-flex;
-            align-items: center; justify-content: center; transition: opacity .15s;
-        }
-        .btn-act:hover { opacity: .75; }
-        .btn-act-sync    { background: #4a90d9; color: #fff; }
-        .btn-act-suspend { background: #fff; border: 1px solid #e05a4f !important; color: #e05a4f; }
-        .btn-act-remove  { background: #f3f3f3; border: 1px solid #ddd !important; color: #666; }
+        .abtn { width:31px; height:31px; border-radius:7px; border:none; cursor:pointer; font-size:0.9rem; display:inline-flex; align-items:center; justify-content:center; transition:opacity .15s; }
+        .abtn:hover { opacity:.72; }
+        .abtn-sync    { background:#4a90d9; color:#fff; }
+        .abtn-suspend { background:#fff5f5; border:1px solid #e05a4f !important; color:#e05a4f; }
+        .abtn-remove  { background:#f5f5f5; border:1px solid #ddd !important; color:#888; }
+
+        .empty-row td { text-align:center; color:#bbb; padding:36px; font-size:0.9rem; }
     </style>
 @endpush
 
@@ -94,119 +81,114 @@
         'subtitle' => 'Gestão de sites e utilizadores HotSpot',
     ])
 
-    {{-- ── Toolbar padrão ── --}}
-    <div class="clientes-toolbar" style="max-width:1200px;margin:18px auto 0;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
-        <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
-
-        <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;"
-            title="Percorre todos os sites e actualiza/cria utilizadores HotSpot para planos activos ainda não sincronizados">
-            ▶ Sync todos agora
-        </button>
-
-        <span style="font-size:0.88rem;color:#888;white-space:nowrap;">
-            {{ $planosPending }} por sincronizar
-        </span>
-
-        <div id="syncResult" style="font-size:0.88rem;color:#555;flex:1;"></div>
-
-        <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em PDF">
-            ⬇ Exportar PDF
-        </a>
-
-        <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
+    {{-- ── Toolbar — mesmo padrão que /planos ── --}}
+    <div class="alertas-toolbar" style="flex-wrap:nowrap; gap:8px; max-width:1100px;">
+        <div class="alertas-toolbar-left" style="flex:1; display:flex; flex-wrap:nowrap; gap:8px; align-items:center; min-width:0;">
+            <span style="font-size:0.88rem; color:#888; white-space:nowrap;">
+                {{ $planosPending }} por sincronizar
+            </span>
+            <div id="syncResult" style="font-size:0.86rem; color:#555;"></div>
+        </div>
+        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
+            <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;"
+                title="Sincroniza utilizadores HotSpot para planos activos ainda não sincronizados">
+                ▶ Sync agora
+            </button>
+            <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
+            <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
+        </div>
     </div>
 
-    <div class="mkt-page">
-
-        {{-- ── Sites / RouterBoards ── --}}
-        <div class="mkt-sites">
-            @forelse($sites as $site)
-            <div class="mkt-site-card {{ $site->active ? '' : 'inactive' }}" style="border-left-color: {{ $site->active ? '#3bb273' : '#b0b8c1' }}">
-                <div class="mkt-site-card__header">
-                    <div>
-                        <div class="mkt-site-card__name">{{ $site->nome }}</div>
-                        @if($site->localizacao)
-                            <div class="mkt-site-card__loc">{{ $site->localizacao }}</div>
-                        @endif
-                        <div class="mkt-site-card__meta">
-                            <code style="background:#f0f4f8;padding:2px 7px;border-radius:5px;font-size:0.82rem;">{{ $site->host }}:{{ $site->port }}</code>
-                            <span>·</span>
-                            <span><strong>{{ $site->clientes_count }}</strong> cliente(s)</span>
-                            <span class="mkt-site-card__badge {{ $site->active ? 'badge-active' : 'badge-inactive' }}">
-                                {{ $site->active ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mkt-site-card__actions">
-                        <button onclick="testSite({{ $site->id }}, this)" class="btn btn-ghost" style="height:30px;font-size:0.8rem;padding:0 12px;">Testar</button>
-                        <a href="{{ route('mikrotik.sites.edit', $site) }}" class="btn btn-ghost" style="height:30px;font-size:0.8rem;padding:0 12px;display:inline-flex;align-items:center;">Editar</a>
+    {{-- ── Cards dos sites ── --}}
+    <div class="mkt-sites">
+        @forelse($sites as $site)
+        <div class="mkt-card {{ $site->active ? '' : 'inactive' }}" style="border-top-color:{{ $site->active ? '#f5a623' : '#b0b8c1' }}">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                <div style="min-width:0;">
+                    <div class="mkt-card__name">{{ $site->nome }}</div>
+                    @if($site->localizacao)
+                        <div class="mkt-card__loc">{{ $site->localizacao }}</div>
+                    @endif
+                    <div class="mkt-card__meta">
+                        <span class="mkt-card__ip">{{ $site->host }}:{{ $site->port }}</span>
+                        <span class="mkt-card__count">{{ $site->clientes_count }} cliente(s)</span>
+                        <span class="mkt-card__status {{ $site->active ? 'status-on' : 'status-off' }}">
+                            {{ $site->active ? 'Activo' : 'Inactivo' }}
+                        </span>
                     </div>
                 </div>
-                <div id="test-result-{{ $site->id }}" class="mkt-test-result"></div>
             </div>
-            @empty
-            <div style="flex:1;background:#fff;border-radius:12px;padding:28px;text-align:center;color:#888;box-shadow:0 4px 14px rgba(0,0,0,0.06);">
-                Nenhum site configurado. <a href="{{ route('mikrotik.sites.create') }}">Adicionar o primeiro site</a>.
+            <div class="mkt-card__btns">
+                <button onclick="testSite({{ $site->id }}, this)" class="btn btn-ghost" style="height:30px; font-size:0.8rem; padding:0 12px;">Testar</button>
+                <a href="{{ route('mikrotik.sites.edit', $site) }}" class="btn btn-ghost" style="height:30px; font-size:0.8rem; padding:0 12px; display:inline-flex; align-items:center;">Editar</a>
             </div>
-            @endforelse
+            <div id="test-result-{{ $site->id }}" class="mkt-test-result"></div>
         </div>
+        @empty
+        <div style="flex:1; background:#fff; border-radius:12px; padding:28px; text-align:center; color:#aaa; box-shadow:0 2px 12px rgba(0,0,0,0.07);">
+            Nenhum site configurado. <a href="{{ route('mikrotik.sites.create') }}">Adicionar o primeiro site</a>.
+        </div>
+        @endforelse
+    </div>
 
-        {{-- ── Tabela de planos ── --}}
-        <div class="mkt-section-header">
+    {{-- ── Tabela de planos ── --}}
+    <div class="mkt-section">
+        <div class="mkt-section-head">
             <h3>Planos com utilizador MikroTik</h3>
-            <span class="mkt-total-badge">{{ $planosSync->total() }} registos</span>
+            <span class="mkt-count-pill">{{ $planosSync->total() }} registos</span>
         </div>
 
-        <div class="mkt-table-wrap">
+        <div class="mkt-table-card">
             <table class="mkt-table">
                 <thead>
                     <tr>
-                        <th class="col-num">#</th>
+                        <th class="col-n">#</th>
                         <th class="col-name">Cliente</th>
                         <th class="col-site">Site</th>
                         <th class="col-plan">Plano</th>
-                        <th class="col-user">Username MikroTik</th>
+                        <th>Username MikroTik</th>
                         <th>Estado</th>
-                        <th>Renovação</th>
-                        <th>Última sync</th>
-                        <th class="col-actions">Acções</th>
+                        <th class="col-renov">Renovação</th>
+                        <th class="col-sync">Última sync</th>
+                        <th class="col-acts">Acções</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($planosSync as $i => $plano)
                     @php
-                        $estadoClass = match($plano->estado) {
-                            'Ativo'     => 'estado-ativo',
-                            'Em aviso'  => 'estado-emaviso',
-                            'Suspenso'  => 'estado-suspenso',
-                            default     => 'estado-outro',
+                        $ec = match($plano->estado) {
+                            'Ativo'    => 'eb-ativo',
+                            'Em aviso' => 'eb-aviso',
+                            'Suspenso' => 'eb-suspenso',
+                            default    => 'eb-outro',
                         };
                     @endphp
                     <tr id="row-{{ $plano->id }}">
-                        <td class="col-num">{{ $planosSync->firstItem() + $i }}</td>
+                        <td class="col-n">{{ $planosSync->firstItem() + $i }}</td>
                         <td class="col-name">{{ $plano->cliente?->nome ?? '—' }}</td>
                         <td class="col-site">{{ $plano->cliente?->mikrotikSite?->nome ?? '—' }}</td>
                         <td class="col-plan">{{ $plano->nome }}</td>
-                        <td class="col-user"><code style="background:#f0f4f8;padding:2px 6px;border-radius:4px;">{{ $plano->mikrotik_username }}</code></td>
-                        <td><span class="estado-badge {{ $estadoClass }}">{{ $plano->estado }}</span></td>
-                        <td style="font-size:0.88rem;color:#555;">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
-                        <td style="font-size:0.83rem;color:#888;">{{ $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—' }}</td>
-                        <td class="col-actions">
-                            <button onclick="syncPlano({{ $plano->id }}, this)" class="btn-act btn-act-sync" title="Sincronizar">↻</button>
-                            <button onclick="suspendPlano({{ $plano->id }}, this)" class="btn-act btn-act-suspend" title="Suspender">⏸</button>
-                            <button onclick="removePlano({{ $plano->id }}, this)" class="btn-act btn-act-remove" title="Remover do MikroTik">✕</button>
+                        <td class="col-user"><code>{{ $plano->mikrotik_username }}</code></td>
+                        <td><span class="ebadge {{ $ec }}">{{ $plano->estado }}</span></td>
+                        <td class="col-renov">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
+                        <td class="col-sync">{{ $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                        <td class="col-acts">
+                            <button onclick="syncPlano({{ $plano->id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
+                            <button onclick="suspendPlano({{ $plano->id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
+                            <button onclick="removePlano({{ $plano->id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="9" style="text-align:center;color:#aaa;padding:32px;">Nenhum plano sincronizado ainda.</td></tr>
+                    <tr class="empty-row"><td colspan="9">Nenhum plano sincronizado ainda.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
         <div style="margin-top:16px;">{{ $planosSync->links() }}</div>
+    </div>
 
-    </div>{{-- /mkt-page --}}
 </div>
 
 @push('scripts')
@@ -214,22 +196,20 @@
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
 function testSite(id, btn) {
-    var el = document.getElementById('test-result-' + id);
+    const el = document.getElementById('test-result-' + id);
     btn.disabled = true; btn.textContent = '…';
-    fetch('{{ url("mikrotik/sites") }}/' + id + '/test', {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
-        el.textContent = d.ok ? '✓ Ligado — ' + (d.identity || '') : '✗ ' + (d.error || 'Erro');
-        el.style.color = d.ok ? '#3bb273' : '#e05a4f';
-        btn.disabled = false; btn.textContent = 'Testar';
-    })
-    .catch(() => { el.textContent = '✗ Falha de rede'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = 'Testar'; });
+    fetch('{{ url("mikrotik/sites") }}/' + id + '/test', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(d => {
+            el.textContent = d.ok ? '✓ Ligado — ' + (d.identity || '') : '✗ ' + (d.error || 'Erro');
+            el.style.color = d.ok ? '#2a8a55' : '#e05a4f';
+            btn.disabled = false; btn.textContent = 'Testar';
+        })
+        .catch(() => { el.textContent = '✗ Falha de rede'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = 'Testar'; });
 }
 
 function runSync(btn) {
-    var el = document.getElementById('syncResult');
+    const el = document.getElementById('syncResult');
     btn.disabled = true; btn.textContent = 'A sincronizar…'; el.textContent = '';
     fetch('{{ route('mikrotik.run-sync') }}', {
         method: 'POST',
@@ -238,10 +218,10 @@ function runSync(btn) {
     .then(r => r.json())
     .then(d => {
         el.textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
-        el.style.color = d.ok ? '#3bb273' : '#e05a4f';
-        btn.disabled = false; btn.textContent = '▶ Sync todos agora';
+        el.style.color = d.ok ? '#2a8a55' : '#e05a4f';
+        btn.disabled = false; btn.textContent = '▶ Sync agora';
     })
-    .catch(() => { el.textContent = 'Falha de rede.'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = '▶ Sync todos agora'; });
+    .catch(() => { el.textContent = 'Falha de rede.'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = '▶ Sync agora'; });
 }
 
 function syncPlano(id, btn) {
@@ -254,7 +234,7 @@ function syncPlano(id, btn) {
     .then(d => {
         btn.textContent = d.ok ? '✓' : '✗';
         if (d.ok && d.mikrotik_synced_at) {
-            var row = document.getElementById('row-' + id);
+            const row = document.getElementById('row-' + id);
             if (row) row.cells[7].textContent = d.mikrotik_synced_at;
         }
         setTimeout(() => { btn.disabled = false; btn.textContent = '↻'; }, 2000);
@@ -271,8 +251,8 @@ function suspendPlano(id, btn) {
     .then(r => r.json())
     .then(d => {
         if (d.ok) {
-            var row = document.getElementById('row-' + id);
-            if (row) row.cells[5].innerHTML = '<span class="estado-badge estado-suspenso">Suspenso</span>';
+            const row = document.getElementById('row-' + id);
+            if (row) row.cells[5].innerHTML = '<span class="ebadge eb-suspenso">Suspenso</span>';
         }
         btn.textContent = d.ok ? '✓' : '✗';
         setTimeout(() => { btn.disabled = false; btn.textContent = '⏸'; }, 2000);
