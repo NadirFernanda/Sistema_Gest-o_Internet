@@ -94,31 +94,29 @@
         'subtitle' => 'Gestão de sites e utilizadores HotSpot',
     ])
 
+    {{-- ── Toolbar padrão ── --}}
+    <div class="clientes-toolbar" style="max-width:1200px;margin:18px auto 0;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
+        <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
+
+        <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;"
+            title="Percorre todos os sites e actualiza/cria utilizadores HotSpot para planos activos ainda não sincronizados">
+            ▶ Sync todos agora
+        </button>
+
+        <span style="font-size:0.88rem;color:#888;white-space:nowrap;">
+            {{ $planosPending }} por sincronizar
+        </span>
+
+        <div id="syncResult" style="font-size:0.88rem;color:#555;flex:1;"></div>
+
+        <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar tabela em CSV">
+            ⬇ Exportar CSV
+        </a>
+
+        <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
+    </div>
+
     <div class="mkt-page">
-
-        {{-- ── Toolbar ── --}}
-        <div class="mkt-toolbar">
-            <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
-
-            <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;"
-                title="Percorre todos os sites e actualiza/cria utilizadores HotSpot para planos activos ainda não sincronizados">
-                ▶ Sync todos agora
-            </button>
-
-            <span style="font-size:0.88rem;color:#888;white-space:nowrap;">
-                {{ $planosPending }} por sincronizar
-            </span>
-
-            <div id="syncResult" style="font-size:0.88rem;color:#555;"></div>
-
-            <div class="spacer"></div>
-
-            <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar tabela em CSV">
-                ⬇ Exportar CSV
-            </a>
-
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
-        </div>
 
         {{-- ── Sites / RouterBoards ── --}}
         <div class="mkt-sites">
