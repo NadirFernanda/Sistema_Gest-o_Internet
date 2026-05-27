@@ -246,6 +246,9 @@ const csrfToken  = document.querySelector('meta[name="csrf-token"]')?.content ||
 const siteRoutes = @json($siteRoutes);
 let currentSiteId = {{ $selectedSiteId ? (int)$selectedSiteId : 'null' }};
 
+// Limpar o site_id do URL após carregar — refresh volta ao estado limpo
+if (currentSiteId) history.replaceState(null, '', window.location.pathname);
+
 /* ── Dropdown pesquisável ── */
 const picker   = document.getElementById('sitePicker');
 const input    = document.getElementById('sitePickerInput');
