@@ -3,37 +3,67 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <style>
-        /* ── Site cards ── */
-        .mkt-sites { display:flex; gap:14px; flex-wrap:wrap; max-width:1100px; margin:20px auto 0; }
-        .mkt-card {
-            flex:1 1 280px; background:#fff; border-radius:12px;
-            padding:18px 20px; box-shadow:0 2px 12px rgba(0,0,0,0.07);
-            border-top:4px solid #f5a623; position:relative; transition:box-shadow .2s;
+        /* ── Searchable dropdown ── */
+        .site-picker { position:relative; min-width:260px; max-width:340px; }
+        .site-picker__input {
+            width:100%; height:40px; padding:0 36px 0 12px;
+            border:1px solid #dde3ec; border-radius:8px;
+            font-size:0.93rem; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+            cursor:pointer; appearance:none; color:#333;
         }
-        .mkt-card:hover { box-shadow:0 6px 22px rgba(0,0,0,0.11); }
-        .mkt-card.inactive { border-top-color:#b0b8c1; opacity:.8; }
-        .mkt-card__name  { font-weight:800; font-size:1rem; color:#222; }
-        .mkt-card__loc   { font-size:0.81rem; color:#999; margin-top:3px; }
-        .mkt-card__meta  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
-        .mkt-card__ip    { background:#f4f6f9; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-family:monospace; color:#555; }
-        .mkt-card__count { font-size:0.83rem; color:#666; }
-        .mkt-card__status { font-size:0.75rem; font-weight:700; padding:2px 9px; border-radius:20px; }
-        .status-on  { background:#e8f7ef; color:#2a8a55; }
-        .status-off { background:#f0f0f0; color:#999; }
-        .mkt-card__btns  { display:flex; gap:6px; margin-top:12px; }
-        .mkt-test-result { margin-top:8px; font-size:0.81rem; min-height:18px; }
+        .site-picker__input:focus { outline:none; border-color:#f5a623; box-shadow:0 0 0 3px rgba(245,166,35,.15); }
+        .site-picker__dropdown {
+            display:none; position:absolute; top:calc(100% + 4px); left:0; right:0;
+            background:#fff; border:1px solid #e0e6f0; border-radius:10px;
+            box-shadow:0 8px 28px rgba(0,0,0,.12); z-index:500; overflow:hidden;
+        }
+        .site-picker__dropdown.open { display:block; }
+        .site-picker__search {
+            width:100%; padding:10px 12px; border:none; border-bottom:1px solid #f0f2f5;
+            font-size:0.88rem; outline:none; background:#fafbfc;
+        }
+        .site-picker__list { max-height:260px; overflow-y:auto; }
+        .site-picker__item {
+            padding:9px 14px; cursor:pointer; font-size:0.88rem;
+            display:flex; align-items:center; gap:8px; transition:background .1s;
+        }
+        .site-picker__item:hover, .site-picker__item.active { background:#fff8ec; }
+        .site-picker__item .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .site-picker__item .dot-on  { background:#3bb273; }
+        .site-picker__item .dot-off { background:#ccc; }
+        .site-picker__item .s-name  { font-weight:600; color:#222; flex:1; }
+        .site-picker__item .s-count { font-size:0.78rem; color:#aaa; white-space:nowrap; }
+        .site-picker__empty { padding:16px; text-align:center; font-size:0.86rem; color:#bbb; }
+
+        /* ── Site detail panel ── */
+        .site-detail {
+            max-width:1100px; margin:14px auto 0;
+            background:#fff; border-radius:12px;
+            border-left:5px solid #f5a623;
+            box-shadow:0 2px 12px rgba(0,0,0,.07);
+            padding:16px 20px;
+            display:none;
+        }
+        .site-detail.visible { display:flex; align-items:flex-start; gap:24px; flex-wrap:wrap; }
+        .site-detail__name  { font-weight:800; font-size:1.05rem; color:#1a1a2e; }
+        .site-detail__loc   { font-size:0.82rem; color:#999; margin-top:2px; }
+        .site-detail__chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+        .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.8rem; }
+        .chip-ip      { background:#f0f4f9; color:#555; font-family:monospace; }
+        .chip-clients { background:#e8f7ef; color:#2a8a55; font-weight:600; }
+        .chip-active  { background:#e8f7ef; color:#2a8a55; font-weight:700; }
+        .chip-inactive{ background:#f0f0f0; color:#999; font-weight:700; }
+        .site-detail__actions { margin-left:auto; display:flex; gap:8px; align-items:center; flex-shrink:0; }
+        .site-detail__test-result { font-size:0.82rem; margin-top:4px; min-height:16px; }
 
         /* ── Section ── */
-        .mkt-section { max-width:1100px; margin:24px auto 0; }
-        .mkt-section-head {
-            display:flex; align-items:center; justify-content:space-between;
-            margin-bottom:12px;
-        }
+        .mkt-section { max-width:1100px; margin:20px auto 0; }
+        .mkt-section-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
         .mkt-section-head h3 { font-size:1rem; font-weight:700; color:#222; margin:0; }
         .mkt-count-pill { background:#f4f6f9; color:#666; font-size:0.8rem; padding:3px 11px; border-radius:20px; }
 
         /* ── Table ── */
-        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.07); overflow:hidden; }
+        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); overflow:hidden; }
         .mkt-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
         .mkt-table thead { background:#f7f9fb; }
         .mkt-table th {
@@ -44,31 +74,25 @@
         .mkt-table td { padding:11px 14px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
         .mkt-table tbody tr:last-child td { border-bottom:none; }
         .mkt-table tbody tr:hover { background:#fafbfd; }
-
-        .col-n   { width:40px; text-align:center; }
-        .col-n td, .col-n th { color:#bbb; font-size:0.8rem; }
-        .col-name { min-width:170px; font-weight:600; color:#222; }
-        .col-site { min-width:130px; color:#777; font-size:0.84rem; }
-        .col-plan { min-width:140px; color:#555; }
+        .col-n  { width:40px; text-align:center; color:#bbb; font-size:0.8rem; }
+        .col-nm { min-width:170px; font-weight:600; color:#222; }
+        .col-si { min-width:130px; color:#777; font-size:0.84rem; }
+        .col-pl { min-width:140px; color:#555; }
         .col-user code { background:#f4f6f9; padding:2px 7px; border-radius:5px; font-size:0.82rem; color:#555; }
-        .col-renov { font-size:0.84rem; color:#555; }
-        .col-sync  { font-size:0.81rem; color:#aaa; }
-        .col-acts  { white-space:nowrap; }
+        .col-sync { font-size:0.81rem; color:#aaa; }
+        .col-acts { white-space:nowrap; }
 
-        /* ── Estado badges ── */
         .ebadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
         .eb-ativo    { background:#e8f7ef; color:#2a8a55; }
         .eb-suspenso { background:#fdecea; color:#c0392b; }
         .eb-aviso    { background:#fef9e7; color:#b7770d; }
         .eb-outro    { background:#f0f0f0; color:#888; }
 
-        /* ── Action buttons ── */
         .abtn { width:31px; height:31px; border-radius:7px; border:none; cursor:pointer; font-size:0.9rem; display:inline-flex; align-items:center; justify-content:center; transition:opacity .15s; }
         .abtn:hover { opacity:.72; }
         .abtn-sync    { background:#4a90d9; color:#fff; }
         .abtn-suspend { background:#fff5f5; border:1px solid #e05a4f !important; color:#e05a4f; }
         .abtn-remove  { background:#f5f5f5; border:1px solid #ddd !important; color:#888; }
-
         .empty-row td { text-align:center; color:#bbb; padding:36px; font-size:0.9rem; }
     </style>
 @endpush
@@ -81,62 +105,86 @@
         'subtitle' => 'Gestão de sites e utilizadores HotSpot',
     ])
 
-    {{-- ── Toolbar — mesmo padrão que /planos ── --}}
+    {{-- ── Toolbar ── --}}
     <div class="alertas-toolbar" style="flex-wrap:nowrap; gap:8px; max-width:1100px;">
         <div class="alertas-toolbar-left" style="flex:1; display:flex; flex-wrap:nowrap; gap:8px; align-items:center; min-width:0;">
-            <span style="font-size:0.88rem; color:#888; white-space:nowrap;">
-                {{ $planosPending }} por sincronizar
-            </span>
-            <div id="syncResult" style="font-size:0.86rem; color:#555;"></div>
+
+            {{-- Dropdown pesquisável de sites --}}
+            <div class="site-picker" id="sitePicker">
+                <input type="text" class="site-picker__input" id="sitePickerInput" readonly
+                    placeholder="— Todos os sites —"
+                    value="{{ $selectedSite ? $selectedSite->nome : '' }}"
+                    autocomplete="off">
+                <div class="site-picker__dropdown" id="siteDropdown">
+                    <input type="text" class="site-picker__search" id="siteSearch" placeholder="Pesquisar site…">
+                    <div class="site-picker__list" id="siteList">
+                        <div class="site-picker__item {{ !$selectedSiteId ? 'active' : '' }}" data-id="" data-name="Todos os sites">
+                            <span class="dot dot-on" style="background:#aaa;"></span>
+                            <span class="s-name">Todos os sites</span>
+                        </div>
+                        @foreach($sites as $site)
+                        <div class="site-picker__item {{ $selectedSiteId == $site->id ? 'active' : '' }}"
+                            data-id="{{ $site->id }}"
+                            data-name="{{ $site->nome }}"
+                            data-loc="{{ $site->localizacao }}"
+                            data-host="{{ $site->host }}"
+                            data-port="{{ $site->port }}"
+                            data-clients="{{ $site->clientes_count }}"
+                            data-active="{{ $site->active ? '1' : '0' }}">
+                            <span class="dot {{ $site->active ? 'dot-on' : 'dot-off' }}"></span>
+                            <span class="s-name">{{ $site->nome }}</span>
+                            <span class="s-count">{{ $site->clientes_count }} cliente(s)</span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
+            <div id="syncResult" style="font-size:0.85rem; color:#555;"></div>
         </div>
+
         <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
-            <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;"
-                title="Sincroniza utilizadores HotSpot para planos activos ainda não sincronizados">
-                ▶ Sync agora
-            </button>
-            <a href="{{ route('mikrotik.export-pdf') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em PDF">⬇ PDF</a>
-            <a href="{{ route('mikrotik.export-excel') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em Excel">⬇ Excel</a>
+            <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
+            <a href="{{ route('mikrotik.export-pdf') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
+            <a href="{{ route('mikrotik.export-excel') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
             <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
     </div>
 
-    {{-- ── Cards dos sites ── --}}
-    <div class="mkt-sites">
-        @forelse($sites as $site)
-        <div class="mkt-card {{ $site->active ? '' : 'inactive' }}" style="border-top-color:{{ $site->active ? '#f5a623' : '#b0b8c1' }}">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-                <div style="min-width:0;">
-                    <div class="mkt-card__name">{{ $site->nome }}</div>
-                    @if($site->localizacao)
-                        <div class="mkt-card__loc">{{ $site->localizacao }}</div>
-                    @endif
-                    <div class="mkt-card__meta">
-                        <span class="mkt-card__ip">{{ $site->host }}:{{ $site->port }}</span>
-                        <span class="mkt-card__count">{{ $site->clientes_count }} cliente(s)</span>
-                        <span class="mkt-card__status {{ $site->active ? 'status-on' : 'status-off' }}">
-                            {{ $site->active ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </div>
-                </div>
+    {{-- ── Painel de detalhes do site seleccionado ── --}}
+    <div class="site-detail {{ $selectedSite ? 'visible' : '' }}" id="siteDetail"
+        @if($selectedSite)
+        data-site-id="{{ $selectedSite->id }}"
+        @endif>
+        <div style="flex:1; min-width:0;">
+            <div class="site-detail__name" id="detailName">{{ $selectedSite?->nome ?? '' }}</div>
+            <div class="site-detail__loc" id="detailLoc">{{ $selectedSite?->localizacao ?? '' }}</div>
+            <div class="site-detail__chips">
+                <span class="chip chip-ip" id="detailIp">{{ $selectedSite ? $selectedSite->host.':'.$selectedSite->port : '' }}</span>
+                <span class="chip chip-clients" id="detailClients">{{ $selectedSite ? $selectedSite->clientes_count.' cliente(s)' : '' }}</span>
+                <span class="chip {{ $selectedSite?->active ? 'chip-active' : 'chip-inactive' }}" id="detailStatus">
+                    {{ $selectedSite ? ($selectedSite->active ? 'Activo' : 'Inactivo') : '' }}
+                </span>
             </div>
-            <div class="mkt-card__btns">
-                <button onclick="testSite({{ $site->id }}, this)" class="btn btn-ghost" style="height:30px; font-size:0.8rem; padding:0 12px;">Testar</button>
-                <a href="{{ route('mikrotik.sites.edit', $site) }}" class="btn btn-ghost" style="height:30px; font-size:0.8rem; padding:0 12px; display:inline-flex; align-items:center;">Editar</a>
-            </div>
-            <div id="test-result-{{ $site->id }}" class="mkt-test-result"></div>
+            <div class="site-detail__test-result" id="detailTestResult"></div>
         </div>
-        @empty
-        <div style="flex:1; background:#fff; border-radius:12px; padding:28px; text-align:center; color:#aaa; box-shadow:0 2px 12px rgba(0,0,0,0.07);">
-            Nenhum site configurado. <a href="{{ route('mikrotik.sites.create') }}">Adicionar o primeiro site</a>.
+        <div class="site-detail__actions">
+            <button onclick="testSelectedSite()" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px;">Testar ligação</button>
+            <a id="detailEditLink" href="#" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px; display:inline-flex; align-items:center;">Editar</a>
         </div>
-        @endforelse
     </div>
 
     {{-- ── Tabela de planos ── --}}
     <div class="mkt-section">
         <div class="mkt-section-head">
-            <h3>Planos com utilizador MikroTik</h3>
+            <h3>
+                Planos com utilizador MikroTik
+                @if($selectedSite)
+                    <span style="font-weight:400; color:#999; font-size:0.9rem;">— {{ $selectedSite->nome }}</span>
+                @endif
+            </h3>
             <span class="mkt-count-pill">{{ $planosSync->total() }} registos</span>
         </div>
 
@@ -145,12 +193,12 @@
                 <thead>
                     <tr>
                         <th class="col-n">#</th>
-                        <th class="col-name">Cliente</th>
-                        <th class="col-site">Site</th>
-                        <th class="col-plan">Plano</th>
+                        <th class="col-nm">Cliente</th>
+                        <th class="col-si">Site</th>
+                        <th class="col-pl">Plano</th>
                         <th>Username MikroTik</th>
                         <th>Estado</th>
-                        <th class="col-renov">Renovação</th>
+                        <th>Renovação</th>
                         <th class="col-sync">Última sync</th>
                         <th class="col-acts">Acções</th>
                     </tr>
@@ -167,12 +215,12 @@
                     @endphp
                     <tr id="row-{{ $plano->id }}">
                         <td class="col-n">{{ $planosSync->firstItem() + $i }}</td>
-                        <td class="col-name">{{ $plano->cliente?->nome ?? '—' }}</td>
-                        <td class="col-site">{{ $plano->cliente?->mikrotikSite?->nome ?? '—' }}</td>
-                        <td class="col-plan">{{ $plano->nome }}</td>
+                        <td class="col-nm">{{ $plano->cliente?->nome ?? '—' }}</td>
+                        <td class="col-si">{{ $plano->cliente?->mikrotikSite?->nome ?? '—' }}</td>
+                        <td class="col-pl">{{ $plano->nome }}</td>
                         <td class="col-user"><code>{{ $plano->mikrotik_username }}</code></td>
                         <td><span class="ebadge {{ $ec }}">{{ $plano->estado }}</span></td>
-                        <td class="col-renov">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
+                        <td style="font-size:0.84rem; color:#555;">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
                         <td class="col-sync">{{ $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—' }}</td>
                         <td class="col-acts">
                             <button onclick="syncPlano({{ $plano->id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
@@ -194,27 +242,100 @@
 
 @push('scripts')
 <script>
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+const csrfToken  = document.querySelector('meta[name="csrf-token"]')?.content || '';
+const siteRoutes = @json($sites->mapWithKeys(fn($s) => [$s->id => ['test' => route('mikrotik.sites.test', $s), 'edit' => route('mikrotik.sites.edit', $s)]]));
+let currentSiteId = {{ $selectedSiteId ? (int)$selectedSiteId : 'null' }};
 
-function testSite(id, btn) {
-    const el = document.getElementById('test-result-' + id);
-    btn.disabled = true; btn.textContent = '…';
-    fetch('{{ url("mikrotik/sites") }}/' + id + '/test', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(r => r.json())
-        .then(d => {
-            el.textContent = d.ok ? '✓ Ligado — ' + (d.identity || '') : '✗ ' + (d.error || 'Erro');
-            el.style.color = d.ok ? '#2a8a55' : '#e05a4f';
-            btn.disabled = false; btn.textContent = 'Testar';
-        })
-        .catch(() => { el.textContent = '✗ Falha de rede'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = 'Testar'; });
+/* ── Dropdown pesquisável ── */
+const picker   = document.getElementById('sitePicker');
+const input    = document.getElementById('sitePickerInput');
+const dropdown = document.getElementById('siteDropdown');
+const search   = document.getElementById('siteSearch');
+const list     = document.getElementById('siteList');
+const items    = list.querySelectorAll('.site-picker__item');
+
+input.addEventListener('click', () => { dropdown.classList.toggle('open'); if (dropdown.classList.contains('open')) search.focus(); });
+document.addEventListener('click', e => { if (!picker.contains(e.target)) dropdown.classList.remove('open'); });
+
+search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    let found = 0;
+    items.forEach(item => {
+        const match = item.dataset.name.toLowerCase().includes(q);
+        item.style.display = match ? '' : 'none';
+        if (match) found++;
+    });
+    let empty = list.querySelector('.site-picker__empty');
+    if (!found) {
+        if (!empty) { empty = document.createElement('div'); empty.className = 'site-picker__empty'; empty.textContent = 'Nenhum site encontrado.'; list.appendChild(empty); }
+    } else if (empty) empty.remove();
+});
+
+items.forEach(item => {
+    item.addEventListener('click', () => {
+        const id   = item.dataset.id;
+        const name = item.dataset.name;
+        input.value = name === 'Todos os sites' ? '' : name;
+        input.placeholder = name === 'Todos os sites' ? '— Todos os sites —' : name;
+        items.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        dropdown.classList.remove('open');
+        search.value = '';
+        items.forEach(i => i.style.display = '');
+
+        // Actualizar painel de detalhes
+        updateDetailPanel(item);
+
+        // Recarregar tabela com filtro
+        const url = new URL(window.location.href);
+        if (id) url.searchParams.set('site_id', id);
+        else url.searchParams.delete('site_id');
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    });
+});
+
+function updateDetailPanel(item) {
+    const id = item.dataset.id;
+    const panel = document.getElementById('siteDetail');
+    if (!id) { panel.classList.remove('visible'); return; }
+
+    document.getElementById('detailName').textContent    = item.dataset.name;
+    document.getElementById('detailLoc').textContent     = item.dataset.loc || '';
+    document.getElementById('detailIp').textContent      = item.dataset.host + ':' + item.dataset.port;
+    document.getElementById('detailClients').textContent = item.dataset.clients + ' cliente(s)';
+    const statusEl = document.getElementById('detailStatus');
+    statusEl.textContent = item.dataset.active === '1' ? 'Activo' : 'Inactivo';
+    statusEl.className   = 'chip ' + (item.dataset.active === '1' ? 'chip-active' : 'chip-inactive');
+    document.getElementById('detailTestResult').textContent = '';
+    document.getElementById('detailEditLink').href = siteRoutes[id]?.edit || '#';
+    panel.dataset.siteId = id;
+    currentSiteId = id;
+    panel.classList.add('visible');
 }
 
+/* ── Testar ligação do site seleccionado ── */
+function testSelectedSite() {
+    const panel  = document.getElementById('siteDetail');
+    const result = document.getElementById('detailTestResult');
+    const id     = panel.dataset.siteId;
+    if (!id) return;
+    result.textContent = 'A testar…'; result.style.color = '#999';
+    fetch(siteRoutes[id]?.test, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(d => {
+            result.textContent = d.ok ? '✓ Ligado — ' + (d.identity || '') : '✗ ' + (d.error || 'Erro');
+            result.style.color = d.ok ? '#2a8a55' : '#e05a4f';
+        })
+        .catch(() => { result.textContent = '✗ Falha de rede'; result.style.color = '#e05a4f'; });
+}
+
+/* ── Sync geral ── */
 function runSync(btn) {
     const el = document.getElementById('syncResult');
     btn.disabled = true; btn.textContent = 'A sincronizar…'; el.textContent = '';
     fetch('{{ route('mikrotik.run-sync') }}', {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
+        method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
     .then(d => {
@@ -225,11 +346,11 @@ function runSync(btn) {
     .catch(() => { el.textContent = 'Falha de rede.'; el.style.color = '#e05a4f'; btn.disabled = false; btn.textContent = '▶ Sync agora'; });
 }
 
+/* ── Acções na tabela ── */
 function syncPlano(id, btn) {
     btn.disabled = true; btn.textContent = '…';
     fetch('{{ url('mikrotik/sync') }}/' + id, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
+        method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
     .then(d => {
@@ -246,8 +367,7 @@ function suspendPlano(id, btn) {
     if (!confirm('Suspender este utilizador no MikroTik?')) return;
     btn.disabled = true;
     fetch('{{ url('mikrotik/suspend') }}/' + id, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
+        method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
     .then(d => {
@@ -264,8 +384,7 @@ function removePlano(id, btn) {
     if (!confirm('Remover permanentemente do MikroTik?')) return;
     btn.disabled = true;
     fetch('{{ url('mikrotik/remove') }}/' + id, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
+        method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
     })
     .then(r => r.json())
     .then(d => {

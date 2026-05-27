@@ -14,23 +14,33 @@ use Maatwebsite\Excel\Facades\Excel;
 class MikroTikAdminController extends Controller
 {
     /** Painel principal — lista todos os sites e planos sincronizados. */
-    public function index()
+    public function index(Request $request)
     {
         $sites = MikroTikSite::withCount('clientes')->orderBy('nome')->get();
 
-        $planosSync = Plano::with('cliente.mikrotikSite', 'template')
+        $selectedSiteId = $request->query('site_id');
+        $selectedSite   = $selectedSiteId ? $sites->firstWhere('id', (int) $selectedSiteId) : null;
+
+        $query = Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
             ->select('planos.*')
-            ->whereNotNull('planos.mikrotik_username')
+            ->whereNotNull('planos.mikrotik_username');
+
+        if ($selectedSiteId) {
+            $query->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $selectedSiteId));
+        }
+
+        $planosSync = $query
             ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
-            ->paginate(30);
+            ->paginate(30)
+            ->withQueryString();
 
         $planosPending = Plano::whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
             ->whereNull('mikrotik_username')
             ->whereIn('estado', ['Ativo', 'Em aviso'])
             ->count();
 
-        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending'));
+        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId'));
     }
 
     /** Formulário de criação de site. */
