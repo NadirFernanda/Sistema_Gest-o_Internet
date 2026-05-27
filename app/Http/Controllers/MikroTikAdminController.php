@@ -153,6 +153,45 @@ class MikroTikAdminController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** Exportar relatório CSV. */
+    public function exportCsv()
+    {
+        $planos = Plano::with('cliente.mikrotikSite', 'template')
+            ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
+            ->select('planos.*')
+            ->whereNotNull('planos.mikrotik_username')
+            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
+            ->get();
+
+        $filename = 'mikrotik_relatorio_' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($planos) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, ['N.º', 'Cliente', 'Site', 'Plano', 'Username MikroTik', 'Estado', 'Renovação', 'Última Sync'], ';');
+            foreach ($planos as $i => $plano) {
+                fputcsv($file, [
+                    $i + 1,
+                    $plano->cliente?->nome ?? '—',
+                    $plano->cliente?->mikrotikSite?->nome ?? '—',
+                    $plano->nome,
+                    $plano->mikrotik_username,
+                    $plano->estado,
+                    $plano->proxima_renovacao?->format('d/m/Y') ?? '—',
+                    $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—',
+                ], ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     /** Disparar sync completo. */
     public function runSync()
     {
