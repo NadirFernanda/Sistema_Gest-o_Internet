@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MikroTikExport;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MikroTikAdminController extends Controller
 {
@@ -157,19 +159,35 @@ class MikroTikAdminController extends Controller
     /** Exportar relatório PDF. */
     public function exportPdf()
     {
-        $planos = Plano::with('cliente.mikrotikSite', 'template')
-            ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
-            ->select('planos.*')
-            ->whereNotNull('planos.mikrotik_username')
-            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
-            ->get();
-
-        $sites = MikroTikSite::where('active', true)->get();
+        $planos = $this->planosParaExport();
+        $sites  = MikroTikSite::withCount('clientes')->where('active', true)->get();
 
         $pdf = Pdf::loadView('mikrotik.relatorio-pdf', compact('planos', 'sites'))
             ->setPaper('a4', 'landscape');
 
         return $pdf->download('mikrotik_relatorio_' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /** Exportar relatório Excel. */
+    public function exportExcel()
+    {
+        $planos = $this->planosParaExport();
+        $sites  = MikroTikSite::withCount('clientes')->where('active', true)->get();
+
+        return Excel::download(
+            new MikroTikExport($planos, $sites),
+            'mikrotik_relatorio_' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    private function planosParaExport()
+    {
+        return Plano::with('cliente.mikrotikSite', 'template')
+            ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
+            ->select('planos.*')
+            ->whereNotNull('planos.mikrotik_username')
+            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
+            ->get();
     }
 
     /** Disparar sync completo. */

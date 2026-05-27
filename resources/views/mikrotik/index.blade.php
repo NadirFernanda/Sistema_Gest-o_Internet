@@ -94,7 +94,8 @@
                 title="Sincroniza utilizadores HotSpot para planos activos ainda não sincronizados">
                 ▶ Sync agora
             </button>
-            <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
+            <a href="{{ route('mikrotik.export-pdf') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em PDF">⬇ PDF</a>
+            <a href="{{ route('mikrotik.export-excel') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em Excel">⬇ Excel</a>
             <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>

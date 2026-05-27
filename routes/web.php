@@ -186,7 +186,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/sites/{site}/edit',       [\App\Http\Controllers\MikroTikAdminController::class, 'editSite'])->name('sites.edit');
             Route::put('/sites/{site}',            [\App\Http\Controllers\MikroTikAdminController::class, 'updateSite'])->name('sites.update');
             Route::get('/sites/{site}/test',       [\App\Http\Controllers\MikroTikAdminController::class, 'testSite'])->name('sites.test');
-            Route::get('/export',                  [\App\Http\Controllers\MikroTikAdminController::class, 'exportPdf'])->name('export');
+            Route::get('/export-pdf',              [\App\Http\Controllers\MikroTikAdminController::class, 'exportPdf'])->name('export-pdf');
+            Route::get('/export-excel',            [\App\Http\Controllers\MikroTikAdminController::class, 'exportExcel'])->name('export-excel');
         });
 
     // Export routes removed per request
