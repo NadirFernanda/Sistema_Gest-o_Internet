@@ -109,8 +109,8 @@
 
         <div id="syncResult" style="font-size:0.88rem;color:#555;flex:1;"></div>
 
-        <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar tabela em CSV">
-            ⬇ Exportar CSV
+        <a href="{{ route('mikrotik.export') }}" class="btn btn-ghost" style="white-space:nowrap;" title="Exportar relatório em PDF">
+            ⬇ Exportar PDF
         </a>
 
         <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>

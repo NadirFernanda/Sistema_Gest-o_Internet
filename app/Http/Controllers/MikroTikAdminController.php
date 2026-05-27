@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -153,8 +154,8 @@ class MikroTikAdminController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
-    /** Exportar relatório CSV. */
-    public function exportCsv()
+    /** Exportar relatório PDF. */
+    public function exportPdf()
     {
         $planos = Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
@@ -163,33 +164,12 @@ class MikroTikAdminController extends Controller
             ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
             ->get();
 
-        $filename = 'mikrotik_relatorio_' . now()->format('Y-m-d') . '.csv';
+        $sites = MikroTikSite::where('active', true)->get();
 
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
+        $pdf = Pdf::loadView('mikrotik.relatorio-pdf', compact('planos', 'sites'))
+            ->setPaper('a4', 'landscape');
 
-        $callback = function () use ($planos) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-            fputcsv($file, ['N.º', 'Cliente', 'Site', 'Plano', 'Username MikroTik', 'Estado', 'Renovação', 'Última Sync'], ';');
-            foreach ($planos as $i => $plano) {
-                fputcsv($file, [
-                    $i + 1,
-                    $plano->cliente?->nome ?? '—',
-                    $plano->cliente?->mikrotikSite?->nome ?? '—',
-                    $plano->nome,
-                    $plano->mikrotik_username,
-                    $plano->estado,
-                    $plano->proxima_renovacao?->format('d/m/Y') ?? '—',
-                    $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—',
-                ], ';');
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $pdf->download('mikrotik_relatorio_' . now()->format('Y-m-d') . '.pdf');
     }
 
     /** Disparar sync completo. */
