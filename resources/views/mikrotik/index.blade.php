@@ -243,7 +243,7 @@
 @push('scripts')
 <script>
 const csrfToken  = document.querySelector('meta[name="csrf-token"]')?.content || '';
-const siteRoutes = @json($sites->mapWithKeys(fn($s) => [$s->id => ['test' => route('mikrotik.sites.test', $s), 'edit' => route('mikrotik.sites.edit', $s)]]));
+const siteRoutes = @json($siteRoutes);
 let currentSiteId = {{ $selectedSiteId ? (int)$selectedSiteId : 'null' }};
 
 /* ── Dropdown pesquisável ── */

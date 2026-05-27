@@ -40,7 +40,14 @@ class MikroTikAdminController extends Controller
             ->whereIn('estado', ['Ativo', 'Em aviso'])
             ->count();
 
-        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId'));
+        $siteRoutes = $sites->mapWithKeys(fn($s) => [
+            $s->id => [
+                'test' => route('mikrotik.sites.test', $s),
+                'edit' => route('mikrotik.sites.edit', $s),
+            ],
+        ]);
+
+        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes'));
     }
 
     /** Formulário de criação de site. */
