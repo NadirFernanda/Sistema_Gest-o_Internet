@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 class MikroTikService
 {
     private MikroTikApiClient $api;
+    private ?string $lastError = null;
 
     private string $host;
     private int    $port;
@@ -54,6 +55,11 @@ class MikroTikService
         return new self($site);
     }
 
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
+
     public function isConfigured(): bool
     {
         return $this->host !== '';
@@ -72,6 +78,8 @@ class MikroTikService
             return false;
         }
 
+        $this->lastError = null;
+
         try {
             $this->connect();
 
@@ -86,23 +94,25 @@ class MikroTikService
             $disabled = $plano->estado === 'Suspenso' ? 'yes' : 'no';
 
             if ($existing) {
-                $this->api->command('/ip/hotspot/user/set', [
+                $resp = $this->api->command('/ip/hotspot/user/set', [
                     '.id'      => $existing['.id'],
                     'profile'  => $profile,
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
+                $this->throwIfTrap($resp, 'set');
                 Log::info('MikroTik: utilizador actualizado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
             } else {
-                $this->api->command('/ip/hotspot/user/add', [
+                $resp = $this->api->command('/ip/hotspot/user/add', [
                     'name'     => $username,
                     'password' => $password,
                     'profile'  => $profile,
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
+                $this->throwIfTrap($resp, 'add');
                 Log::info('MikroTik: utilizador criado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
@@ -114,6 +124,7 @@ class MikroTikService
 
             return true;
         } catch (\Throwable $e) {
+            $this->lastError = $e->getMessage();
             Log::error('MikroTik: activação falhada', [
                 'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
@@ -258,6 +269,16 @@ class MikroTikService
             if (($r['type'] ?? '') === '!re') return $r;
         }
         return null;
+    }
+
+    private function throwIfTrap(array $response, string $op): void
+    {
+        foreach ($response as $r) {
+            if (($r['type'] ?? '') === '!trap') {
+                $msg = $r['=message'] ?? $r['message'] ?? 'erro desconhecido';
+                throw new \RuntimeException("MikroTik: router rejeitou comando '$op' — $msg");
+            }
+        }
     }
 
     private function buildUsername(Cliente $cliente): string

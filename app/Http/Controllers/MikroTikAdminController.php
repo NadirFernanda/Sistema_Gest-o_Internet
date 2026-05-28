@@ -150,12 +150,15 @@ class MikroTikAdminController extends Controller
             return response()->json(['ok' => false, 'error' => 'Cliente sem site MikroTik atribuído']);
         }
 
-        $ok = MikroTikService::forSite($site)->activateUser($plano);
+        $mikrotik = MikroTikService::forSite($site);
+        $ok       = $mikrotik->activateUser($plano);
+        $fresh    = $plano->fresh();
 
         return response()->json([
             'ok'                 => $ok,
-            'mikrotik_username'  => $plano->fresh()->mikrotik_username,
-            'mikrotik_synced_at' => $plano->fresh()->mikrotik_synced_at?->format('d/m/Y H:i'),
+            'error'              => $ok ? null : $mikrotik->getLastError(),
+            'mikrotik_username'  => $fresh->mikrotik_username,
+            'mikrotik_synced_at' => $fresh->mikrotik_synced_at?->format('d/m/Y H:i'),
         ]);
     }
 
@@ -255,16 +258,23 @@ class MikroTikAdminController extends Controller
         $mikrotik = MikroTikService::forSite($site);
         $ok = 0;
         $fail = 0;
+        $errors = [];
 
         foreach ($planos as $plano) {
             $plano->load(['cliente.mikrotikSite', 'template']);
-            $mikrotik->activateUser($plano) ? $ok++ : $fail++;
+            if ($mikrotik->activateUser($plano)) {
+                $ok++;
+            } else {
+                $fail++;
+                $errors[] = ($plano->cliente?->nome ?? "Plano #{$plano->id}") . ': ' . ($mikrotik->getLastError() ?? 'erro desconhecido');
+            }
         }
 
         return response()->json([
             'ok'      => true,
             'synced'  => $ok,
             'failed'  => $fail,
+            'errors'  => $errors,
             'message' => "Sincronizados: $ok | Falhas: $fail",
         ]);
     }

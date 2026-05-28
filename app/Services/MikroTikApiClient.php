@@ -231,7 +231,11 @@ class MikroTikApiClient
 
     private function readLength(): int
     {
-        $b = ord(fread($this->socket, 1));
+        $raw = fread($this->socket, 1);
+        if ($raw === false || $raw === '') {
+            throw new \RuntimeException('MikroTik: ligação perdida durante leitura (EOF/timeout)');
+        }
+        $b = ord($raw);
 
         if (($b & 0x80) === 0) {
             return $b;

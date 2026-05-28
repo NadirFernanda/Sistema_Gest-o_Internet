@@ -356,12 +356,16 @@ function syncPendentesSite(btn) {
     fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken } })
         .then(r => r.json())
         .then(d => {
-            document.getElementById('detailTestResult').textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
-            document.getElementById('detailTestResult').style.color = d.ok ? '#2a8a55' : '#e05a4f';
+            const resultEl = document.getElementById('detailTestResult');
+            resultEl.textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
+            resultEl.style.color = d.failed > 0 ? '#e05a4f' : '#2a8a55';
             btn.disabled = false; btn.textContent = 'Sync pendentes';
+            if (d.errors && d.errors.length > 0) {
+                alert('Falhas na sincronização:\n\n' + d.errors.join('\n'));
+            }
             if (d.synced > 0) setTimeout(() => window.location.reload(), 1500);
         })
-        .catch(() => { btn.disabled = false; btn.textContent = 'Sync pendentes'; });
+        .catch(err => { btn.disabled = false; btn.textContent = 'Sync pendentes'; alert('Erro de rede: ' + err); });
 }
 
 /* ── Testar ligação do site seleccionado ── */
@@ -404,12 +408,27 @@ function syncPlano(id, btn) {
     })
     .then(r => r.json())
     .then(d => {
-        btn.textContent = d.ok ? '✓' : '✗';
-        if (d.ok && d.mikrotik_synced_at) {
+        if (d.ok) {
+            btn.textContent = '✓';
             const row = document.getElementById('row-' + id);
-            if (row) row.cells[7].textContent = d.mikrotik_synced_at;
+            if (row) {
+                if (d.mikrotik_username) {
+                    row.cells[4].innerHTML = '<code>' + d.mikrotik_username + '</code>';
+                }
+                if (d.mikrotik_synced_at) {
+                    row.cells[7].textContent = d.mikrotik_synced_at;
+                }
+            }
+        } else {
+            btn.textContent = '✗';
+            const msg = d.error || 'Falha desconhecida';
+            alert('Erro ao sincronizar:\n' + msg);
         }
         setTimeout(() => { btn.disabled = false; btn.textContent = '↻'; }, 2000);
+    })
+    .catch(err => {
+        btn.disabled = false; btn.textContent = '✗';
+        alert('Erro de rede: ' + err);
     });
 }
 
