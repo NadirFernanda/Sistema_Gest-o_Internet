@@ -1,114 +1,193 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+    <style>
+        /* ── Cards ────────────────────────────────────────────── */
+        .pf-card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.07);padding:22px 26px 24px;margin-bottom:14px;}
+        .pf-card__header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+        .pf-card__step{width:28px;height:28px;border-radius:50%;background:#f5a623;color:#fff;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .pf-card__title{font-weight:700;font-size:.97rem;color:#1a1a2e;}
+
+        /* ── Fields ───────────────────────────────────────────── */
+        .pf-field{margin-bottom:15px;}
+        .pf-field:last-child{margin-bottom:0;}
+        .pf-label{display:block;font-size:.75rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
+        .pf-input,.pf-select{width:100%;height:46px;padding:0 14px;border:1.5px solid #e8eaf0;border-radius:10px;font-size:.93rem;color:#222;background:#fff;box-sizing:border-box;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none;}
+        .pf-input:focus,.pf-select:focus{outline:none;border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.13);}
+        .pf-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:38px;cursor:pointer;}
+        .pf-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+        @media(max-width:540px){.pf-grid-2{grid-template-columns:1fr;}}
+        .field-err{font-size:.8rem;color:#c0392b;margin-top:5px;}
+        .field-hint{font-size:.78rem;color:#aaa;margin-top:5px;}
+
+        /* ── Alert ────────────────────────────────────────────── */
+        .pf-alert{padding:12px 16px;border-radius:10px;font-size:.88rem;margin-bottom:14px;line-height:1.5;}
+        .pf-alert--success{background:#e8f7ef;border:1px solid #a8e6c0;color:#1a6b3d;}
+        .pf-alert--error{background:#fdecea;border:1px solid #f5bab5;color:#922b21;}
+        .pf-alert--warn{background:#fff8ec;border:1px solid #f5dba0;color:#7a5200;}
+        .pf-alert ul{margin:4px 0 0;padding-left:18px;}
+
+        /* ── Site info note ───────────────────────────────────── */
+        .site-note{background:#fff8ec;border:1px solid #f5dba0;border-radius:10px;padding:11px 15px;font-size:.85rem;color:#7a5200;}
+        .site-note a{color:#d4820a;font-weight:600;}
+
+        /* ── Submit ───────────────────────────────────────────── */
+        .pf-submit{width:100%;height:54px;background:#f5a623;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;box-shadow:0 6px 22px rgba(245,166,35,.32);transition:opacity .15s,transform .1s;margin-top:6px;}
+        .pf-submit:hover{opacity:.9;}
+        .pf-submit:active{transform:scale(.99);}
+    </style>
+@endpush
+
 @section('content')
-<div class="container" style="max-width:960px;margin:18px auto;">
-    <h1>Cadastrar Cliente</h1>
+<div class="estoque-container-moderna">
 
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom:14px;border-radius:8px;background:#eafaf1;color:#218c5b;padding:12px 18px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger" style="margin-bottom:14px;border-radius:8px;background:#faeaea;color:#c0392b;padding:12px 18px;">
-            {{ session('error') }}
-        </div>
-    @endif
+    @include('layouts.partials.clientes-hero', [
+        'title'    => 'Novo Cliente',
+        'subtitle' => 'Registo de novo assinante',
+        'heroCtAs' => '<a href="'.route('clientes').'" class="btn btn-ghost">← Clientes</a>',
+    ])
 
-    <form id="formClienteCreate" method="POST" action="{{ route('clientes.store') }}"
-          style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.06);">
-        @csrf
+    <div style="max-width:660px; margin:24px auto 56px; padding:0 16px;">
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        @if(session('success'))
+            <div class="pf-alert pf-alert--success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="pf-alert pf-alert--error">{{ session('error') }}</div>
+        @endif
+        @if($errors->any())
+            <div class="pf-alert pf-alert--warn">
+                <ul>@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul>
+            </div>
+        @endif
 
-            <div>
-                <label for="bi_tipo"><strong>Tipo de documento *</strong></label>
-                <select id="bi_tipo" name="bi_tipo" class="form-control">
-                    <option value="BI"    {{ old('bi_tipo') == 'BI'    ? 'selected' : '' }}>BI</option>
-                    <option value="NIF"   {{ old('bi_tipo') == 'NIF'   ? 'selected' : '' }}>NIF</option>
-                    <option value="Outro" {{ old('bi_tipo') == 'Outro' ? 'selected' : '' }}>Outro</option>
-                </select>
-                @error('bi_tipo') <div class="text-danger">{{ $message }}</div> @enderror
+        <form id="formClienteCreate" method="POST" action="{{ route('clientes.store') }}">
+            @csrf
+
+            {{-- ── Card 1: Identificação ── --}}
+            <div class="pf-card">
+                <div class="pf-card__header">
+                    <div class="pf-card__step">1</div>
+                    <div class="pf-card__title">Identificação</div>
+                </div>
+
+                <div class="pf-grid-2">
+                    <div class="pf-field">
+                        <label class="pf-label" for="bi_tipo">Tipo de documento <span style="color:#e05a4f">*</span></label>
+                        <select id="bi_tipo" name="bi_tipo" class="pf-select" required>
+                            <option value="BI"    {{ old('bi_tipo', 'BI') == 'BI'    ? 'selected' : '' }}>BI</option>
+                            <option value="NIF"   {{ old('bi_tipo') == 'NIF'   ? 'selected' : '' }}>NIF</option>
+                            <option value="Outro" {{ old('bi_tipo') == 'Outro' ? 'selected' : '' }}>Outro</option>
+                        </select>
+                        @error('bi_tipo') <div class="field-err">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="pf-field">
+                        <label class="pf-label" for="bi_numero" id="labelBiNumero">BI <span style="color:#e05a4f">*</span></label>
+                        <input id="bi_numero" name="bi_numero" type="text"
+                               value="{{ old('bi_numero') }}"
+                               placeholder="Número do documento"
+                               class="pf-input" required>
+                        @error('bi_numero') <div class="field-err">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <div id="bi_tipo_outro_wrap" class="pf-field" style="display:none;">
+                    <label class="pf-label" for="bi_tipo_outro">Especificar documento <span style="color:#e05a4f">*</span></label>
+                    <input id="bi_tipo_outro" name="bi_tipo_outro" type="text"
+                           value="{{ old('bi_tipo_outro') }}"
+                           placeholder="Ex: Passaporte, Cartão Estrangeiro"
+                           class="pf-input">
+                    @error('bi_tipo_outro') <div class="field-err">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="pf-field">
+                    <label class="pf-label" for="nome">Nome completo <span style="color:#e05a4f">*</span></label>
+                    <input id="nome" name="nome" type="text"
+                           value="{{ old('nome') }}"
+                           placeholder="Nome completo do cliente"
+                           class="pf-input" required>
+                    @error('nome') <div class="field-err">{{ $message }}</div> @enderror
+                </div>
             </div>
 
-            <div>
-                <label for="bi_numero" id="labelBiNumero"><strong>BI / NIF *</strong></label>
-                <input id="bi_numero" name="bi_numero" type="text" value="{{ old('bi_numero') }}"
-                       placeholder="Número do documento" class="form-control" required>
-                @error('bi_numero') <div class="text-danger">{{ $message }}</div> @enderror
+            {{-- ── Card 2: Contactos ── --}}
+            <div class="pf-card">
+                <div class="pf-card__header">
+                    <div class="pf-card__step">2</div>
+                    <div class="pf-card__title">Contactos</div>
+                </div>
+
+                <div class="pf-grid-2">
+                    <div class="pf-field">
+                        <label class="pf-label" for="contato">Contacto (WhatsApp) <span style="color:#e05a4f">*</span></label>
+                        <input id="contato" name="contato" type="text"
+                               value="{{ old('contato') }}"
+                               placeholder="+244 9XX XXX XXX"
+                               class="pf-input" required>
+                        <div class="field-hint">Usado como username MikroTik</div>
+                        @error('contato') <div class="field-err">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="pf-field">
+                        <label class="pf-label" for="email">Email <span style="color:#e05a4f">*</span></label>
+                        <input id="email" name="email" type="email"
+                               value="{{ old('email') }}"
+                               placeholder="email@exemplo.com"
+                               class="pf-input" required>
+                        @error('email') <div class="field-err">{{ $message }}</div> @enderror
+                    </div>
+                </div>
             </div>
 
-            <div id="bi_tipo_outro_wrap" style="display:none;grid-column:1/-1;">
-                <label for="bi_tipo_outro"><strong>Especificar documento *</strong></label>
-                <input id="bi_tipo_outro" name="bi_tipo_outro" type="text"
-                       value="{{ old('bi_tipo_outro') }}"
-                       placeholder="Ex: Passaporte, Cartão Estrangeiro" class="form-control">
-                @error('bi_tipo_outro') <div class="text-danger">{{ $message }}</div> @enderror
-            </div>
+            {{-- ── Card 3: Site MikroTik ── --}}
+            <div class="pf-card">
+                <div class="pf-card__header">
+                    <div class="pf-card__step">3</div>
+                    <div class="pf-card__title">Site MikroTik</div>
+                </div>
 
-            <div style="grid-column:1/-1;">
-                <label for="nome"><strong>Nome completo *</strong></label>
-                <input id="nome" name="nome" type="text" value="{{ old('nome') }}"
-                       placeholder="Nome completo" class="form-control" required>
-                @error('nome') <div class="text-danger">{{ $message }}</div> @enderror
-            </div>
-
-            <div>
-                <label for="email"><strong>Email *</strong></label>
-                <input id="email" name="email" type="email"
-                       placeholder="email@exemplo.com" class="form-control" required>
-                @error('email') <div class="text-danger">{{ $message }}</div> @enderror
-            </div>
-
-            <div>
-                <label for="contato"><strong>Contacto (WhatsApp) *</strong></label>
-                <input id="contato" name="contato" type="text"
-                       placeholder="+244 9XX XXX XXX" class="form-control" required>
-                @error('contato') <div class="text-danger">{{ $message }}</div> @enderror
-            </div>
-
-            <div style="grid-column:1/-1;">
-                <label for="mikrotik_site_id"><strong>Site MikroTik</strong></label>
                 @if($sites->isNotEmpty())
-                    <select id="mikrotik_site_id" name="mikrotik_site_id" class="form-control" style="margin-top:4px;">
-                        <option value="">— Seleccionar site —</option>
-                        @foreach($sites as $siteId => $siteNome)
-                            <option value="{{ $siteId }}" {{ old('mikrotik_site_id') == $siteId ? 'selected' : '' }}>
-                                {{ $siteNome }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="pf-field">
+                        <label class="pf-label" for="mikrotik_site_id">Atribuir ao site</label>
+                        <select id="mikrotik_site_id" name="mikrotik_site_id" class="pf-select">
+                            <option value="">— Seleccionar site (opcional) —</option>
+                            @foreach($sites as $siteId => $siteNome)
+                                <option value="{{ $siteId }}" {{ old('mikrotik_site_id') == $siteId ? 'selected' : '' }}>
+                                    {{ $siteNome }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('mikrotik_site_id') <div class="field-err">{{ $message }}</div> @enderror
+                    </div>
                 @else
-                    <div style="margin-top:6px;padding:10px 14px;background:#fffbe7;border:1px solid #f7b500;border-radius:8px;font-size:0.9rem;color:#7a5c00;">
+                    <div class="site-note">
                         Nenhum site configurado.
-                        <a href="{{ route('mikrotik.index') }}" target="_blank" style="font-weight:600;color:#7a5c00;">Criar site em /mikrotik</a>
+                        <a href="{{ route('mikrotik.index') }}" target="_blank">Criar site em /mikrotik</a>
                     </div>
                 @endif
-                @error('mikrotik_site_id') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-        </div>
+            <button type="submit" class="pf-submit">Cadastrar Cliente</button>
+        </form>
 
-        <div style="margin-top:16px;display:flex;gap:8px;align-items:center;">
-            <button type="submit" class="btn btn-primary">Cadastrar Cliente</button>
-            <a href="{{ route('clientes') }}" class="btn btn-ghost">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const biTipo       = document.getElementById('bi_tipo');
-    const biLabel      = document.getElementById('labelBiNumero');
-    const outroWrap    = document.getElementById('bi_tipo_outro_wrap');
+    var biTipo    = document.getElementById('bi_tipo');
+    var biLabel   = document.getElementById('labelBiNumero');
+    var outroWrap = document.getElementById('bi_tipo_outro_wrap');
 
     function updateTipo() {
         if (biTipo.value === 'Outro') {
-            biLabel.innerHTML = '<strong>Nº do documento *</strong>';
+            biLabel.textContent = 'Nº do documento *';
             outroWrap.style.display = 'block';
         } else {
-            biLabel.innerHTML = '<strong>' + biTipo.value + ' *</strong>';
+            biLabel.textContent = biTipo.value + ' *';
             outroWrap.style.display = 'none';
         }
     }
