@@ -24,7 +24,7 @@ class MikroTikAdminController extends Controller
         $query = Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
             ->select('planos.*')
-            ->whereNotNull('planos.mikrotik_username');
+            ->whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'));
 
         if ($selectedSiteId) {
             $query->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $selectedSiteId));
@@ -202,7 +202,7 @@ class MikroTikAdminController extends Controller
         return Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
             ->select('planos.*')
-            ->whereNotNull('planos.mikrotik_username')
+            ->whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
             ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
             ->get();
     }

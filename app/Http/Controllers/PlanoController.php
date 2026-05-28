@@ -36,6 +36,12 @@ class PlanoController extends Controller
             $validated['ciclo'] = $template->ciclo;
             $validated['template_id'] = $template->id;
 
+            if (!empty($validated['data_ativacao']) && !empty($validated['ciclo'])) {
+                $validated['proxima_renovacao'] = Carbon::parse($validated['data_ativacao'])
+                    ->addDays((int) $validated['ciclo'])
+                    ->toDateString();
+            }
+
             \Log::info('PlanoController@store - Dados validados', ['validated' => $validated, 'template_used' => $template ? $template->id : null]);
             // Allow multiple contracts of the same plan for a client.
             // Previously the code prevented creating a plano with the same name
@@ -372,6 +378,13 @@ class PlanoController extends Controller
             $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
             $validated['ciclo'] = $template->ciclo;
             $validated['template_id'] = $template->id;
+
+            if (!empty($validated['data_ativacao']) && !empty($validated['ciclo'])) {
+                $validated['proxima_renovacao'] = Carbon::parse($validated['data_ativacao'])
+                    ->addDays((int) $validated['ciclo'])
+                    ->toDateString();
+            }
+
             // Allow multiple contracts of the same plan via web form as well.
             // Removing the duplicate-blocking logic to permit multiple active
             // entries when required by business logic.

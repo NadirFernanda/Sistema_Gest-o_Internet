@@ -180,7 +180,7 @@
     <div class="mkt-section">
         <div class="mkt-section-head">
             <h3>
-                Planos com utilizador MikroTik
+                Planos MikroTik
                 @if($selectedSite)
                     <span style="font-weight:400; color:#999; font-size:0.9rem;">— {{ $selectedSite->nome }}</span>
                 @endif
@@ -218,7 +218,13 @@
                         <td class="col-nm">{{ $plano->cliente?->nome ?? '—' }}</td>
                         <td class="col-si">{{ $plano->cliente?->mikrotikSite?->nome ?? '—' }}</td>
                         <td class="col-pl">{{ $plano->nome }}</td>
-                        <td class="col-user"><code>{{ $plano->mikrotik_username }}</code></td>
+                        <td class="col-user">
+                            @if($plano->mikrotik_username)
+                                <code>{{ $plano->mikrotik_username }}</code>
+                            @else
+                                <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
+                            @endif
+                        </td>
                         <td><span class="ebadge {{ $ec }}">{{ $plano->estado }}</span></td>
                         <td style="font-size:0.84rem; color:#555;">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
                         <td class="col-sync">{{ $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—' }}</td>
