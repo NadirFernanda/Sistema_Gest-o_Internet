@@ -186,7 +186,7 @@
                     <span style="font-weight:400; color:#999; font-size:0.9rem;">— {{ $selectedSite->nome }}</span>
                 @endif
             </h3>
-            <span class="mkt-count-pill">{{ $planosSync->total() }} registos</span>
+            <span class="mkt-count-pill">{{ $clientes->total() }} registos</span>
         </div>
 
         <div class="mkt-table-card">
@@ -205,57 +205,65 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($planosSync as $i => $plano)
+                    @forelse($clientes as $i => $item)
                     @php
-                        $ec = match($plano->estado) {
+                        $estado = $item->plano_estado ?? null;
+                        $ec = match($estado) {
                             'Ativo'    => 'eb-ativo',
                             'Em aviso' => 'eb-aviso',
                             'Suspenso' => 'eb-suspenso',
                             default    => 'eb-outro',
                         };
                     @endphp
-                    <tr id="row-{{ $plano->id }}">
-                        <td class="col-n">{{ $planosSync->firstItem() + $i }}</td>
-                        <td class="col-nm">{{ $plano->cliente?->nome ?? '—' }}</td>
-                        <td class="col-si">{{ $plano->cliente?->mikrotikSite?->nome ?? '—' }}</td>
-                        <td class="col-pl">{{ $plano->nome }}</td>
-                        <td class="col-user">
-                            @if($plano->mikrotik_username)
-                                <code>{{ $plano->mikrotik_username }}</code>
+                    <tr id="row-{{ $item->plano_id ?? 'c'.$item->cliente_id }}">
+                        <td class="col-n">{{ $clientes->firstItem() + $i }}</td>
+                        <td class="col-nm">{{ $item->cliente_nome }}</td>
+                        <td class="col-si">{{ $item->site_nome ?? '—' }}</td>
+                        <td class="col-pl">
+                            @if($item->plano_nome)
+                                {{ $item->plano_nome }}
                             @else
-                                <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
+                                <span style="color:#bbb; font-style:italic;">Sem plano</span>
                             @endif
                         </td>
-                        <td><span class="ebadge {{ $ec }}">{{ $plano->estado }}</span></td>
-                        <td style="font-size:0.84rem; color:#555;">{{ $plano->proxima_renovacao?->format('d/m/Y') ?? '—' }}</td>
-                        <td class="col-sync">{{ $plano->mikrotik_synced_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                        <td class="col-user">
+                            @if($item->mikrotik_username)
+                                <code>{{ $item->mikrotik_username }}</code>
+                            @elseif($item->plano_id)
+                                <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
+                            @else
+                                <span style="color:#bbb; font-size:0.8rem;">—</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($estado)
+                                <span class="ebadge {{ $ec }}">{{ $estado }}</span>
+                            @else
+                                <span style="color:#bbb;">—</span>
+                            @endif
+                        </td>
+                        <td style="font-size:0.84rem; color:#555;">
+                            {{ $item->proxima_renovacao ? \Carbon\Carbon::parse($item->proxima_renovacao)->format('d/m/Y') : '—' }}
+                        </td>
+                        <td class="col-sync">
+                            {{ $item->mikrotik_synced_at ? \Carbon\Carbon::parse($item->mikrotik_synced_at)->format('d/m/Y H:i') : '—' }}
+                        </td>
                         <td class="col-acts">
-                            <button onclick="syncPlano({{ $plano->id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
-                            <button onclick="suspendPlano({{ $plano->id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
-                            <button onclick="removePlano({{ $plano->id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
+                            @if($item->plano_id)
+                            <button onclick="syncPlano({{ $item->plano_id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
+                            <button onclick="suspendPlano({{ $item->plano_id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
+                            <button onclick="removePlano({{ $item->plano_id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
+                            @endif
                         </td>
                     </tr>
                     @empty
-                    <tr class="empty-row"><td colspan="9">Nenhum plano sincronizado ainda.</td></tr>
+                    <tr class="empty-row"><td colspan="9">Nenhum cliente MikroTik encontrado.</td></tr>
                     @endforelse
-                    @foreach($clientesSemPlano as $cliente)
-                    <tr style="opacity:.7;">
-                        <td class="col-n">—</td>
-                        <td class="col-nm">{{ $cliente->nome }}</td>
-                        <td class="col-si">{{ $cliente->mikrotikSite?->nome ?? '—' }}</td>
-                        <td class="col-pl" style="color:#bbb; font-style:italic;">Sem plano</td>
-                        <td class="col-user"><span style="color:#bbb; font-size:0.8rem;">—</span></td>
-                        <td>—</td>
-                        <td>—</td>
-                        <td class="col-sync">—</td>
-                        <td class="col-acts"></td>
-                    </tr>
-                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        <div style="margin-top:16px;">{{ $planosSync->links() }}</div>
+        <div style="margin-top:16px;">{{ $clientes->links() }}</div>
     </div>
 
 </div>

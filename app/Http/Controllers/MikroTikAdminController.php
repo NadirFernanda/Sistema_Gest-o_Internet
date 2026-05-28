@@ -10,6 +10,7 @@ use App\Services\MikroTikService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MikroTikAdminController extends Controller
@@ -22,43 +23,51 @@ class MikroTikAdminController extends Controller
         $selectedSiteId = $request->query('site_id');
         $selectedSite   = $selectedSiteId ? $sites->firstWhere('id', (int) $selectedSiteId) : null;
 
-        $query = Plano::with('cliente.mikrotikSite', 'template')
-            ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
-            ->select('planos.*')
-            ->whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'));
+        // Query centrada no cliente: 1 linha por cliente, com o plano mais recente via LEFT JOIN
+        $bestPlanSub = DB::table('planos')
+            ->selectRaw('MAX(id) as plano_id, cliente_id')
+            ->groupBy('cliente_id');
+
+        $query = DB::table('clientes')
+            ->leftJoinSub($bestPlanSub, 'bp', 'bp.cliente_id', '=', 'clientes.id')
+            ->leftJoin('planos', 'planos.id', '=', 'bp.plano_id')
+            ->leftJoin('mikrotik_sites', 'mikrotik_sites.id', '=', 'clientes.mikrotik_site_id')
+            ->select(
+                'clientes.id as cliente_id',
+                'clientes.nome as cliente_nome',
+                'mikrotik_sites.nome as site_nome',
+                'planos.id as plano_id',
+                'planos.nome as plano_nome',
+                'planos.mikrotik_username',
+                'planos.mikrotik_synced_at',
+                'planos.estado as plano_estado',
+                'planos.proxima_renovacao'
+            )
+            ->whereNotNull('clientes.mikrotik_site_id')
+            ->orderByRaw("LOWER(clientes.nome)");
 
         if ($selectedSiteId) {
-            $query->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $selectedSiteId));
+            $query->where('clientes.mikrotik_site_id', (int) $selectedSiteId);
         }
 
-        $planosSync = $query
-            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
-            ->paginate(30)
-            ->withQueryString();
+        $clientes = $query->paginate(30)->withQueryString();
 
-        $planosPending = Plano::whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
-            ->whereNull('mikrotik_username')
-            ->whereIn('estado', ['Ativo', 'Em aviso'])
+        $planosPending = DB::table('planos')
+            ->join('clientes', 'clientes.id', '=', 'planos.cliente_id')
+            ->whereNotNull('clientes.mikrotik_site_id')
+            ->whereNull('planos.mikrotik_username')
+            ->whereIn('planos.estado', ['Ativo', 'Em aviso'])
             ->count();
-
-        // Clientes do site seleccionado que não têm nenhum plano criado
-        $clientesSemPlano = $selectedSiteId
-            ? Cliente::with('mikrotikSite')
-                ->where('mikrotik_site_id', $selectedSiteId)
-                ->doesntHave('planos')
-                ->orderBy('nome')
-                ->get()
-            : collect();
 
         $siteRoutes = $sites->mapWithKeys(fn($s) => [
             $s->id => [
-                'test'            => route('mikrotik.sites.test', $s),
-                'edit'            => route('mikrotik.sites.edit', $s),
-                'syncPendentes'   => route('mikrotik.sites.sync-pendentes', $s),
+                'test'          => route('mikrotik.sites.test', $s),
+                'edit'          => route('mikrotik.sites.edit', $s),
+                'syncPendentes' => route('mikrotik.sites.sync-pendentes', $s),
             ],
         ]);
 
-        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes', 'clientesSemPlano'));
+        return view('mikrotik.index', compact('sites', 'clientes', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes'));
     }
 
     /** Formulário de criação de site. */
