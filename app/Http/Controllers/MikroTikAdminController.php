@@ -256,6 +256,19 @@ class MikroTikAdminController extends Controller
         }
 
         $mikrotik = MikroTikService::forSite($site);
+
+        // Testar ligação uma vez antes de iterar — falha rápido se o router está inacessível
+        $test = $mikrotik->testConnection();
+        if (! $test['ok']) {
+            return response()->json([
+                'ok'      => false,
+                'synced'  => 0,
+                'failed'  => $planos->count(),
+                'errors'  => ['Router inacessível: ' . ($test['error'] ?? 'sem resposta')],
+                'message' => 'Router inacessível: ' . ($test['error'] ?? 'sem resposta'),
+            ]);
+        }
+
         $ok = 0;
         $fail = 0;
         $errors = [];

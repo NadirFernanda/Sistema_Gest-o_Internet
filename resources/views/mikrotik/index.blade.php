@@ -353,19 +353,29 @@ function syncPendentesSite(btn) {
     const url = siteRoutes[id]?.syncPendentes;
     if (!url) return;
     btn.disabled = true; btn.textContent = 'A sincronizar…';
-    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken } })
+
+    const controller = new AbortController();
+    const tId = setTimeout(() => { controller.abort(); }, 20000); // 20s timeout
+
+    fetch(url, { method: 'POST', signal: controller.signal, headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken } })
         .then(r => r.json())
         .then(d => {
+            clearTimeout(tId);
             const resultEl = document.getElementById('detailTestResult');
             resultEl.textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
-            resultEl.style.color = d.failed > 0 ? '#e05a4f' : '#2a8a55';
+            resultEl.style.color = (d.failed > 0 || !d.ok) ? '#e05a4f' : '#2a8a55';
             btn.disabled = false; btn.textContent = 'Sync pendentes';
             if (d.errors && d.errors.length > 0) {
                 alert('Falhas na sincronização:\n\n' + d.errors.join('\n'));
             }
             if (d.synced > 0) setTimeout(() => window.location.reload(), 1500);
         })
-        .catch(err => { btn.disabled = false; btn.textContent = 'Sync pendentes'; alert('Erro de rede: ' + err); });
+        .catch(err => {
+            clearTimeout(tId);
+            btn.disabled = false; btn.textContent = 'Sync pendentes';
+            const msg = err.name === 'AbortError' ? 'Timeout — router demorou demasiado a responder' : String(err);
+            alert('Erro: ' + msg);
+        });
 }
 
 /* ── Testar ligação do site seleccionado ── */
