@@ -237,6 +237,19 @@
                     @empty
                     <tr class="empty-row"><td colspan="9">Nenhum plano sincronizado ainda.</td></tr>
                     @endforelse
+                    @foreach($clientesSemPlano as $cliente)
+                    <tr style="opacity:.7;">
+                        <td class="col-n">—</td>
+                        <td class="col-nm">{{ $cliente->nome }}</td>
+                        <td class="col-si">{{ $cliente->mikrotikSite?->nome ?? '—' }}</td>
+                        <td class="col-pl" style="color:#bbb; font-style:italic;">Sem plano</td>
+                        <td class="col-user"><span style="color:#bbb; font-size:0.8rem;">—</span></td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td class="col-sync">—</td>
+                        <td class="col-acts"></td>
+                    </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>

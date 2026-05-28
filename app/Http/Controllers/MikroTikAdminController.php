@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MikroTikExport;
+use App\Models\Cliente;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
@@ -40,6 +41,15 @@ class MikroTikAdminController extends Controller
             ->whereIn('estado', ['Ativo', 'Em aviso'])
             ->count();
 
+        // Clientes do site seleccionado que não têm nenhum plano criado
+        $clientesSemPlano = $selectedSiteId
+            ? Cliente::with('mikrotikSite')
+                ->where('mikrotik_site_id', $selectedSiteId)
+                ->doesntHave('planos')
+                ->orderBy('nome')
+                ->get()
+            : collect();
+
         $siteRoutes = $sites->mapWithKeys(fn($s) => [
             $s->id => [
                 'test' => route('mikrotik.sites.test', $s),
@@ -47,7 +57,7 @@ class MikroTikAdminController extends Controller
             ],
         ]);
 
-        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes'));
+        return view('mikrotik.index', compact('sites', 'planosSync', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes', 'clientesSemPlano'));
     }
 
     /** Formulário de criação de site. */
