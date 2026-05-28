@@ -129,8 +129,8 @@
                             <option value="{{ $equipamento->id }}"
                                     data-quantidade="{{ $qty }}"
                                     {{ old('estoque_equipamento_id') == $equipamento->id ? 'selected' : '' }}
-                                    @if($qty <= 0) disabled @endif>
-                                {{ $equipamento->nome }} ({{ $equipamento->modelo }}) — estoque: {{ $qty }}@if($qty <= 0) ✗ Indisponível@endif
+                                    {{ $qty <= 0 ? 'disabled' : '' }}>
+                                {{ $equipamento->nome }} ({{ $equipamento->modelo }}) — estoque: {{ $qty }}{{ $qty <= 0 ? ' — Indisponível' : '' }}
                             </option>
                         @endforeach
                     </select>
