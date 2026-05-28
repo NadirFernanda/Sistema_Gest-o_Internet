@@ -63,7 +63,7 @@
         .mkt-count-pill { background:#f4f6f9; color:#666; font-size:0.8rem; padding:3px 11px; border-radius:20px; }
 
         /* ── Table ── */
-        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); overflow:hidden; }
+        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); overflow-x:auto; }
         .mkt-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
         .mkt-table thead { background:#f7f9fb; }
         .mkt-table th {
