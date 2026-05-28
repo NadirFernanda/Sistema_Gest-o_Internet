@@ -83,26 +83,28 @@ class MikroTikService
 
             $existing = $this->findUser($username);
 
+            $disabled = $plano->estado === 'Suspenso' ? 'yes' : 'no';
+
             if ($existing) {
                 $this->api->command('/ip/hotspot/user/set', [
                     '.id'      => $existing['.id'],
                     'profile'  => $profile,
-                    'disabled' => 'no',
+                    'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
                 Log::info('MikroTik: utilizador actualizado', [
-                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
             } else {
                 $this->api->command('/ip/hotspot/user/add', [
                     'name'     => $username,
                     'password' => $password,
                     'profile'  => $profile,
-                    'disabled' => 'no',
+                    'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
                 Log::info('MikroTik: utilizador criado', [
-                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
+                    'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
             }
 

@@ -52,8 +52,9 @@ class MikroTikAdminController extends Controller
 
         $siteRoutes = $sites->mapWithKeys(fn($s) => [
             $s->id => [
-                'test' => route('mikrotik.sites.test', $s),
-                'edit' => route('mikrotik.sites.edit', $s),
+                'test'            => route('mikrotik.sites.test', $s),
+                'edit'            => route('mikrotik.sites.edit', $s),
+                'syncPendentes'   => route('mikrotik.sites.sync-pendentes', $s),
             ],
         ]);
 
@@ -227,5 +228,35 @@ class MikroTikAdminController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /** Sincronizar todos os planos sem username de um site específico. */
+    public function syncPendentesSite(MikroTikSite $site)
+    {
+        $planos = Plano::with('cliente', 'template')
+            ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+            ->whereNull('mikrotik_username')
+            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+            ->get();
+
+        if ($planos->isEmpty()) {
+            return response()->json(['ok' => true, 'synced' => 0, 'failed' => 0, 'message' => 'Sem pendentes.']);
+        }
+
+        $mikrotik = MikroTikService::forSite($site);
+        $ok = 0;
+        $fail = 0;
+
+        foreach ($planos as $plano) {
+            $plano->load(['cliente.mikrotikSite', 'template']);
+            $mikrotik->activateUser($plano) ? $ok++ : $fail++;
+        }
+
+        return response()->json([
+            'ok'      => true,
+            'synced'  => $ok,
+            'failed'  => $fail,
+            'message' => "Sincronizados: $ok | Falhas: $fail",
+        ]);
     }
 }

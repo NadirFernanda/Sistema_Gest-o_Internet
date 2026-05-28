@@ -28,13 +28,22 @@ class MikroTikSyncPlans extends Command
         foreach ($sites as $site) {
             $mikrotik = MikroTikService::forSite($site);
 
-            // Planos activos deste site (via cliente) que precisam de sync
+            // Planos deste site que precisam de sync:
+            // - Ativo/Em aviso: sync normal (cria/actualiza/activa)
+            // - Suspenso sem username: registar pela primeira vez como disabled
             $planos = Plano::with('cliente', 'template')
                 ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
-                ->whereIn('estado', ['Ativo', 'Em aviso'])
                 ->where(function ($q) {
-                    $q->whereNull('mikrotik_synced_at')
-                      ->orWhereColumn('mikrotik_synced_at', '<', 'updated_at');
+                    $q->where(function ($active) {
+                        $active->whereIn('estado', ['Ativo', 'Em aviso'])
+                               ->where(function ($stale) {
+                                   $stale->whereNull('mikrotik_synced_at')
+                                         ->orWhereColumn('mikrotik_synced_at', '<', 'updated_at');
+                               });
+                    })->orWhere(function ($unregistered) {
+                        $unregistered->where('estado', 'Suspenso')
+                                     ->whereNull('mikrotik_username');
+                    });
                 })
                 ->limit($limit)
                 ->get();

@@ -172,6 +172,7 @@
         </div>
         <div class="site-detail__actions">
             <button onclick="testSelectedSite()" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px;">Testar ligação</button>
+            <button id="detailSyncPendentesBtn" onclick="syncPendentesSite(this)" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px; color:#e05a4f; border-color:#e05a4f;">Sync pendentes</button>
             <a id="detailEditLink" href="#" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px; display:inline-flex; align-items:center;">Editar</a>
         </div>
     </div>
@@ -334,6 +335,25 @@ function updateDetailPanel(item) {
     panel.dataset.siteId = id;
     currentSiteId = id;
     panel.classList.add('visible');
+}
+
+/* ── Sync pendentes do site seleccionado ── */
+function syncPendentesSite(btn) {
+    const panel = document.getElementById('siteDetail');
+    const id    = panel.dataset.siteId;
+    if (!id) return;
+    const url = siteRoutes[id]?.syncPendentes;
+    if (!url) return;
+    btn.disabled = true; btn.textContent = 'A sincronizar…';
+    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken } })
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('detailTestResult').textContent = d.message || (d.ok ? 'Concluído.' : 'Erro.');
+            document.getElementById('detailTestResult').style.color = d.ok ? '#2a8a55' : '#e05a4f';
+            btn.disabled = false; btn.textContent = 'Sync pendentes';
+            if (d.synced > 0) setTimeout(() => window.location.reload(), 1500);
+        })
+        .catch(() => { btn.disabled = false; btn.textContent = 'Sync pendentes'; });
 }
 
 /* ── Testar ligação do site seleccionado ── */
