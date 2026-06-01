@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\AlertLog;
 use App\Models\Plano;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -145,6 +146,10 @@ class DispararAlertasVencimento extends Command
                 $cliente = $plano->cliente;
                 // Send mail (primary channel) and count attempts separately; if one channel fails, continue
                 try {
+                    if (AlertLog::jaEnviado($plano->id, 'email')) {
+                        $this->info('Alerta email já enviado hoje para plano ID ' . $plano->id . ' — a saltar.');
+                        continue;
+                    }
                     $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
                     $sent++;
                     // Try to attach provider metadata from the MessageSent listener
@@ -157,6 +162,7 @@ class DispararAlertasVencimento extends Command
                         }
                     } catch (\Throwable $_) { $providerMeta = null; }
 
+                    AlertLog::registar($plano->id, 'email', $diasRestantes);
                     $this->info('E-mail enviado para: ' . ($cliente->email ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
                     $logContext = ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes];
                     if ($providerMeta) { $logContext['provider_meta'] = $providerMeta; }
@@ -213,10 +219,15 @@ class DispararAlertasVencimento extends Command
                 // WhatsApp: only attempt if explicitly enabled via env ENABLE_WHATSAPP=true
                 if (env('ENABLE_WHATSAPP', false)) {
                     try {
-                        $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
-                        $sent++;
-                        $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                        Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                        if (AlertLog::jaEnviado($plano->id, 'whatsapp')) {
+                            $this->info('Alerta WhatsApp já enviado hoje para plano ID ' . $plano->id . ' — a saltar.');
+                        } else {
+                            $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
+                            AlertLog::registar($plano->id, 'whatsapp', $diasRestantes);
+                            $sent++;
+                            $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                            Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                        }
                     } catch (\Throwable $e) {
                         // Detect unsupported driver error and treat it as non-fatal
                         $msg = $e->getMessage();
