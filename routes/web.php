@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/sites/{site}',            [\App\Http\Controllers\MikroTikAdminController::class, 'updateSite'])->name('sites.update');
             Route::get('/sites/{site}/test',       [\App\Http\Controllers\MikroTikAdminController::class, 'testSite'])->name('sites.test');
             Route::post('/sites/{site}/sync-pendentes', [\App\Http\Controllers\MikroTikAdminController::class, 'syncPendentesSite'])->name('sites.sync-pendentes');
+            Route::get('/sites/{site}/profiles',        [\App\Http\Controllers\MikroTikAdminController::class, 'listProfiles'])->name('sites.profiles');
             Route::get('/export-pdf',              [\App\Http\Controllers\MikroTikAdminController::class, 'exportPdf'])->name('export-pdf');
             Route::get('/export-excel',            [\App\Http\Controllers\MikroTikAdminController::class, 'exportExcel'])->name('export-excel');
         });

@@ -64,6 +64,7 @@ class MikroTikAdminController extends Controller
                 'test'          => route('mikrotik.sites.test', $s),
                 'edit'          => route('mikrotik.sites.edit', $s),
                 'syncPendentes' => route('mikrotik.sites.sync-pendentes', $s),
+                'profiles'      => route('mikrotik.sites.profiles', $s),
             ],
         ]);
 
@@ -228,6 +229,14 @@ class MikroTikAdminController extends Controller
             ->whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
             ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
             ->get();
+    }
+
+    /** Listar perfis HotSpot de um site (para diagnóstico). */
+    public function listProfiles(MikroTikSite $site)
+    {
+        $profiles = MikroTikService::forSite($site)->listProfiles();
+        $names = array_map(fn($p) => $p['=name'] ?? $p['name'] ?? '?', $profiles);
+        return response()->json(['ok' => true, 'profiles' => $names]);
     }
 
     /** Disparar sync completo. */

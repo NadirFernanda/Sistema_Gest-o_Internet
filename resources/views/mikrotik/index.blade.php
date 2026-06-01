@@ -172,6 +172,7 @@
         </div>
         <div class="site-detail__actions">
             <button onclick="testSelectedSite()" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px;">Testar ligação</button>
+            <button onclick="verPerfis(this)" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px;">Ver perfis</button>
             <button id="detailSyncPendentesBtn" onclick="syncPendentesSite(this)" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px; color:#e05a4f; border-color:#e05a4f;">Sync pendentes</button>
             <a id="detailEditLink" href="#" class="btn btn-ghost" style="height:32px; font-size:0.82rem; padding:0 14px; display:inline-flex; align-items:center;">Editar</a>
         </div>
@@ -343,6 +344,27 @@ function updateDetailPanel(item) {
     panel.dataset.siteId = id;
     currentSiteId = id;
     panel.classList.add('visible');
+}
+
+/* ── Ver perfis do router ── */
+function verPerfis(btn) {
+    const panel = document.getElementById('siteDetail');
+    const id    = panel.dataset.siteId;
+    if (!id) return;
+    const url = siteRoutes[id]?.profiles;
+    if (!url) return;
+    btn.disabled = true; btn.textContent = 'A carregar…';
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(d => {
+            btn.disabled = false; btn.textContent = 'Ver perfis';
+            if (d.ok && d.profiles) {
+                alert('Perfis HotSpot no router:\n\n' + (d.profiles.length ? d.profiles.join('\n') : '(nenhum)'));
+            } else {
+                alert('Erro ao obter perfis.');
+            }
+        })
+        .catch(() => { btn.disabled = false; btn.textContent = 'Ver perfis'; alert('Falha de ligação.'); });
 }
 
 /* ── Sync pendentes do site seleccionado ── */
