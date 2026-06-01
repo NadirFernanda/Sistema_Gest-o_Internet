@@ -112,6 +112,24 @@ class MikroTikService
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
+
+                // Se o perfil não existe no router, tenta com o default_profile do site
+                if ($this->isProfileError($resp) && $profile !== $this->defaultProfile) {
+                    Log::warning('MikroTik: perfil não existe, usando default_profile como fallback', [
+                        'profile'  => $profile,
+                        'fallback' => $this->defaultProfile,
+                        'username' => $username,
+                        'host'     => $this->host,
+                    ]);
+                    $resp = $this->api->command('/ip/hotspot/user/add', [
+                        'name'     => $username,
+                        'password' => $password,
+                        'profile'  => $this->defaultProfile,
+                        'disabled' => $disabled,
+                        'comment'  => $comment,
+                    ]);
+                }
+
                 $this->throwIfTrap($resp, 'add');
                 Log::info('MikroTik: utilizador criado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
@@ -269,6 +287,17 @@ class MikroTikService
             if (($r['type'] ?? '') === '!re') return $r;
         }
         return null;
+    }
+
+    private function isProfileError(array $response): bool
+    {
+        foreach ($response as $r) {
+            if (($r['type'] ?? '') === '!trap') {
+                $msg = $r['=message'] ?? $r['message'] ?? '';
+                return stripos($msg, 'profile') !== false;
+            }
+        }
+        return false;
     }
 
     private function throwIfTrap(array $response, string $op): void
