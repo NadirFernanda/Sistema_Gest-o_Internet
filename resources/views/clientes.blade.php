@@ -109,9 +109,9 @@
                         @php
                             $user = auth()->user();
                         @endphp
-                        @if(isset($cliente) && $cliente->id && (!$user || (!$user->hasRole('colaborador') && !$user->hasRole('gerente'))))
-                        {{-- Compensação controls moved to plano detail view to avoid duplication --}}
-                        @endif
+                                        @can('planos.edit')
+                        <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="font-size:.88rem;">Editar</a>
+                        @endcan
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
