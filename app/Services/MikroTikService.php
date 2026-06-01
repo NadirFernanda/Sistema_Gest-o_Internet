@@ -299,8 +299,15 @@ class MikroTikService
 
     private function resolveProfile(Plano $plano): string
     {
-        // Profile name = PlanTemplate name (must match exactly in MikroTik)
+        // 1. Template name (authoritative)
         $templateName = $plano->template?->name ?? '';
-        return $templateName !== '' ? $templateName : $this->defaultProfile;
+        if ($templateName !== '') return $templateName;
+
+        // 2. Plan's stored nome — for plans created before templates existed (template_id null)
+        $planNome = trim($plano->nome ?? '');
+        if ($planNome !== '') return $planNome;
+
+        // 3. Site default profile as last resort
+        return $this->defaultProfile;
     }
 }
