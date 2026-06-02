@@ -140,6 +140,7 @@ class MikroTikAdminController extends Controller
     public function testSite(MikroTikSite $site)
     {
         $result = MikroTikService::forSite($site)->testConnection();
+        $result['site_nome'] = $site->nome;
         return response()->json($result);
     }
 
