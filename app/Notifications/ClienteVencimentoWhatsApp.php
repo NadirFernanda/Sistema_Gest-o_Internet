@@ -47,9 +47,15 @@ class ClienteVencimentoWhatsApp extends Notification
 
         $dataTerminoStr = $dataTermino ? $dataTermino->format('d/m/Y') : '';
 
+        $vencido = $this->diasRestantes <= 0;
+
+        $linhaInfo = $vencido
+            ? "Informamos que a sua subscrição de internet encontra-se vencida desde o dia *{$dataTerminoStr}*. "
+            : "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. ";
+
         $mensagem = "*Prezado(a) Cliente AngolaWiFi – {$this->cliente->nome},*\n\n" .
             "Cordiais saudações.\n\n" .
-            "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. " .
+            $linhaInfo .
             "Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online.\n\n" .
             "Para o efeito, siga por gentileza os passos abaixo indicados:\n\n" .
             "1. Acesse o portal através do link: www.angolawifi.ao\n" .
