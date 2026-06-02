@@ -126,7 +126,7 @@ input[type=checkbox]{accent-color:var(--a-brand);width:15px;height:15px;cursor:p
                 <input type="checkbox" name="ids[]" value="{{ $app->id }}" class="row-cb">
               </td>
               <td>
-                <a href="{{ route('admin.resellers.show', $app) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">{{ $app->full_name }}</a>
+                <a href="{{ route('admin.resellers.show', $app) }}" style="color:#2563eb;font-weight:600;text-decoration:underline;">{{ $app->full_name }}</a>
               </td>
               <td>
                 <span style="font-size:.85rem;">{{ $app->email }}</span>
