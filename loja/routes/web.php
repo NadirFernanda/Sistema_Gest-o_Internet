@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\EquipmentOrderAdminController;
 use App\Http\Controllers\Admin\SiteStatsAdminController;
 use App\Http\Controllers\Admin\VoucherPlanAdminController;
+use App\Http\Controllers\Admin\GpoReconciliationController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FamilyPlanPaymentController;
@@ -174,6 +175,8 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/recargas', [AutovendaOrderAdminController::class, 'index'])->name('admin.autovenda.index');
     Route::get('/recargas/exportar', [AutovendaOrderAdminController::class, 'export'])->name('admin.autovenda.export');
+    Route::get('/reconciliacao-gpo', [GpoReconciliationController::class, 'index'])->name('admin.reconciliation.gpo');
+    Route::get('/reconciliacao-gpo/exportar', [GpoReconciliationController::class, 'export'])->name('admin.reconciliation.gpo.export');
     Route::get('/relatorios', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::get('/revendedores', [ResellerAdminController::class, 'index'])->name('admin.resellers.index');
     Route::get('/revendedores/compras', [ResellerPurchaseAdminController::class, 'index'])->name('admin.resellers.purchases.index');
