@@ -183,11 +183,7 @@ class EquipmentController extends Controller
             'customer_email'   => 'nullable|email|max:255',
             'customer_phone'   => 'required|string|max:50',
             'customer_address' => 'nullable|string|max:500',
-            'payment_method'   => 'required|string|in:' . implode(',', [
-                EquipmentOrder::METHOD_MULTICAIXA,
-                EquipmentOrder::METHOD_PAYPAL,
-                EquipmentOrder::METHOD_CASH,
-            ]),
+            'payment_method'   => 'required|string|in:' . EquipmentOrder::METHOD_CASH,
             'notes' => 'nullable|string|max:1000',
         ]);
 

@@ -87,9 +87,7 @@
         <div>
           <dt>Pagamento</dt>
           <dd>
-            @if($order->payment_method === 'multicaixa_express') Multicaixa Express
-            @elseif($order->payment_method === 'paypal') PayPal
-            @elseif($order->payment_method === 'cash') Pagamento na entrega
+            @if($order->payment_method === 'cash') Pagamento na entrega
             @else {{ $order->payment_method ?? '&mdash;' }}
             @endif
           </dd>

@@ -93,9 +93,7 @@
       <label class="ap-label">M&eacute;todo</label>
       <select name="payment_method" class="ap-ctrl" style="min-width:175px;">
         <option value="">Todos os m&eacute;todos</option>
-        <option value="multicaixa_express" @selected(request('payment_method') === 'multicaixa_express')>Multicaixa Express</option>
-        <option value="paypal"             @selected(request('payment_method') === 'paypal')>PayPal</option>
-        <option value="cash"               @selected(request('payment_method') === 'cash')>Dinheiro</option>
+        <option value="cash" @selected(request('payment_method') === 'cash')>Pagamento na entrega</option>
       </select>
     </div>
     <div class="ap-fg">

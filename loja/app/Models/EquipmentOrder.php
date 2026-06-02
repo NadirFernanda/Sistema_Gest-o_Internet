@@ -35,9 +35,7 @@ class EquipmentOrder extends Model
     public const TYPE_IMMEDIATE = 'immediate';
     public const TYPE_BACKORDER = 'backorder';
 
-    public const METHOD_MULTICAIXA = 'multicaixa_express';
-    public const METHOD_PAYPAL     = 'paypal';
-    public const METHOD_CASH       = 'cash';
+    public const METHOD_CASH = 'cash';
 
     public static function allStatuses(): array
     {

@@ -29,8 +29,7 @@
 
         <p style="font-size:0.93rem;color:#64748b;margin-top:0.5rem;">
           Método: <strong>
-            @if ($order->payment_method === 'multicaixa_express') Multicaixa Express
-            @elseif ($order->payment_method === 'paypal') PayPal
+            @if ($order->payment_method === 'cash') Pagamento na entrega
             @else Pagamento na entrega
             @endif
           </strong>

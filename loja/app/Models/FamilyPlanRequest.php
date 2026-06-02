@@ -42,7 +42,5 @@ class FamilyPlanRequest extends Model
     public const STATUS_ACTIVATED = 'activated';
     public const STATUS_CANCELLED = 'cancelled';
 
-    public const METHOD_MULTICAIXA = 'multicaixa_express';
-    public const METHOD_PAYPAL     = 'paypal';
-    public const METHOD_GPO        = 'gpo';
+    public const METHOD_GPO = 'gpo';
 }

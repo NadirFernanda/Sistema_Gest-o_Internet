@@ -12,7 +12,6 @@
     $isPending   = $familyRequest->status === \App\Models\FamilyPlanRequest::STATUS_PENDING;
     $isAwaiting  = $familyRequest->status === \App\Models\FamilyPlanRequest::STATUS_AWAITING_PAYMENT;
     $isCancelled = $familyRequest->status === \App\Models\FamilyPlanRequest::STATUS_CANCELLED;
-    $isMulticaixa = $familyRequest->payment_method === \App\Models\FamilyPlanRequest::METHOD_MULTICAIXA;
 @endphp
 
 @section('title',
@@ -85,40 +84,14 @@
         <p><span class="label">Referência do pedido:</span> <strong class="pagar-plano-ref">{{ $familyRequest->payment_reference }}</strong></p>
       </div>
 
-      {{-- Multicaixa Express --}}
-      @if($isMulticaixa)
-        <div class="pagar-plano-instrucoes">
-          <h2>💳 Pagar com Multicaixa Express</h2>
-          <ol class="pagar-plano-steps">
-            <li>Abra a sua aplicação bancária.</li>
-            <li>Seleccione <strong>Multicaixa Express</strong> → <strong>Pagamentos</strong>.</li>
-            <li>Introduza a referência: <strong class="pagar-plano-ref-inline">{{ $familyRequest->payment_reference }}</strong></li>
-            @if($familyRequest->plan_preco)
-              <li>Confirme o valor: <strong>{{ number_format($familyRequest->plan_preco, 0, ',', '.') }} AOA</strong></li>
-            @endif
-            <li>Confirme o pagamento.</li>
-          </ol>
-          <div class="pagar-plano-aviso">
-            <strong>⚡ Activação automática:</strong> assim que o pagamento for confirmado, o seu
-            plano será activado instantaneamente e receberá um e-mail de confirmação.
-          </div>
+      <div class="pagar-plano-instrucoes">
+        <h2>💳 Pagar via EMIS GPO</h2>
+        <p>O pagamento é processado pela gateway segura EMIS (Multicaixa Express e cartão bancário).</p>
+        <div class="pagar-plano-aviso">
+          <strong>Activação automática:</strong> assim que o pagamento for confirmado, o seu
+          plano será activado instantaneamente e receberá um e-mail de confirmação.
         </div>
-
-      {{-- PayPal --}}
-      @else
-        <div class="pagar-plano-instrucoes">
-          <h2>🅿 Pagar com PayPal</h2>
-          <p>Clique no botão abaixo para ser redirecionado para o PayPal.</p>
-          <p>Use a referência <strong>{{ $familyRequest->payment_reference }}</strong> no campo de nota do pagamento.</p>
-          @if($familyRequest->plan_preco)
-            <p>Valor: <strong>{{ number_format($familyRequest->plan_preco, 0, ',', '.') }} AOA</strong></p>
-          @endif
-          <div class="pagar-plano-aviso">
-            <strong>ℹ️ Nota:</strong> Após o pagamento, a activação pode demorar alguns minutos.
-            Receberá um e-mail de confirmação em <strong>{{ $familyRequest->customer_email }}</strong>.
-          </div>
-        </div>
-      @endif
+      </div>
 
       {{-- Botão de simulação (apenas em local/dev) --}}
       @if(app()->environment('local', 'testing'))

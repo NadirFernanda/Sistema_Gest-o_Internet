@@ -341,8 +341,7 @@ class FamilyPlanRequestController extends Controller
         $adminEmail = config('mail.admin_address', env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS')));
         if (!$adminEmail) return;
 
-        $paymentLabel = $req->payment_method === FamilyPlanRequest::METHOD_MULTICAIXA
-            ? 'Multicaixa Express' : 'PayPal';
+        $paymentLabel = 'GPO / EMIS';
 
         $body = "Novo pedido aguardando pagamento — {$req->payment_reference}\n\n"
             . "Plano: {$req->plan_name}\n"

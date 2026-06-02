@@ -58,7 +58,7 @@
       <div class="solicitar-confirmacao-row">
         <span class="solicitar-confirmacao-label">Pagamento</span>
         <span class="solicitar-confirmacao-value">
-          {{ $familyRequest->payment_method === 'multicaixa_express' ? 'Multicaixa Express' : 'PayPal' }}
+          GPO / EMIS
         </span>
       </div>
     </div>
@@ -68,7 +68,7 @@
         <p>
           O seu acesso está <strong>activo</strong>. Foi enviado um e-mail de confirmação para
           <strong>{{ $familyRequest->customer_email }}</strong>.<br>
-          Por favor efectue o pagamento via <strong>{{ $familyRequest->payment_method === 'multicaixa_express' ? 'Multicaixa Express' : 'PayPal' }}</strong>
+          Por favor efectue o pagamento via <strong>GPO / EMIS</strong>
           para garantir a continuidade do serviço.
         </p>
       @else

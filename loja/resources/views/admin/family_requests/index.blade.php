@@ -72,7 +72,7 @@
     <strong>O que é esta página?</strong> Lista dos pedidos de planos Familiares, Empresariais e Institucionais (planos mensais de 30 dias). São diferentes das recargas individuais (Diário/Semanal/Mensal) &mdash; estes são activados directamente no Sistema de Gestão (SG).<br><br>
     <strong>Fluxo completo de um pedido:</strong><br>
     1. O cliente escolhe o plano e preenche os dados (nome, telefone, NIF) &rarr; pedido criado com estado <strong>A aguardar pagamento</strong>.<br>
-    2. O cliente paga (Multicaixa Express ou PayPal) &rarr; o gateway confirma automaticamente &rarr; o sistema activa o plano no SG &rarr; estado muda para <strong>Activado</strong>. <em>Nenhuma intervenção do admin é necessária neste caso.</em><br>
+    2. O cliente paga via <strong>GPO / EMIS</strong> &rarr; o gateway confirma automaticamente &rarr; o sistema activa o plano no SG &rarr; estado muda para <strong>Activado</strong>. <em>Nenhuma intervenção do admin é necessária neste caso.</em><br>
     3. Se o pagamento foi confirmado mas o SG devolveu erro (ex: SG em manutenção, timeout), o estado fica <strong>Pendente</strong>. Clique em <strong>"Activar no SG"</strong> para retentar a activação manualmente.<br><br>
     <strong>Estados e o que fazer:</strong><br>
     &bull; <strong>A aguardar pagamento</strong>: cliente ainda não pagou. Não precisa de fazer nada &mdash; aguarde. Se suspeitar de spam ou engano, use o botão <strong>Cancelar</strong>.<br>
@@ -118,14 +118,6 @@
     <div class="ap-fg grow">
       <label class="ap-label">Pesquisa</label>
       <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Nome, telefone, e-mail, plano, refer&ecirc;ncia...">
-    </div>
-    <div class="ap-fg">
-      <label class="ap-label">M&eacute;todo</label>
-      <select name="payment_method" class="ap-ctrl" style="min-width:175px;">
-        <option value="">Todos os m&eacute;todos</option>
-        <option value="multicaixa_express" @selected(request('payment_method') === 'multicaixa_express')>Multicaixa Express</option>
-        <option value="paypal"             @selected(request('payment_method') === 'paypal')>PayPal</option>
-      </select>
     </div>
     <div class="ap-fg">
       <label class="ap-label">De</label>
@@ -198,13 +190,7 @@
             </td>
             <td style="white-space:nowrap;">{{ $req->customer_phone }}</td>
             <td>
-              @if($req->payment_method === 'multicaixa_express')
-                <span class="badge bg-amber">Multicaixa</span>
-              @elseif($req->payment_method === 'paypal')
-                <span class="badge bg-blue">PayPal</span>
-              @else
-                <span class="dim">{{ $req->payment_method }}</span>
-              @endif
+              <span class="badge bg-amber">GPO / EMIS</span>
             </td>
             <td>
               @if($req->status === 'activated')
