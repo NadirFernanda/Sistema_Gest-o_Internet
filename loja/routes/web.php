@@ -179,6 +179,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/reconciliacao-gpo/exportar', [GpoReconciliationController::class, 'export'])->name('admin.reconciliation.gpo.export');
     Route::get('/relatorios', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::get('/revendedores', [ResellerAdminController::class, 'index'])->name('admin.resellers.index');
+    Route::post('/revendedores/apagar-seleccionados', [ResellerAdminController::class, 'bulkDestroy'])->name('admin.resellers.bulk-destroy');
     Route::get('/revendedores/compras', [ResellerPurchaseAdminController::class, 'index'])->name('admin.resellers.purchases.index');
     Route::get('/revendedores/{application}', [ResellerAdminController::class, 'show'])->name('admin.resellers.show');
     Route::put('/revendedores/{application}', [ResellerAdminController::class, 'update'])->name('admin.resellers.update');

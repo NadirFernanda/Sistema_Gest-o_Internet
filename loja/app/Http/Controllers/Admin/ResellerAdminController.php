@@ -104,6 +104,32 @@ class ResellerAdminController extends Controller
         return back()->with('status', 'Estado atualizado.');
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
+
+        if (empty($ids)) {
+            return back()->with('error', 'Nenhuma candidatura seleccionada.');
+        }
+
+        // Aprovados com compras não são eliminados — podem ter histórico financeiro
+        $deleted = ResellerApplication::whereIn('id', $ids)
+            ->where(function ($q) {
+                $q->where('status', '!=', ResellerApplication::STATUS_APPROVED)
+                  ->orWhereDoesntHave('purchases');
+            })
+            ->delete();
+
+        $skipped = count($ids) - $deleted;
+
+        $msg = $deleted . ' candidatura(s) eliminada(s).';
+        if ($skipped > 0) {
+            $msg .= ' ' . $skipped . ' ignorada(s): revendedores aprovados com compras não podem ser eliminados aqui.';
+        }
+
+        return back()->with('success', $msg);
+    }
+
     public function sendBonus(Request $request, ResellerApplication $application)
     {
         $data = $request->validate([
