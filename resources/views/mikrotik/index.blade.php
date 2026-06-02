@@ -140,6 +140,12 @@
                 </div>
             </div>
 
+            <input type="text" id="clienteSearch"
+                placeholder="Pesquisar cliente ou username…"
+                value="{{ $search }}"
+                autocomplete="off"
+                style="height:40px; padding:0 12px; border:1px solid #dde3ec; border-radius:8px; font-size:0.88rem; width:220px; color:#333; outline:none;">
+
             <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
         </div>
 
@@ -282,6 +288,29 @@ if (currentSiteId) history.replaceState(null, '', window.location.pathname);
 if (currentSiteId && siteRoutes[currentSiteId]?.edit) {
     document.getElementById('detailEditLink').href = siteRoutes[currentSiteId].edit;
 }
+
+/* ── Pesquisa de clientes ── */
+const clienteSearchInput = document.getElementById('clienteSearch');
+let searchTimer;
+clienteSearchInput.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        const url = new URL(window.location.href);
+        const val = this.value.trim();
+        if (val) url.searchParams.set('search', val);
+        else url.searchParams.delete('search');
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }, 500);
+});
+clienteSearchInput.addEventListener('focus', function () {
+    this.style.borderColor = '#f5a623';
+    this.style.boxShadow   = '0 0 0 3px rgba(245,166,35,.15)';
+});
+clienteSearchInput.addEventListener('blur', function () {
+    this.style.borderColor = '#dde3ec';
+    this.style.boxShadow   = '';
+});
 
 /* ── Dropdown pesquisável ── */
 const picker   = document.getElementById('sitePicker');

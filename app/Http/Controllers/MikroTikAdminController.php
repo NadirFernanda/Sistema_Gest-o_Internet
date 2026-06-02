@@ -22,6 +22,7 @@ class MikroTikAdminController extends Controller
 
         $selectedSiteId = $request->query('site_id');
         $selectedSite   = $selectedSiteId ? $sites->firstWhere('id', (int) $selectedSiteId) : null;
+        $search         = trim($request->query('search', ''));
 
         // Query centrada no cliente: 1 linha por cliente, com o plano mais recente via LEFT JOIN
         $bestPlanSub = DB::table('planos')
@@ -50,6 +51,13 @@ class MikroTikAdminController extends Controller
             $query->where('clientes.mikrotik_site_id', (int) $selectedSiteId);
         }
 
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('clientes.nome', 'like', "%{$search}%")
+                  ->orWhere('planos.mikrotik_username', 'like', "%{$search}%");
+            });
+        }
+
         $clientes = $query->paginate(30)->withQueryString();
 
         $planosPending = DB::table('planos')
@@ -68,7 +76,7 @@ class MikroTikAdminController extends Controller
             ],
         ]);
 
-        return view('mikrotik.index', compact('sites', 'clientes', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes'));
+        return view('mikrotik.index', compact('sites', 'clientes', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes', 'search'));
     }
 
     /** Formulário de criação de site. */
