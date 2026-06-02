@@ -415,7 +415,9 @@ function testSelectedSite() {
     fetch(siteRoutes[id]?.test, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(r => r.json())
         .then(d => {
-            result.textContent = d.ok ? '✓ Ligado — ' + (d.site_nome || d.identity || '') : '✗ ' + (d.error || 'Erro');
+            let msg = d.site_nome || '';
+            if (d.identity && d.identity !== d.site_nome) msg += ' (MikroTik: ' + d.identity + ')';
+            result.textContent = d.ok ? '✓ Ligado — ' + msg : '✗ ' + (d.error || 'Erro');
             result.style.color = d.ok ? '#2a8a55' : '#e05a4f';
         })
         .catch(() => { result.textContent = '✗ Falha de rede'; result.style.color = '#e05a4f'; });
