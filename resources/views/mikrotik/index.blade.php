@@ -141,7 +141,6 @@
             </div>
 
             <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
-            <div id="syncResult" style="font-size:0.85rem; color:#555;"></div>
         </div>
 
         <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
@@ -152,6 +151,7 @@
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
     </div>
+    <div id="syncResult" style="max-width:1100px; margin:6px auto 0; font-size:0.85rem; color:#555; white-space:pre-line;"></div>
 
     {{-- ── Painel de detalhes do site seleccionado ── --}}
     <div class="site-detail {{ $selectedSite ? 'visible' : '' }}" id="siteDetail"
