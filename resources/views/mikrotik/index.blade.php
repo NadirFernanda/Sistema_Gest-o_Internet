@@ -140,12 +140,6 @@
                 </div>
             </div>
 
-            <input type="text" id="clienteSearch"
-                placeholder="Pesquisar cliente ou username…"
-                value="{{ $search }}"
-                autocomplete="off"
-                style="height:40px; padding:0 12px; border:1px solid #dde3ec; border-radius:8px; font-size:0.88rem; width:220px; color:#333; outline:none;">
-
             <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
         </div>
 
@@ -157,6 +151,26 @@
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
     </div>
+    {{-- ── Barra de pesquisa de clientes ── --}}
+    <div style="max-width:1100px; margin:8px auto 0;">
+        <div style="position:relative;">
+            <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"
+                 xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="clienteSearch"
+                placeholder="Pesquisar cliente ou username MikroTik…"
+                value="{{ $search }}"
+                autocomplete="off"
+                style="width:100%; height:40px; padding:0 40px 0 38px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; color:#333; outline:none; box-sizing:border-box;">
+            @if($search)
+            <button onclick="limparPesquisa()" title="Limpar pesquisa"
+                style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:#aaa; line-height:1; padding:0;">✕</button>
+            @endif
+        </div>
+    </div>
+
     <div id="syncResult" style="max-width:1100px; margin:6px auto 0; font-size:0.85rem; color:#555; white-space:pre-line;"></div>
 
     {{-- ── Painel de detalhes do site seleccionado ── --}}
@@ -295,13 +309,12 @@ let searchTimer;
 clienteSearchInput.addEventListener('input', function () {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
-        const url = new URL(window.location.href);
-        const val = this.value.trim();
-        if (val) url.searchParams.set('search', val);
-        else url.searchParams.delete('search');
-        url.searchParams.delete('page');
-        window.location.href = url.toString();
+        navegarComPesquisa(this.value.trim());
     }, 500);
+});
+clienteSearchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { clearTimeout(searchTimer); navegarComPesquisa(this.value.trim()); }
+    if (e.key === 'Escape') { clearTimeout(searchTimer); navegarComPesquisa(''); }
 });
 clienteSearchInput.addEventListener('focus', function () {
     this.style.borderColor = '#f5a623';
@@ -311,6 +324,14 @@ clienteSearchInput.addEventListener('blur', function () {
     this.style.borderColor = '#dde3ec';
     this.style.boxShadow   = '';
 });
+function navegarComPesquisa(val) {
+    const url = new URL(window.location.href);
+    if (val) url.searchParams.set('search', val);
+    else url.searchParams.delete('search');
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
+function limparPesquisa() { navegarComPesquisa(''); }
 
 /* ── Dropdown pesquisável ── */
 const picker   = document.getElementById('sitePicker');
