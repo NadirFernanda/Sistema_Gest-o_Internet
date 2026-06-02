@@ -100,16 +100,24 @@ class MikroTikService
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
-                if ($this->isProfileError($resp) && $profile !== $this->defaultProfile) {
-                    Log::warning('MikroTik: perfil não existe no set, usando default_profile como fallback', [
-                        'profile'  => $profile,
-                        'fallback' => $this->defaultProfile,
-                        'username' => $username,
-                        'host'     => $this->host,
+                if ($this->isProfileError($resp) && $profile !== $this->defaultProfile && $this->defaultProfile !== '') {
+                    Log::warning('MikroTik: perfil não existe no set, usando default_profile', [
+                        'profile' => $profile, 'fallback' => $this->defaultProfile, 'host' => $this->host,
                     ]);
                     $resp = $this->api->command('/ip/hotspot/user/set', [
                         '.id'      => $existing['.id'],
                         'profile'  => $this->defaultProfile,
+                        'disabled' => $disabled,
+                        'comment'  => $comment,
+                    ]);
+                }
+                // Último recurso: actualizar só disabled/comment sem tocar no perfil
+                if ($this->isProfileError($resp)) {
+                    Log::warning('MikroTik: default_profile também inválido no set, a ignorar perfil', [
+                        'host' => $this->host, 'username' => $username,
+                    ]);
+                    $resp = $this->api->command('/ip/hotspot/user/set', [
+                        '.id'      => $existing['.id'],
                         'disabled' => $disabled,
                         'comment'  => $comment,
                     ]);
@@ -126,14 +134,9 @@ class MikroTikService
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
-
-                // Se o perfil não existe no router, tenta com o default_profile do site
-                if ($this->isProfileError($resp) && $profile !== $this->defaultProfile) {
-                    Log::warning('MikroTik: perfil não existe, usando default_profile como fallback', [
-                        'profile'  => $profile,
-                        'fallback' => $this->defaultProfile,
-                        'username' => $username,
-                        'host'     => $this->host,
+                if ($this->isProfileError($resp) && $profile !== $this->defaultProfile && $this->defaultProfile !== '') {
+                    Log::warning('MikroTik: perfil não existe no add, usando default_profile', [
+                        'profile' => $profile, 'fallback' => $this->defaultProfile, 'host' => $this->host,
                     ]);
                     $resp = $this->api->command('/ip/hotspot/user/add', [
                         'name'     => $username,
@@ -143,7 +146,18 @@ class MikroTikService
                         'comment'  => $comment,
                     ]);
                 }
-
+                // Último recurso: criar sem perfil (MikroTik usa o seu default interno)
+                if ($this->isProfileError($resp)) {
+                    Log::warning('MikroTik: default_profile também inválido no add, a criar sem perfil', [
+                        'host' => $this->host, 'username' => $username,
+                    ]);
+                    $resp = $this->api->command('/ip/hotspot/user/add', [
+                        'name'     => $username,
+                        'password' => $password,
+                        'disabled' => $disabled,
+                        'comment'  => $comment,
+                    ]);
+                }
                 $this->throwIfTrap($resp, 'add');
                 Log::info('MikroTik: utilizador criado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
