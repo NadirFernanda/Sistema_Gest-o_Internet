@@ -173,6 +173,7 @@ Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name(
 Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/recargas', [AutovendaOrderAdminController::class, 'index'])->name('admin.autovenda.index');
+    Route::get('/recargas/exportar', [AutovendaOrderAdminController::class, 'export'])->name('admin.autovenda.export');
     Route::get('/relatorios', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::get('/revendedores', [ResellerAdminController::class, 'index'])->name('admin.resellers.index');
     Route::get('/revendedores/compras', [ResellerPurchaseAdminController::class, 'index'])->name('admin.resellers.purchases.index');
