@@ -14,15 +14,15 @@ return [
     |
     */
     'whatsapp' => [
-        'driver' => env('WHATSAPP_DRIVER', 'twilio'),
-        'api_url' => env('WHATSAPP_API_URL', 'https://api.ultramsg.com/instanceXXXX'),
-        'token' => env('WHATSAPP_API_TOKEN', ''),
+        'driver'  => env('WHATSAPP_DRIVER', 'evolution'),
+        'api_url' => env('WHATSAPP_API_URL', ''),
+        'token'   => env('WHATSAPP_API_TOKEN', ''),
     ],
 
-    'twilio' => [
-        'sid' => env('TWILIO_ACCOUNT_SID', ''),
-        'token' => env('TWILIO_AUTH_TOKEN', ''),
-        'from' => env('TWILIO_WHATSAPP_FROM', ''),
+    'evolution' => [
+        'url'      => env('EVOLUTION_API_URL', ''),
+        'key'      => env('EVOLUTION_API_KEY', ''),
+        'instance' => env('EVOLUTION_API_INSTANCE', ''),
     ],
 
     /*

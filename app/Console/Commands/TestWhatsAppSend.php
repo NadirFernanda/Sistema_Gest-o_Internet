@@ -23,24 +23,23 @@ class TestWhatsAppSend extends Command
 
     public function handle()
     {
-        $numero = $this->argument('numero') ?: env('TWILIO_TEST_TO');
-        $mensagem = $this->option('mensagem') ?: env('TWILIO_TEST_MESSAGE', 'Mensagem de teste: alerta de vencimento de plano.');
+        $numero   = $this->argument('numero') ?: env('WHATSAPP_TEST_TO');
+        $mensagem = $this->option('mensagem') ?: 'Mensagem de teste — Angola WiFi SGA.';
 
-        if (!$numero) {
-            $this->error('Número destino não informado. Passe como argumento ou defina TWILIO_TEST_TO no .env');
+        if (! $numero) {
+            $this->error('Número destino não informado. Passe como argumento ou defina WHATSAPP_TEST_TO no .env');
             return 1;
         }
 
-        $service = new WhatsAppService();
-        $this->info("Enviando para: {$numero}");
-        $result = $service->enviarMensagem($numero, $mensagem);
-
-        if ($result) {
-            $this->info('Mensagem enviada com sucesso. Resposta: ' . (is_array($result) ? json_encode($result) : (string)$result));
+        try {
+            $service = new WhatsAppService();
+            $this->info("A enviar para: {$numero}");
+            $result = $service->enviarMensagem($numero, $mensagem);
+            $this->info('Enviado com sucesso: ' . json_encode($result));
             return 0;
+        } catch (\Throwable $e) {
+            $this->error('Falha: ' . $e->getMessage());
+            return 2;
         }
-
-        $this->error('Falha ao enviar mensagem. Verifique logs e configuração.');
-        return 2;
     }
 }

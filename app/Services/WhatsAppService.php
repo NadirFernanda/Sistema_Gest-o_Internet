@@ -8,74 +8,111 @@ use InvalidArgumentException;
 
 class WhatsAppService
 {
-    protected $apiUrl;
-    protected $token;
-    protected $driver;
-    protected $twilioSid;
-    protected $twilioToken;
-    protected $twilioFrom;
+    protected string $driver;
+
+    // Evolution API
+    protected string $evolutionUrl;
+    protected string $evolutionKey;
+    protected string $evolutionInstance;
+
+    // HTTP genérico (UltraMsg / Z-API — legacy)
+    protected string $apiUrl;
+    protected string $token;
 
     public function __construct()
     {
-        // Driver pode ser 'http' (UltraMsg/Z-API) ou 'twilio'
-        $this->driver = config('services.whatsapp.driver', 'http');
-        $this->apiUrl = config('services.whatsapp.api_url');
-        $this->token = config('services.whatsapp.token');
-        $this->twilioSid = config('services.twilio.sid');
-        $this->twilioToken = config('services.twilio.token');
-        $this->twilioFrom = config('services.twilio.from');
+        $this->driver            = config('services.whatsapp.driver', 'evolution');
+        $this->evolutionUrl      = rtrim((string) config('services.evolution.url', ''), '/');
+        $this->evolutionKey      = (string) config('services.evolution.key', '');
+        $this->evolutionInstance = (string) config('services.evolution.instance', '');
+        $this->apiUrl            = (string) config('services.whatsapp.api_url', '');
+        $this->token             = (string) config('services.whatsapp.token', '');
     }
 
     /**
-     * Envia mensagem de WhatsApp para um número.
-     * @param string $numero Número no formato internacional, ex: 244XXXXXXXXX
+     * Envia mensagem de WhatsApp.
+     * @param string $numero Número no formato internacional sem '+', ex: 244XXXXXXXXX
      * @param string $mensagem Texto da mensagem
-     * @return array|bool
      */
-    public function enviarMensagem($numero, $mensagem)
+    public function enviarMensagem(string $numero, string $mensagem): array
     {
-        // Suporta driver Twilio (recomendado para POC) ou integrações HTTP (UltraMsg/Z-API)
-        if ($this->driver === 'twilio') {
-            if (!$this->twilioSid || !$this->twilioToken || !$this->twilioFrom) {
-                throw new InvalidArgumentException('Twilio credentials missing (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM)');
-            }
-            $url = "https://api.twilio.com/2010-04-01/Accounts/{$this->twilioSid}/Messages.json";
-            $response = Http::withBasicAuth($this->twilioSid, $this->twilioToken)
-                ->asForm()
-                ->post($url, [
-                    'From' => 'whatsapp:' . $this->twilioFrom,
-                    'To' => 'whatsapp:' . $numero,
-                    'Body' => $mensagem,
-                ]);
+        $numero = $this->normalizarNumero($numero);
 
-            if ($response->successful()) {
-                return $response->json();
-            }
+        return match ($this->driver) {
+            'evolution' => $this->enviarEvolution($numero, $mensagem),
+            'http'      => $this->enviarHttp($numero, $mensagem),
+            default     => throw new InvalidArgumentException("Driver WhatsApp desconhecido: {$this->driver}"),
+        };
+    }
 
-            $body = $response->body();
-            Log::error('WhatsAppService Twilio send failed', ['status' => $response->status(), 'body' => $body, 'to' => $numero]);
-            throw new \RuntimeException('Twilio WhatsApp send failed: ' . $response->status() . ' ' . substr($body,0,1000));
+    private function enviarEvolution(string $numero, string $mensagem): array
+    {
+        if (! $this->evolutionUrl || ! $this->evolutionKey || ! $this->evolutionInstance) {
+            throw new InvalidArgumentException(
+                'Evolution API requer EVOLUTION_API_URL, EVOLUTION_API_KEY e EVOLUTION_API_INSTANCE'
+            );
         }
 
-        // Exemplo UltraMsg / HTTP padrão
+        $endpoint = "{$this->evolutionUrl}/message/sendText/{$this->evolutionInstance}";
+
+        $response = Http::withHeaders([
+            'apikey'       => $this->evolutionKey,
+            'Content-Type' => 'application/json',
+        ])->post($endpoint, [
+            'number' => $numero,
+            'text'   => $mensagem,
+        ]);
+
+        if ($response->successful()) {
+            Log::info('WhatsApp Evolution: mensagem enviada', ['to' => $numero]);
+            return $response->json() ?? [];
+        }
+
+        $body = $response->body();
+        Log::error('WhatsApp Evolution: falha no envio', [
+            'status' => $response->status(),
+            'body'   => substr($body, 0, 500),
+            'to'     => $numero,
+        ]);
+        throw new \RuntimeException(
+            'Evolution API falhou: ' . $response->status() . ' — ' . substr($body, 0, 300)
+        );
+    }
+
+    private function enviarHttp(string $numero, string $mensagem): array
+    {
         if (empty($this->apiUrl) || empty($this->token)) {
-            throw new InvalidArgumentException('WhatsApp HTTP driver requires WHATSAPP_API_URL and WHATSAPP_API_TOKEN');
+            throw new InvalidArgumentException(
+                'Driver HTTP requer WHATSAPP_API_URL e WHATSAPP_API_TOKEN'
+            );
         }
 
         $response = Http::withHeaders([
-            'X-API-KEY' => $this->token,
+            'X-API-KEY'    => $this->token,
             'Content-Type' => 'application/json',
         ])->post(rtrim($this->apiUrl, '/') . '/messages/chat', [
-            'to' => $numero,
+            'to'      => $numero,
             'message' => $mensagem,
         ]);
 
         if ($response->successful()) {
-            return $response->json();
+            return $response->json() ?? [];
         }
 
         $body = $response->body();
-        Log::error('WhatsAppService HTTP send failed', ['status' => $response->status(), 'body' => $body, 'to' => $numero]);
-        throw new \RuntimeException('WhatsApp HTTP send failed: ' . $response->status() . ' ' . substr($body,0,1000));
+        Log::error('WhatsApp HTTP: falha no envio', [
+            'status' => $response->status(),
+            'body'   => substr($body, 0, 500),
+            'to'     => $numero,
+        ]);
+        throw new \RuntimeException(
+            'WhatsApp HTTP falhou: ' . $response->status() . ' — ' . substr($body, 0, 300)
+        );
+    }
+
+    // Remove '+', espaços e traços; garante formato 244XXXXXXXXX
+    private function normalizarNumero(string $numero): string
+    {
+        return preg_replace('/\D/', '', $numero);
     }
 }
