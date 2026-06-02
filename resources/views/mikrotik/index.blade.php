@@ -278,6 +278,11 @@ let currentSiteId = {{ $selectedSiteId ? (int)$selectedSiteId : 'null' }};
 // Limpar o site_id do URL após carregar — refresh volta ao estado limpo
 if (currentSiteId) history.replaceState(null, '', window.location.pathname);
 
+// Inicializar o href do botão Editar para o site actualmente seleccionado
+if (currentSiteId && siteRoutes[currentSiteId]?.edit) {
+    document.getElementById('detailEditLink').href = siteRoutes[currentSiteId].edit;
+}
+
 /* ── Dropdown pesquisável ── */
 const picker   = document.getElementById('sitePicker');
 const input    = document.getElementById('sitePickerInput');
