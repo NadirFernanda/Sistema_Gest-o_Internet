@@ -188,14 +188,21 @@ class MikroTikAdminController extends Controller
     public function removePlano(Plano $plano)
     {
         $plano->load(['cliente.mikrotikSite']);
-        $site = $plano->cliente?->mikrotikSite;
 
+        // Se nunca foi sincronizado, apenas limpa o registo local sem tocar no router
+        if (! $plano->mikrotik_username) {
+            $plano->mikrotik_synced_at = now();
+            $plano->saveQuietly();
+            return response()->json(['ok' => true]);
+        }
+
+        $site = $plano->cliente?->mikrotikSite;
         if (! $site) {
             return response()->json(['ok' => false, 'error' => 'Cliente sem site MikroTik atribuído']);
         }
 
         $ok = MikroTikService::forSite($site)->removeUser($plano);
-        return response()->json(['ok' => $ok]);
+        return response()->json(['ok' => $ok, 'error' => $ok ? null : 'Falha ao ligar ao router']);
     }
 
     /** Exportar relatório PDF. */

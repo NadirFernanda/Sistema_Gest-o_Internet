@@ -482,10 +482,13 @@ function suspendPlano(id, btn) {
         if (d.ok) {
             const row = document.getElementById('row-' + id);
             if (row) row.cells[5].innerHTML = '<span class="ebadge eb-suspenso">Suspenso</span>';
+        } else {
+            alert('Erro ao suspender: ' + (d.error || 'Falha desconhecida'));
         }
         btn.textContent = d.ok ? '✓' : '✗';
         setTimeout(() => { btn.disabled = false; btn.textContent = '⏸'; }, 2000);
-    });
+    })
+    .catch(err => { btn.disabled = false; btn.textContent = '✗'; alert('Erro de rede: ' + err); });
 }
 
 function removePlano(id, btn) {
@@ -496,9 +499,14 @@ function removePlano(id, btn) {
     })
     .then(r => r.json())
     .then(d => {
-        if (d.ok) document.getElementById('row-' + id)?.remove();
-        else { btn.disabled = false; btn.textContent = '✕'; }
-    });
+        if (d.ok) {
+            document.getElementById('row-' + id)?.remove();
+        } else {
+            btn.disabled = false; btn.textContent = '✕';
+            alert('Erro ao remover: ' + (d.error || 'Falha desconhecida'));
+        }
+    })
+    .catch(err => { btn.disabled = false; btn.textContent = '✕'; alert('Erro de rede: ' + err); });
 }
 </script>
 @endpush
