@@ -47,15 +47,20 @@ class ClienteVencimentoWhatsApp extends Notification
 
         $dataTerminoStr = $dataTermino ? $dataTermino->format('d/m/Y') : '';
 
-        $mensagem = "Prezado(a) {$this->cliente->nome},\n\n" .
-            "Informamos que o seu serviço/plano \"{$this->plano->nome}\" irá vencer em {$this->diasRestantes} dia(s).\n\n" .
-            "📅 Data de término: " . $dataTerminoStr . "\n\n" .
-            "Para evitar a interrupção do serviço, recomendamos a regularização do pagamento através do link: www.luandawifi.ao\n\n" .
-            "O pagamento também pode ser efetuado por transferência bancária:\n\n" .
-            "IBAN: AO06.0060.0106.0100.2567.0410.4\n" .
-            "Entidade: MR TEXA PRESTAÇÃO DE SERVIÇOS, LDA\n\n" .
-            "Em caso de dúvida, estamos à disposição: (+244) 949 364 505\n\n" .
-            "Atenciosamente,\nAngola_WiFi – Conectando você sempre!";
+        $mensagem = "*Prezado(a) Cliente AngolaWiFi – {$this->cliente->nome},*\n\n" .
+            "Cordiais saudações.\n\n" .
+            "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. " .
+            "Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online.\n\n" .
+            "Para o efeito, siga por gentileza os passos abaixo indicados:\n\n" .
+            "1. Acesse o portal através do link: www.angolawifi.ao\n" .
+            "2. Clique em *\"Pagar Agora\"* no plano correspondente à sua subscrição;\n" .
+            "3. Insira o número de telefone autenticado no sistema e, em seguida, clique em *\"Verificar Número\"*;\n" .
+            "4. Clique em *\"Pagar Agora\"*;\n" .
+            "5. Insira o número associado ao *Multicaixa Express* e finalize a compra.\n\n" .
+            "Em caso de dúvidas ou suporte adicional, a nossa equipa encontra-se à disposição através do contacto:\n" .
+            "📞 (+244) 949 364 505\n\n" .
+            "Atenciosamente,\n" .
+            "*AngolaWiFi – Conectando você sempre!*";
         $service = new WhatsAppService();
         return $service->enviarMensagem($numero, $mensagem);
     }
