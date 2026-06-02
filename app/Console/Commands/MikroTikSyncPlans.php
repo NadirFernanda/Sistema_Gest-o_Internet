@@ -41,7 +41,7 @@ class MikroTikSyncPlans extends Command
                                          ->orWhereColumn('mikrotik_synced_at', '<', 'updated_at');
                                });
                     })->orWhere(function ($unregistered) {
-                        $unregistered->where('estado', 'Suspenso')
+                        $unregistered->whereIn('estado', ['Suspenso', 'Cancelado'])
                                      ->whereNull('mikrotik_username');
                     });
                 })

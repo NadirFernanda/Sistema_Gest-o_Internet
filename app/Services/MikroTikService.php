@@ -91,7 +91,7 @@ class MikroTikService
 
             $existing = $this->findUser($username);
 
-            $disabled = $plano->estado === 'Suspenso' ? 'yes' : 'no';
+            $disabled = in_array($plano->estado, ['Suspenso', 'Cancelado']) ? 'yes' : 'no';
 
             if ($existing) {
                 $resp = $this->api->command('/ip/hotspot/user/set', [

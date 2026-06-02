@@ -52,13 +52,11 @@ class MikroTikAdminController extends Controller
 
         $clientes = $query->paginate(30)->withQueryString();
 
-        // Conta planos sem username que podem ser sincronizados (Ativo, Em aviso, Suspenso)
-        // Cancelado excluído intencionalmente — não faz sentido sincronizar planos cancelados
         $planosPending = DB::table('planos')
             ->join('clientes', 'clientes.id', '=', 'planos.cliente_id')
             ->whereNotNull('clientes.mikrotik_site_id')
             ->whereNull('planos.mikrotik_username')
-            ->whereIn('planos.estado', ['Ativo', 'Em aviso', 'Suspenso'])
+            ->whereIn('planos.estado', ['Ativo', 'Em aviso', 'Suspenso', 'Cancelado'])
             ->count();
 
         $siteRoutes = $sites->mapWithKeys(fn($s) => [
@@ -260,7 +258,7 @@ class MikroTikAdminController extends Controller
         $planos = Plano::with('cliente', 'template')
             ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
             ->whereNull('mikrotik_username')
-            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso', 'Cancelado'])
             ->get();
 
         if ($planos->isEmpty()) {
