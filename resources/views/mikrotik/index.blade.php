@@ -230,7 +230,7 @@
                         <td class="col-user">
                             @if($item->mikrotik_username)
                                 <code>{{ $item->mikrotik_username }}</code>
-                            @elseif($item->plano_id)
+                            @elseif($item->plano_id && $estado !== 'Cancelado')
                                 <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
                             @else
                                 <span style="color:#bbb; font-size:0.8rem;">—</span>
@@ -251,8 +251,10 @@
                         </td>
                         <td class="col-acts">
                             @if($item->plano_id)
+                            @if($estado !== 'Cancelado')
                             <button onclick="syncPlano({{ $item->plano_id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
                             <button onclick="suspendPlano({{ $item->plano_id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
+                            @endif
                             <button onclick="removePlano({{ $item->plano_id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
                             @endif
                         </td>
