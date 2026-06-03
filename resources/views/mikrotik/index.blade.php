@@ -151,9 +151,11 @@
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
     </div>
-    {{-- ── Barra de pesquisa de clientes ── --}}
-    <div style="max-width:1100px; margin:8px auto 0;">
-        <div style="position:relative;">
+    {{-- ── Barra de pesquisa e filtros ── --}}
+    <div style="max-width:1100px; margin:8px auto 0; display:flex; gap:8px; align-items:center;">
+
+        {{-- Pesquisa por nome / username --}}
+        <div style="position:relative; flex:1;">
             <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"
                  xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
                  fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -169,6 +171,18 @@
                 style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:#aaa; line-height:1; padding:0;">✕</button>
             @endif
         </div>
+
+        {{-- Filtro por estado --}}
+        <select id="estadoFiltro" onchange="aplicarFiltroEstado(this.value)"
+            style="height:40px; padding:0 12px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; background:#fff; color:#333; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+            <option value=""           {{ $estadoFiltro === ''               ? 'selected' : '' }}>Todos os estados</option>
+            <option value="Ativo"      {{ $estadoFiltro === 'Ativo'          ? 'selected' : '' }}>Activo</option>
+            <option value="Em aviso"   {{ $estadoFiltro === 'Em aviso'       ? 'selected' : '' }}>Em aviso</option>
+            <option value="Suspenso"   {{ $estadoFiltro === 'Suspenso'       ? 'selected' : '' }}>Suspenso</option>
+            <option value="Cancelado"  {{ $estadoFiltro === 'Cancelado'      ? 'selected' : '' }}>Cancelado</option>
+            <option value="nao_sincronizado" {{ $estadoFiltro === 'nao_sincronizado' ? 'selected' : '' }}>Não sincronizado</option>
+        </select>
+
     </div>
 
     <div id="syncResult" style="max-width:1100px; margin:6px auto 0; font-size:0.85rem; color:#555; white-space:pre-line;"></div>
@@ -332,6 +346,13 @@ function navegarComPesquisa(val) {
     window.location.href = url.toString();
 }
 function limparPesquisa() { navegarComPesquisa(''); }
+function aplicarFiltroEstado(val) {
+    const url = new URL(window.location.href);
+    if (val) url.searchParams.set('estado', val);
+    else url.searchParams.delete('estado');
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
 
 /* ── Dropdown pesquisável ── */
 const picker   = document.getElementById('sitePicker');

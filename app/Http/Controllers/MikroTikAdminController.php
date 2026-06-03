@@ -23,6 +23,7 @@ class MikroTikAdminController extends Controller
         $selectedSiteId = $request->query('site_id');
         $selectedSite   = $selectedSiteId ? $sites->firstWhere('id', (int) $selectedSiteId) : null;
         $search         = trim($request->query('search', ''));
+        $estadoFiltro   = $request->query('estado', '');
 
         // Query centrada no cliente: 1 linha por cliente, com o plano mais recente via LEFT JOIN
         $bestPlanSub = DB::table('planos')
@@ -58,6 +59,12 @@ class MikroTikAdminController extends Controller
             });
         }
 
+        if ($estadoFiltro === 'nao_sincronizado') {
+            $query->whereNotNull('planos.id')->whereNull('planos.mikrotik_username');
+        } elseif ($estadoFiltro !== '') {
+            $query->where('planos.estado', $estadoFiltro);
+        }
+
         $clientes = $query->paginate(30)->withQueryString();
 
         $planosPending = DB::table('planos')
@@ -76,7 +83,7 @@ class MikroTikAdminController extends Controller
             ],
         ]);
 
-        return view('mikrotik.index', compact('sites', 'clientes', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes', 'search'));
+        return view('mikrotik.index', compact('sites', 'clientes', 'planosPending', 'selectedSite', 'selectedSiteId', 'siteRoutes', 'search', 'estadoFiltro'));
     }
 
     /** Formulário de criação de site. */
