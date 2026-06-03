@@ -142,6 +142,9 @@ Route::post('/agendar-instalacao', [InstallationAppointmentController::class, 's
 Route::view('/quem-somos', 'pages.about');
 // Static page: Como Comprar
 Route::view('/como-comprar', 'pages.how-to-buy');
+// Páginas legais
+Route::view('/terms', 'pages.termos')->name('legal.terms');
+Route::view('/privacy', 'pages.privacidade')->name('legal.privacy');
 
 // ── Loja de Equipamentos / Produtos ──────────────────────────────────────────
 Route::get('/equipamentos', [EquipmentController::class, 'index'])->name('equipment.index');
