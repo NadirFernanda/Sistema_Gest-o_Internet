@@ -71,18 +71,18 @@
             color:#999; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
             border-bottom:2px solid #edf0f4; overflow:hidden;
         }
-        .mkt-table td { padding:9px 10px; border-bottom:1px solid #f2f4f7; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .mkt-table td { padding:9px 10px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
         .mkt-table tbody tr:last-child td { border-bottom:none; }
         .mkt-table tbody tr:hover { background:#fafbfd; }
         .col-n    { width:36px; text-align:center; color:#bbb; font-size:0.8rem; }
-        .col-nm   { width:18%; font-weight:600; color:#222; }
-        .col-si   { width:13%; color:#777; font-size:0.83rem; }
-        .col-pl   { width:17%; color:#555; }
-        .col-user { width:18%; }
+        .col-nm   { width:18%; font-weight:600; color:#222; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-si   { width:13%; color:#777; font-size:0.83rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-pl   { width:17%; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-user { width:18%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .col-user code { background:#f4f6f9; padding:1px 6px; border-radius:5px; font-size:0.81rem; color:#555; }
         .col-est  { width:10%; }
         .col-ren  { width:10%; font-size:0.83rem; color:#555; white-space:nowrap; }
-        .col-acts { width:108px; white-space:nowrap; }
+        .col-acts { width:112px; white-space:nowrap; }
 
         .ebadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
         .eb-ativo    { background:#e8f7ef; color:#2a8a55; }
