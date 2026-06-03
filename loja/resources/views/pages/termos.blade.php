@@ -145,6 +145,7 @@
     <p>A participação no Programa de Revendedores está sujeita a:</p>
     <ul>
       <li>Aprovação prévia da candidatura pela equipa AngolaWiFi.</li>
+      <li>Pagamento único da taxa de instalação.</li>
       <li>Pagamento de taxa de manutenção mensal, conforme tabela em vigor.</li>
       <li>Cumprimento das políticas de revenda, incluindo respeito pelo preço de tabela ao público.</li>
       <li>Não partilha das credenciais do painel de revendedor com terceiros.</li>
