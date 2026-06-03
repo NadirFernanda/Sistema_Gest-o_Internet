@@ -63,24 +63,26 @@
         .mkt-count-pill { background:#f4f6f9; color:#666; font-size:0.8rem; padding:3px 11px; border-radius:20px; }
 
         /* ── Table ── */
-        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); overflow-x:auto; }
-        .mkt-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+        .mkt-table-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+        .mkt-table { width:100%; border-collapse:collapse; font-size:0.86rem; table-layout:fixed; }
         .mkt-table thead { background:#f7f9fb; }
         .mkt-table th {
-            padding:10px 14px; text-align:left; font-size:0.75rem; font-weight:700;
+            padding:9px 10px; text-align:left; font-size:0.73rem; font-weight:700;
             color:#999; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
-            border-bottom:2px solid #edf0f4;
+            border-bottom:2px solid #edf0f4; overflow:hidden;
         }
-        .mkt-table td { padding:11px 14px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
+        .mkt-table td { padding:9px 10px; border-bottom:1px solid #f2f4f7; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .mkt-table tbody tr:last-child td { border-bottom:none; }
         .mkt-table tbody tr:hover { background:#fafbfd; }
-        .col-n  { width:40px; text-align:center; color:#bbb; font-size:0.8rem; }
-        .col-nm { min-width:170px; font-weight:600; color:#222; }
-        .col-si { min-width:130px; color:#777; font-size:0.84rem; }
-        .col-pl { min-width:140px; color:#555; }
-        .col-user code { background:#f4f6f9; padding:2px 7px; border-radius:5px; font-size:0.82rem; color:#555; }
-        .col-sync { font-size:0.81rem; color:#aaa; }
-        .col-acts { white-space:nowrap; }
+        .col-n    { width:36px; text-align:center; color:#bbb; font-size:0.8rem; }
+        .col-nm   { width:18%; font-weight:600; color:#222; }
+        .col-si   { width:13%; color:#777; font-size:0.83rem; }
+        .col-pl   { width:17%; color:#555; }
+        .col-user { width:18%; }
+        .col-user code { background:#f4f6f9; padding:1px 6px; border-radius:5px; font-size:0.81rem; color:#555; }
+        .col-est  { width:10%; }
+        .col-ren  { width:10%; font-size:0.83rem; color:#555; white-space:nowrap; }
+        .col-acts { width:108px; white-space:nowrap; }
 
         .ebadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
         .eb-ativo    { background:#e8f7ef; color:#2a8a55; }
@@ -232,10 +234,9 @@
                         <th class="col-nm">Cliente</th>
                         <th class="col-si">Site</th>
                         <th class="col-pl">Plano</th>
-                        <th>Username MikroTik</th>
-                        <th>Estado</th>
-                        <th>Renovação</th>
-                        <th class="col-sync">Última sync</th>
+                        <th class="col-user">Username MikroTik</th>
+                        <th class="col-est">Estado</th>
+                        <th class="col-ren">Renovação</th>
                         <th class="col-acts">Acções</th>
                     </tr>
                 </thead>
@@ -263,25 +264,22 @@
                         </td>
                         <td class="col-user">
                             @if($item->mikrotik_username)
-                                <code>{{ $item->mikrotik_username }}</code>
+                                <code title="Sync: {{ $item->mikrotik_synced_at ? \Carbon\Carbon::parse($item->mikrotik_synced_at)->format('d/m/Y H:i') : '—' }}">{{ $item->mikrotik_username }}</code>
                             @elseif($item->plano_id)
                                 <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
                             @else
                                 <span style="color:#bbb; font-size:0.8rem;">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td class="col-est">
                             @if($estado)
                                 <span class="ebadge {{ $ec }}">{{ $estado }}</span>
                             @else
                                 <span style="color:#bbb;">—</span>
                             @endif
                         </td>
-                        <td style="font-size:0.84rem; color:#555;">
+                        <td class="col-ren">
                             {{ $item->proxima_renovacao ? \Carbon\Carbon::parse($item->proxima_renovacao)->format('d/m/Y') : '—' }}
-                        </td>
-                        <td class="col-sync">
-                            {{ $item->mikrotik_synced_at ? \Carbon\Carbon::parse($item->mikrotik_synced_at)->format('d/m/Y H:i') : '—' }}
                         </td>
                         <td class="col-acts">
                             @if($item->plano_id)
@@ -292,7 +290,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr class="empty-row"><td colspan="9">Nenhum cliente MikroTik encontrado.</td></tr>
+                    <tr class="empty-row"><td colspan="8">Nenhum cliente MikroTik encontrado.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -523,10 +521,8 @@ function syncPlano(id, btn) {
             const row = document.getElementById('row-' + id);
             if (row) {
                 if (d.mikrotik_username) {
-                    row.cells[4].innerHTML = '<code>' + d.mikrotik_username + '</code>';
-                }
-                if (d.mikrotik_synced_at) {
-                    row.cells[7].textContent = d.mikrotik_synced_at;
+                    const syncTitle = d.mikrotik_synced_at ? 'Sync: ' + d.mikrotik_synced_at : '';
+                    row.cells[4].innerHTML = '<code title="' + syncTitle + '">' + d.mikrotik_username + '</code>';
                 }
             }
         } else {
