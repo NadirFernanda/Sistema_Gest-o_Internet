@@ -72,12 +72,20 @@
         Candidatura Não Aprovada
       </span>
       <h2>Olá, {{ $application->full_name }}</h2>
-      <p>Após análise cuidadosa, informamos que a sua candidatura para agente revendedor AngolaWiFi <strong>não foi aprovada</strong> neste momento.</p>
-      <p>Agradecemos o seu interesse no nosso programa de revenda e o tempo despendido no preenchimento do formulário.</p>
+      <p>Após análise cuidadosa da sua candidatura ao programa de agente revendedor AngolaWiFi, informamos que a mesma <strong>não foi aprovada</strong> neste momento.</p>
 
-      <div class="info-box">
-        Pode voltar a candidatar-se no futuro se as suas circunstâncias mudarem. Para mais informações, entre em contacto connosco.
+      @if(!empty($rejectionReason))
+      <div class="info-box" style="border-left-color:#dc2626;background:#fef2f2;">
+        <strong>Motivo:</strong><br>
+        {{ $rejectionReason }}
       </div>
+      @else
+      <div class="info-box">
+        Para mais informações sobre o motivo da decisão, entre em contacto connosco por e-mail ou telefone.
+      </div>
+      @endif
+
+      <p>Agradecemos o interesse no nosso programa e o tempo despendido. Pode resubmeter a sua candidatura no futuro se as circunstâncias mudarem.</p>
 
       <div class="cta">
         <a href="{{ url('/quero-ser-revendedor') }}">Saber mais sobre o programa</a>

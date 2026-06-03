@@ -84,10 +84,11 @@
   {{-- Estado --}}
   <div class="ap-card">
     <p class="ap-card-title">Estado da candidatura</p>
-    <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
-      <form action="{{ route('admin.resellers.status', $application) }}" method="POST"
-            style="display:contents;">
-        @csrf @method('PATCH')
+
+    {{-- Selector de estado genérico --}}
+    <form action="{{ route('admin.resellers.status', $application) }}" method="POST">
+      @csrf @method('PATCH')
+      <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
         <div style="display:flex;flex-direction:column;gap:.25rem;min-width:180px;">
           <label class="ap-label" for="status">Estado</label>
           <select id="status" name="status" class="ap-ctrl" style="width:auto;">
@@ -96,14 +97,58 @@
             <option value="rejected" @selected($application->status === 'rejected')>Rejeitado</option>
           </select>
         </div>
-        <button type="submit" class="ap-btn ap-btn-primary" style="width:140px;">Guardar estado</button>
-        @if($application->status === 'pending')
-          <button type="submit" name="status" value="approved" class="ap-btn ap-btn-primary" style="width:140px;">Aprovar</button>
-          <button type="submit" name="status" value="rejected" class="ap-btn ap-btn-primary" style="width:140px;">Rejeitar</button>
-        @endif
-      </form>
-      <a href="{{ route('admin.resellers.index') }}" class="ap-btn ap-btn-primary" style="width:140px;">Voltar</a>
-    </div>
+        <button type="submit" class="ap-btn ap-btn-primary">Guardar estado</button>
+      </div>
+    </form>
+
+    @if($application->status === 'pending')
+      <hr style="border:none;border-top:1px solid var(--a-border);margin:1.1rem 0;">
+      <p style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a-faint);margin-bottom:.75rem;">Acções rápidas</p>
+      <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
+
+        {{-- APROVAR — envia contrato por e-mail --}}
+        <form action="{{ route('admin.resellers.status', $application) }}" method="POST"
+              onsubmit="return confirm('Aprovar esta candidatura? O contrato de agente revendedor será enviado por e-mail para {{ $application->email }}.')">
+          @csrf @method('PATCH')
+          <input type="hidden" name="status" value="approved">
+          <button type="submit" class="ap-btn" style="background:#16a34a;color:#fff;gap:.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Aprovar e enviar contrato
+          </button>
+        </form>
+
+        {{-- REJEITAR — abre painel com motivo --}}
+        <button type="button" class="ap-btn" id="btn-rejeitar"
+                style="background:#fee2e2;color:#b91c1c;gap:.4rem;"
+                onclick="document.getElementById('reject-panel').style.display='block';this.style.display='none';">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Rejeitar candidatura
+        </button>
+      </div>
+
+      {{-- Painel de rejeição com motivo --}}
+      <div id="reject-panel" style="display:none;margin-top:1rem;background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;border-radius:10px;padding:1.1rem 1.25rem;">
+        <form action="{{ route('admin.resellers.status', $application) }}" method="POST">
+          @csrf @method('PATCH')
+          <input type="hidden" name="status" value="rejected">
+          <label class="ap-label" for="rejection_reason" style="color:#7f1d1d;margin-bottom:.4rem;">
+            Motivo da rejeição <span style="color:#dc2626">*</span>
+            <span style="font-weight:400;font-size:.76rem;margin-left:.3rem;">(será enviado por e-mail ao candidato)</span>
+          </label>
+          <textarea id="rejection_reason" name="rejection_reason" class="ap-ctrl" rows="3"
+                    style="background:#fff;margin-bottom:.65rem;"
+                    placeholder="Ex: Informações incompletas, localização fora da área de cobertura, candidatura duplicada, telefone inválido..."
+                    required></textarea>
+          <div style="display:flex;gap:.5rem;">
+            <button type="submit" class="ap-btn" style="background:#dc2626;color:#fff;">Confirmar Rejeição</button>
+            <button type="button" class="ap-btn" style="background:#e5e7eb;color:#374151;"
+                    onclick="document.getElementById('reject-panel').style.display='none';document.getElementById('btn-rejeitar').style.display='inline-flex';">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    @endif
   </div>
 
   {{-- Resumo financeiro --}}

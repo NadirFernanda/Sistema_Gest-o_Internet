@@ -87,21 +87,30 @@ class ResellerAdminController extends Controller
 
     public function updateStatus(Request $request, ResellerApplication $application)
     {
-        $request->validate(['status' => 'required|in:pending,approved,rejected']);
+        $request->validate([
+            'status'           => 'required|in:pending,approved,rejected',
+            'rejection_reason' => 'required_if:status,rejected|nullable|string|max:1000',
+        ], [
+            'rejection_reason.required_if' => 'É obrigatório indicar o motivo da rejeição.',
+        ]);
 
-        $oldStatus = $application->status;
-        $updateData = ['status' => $request->status];
-        if ($request->status === 'approved' && $oldStatus !== 'approved') {
+        $oldStatus  = $application->status;
+        $newStatus  = $request->status;
+        $updateData = ['status' => $newStatus];
+
+        if ($newStatus === 'approved' && $oldStatus !== 'approved') {
             $updateData['approved_at'] = now();
         }
+
         $application->update($updateData);
 
-        // Enviar e-mail automático ao revendedor quando o estado muda para aprovado ou rejeitado
-        if ($oldStatus !== $request->status && in_array($request->status, ['approved', 'rejected'])) {
-            Mail::to($application->email)->send(new ResellerStatusMail($application));
+        if ($oldStatus !== $newStatus && in_array($newStatus, ['approved', 'rejected'])) {
+            $reason = $newStatus === 'rejected' ? $request->rejection_reason : null;
+            Mail::to($application->email)->send(new ResellerStatusMail($application, $reason));
         }
 
-        return back()->with('status', 'Estado atualizado.');
+        $label = $newStatus === 'approved' ? 'aprovada — contrato enviado por e-mail' : 'rejeitada — candidato notificado';
+        return back()->with('status', 'Candidatura ' . $label . '.');
     }
 
     public function bulkDestroy(Request $request)
