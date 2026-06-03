@@ -28,16 +28,30 @@ class ClienteVencimentoEmail extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
+        $dataTermino = $this->formatDataTermino();
+        $vencido     = $this->diasRestantes <= 0;
+
+        $linhaInfo = $vencido
+            ? "Informamos que a sua subscrição de internet encontra-se vencida desde o dia {$dataTermino}. Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online."
+            : "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia {$dataTermino}. Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online.";
+
+        $assunto = $vencido
+            ? 'Subscrição Vencida – AngolaWiFi'
+            : 'Aviso de Vencimento – AngolaWiFi';
+
         return (new MailMessage)
-            ->subject('Aviso de Vencimento – Angola_WiFi')
-            ->greeting('Prezado(a) ' . $notifiable->nome . ',')
+            ->subject($assunto)
+            ->greeting('Prezado(a) Cliente AngolaWiFi – ' . $notifiable->nome . ',')
             ->line('Cordiais saudações.')
-            ->line('Informamos que o seu plano de internet vence no dia ' . $this->formatDataTermino() . '. Para evitar a interrupção do serviço, recomendamos a regularização atempada do pagamento através do link: www.luandawifi.ao')
-            ->line('O pagamento também pode ser efetuado por transferência bancária, através das seguintes coordenadas:')
-            ->line('IBAN: AO06.0060.0106.0100.2567.0410.4')
-            ->line('Entidade: MR TEXA PRESTAÇÃO DE SERVIÇOS, LDA')
-            ->line('Em caso de dúvida, estamos à disposição: (+244) 949 364 505')
-            ->salutation('Atenciosamente, Angola_WiFi – Conectando você sempre!');
+            ->line($linhaInfo)
+            ->line('Para o efeito, siga por gentileza os passos abaixo indicados:')
+            ->line('1. Acesse o portal através do link: www.angolawifi.ao')
+            ->line('2. Clique em "Pagar Agora" no plano correspondente à sua subscrição;')
+            ->line('3. Insira o número de telefone autenticado no sistema e, em seguida, clique em "Verificar Número";')
+            ->line('4. Clique em "Pagar Agora";')
+            ->line('5. Insira o número associado ao Multicaixa Express e finalize a compra.')
+            ->line('Em caso de dúvidas ou suporte adicional, a nossa equipa encontra-se à disposição através do contacto: (+244) 949 364 505')
+            ->salutation('Atenciosamente, AngolaWiFi – Conectando você sempre!');
     }
 
     protected function formatDataTermino()
