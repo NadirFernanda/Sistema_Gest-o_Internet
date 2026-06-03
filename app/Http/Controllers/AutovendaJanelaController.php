@@ -88,8 +88,18 @@ class AutovendaJanelaController extends Controller
 
         $template = PlanTemplate::findOrFail($validated['template_id']);
 
-        // ── 1. Find the client (must already exist — loja blocks unregistered numbers) ──
-        $cliente = Cliente::where('contato', $validated['contato'])->first();
+        // ── 1. Find the client — normalize phone to handle 244XXXXXXXXX vs XXXXXXXXX ──
+        $phoneNorm = preg_replace('/\D/', '', $validated['contato']);
+        // Strip leading 244 country code to get the 9-digit local number for matching
+        $phoneLocal = ltrim($phoneNorm, '0');
+        if (str_starts_with($phoneLocal, '244') && strlen($phoneLocal) > 9) {
+            $phoneLocal = substr($phoneLocal, 3);
+        }
+
+        $cliente = Cliente::whereRaw(
+            "REPLACE(REPLACE(REPLACE(REPLACE(contato, ' ', ''), '-', ''), '.', ''), '+', '') LIKE ?",
+            ['%' . $phoneLocal . '%']
+        )->first();
 
         if (! $cliente && ! empty($validated['email'])) {
             $cliente = Cliente::where('email', $validated['email'])->first();
