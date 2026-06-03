@@ -179,7 +179,7 @@
     <ul>
       <li>Violação destes Termos e Condições.</li>
       <li>Actividade fraudulenta ou suspeita de fraude.</li>
-      <li>Não pagamento de valores em dívida (para revendedores).</li>
+      <li>Não pagamento de valores em dívida.</li>
       <li>Decisão de descontinuação do serviço, com aviso prévio de 30 dias.</li>
     </ul>
   </div>
