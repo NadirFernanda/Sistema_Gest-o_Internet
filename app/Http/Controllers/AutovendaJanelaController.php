@@ -185,6 +185,7 @@ class AutovendaJanelaController extends Controller
             'descricao'         => $template->description ?? '',
             'preco'             => (string) number_format($template->preco ?? 0, 2, '.', ''),
             'ciclo'             => $template->ciclo,
+            'tipo'              => $template->tipo ?? 'internet',
             'template_id'       => $template->id,
             'cliente_id'        => $cliente->id,
             'estado'            => 'Ativo',
