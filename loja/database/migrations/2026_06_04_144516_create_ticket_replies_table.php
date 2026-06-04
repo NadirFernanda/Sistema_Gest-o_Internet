@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('ticket_replies')) return;
+        if (Schema::hasTable('support_ticket_replies')) return;
 
-        Schema::create('ticket_replies', function (Blueprint $table) {
+        Schema::create('support_ticket_replies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ticket_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('ticket_id')->constrained('support_tickets')->cascadeOnDelete();
             $table->text('message');
             $table->boolean('is_admin')->default(false);
             $table->string('author_name', 150)->nullable();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ticket_replies');
+        Schema::dropIfExists('support_ticket_replies');
     }
 };

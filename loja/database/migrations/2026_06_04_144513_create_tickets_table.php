@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('tickets')) return;
+        if (Schema::hasTable('support_tickets')) return;
 
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('support_tickets', function (Blueprint $table) {
             $table->id();
             $table->string('ref', 20)->unique();
             $table->string('name', 150);
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('support_tickets');
     }
 };

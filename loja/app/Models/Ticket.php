@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 
 class Ticket extends Model
 {
+    protected $table = 'support_tickets';
+
     protected $fillable = [
         'ref', 'name', 'email', 'phone', 'subject', 'message',
         'category', 'status', 'priority', 'token', 'admin_notes', 'resolved_at',

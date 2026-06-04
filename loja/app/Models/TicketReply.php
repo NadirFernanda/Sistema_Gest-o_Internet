@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketReply extends Model
 {
+    protected $table = 'support_ticket_replies';
+
     protected $fillable = ['ticket_id', 'message', 'is_admin', 'author_name'];
 
     public function ticket()
