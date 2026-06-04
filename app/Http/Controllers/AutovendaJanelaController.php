@@ -114,7 +114,7 @@ class AutovendaJanelaController extends Controller
         // ── 2. Find an active plan for this client + template ─────────────
         $plano = Plano::where('cliente_id', $cliente->id)
             ->where('template_id', $template->id)
-            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN ('ativo', 'pendente', 'suspenso')")
+            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
             ->orderByDesc('data_ativacao')
             ->first();
 
