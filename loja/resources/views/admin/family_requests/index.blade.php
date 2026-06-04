@@ -133,10 +133,25 @@
     @endif
   </form>
 
+  {{-- Barra de acções em massa --}}
+  <form id="bulk-form" method="POST" action="{{ route('admin.family_requests.bulk-destroy') }}">
+    @csrf
+    <div id="bulk-bar" style="display:none;background:#1a202c;color:#fff;border-radius:10px;padding:.7rem 1.1rem;margin-bottom:.75rem;display:none;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+      <span id="bulk-count" style="font-size:.875rem;font-weight:600;">0 seleccionados</span>
+      <div style="display:flex;gap:.5rem;">
+        <button type="submit" class="ap-btn" style="background:#dc2626;color:#fff;"
+                onclick="return confirm('Apagar os pedidos seleccionados? Pedidos já activados no SG serão ignorados.');">
+          Apagar seleccionados
+        </button>
+        <button type="button" class="ap-btn" style="background:#374151;color:#fff;" onclick="clearSelection()">Cancelar</button>
+      </div>
+    </div>
+
   <div class="ap-tcard">
     <table class="ap-table">
       <thead>
         <tr>
+          <th style="width:36px;"><input type="checkbox" id="chk-all" style="cursor:pointer;" onchange="toggleAll(this)"></th>
           <th>#</th>
           <th>Plano</th>
           <th>Refer&ecirc;ncia</th>
@@ -144,7 +159,7 @@
           <th>Contacto</th>
           <th>Estado</th>
           <th>Data</th>
-          <th style="min-width:140px;">Ac&ccedil;&otilde;es</th>
+          <th style="min-width:150px;">Ac&ccedil;&otilde;es</th>
         </tr>
       </thead>
       <tbody>
@@ -163,6 +178,7 @@
             }
           @endphp
           <tr>
+            <td><input type="checkbox" name="ids[]" value="{{ $req->id }}" class="row-chk" style="cursor:pointer;" onchange="updateBulkBar()"></td>
             <td class="dim">{{ $req->id }}</td>
             <td>
               <span class="{{ $typeClass }}">{{ $typeLabel }}</span>
@@ -230,12 +246,16 @@
               @elseif($req->status === 'activated')
                 <span class="badge bg-green" style="font-size:.75rem;">Janela adicionada</span>
                 @if($req->notes)
-                  <br><span class="dim" style="font-size:.72rem;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                  <br><span class="dim" style="font-size:.72rem;display:block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
                         title="{{ $req->notes }}">{{ $req->notes }}</span>
                 @endif
               @else
                 <span class="dim">&mdash;</span>
               @endif
+              <a href="{{ route('admin.family_requests.show', $req) }}"
+                 class="ap-btn ap-btn-outline ap-btn-sm" style="margin-top:.4rem;display:inline-flex;">
+                Ver detalhes
+              </a>
             </td>
           </tr>
         @empty
@@ -252,6 +272,29 @@
     </table>
     <div class="ap-pager">{{ $requests->links() }}</div>
   </div>
+  </form>
 
 </div></div>
+
+@push('scripts')
+<script>
+function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-chk:checked');
+    const bar     = document.getElementById('bulk-bar');
+    const count   = document.getElementById('bulk-count');
+    count.textContent = checked.length + ' seleccionado(s)';
+    bar.style.display = checked.length > 0 ? 'flex' : 'none';
+    document.getElementById('chk-all').indeterminate =
+        checked.length > 0 && checked.length < document.querySelectorAll('.row-chk').length;
+}
+function toggleAll(chk) {
+    document.querySelectorAll('.row-chk').forEach(c => c.checked = chk.checked);
+    updateBulkBar();
+}
+function clearSelection() {
+    document.querySelectorAll('.row-chk, #chk-all').forEach(c => c.checked = false);
+    document.getElementById('bulk-bar').style.display = 'none';
+}
+</script>
+@endpush
 @endsection

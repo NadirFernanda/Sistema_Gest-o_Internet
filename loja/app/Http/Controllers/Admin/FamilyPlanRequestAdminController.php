@@ -125,4 +125,31 @@ class FamilyPlanRequestAdminController extends Controller
 
         return back()->with('success', 'Pedido #' . $familyPlanRequest->id . ' cancelado.');
     }
+
+    public function show(FamilyPlanRequest $familyPlanRequest)
+    {
+        return view('admin.family_requests.show', ['req' => $familyPlanRequest]);
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
+
+        if (empty($ids)) {
+            return back()->with('error', 'Nenhum pedido seleccionado.');
+        }
+
+        $deleted = FamilyPlanRequest::whereIn('id', $ids)
+            ->where('status', '!=', FamilyPlanRequest::STATUS_ACTIVATED)
+            ->delete();
+
+        $skipped = count($ids) - $deleted;
+
+        $msg = $deleted . ' pedido(s) eliminado(s).';
+        if ($skipped > 0) {
+            $msg .= ' ' . $skipped . ' ignorado(s): pedidos já activados no SG não podem ser eliminados.';
+        }
+
+        return back()->with('success', $msg);
+    }
 }

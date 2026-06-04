@@ -221,6 +221,8 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
 
     // Pedidos de planos familiares / empresariais — confirmação activa janela no SG
     Route::get('/pedidos-planos-familiares', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'index'])->name('admin.family_requests.index');
+    Route::post('/pedidos-planos-familiares/apagar-seleccionados', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'bulkDestroy'])->name('admin.family_requests.bulk-destroy');
+    Route::get('/pedidos-planos-familiares/{familyPlanRequest}', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'show'])->name('admin.family_requests.show');
     Route::post('/pedidos-planos-familiares/{familyPlanRequest}/confirmar', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'confirmar'])->name('admin.family_requests.confirmar');
     Route::post('/pedidos-planos-familiares/{familyPlanRequest}/cancelar', [\App\Http\Controllers\Admin\FamilyPlanRequestAdminController::class, 'cancelar'])->name('admin.family_requests.cancelar');
 
