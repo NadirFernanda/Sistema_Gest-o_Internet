@@ -40,7 +40,12 @@ class FamilyPlanRequestAdminController extends Controller
         }
 
         if ($tipo = $request->get('tipo')) {
-            $query->where('plan_name', 'like', "%{$tipo}%");
+            if ($tipo === 'familiar') {
+                $query->where('plan_name', 'not ilike', '%institucional%')
+                      ->where('plan_name', 'not ilike', '%empresarial%');
+            } else {
+                $query->where('plan_name', 'ilike', "%{$tipo}%");
+            }
         }
 
         if ($request->filled('date_from')) {
@@ -62,9 +67,10 @@ class FamilyPlanRequestAdminController extends Controller
         ];
 
         $typeCounts = [
-            'familiar'      => FamilyPlanRequest::where('plan_name', 'like', '%familiar%')->count(),
-            'empresarial'   => FamilyPlanRequest::where('plan_name', 'like', '%empresarial%')->count(),
-            'institucional' => FamilyPlanRequest::where('plan_name', 'like', '%institucional%')->count(),
+            'institucional' => FamilyPlanRequest::where('plan_name', 'ilike', '%institucional%')->count(),
+            'empresarial'   => FamilyPlanRequest::where('plan_name', 'ilike', '%empresarial%')->count(),
+            'familiar'      => FamilyPlanRequest::where('plan_name', 'not ilike', '%institucional%')
+                                                 ->where('plan_name', 'not ilike', '%empresarial%')->count(),
         ];
 
         return view('admin.family_requests.index', compact('requests', 'counts', 'typeCounts', 'status'));
