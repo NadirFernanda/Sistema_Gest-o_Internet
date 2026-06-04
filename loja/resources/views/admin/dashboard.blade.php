@@ -105,6 +105,7 @@
     <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
     <a href="{{ route('admin.family_requests.index') }}">Planos</a>
     <a href="{{ route('admin.reconciliation.gpo') }}">Reconcilia&ccedil;&atilde;o GPO</a>
+    <a href="{{ route('admin.tickets.index') }}">Tickets</a>
     <a href="{{ route('admin.site_stats.index') }}">Estat&iacute;sticas</a>
     <a href="{{ route('admin.reports') }}">Relat&oacute;rios</a>
   </nav>
@@ -119,6 +120,9 @@
   @endif
   @if($pendingAppointments > 0)
     <div class="ap-banner-warn">&#9888; {{ $pendingAppointments }} pr&eacute;-cadastro(s) de instala&ccedil;&atilde;o aguardam contacto. <a href="{{ route('admin.appointments.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;">Ver agora &rarr;</a></div>
+  @endif
+  @if(($openTickets ?? 0) > 0)
+    <div class="ap-banner-warn">&#9888; {{ $openTickets }} ticket(s) de suporte aberto(s) aguardam resposta. <a href="{{ route('admin.tickets.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;">Ver tickets &rarr;</a></div>
   @endif
 
   <p class="ap-sec">Resumo</p>

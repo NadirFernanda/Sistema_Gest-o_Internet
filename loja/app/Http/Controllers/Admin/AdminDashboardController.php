@@ -10,6 +10,7 @@ use App\Models\InstallationAppointment;
 use App\Models\Product;
 use App\Models\ResellerApplication;
 use App\Models\ResellerPurchase;
+use App\Models\Ticket;
 use App\Models\VoucherPlan;
 use App\Models\WifiCode;
 use Illuminate\Http\Request;
@@ -96,6 +97,9 @@ class AdminDashboardController extends Controller
         $pendingAppointments = InstallationAppointment::where('status', InstallationAppointment::STATUS_PENDING)->count();
         $totalAppointments   = InstallationAppointment::count();
 
+        // Tickets de suporte abertos
+        $openTickets = Ticket::whereIn('status', [Ticket::STATUS_OPEN, Ticket::STATUS_IN_PROGRESS])->count();
+
         // Active store visitors in the last 5 minutes
         $activeUsers = count(Cache::get('store_online_visitors', []));
 
@@ -129,6 +133,7 @@ class AdminDashboardController extends Controller
             'activeUsers'            => $activeUsers,
             'pendingAppointments'    => $pendingAppointments,
             'totalAppointments'      => $totalAppointments,
+            'openTickets'            => $openTickets,
         ]);
     }
 
