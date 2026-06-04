@@ -44,6 +44,7 @@
 
       <a href="{{ route('equipment.index') }}" class="{{ request()->is('equipamentos*') ? 'store-link active' : 'store-link' }}">Equipamentos</a>
       <a href="/minha-conta" class="{{ request()->is('minha-conta') ? 'store-link active' : 'store-link' }}">A minha conta</a>
+      <a href="{{ route('tickets.create') }}" class="{{ request()->is('suporte*') ? 'store-link active' : 'store-link' }}">Suporte</a>
 
       @if(session('sg_admin_authenticated'))
       <div class="store-dropdown">

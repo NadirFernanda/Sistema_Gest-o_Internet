@@ -46,6 +46,17 @@
       </ul>
     </nav>
 
+    {{-- ── Coluna 3b: Área do Cliente ─────────────────────── --}}
+    <nav class="footer-col" aria-label="Área do Cliente">
+      <h4>Área do Cliente</h4>
+      <ul class="footer-links">
+        <li><a href="{{ route('account.index') }}">A minha conta</a></li>
+        <li><a href="{{ route('reseller.panel') }}">Painel Revendedor</a></li>
+        <li><a href="{{ route('agendar.instalacao') }}">Agendar Instalação</a></li>
+        <li><a href="{{ route('tickets.create') }}" style="font-weight:700;color:#f7b500;">Suporte / Tickets</a></li>
+      </ul>
+    </nav>
+
     {{-- ── Coluna 4: Contacto ───────────────────────────── --}}
     <div class="footer-col footer-contact-col">
       <h4>Fale Connosco</h4>

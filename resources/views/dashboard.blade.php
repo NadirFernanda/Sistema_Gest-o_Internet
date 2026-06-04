@@ -29,7 +29,6 @@
             <a href="{{ route('alertas') }}" class="btn">Alertas</a>
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
             <a href="{{ route('mikrotik.index') }}" class="btn">MikroTik</a>
-            <a href="{{ route('tickets.index') }}" class="btn">Tickets</a>
 
             @php
                 $lojaAdminToken = config('services.sg.admin_token');
