@@ -62,7 +62,6 @@ class AutovendaJanelaController extends Controller
 
         // Return the client's current active plan so the loja can prevent plan mismatches (fraud)
         $currentPlan = Plano::where('cliente_id', $cliente->id)
-            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN ('ativo', 'pendente', 'suspenso')")
             ->orderByDesc('data_ativacao')
             ->first(['template_id', 'nome']);
 
