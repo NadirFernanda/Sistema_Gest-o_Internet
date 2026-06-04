@@ -835,10 +835,16 @@
             <span class="rv-mode-badge wifi">Modo 2 — Internet AngolaWiFi</span>
           @endif
         </div>
-        <form action="{{ route('reseller.panel.logout') }}" method="POST" style="margin:0;">
-          @csrf
-          <button type="submit" class="rv-logout-btn">Terminar sessão</button>
-        </form>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <a href="{{ route('tickets.create') }}"
+             style="padding:.45rem 1rem;border:1.5px solid #f7b500;border-radius:.6rem;background:#fff;font-size:.82rem;font-weight:700;color:#b45309;text-decoration:none;white-space:nowrap;">
+            Abrir Ticket
+          </a>
+          <form action="{{ route('reseller.panel.logout') }}" method="POST" style="margin:0;">
+            @csrf
+            <button type="submit" class="rv-logout-btn">Terminar sessão</button>
+          </form>
+        </div>
       </div>
 
       {{-- ══ Alertas globais (sempre visíveis) ══ --}}
