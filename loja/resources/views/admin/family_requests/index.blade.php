@@ -142,10 +142,9 @@
           <th>Refer&ecirc;ncia</th>
           <th>Cliente</th>
           <th>Contacto</th>
-          <th>M&eacute;todo</th>
           <th>Estado</th>
           <th>Data</th>
-          <th>Ac&ccedil;&otilde;es</th>
+          <th style="min-width:140px;">Ac&ccedil;&otilde;es</th>
         </tr>
       </thead>
       <tbody>
@@ -190,9 +189,6 @@
             </td>
             <td style="white-space:nowrap;">{{ $req->customer_phone }}</td>
             <td>
-              <span class="badge bg-amber">GPO / EMIS</span>
-            </td>
-            <td>
               @if($req->status === 'activated')
                 <span class="badge bg-green">Activado</span>
               @elseif($req->status === 'confirmed')
@@ -234,7 +230,8 @@
               @elseif($req->status === 'activated')
                 <span class="badge bg-green" style="font-size:.75rem;">Janela adicionada</span>
                 @if($req->notes)
-                  <br><span class="dim" style="font-size:.72rem;">{{ $req->notes }}</span>
+                  <br><span class="dim" style="font-size:.72rem;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                        title="{{ $req->notes }}">{{ $req->notes }}</span>
                 @endif
               @else
                 <span class="dim">&mdash;</span>
@@ -243,7 +240,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="9">
+            <td colspan="8">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhum pedido encontrado</p>
                 <p class="ap-empty-s">Nenhum resultado para o filtro seleccionado.</p>
