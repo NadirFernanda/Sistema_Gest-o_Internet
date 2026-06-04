@@ -142,16 +142,19 @@ class AutovendaJanelaController extends Controller
             }
 
             $novaRenovacao = $base->copy()->addDays($ciclo)->toDateString();
-            $plano->proxima_renovacao = $novaRenovacao;
-            $plano->estado = 'Ativo';
-            $plano->save();
 
-            \App\Models\Compensacao::create([
-                'cliente_id' => $cliente->id,
-                'user_id'    => null,
-                'dias'       => $ciclo,
-                'motivo'     => 'Renovação via loja online',
-            ]);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($plano, $cliente, $ciclo, $novaRenovacao) {
+                $plano->proxima_renovacao = $novaRenovacao;
+                $plano->estado = 'Ativo';
+                $plano->save();
+
+                \App\Models\Compensacao::create([
+                    'cliente_id' => $cliente->id,
+                    'user_id'    => null,
+                    'dias'       => $ciclo,
+                    'motivo'     => 'Renovação via loja online',
+                ]);
+            });
 
             return response()->json([
                 'success'          => true,
