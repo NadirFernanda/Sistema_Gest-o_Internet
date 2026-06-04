@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Pedido #{{ $req->id }} — Admin')
+@section('title', 'Pedido #' . $req->id . ' — Admin')
 
 @push('styles')
 <style>
