@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\MikroTikService;
 use Carbon\Carbon;
 use App\Models\Cliente;
 use App\Models\Plano;
@@ -155,17 +154,6 @@ class AutovendaJanelaController extends Controller
                 'novo'             => $novaRenovacao,
             ]);
 
-            // Sync renewed plan to MikroTik (best-effort, does not block response)
-            try {
-                $freshPlano = $plano->fresh(['cliente.mikrotikSite', 'template']);
-                $site = $freshPlano->cliente?->mikrotikSite;
-                if ($site) {
-                    MikroTikService::forSite($site)->activateUser($freshPlano);
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('MikroTik: sync pós-renovação falhado', ['plano_id' => $plano->id, 'error' => $e->getMessage()]);
-            }
-
             return response()->json([
                 'success'          => true,
                 'action'           => 'janela_extended',
@@ -197,17 +185,6 @@ class AutovendaJanelaController extends Controller
             'cliente_id'      => $cliente->id,
             'plano_id'        => $plano->id,
         ]);
-
-        // Activate new plan on MikroTik (best-effort, does not block response)
-        try {
-            $plano->load(['cliente.mikrotikSite', 'template']);
-            $site = $plano->cliente?->mikrotikSite;
-            if ($site) {
-                MikroTikService::forSite($site)->activateUser($plano);
-            }
-        } catch (\Throwable $e) {
-            \Log::warning('MikroTik: activação pós-criação falhada', ['plano_id' => $plano->id, 'error' => $e->getMessage()]);
-        }
 
         return response()->json([
             'success'           => true,
