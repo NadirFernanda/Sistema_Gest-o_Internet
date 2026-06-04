@@ -52,7 +52,7 @@
       <ul class="footer-links">
         <li><a href="{{ route('account.index') }}">A minha conta</a></li>
         <li><a href="{{ route('reseller.panel') }}">Painel Revendedor</a></li>
-        <li><a href="{{ route('agendar.instalacao') }}">Agendar Instalação</a></li>
+        <li><a href="{{ route('appointment.show') }}">Agendar Instala&ccedil;&atilde;o</a></li>
         <li><a href="{{ route('tickets.create') }}" style="font-weight:700;color:#f7b500;">Suporte / Tickets</a></li>
       </ul>
     </nav>
