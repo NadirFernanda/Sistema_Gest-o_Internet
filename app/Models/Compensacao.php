@@ -7,22 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Compensacao extends Model
 {
-    // Real table schema: plano_id, user_id, dias_compensados, anterior, novo
     use HasFactory;
 
     protected $table = 'compensacoes';
 
     protected $fillable = [
-        'plano_id',
+        'cliente_id',
         'user_id',
-        'dias_compensados',
-        'anterior',
-        'novo',
+        'dias',
+        'motivo',
     ];
 
-    public function plano()
+    public function cliente()
     {
-        return $this->belongsTo(Plano::class, 'plano_id');
+        return $this->belongsTo(Cliente::class, 'cliente_id');
     }
 
     public function user()
