@@ -61,7 +61,13 @@ class FamilyPlanRequestAdminController extends Controller
             'cancelled'        => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CANCELLED)->count(),
         ];
 
-        return view('admin.family_requests.index', compact('requests', 'counts', 'status'));
+        $typeCounts = [
+            'familiar'      => FamilyPlanRequest::where('plan_name', 'like', '%familiar%')->count(),
+            'empresarial'   => FamilyPlanRequest::where('plan_name', 'like', '%empresarial%')->count(),
+            'institucional' => FamilyPlanRequest::where('plan_name', 'like', '%institucional%')->count(),
+        ];
+
+        return view('admin.family_requests.index', compact('requests', 'counts', 'typeCounts', 'status'));
     }
 
     /**

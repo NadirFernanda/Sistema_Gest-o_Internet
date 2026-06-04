@@ -110,6 +110,32 @@
     </a>
   </div>
 
+  {{-- Contadores por tipo --}}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.65rem;margin-bottom:1.5rem;">
+    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'familiar'])) }}"
+       class="ap-stat {{ request('tipo') === 'familiar' ? 'active' : '' }}">
+      <p class="ap-stat-val" style="color:#1d4ed8;">{{ $typeCounts['familiar'] }}</p>
+      <p class="ap-stat-lbl">Familiares</p>
+    </a>
+    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'empresarial'])) }}"
+       class="ap-stat {{ request('tipo') === 'empresarial' ? 'active' : '' }}">
+      <p class="ap-stat-val" style="color:#9a3412;">{{ $typeCounts['empresarial'] }}</p>
+      <p class="ap-stat-lbl">Empresariais</p>
+    </a>
+    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'institucional'])) }}"
+       class="ap-stat {{ request('tipo') === 'institucional' ? 'active' : '' }}">
+      <p class="ap-stat-val" style="color:#0f766e;">{{ $typeCounts['institucional'] }}</p>
+      <p class="ap-stat-lbl">Institucionais</p>
+    </a>
+    @if(request('tipo'))
+      <a href="{{ route('admin.family_requests.index', array_merge(request()->except('tipo'), [])) }}"
+         class="ap-stat">
+        <p class="ap-stat-val">Todos</p>
+        <p class="ap-stat-lbl" style="font-size:.72rem;">Limpar tipo</p>
+      </a>
+    @endif
+  </div>
+
   {{-- Filtros --}}
   <form method="get" class="ap-filters">
     @if($status !== 'all')
