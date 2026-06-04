@@ -76,7 +76,45 @@
     </div>
 
     @if($req->notes)
-      <div class="ap-notes" style="margin-top:1rem;">{{ $req->notes }}</div>
+      @php
+        // Formata as notes do SG de forma legível
+        // Formato raw: "SG: cliente_id=21 | plano_id=64 | proxima_renovacao=2026-07-04 | action=plano_created"
+        $notesFormatted = [];
+        $labels = [
+            'cliente_id'        => 'ID do cliente no SGA',
+            'plano_id'          => 'ID do plano no SGA',
+            'proxima_renovacao' => 'Próxima renovação',
+            'action'            => 'Acção',
+        ];
+        $actionLabels = [
+            'plano_created'  => 'Plano criado',
+            'janela_extended'=> 'Janela estendida',
+        ];
+        preg_match_all('/(\w+)=([^\s|]+)/', $req->notes, $matches, PREG_SET_ORDER);
+        foreach ($matches as $m) {
+            $key = $m[1];
+            $val = $m[2];
+            if ($key === 'proxima_renovacao' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $val)) {
+                $val = \Carbon\Carbon::parse($val)->format('d/m/Y');
+            }
+            if ($key === 'action') {
+                $val = $actionLabels[$val] ?? $val;
+            }
+            $notesFormatted[] = ['label' => $labels[$key] ?? $key, 'val' => $val];
+        }
+      @endphp
+      @if(count($notesFormatted))
+        <div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.5rem .75rem;">
+          @foreach($notesFormatted as $item)
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;">
+              <div style="font-size:.72rem;color:var(--a-faint);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">{{ $item['label'] }}</div>
+              <div style="font-weight:700;font-size:.88rem;">{{ $item['val'] }}</div>
+            </div>
+          @endforeach
+        </div>
+      @else
+        <div class="ap-notes" style="margin-top:1rem;">{{ $req->notes }}</div>
+      @endif
     @endif
 
     {{-- Acções --}}
