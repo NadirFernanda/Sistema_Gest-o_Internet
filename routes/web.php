@@ -241,6 +241,18 @@ Route::middleware('auth')->group(function () {
 
 // Dev helper routes removed. For local testing use the `diagnose:stock` command and feature branches.
 
+// ── Tickets de suporte ──
+Route::middleware('auth')->prefix('tickets')->name('tickets.')->group(function () {
+    Route::get('/',                                       [\App\Http\Controllers\TicketController::class, 'index'])->name('index');
+    Route::get('/create',                                 [\App\Http\Controllers\TicketController::class, 'create'])->name('create');
+    Route::post('/',                                      [\App\Http\Controllers\TicketController::class, 'store'])->name('store');
+    Route::get('/{ticket}',                               [\App\Http\Controllers\TicketController::class, 'show'])->name('show');
+    Route::post('/{ticket}/reply',                        [\App\Http\Controllers\TicketController::class, 'reply'])->name('reply');
+    Route::patch('/{ticket}/estado',                      [\App\Http\Controllers\TicketController::class, 'updateEstado'])->name('estado');
+    Route::patch('/{ticket}/prioridade',                  [\App\Http\Controllers\TicketController::class, 'updatePrioridade'])->name('prioridade');
+    Route::delete('/{ticket}',                            [\App\Http\Controllers\TicketController::class, 'destroy'])->name('destroy');
+});
+
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Internal AJAX routes for the web frontend (session auth, no shared API token).
