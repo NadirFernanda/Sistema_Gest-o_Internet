@@ -8,7 +8,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::dropIfExists('ticket_mensagens');
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('ticket_replies');
+        \Illuminate\Support\Facades\DB::statement('DROP TABLE IF EXISTS tickets CASCADE');
     }
 
     public function down(): void {}
