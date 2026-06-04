@@ -147,11 +147,10 @@ class AutovendaJanelaController extends Controller
             $plano->save();
 
             \App\Models\Compensacao::create([
-                'plano_id'         => $plano->id,
-                'user_id'          => null,
-                'dias_compensados' => $ciclo,
-                'anterior'         => $base->toDateString(),
-                'novo'             => $novaRenovacao,
+                'cliente_id' => $cliente->id,
+                'user_id'    => null,
+                'dias'       => $ciclo,
+                'motivo'     => 'Renovação via loja online',
             ]);
 
             return response()->json([
