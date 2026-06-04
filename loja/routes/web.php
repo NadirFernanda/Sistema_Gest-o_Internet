@@ -28,6 +28,7 @@ use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FamilyPlanPaymentController;
 use App\Http\Controllers\FamilyPlanRequestController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\InstallationAppointmentController;
 use App\Http\Controllers\ResellerPanelController;
 
@@ -239,4 +240,16 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     // Venda manual de vouchers a revendedores
     Route::get('/vender-vouchers-manual', [\App\Http\Controllers\Admin\AdminManualVoucherSaleController::class, 'create'])->name('admin.manual_voucher_sale.create');
     Route::post('/vender-vouchers-manual', [\App\Http\Controllers\Admin\AdminManualVoucherSaleController::class, 'store'])->name('admin.manual_voucher_sale.store');
+
+    // Tickets de suporte — painel admin
+    Route::get('/tickets', [\App\Http\Controllers\Admin\TicketAdminController::class, 'index'])->name('admin.tickets.index');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\Admin\TicketAdminController::class, 'show'])->name('admin.tickets.show');
+    Route::post('/tickets/{ticket}/responder', [\App\Http\Controllers\Admin\TicketAdminController::class, 'reply'])->name('admin.tickets.reply');
+    Route::patch('/tickets/{ticket}/estado', [\App\Http\Controllers\Admin\TicketAdminController::class, 'updateStatus'])->name('admin.tickets.status');
 });
+
+// Tickets — área pública (sem login, acesso por token único)
+Route::get('/suporte/novo', [TicketController::class, 'create'])->name('tickets.create')->middleware('throttle:10,1');
+Route::post('/suporte/novo', [TicketController::class, 'store'])->name('tickets.store')->middleware('throttle:5,1');
+Route::get('/suporte/ticket/{token}', [TicketController::class, 'show'])->name('tickets.show');
+Route::post('/suporte/ticket/{token}/responder', [TicketController::class, 'reply'])->name('tickets.reply')->middleware('throttle:10,1');
