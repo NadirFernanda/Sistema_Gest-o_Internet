@@ -41,7 +41,7 @@ class ClienteVencimentoEmail extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject($assunto)
-            ->greeting('Prezado(a) Cliente AngolaWiFi – ' . $notifiable->nome . ',')
+            ->greeting('Prezado(a) ' . $notifiable->nome . ',')
             ->line('Cordiais saudações.')
             ->line($linhaInfo)
             ->line('Para o efeito, siga por gentileza os passos abaixo indicados:')
