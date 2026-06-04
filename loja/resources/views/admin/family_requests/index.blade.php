@@ -110,30 +110,29 @@
     </a>
   </div>
 
-  {{-- Contadores por tipo --}}
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.65rem;margin-bottom:1.5rem;">
-    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'familiar'])) }}"
-       class="ap-stat {{ request('tipo') === 'familiar' ? 'active' : '' }}">
-      <p class="ap-stat-val" style="color:#1d4ed8;">{{ $typeCounts['familiar'] }}</p>
-      <p class="ap-stat-lbl">Familiares</p>
-    </a>
-    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'empresarial'])) }}"
-       class="ap-stat {{ request('tipo') === 'empresarial' ? 'active' : '' }}">
-      <p class="ap-stat-val" style="color:#9a3412;">{{ $typeCounts['empresarial'] }}</p>
-      <p class="ap-stat-lbl">Empresariais</p>
-    </a>
-    <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => 'institucional'])) }}"
-       class="ap-stat {{ request('tipo') === 'institucional' ? 'active' : '' }}">
-      <p class="ap-stat-val" style="color:#0f766e;">{{ $typeCounts['institucional'] }}</p>
-      <p class="ap-stat-lbl">Institucionais</p>
-    </a>
-    @if(request('tipo'))
-      <a href="{{ route('admin.family_requests.index', array_merge(request()->except('tipo'), [])) }}"
-         class="ap-stat">
-        <p class="ap-stat-val">Todos</p>
-        <p class="ap-stat-lbl" style="font-size:.72rem;">Limpar tipo</p>
+  {{-- Ordens por tipo (apenas activadas = pagas) --}}
+  @php
+    $tiposMeta = [
+      'familiar'      => ['label' => 'Familiares',      'color' => '#1d4ed8'],
+      'empresarial'   => ['label' => 'Empresariais',    'color' => '#9a3412'],
+      'institucional' => ['label' => 'Institucionais',  'color' => '#0f766e'],
+    ];
+  @endphp
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem;">
+    @foreach($tiposMeta as $key => $meta)
+      @php $s = $typeStats[$key]; @endphp
+      <a href="{{ route('admin.family_requests.index', array_merge(request()->query(), ['tipo' => $key, 'status' => 'activated'])) }}"
+         class="ap-stat {{ request('tipo') === $key ? 'active' : '' }}"
+         style="text-decoration:none;">
+        <p class="ap-stat-lbl" style="font-weight:700;font-size:.8rem;color:{{ $meta['color'] }};margin-bottom:.35rem;">{{ $meta['label'] }}</p>
+        <p style="font-size:1.5rem;font-weight:800;line-height:1;margin:0 0 .2rem;color:var(--a-text);">
+          {{ $s->total }} <span style="font-size:.9rem;font-weight:600;">ordem(s)</span>
+        </p>
+        <p style="font-size:.82rem;color:var(--a-muted);margin:0;">
+          {{ number_format($s->receita, 0, ',', '.') }} AOA recebido
+        </p>
       </a>
-    @endif
+    @endforeach
   </div>
 
   {{-- Filtros --}}

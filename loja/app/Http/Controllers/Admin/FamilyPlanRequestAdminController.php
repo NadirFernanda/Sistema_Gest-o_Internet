@@ -66,14 +66,25 @@ class FamilyPlanRequestAdminController extends Controller
             'cancelled'        => FamilyPlanRequest::where('status', FamilyPlanRequest::STATUS_CANCELLED)->count(),
         ];
 
-        $typeCounts = [
-            'institucional' => FamilyPlanRequest::where('plan_name', 'ilike', '%institucional%')->count(),
-            'empresarial'   => FamilyPlanRequest::where('plan_name', 'ilike', '%empresarial%')->count(),
-            'familiar'      => FamilyPlanRequest::where('plan_name', 'not ilike', '%institucional%')
-                                                 ->where('plan_name', 'not ilike', '%empresarial%')->count(),
+        $paid = FamilyPlanRequest::STATUS_ACTIVATED;
+
+        $typeStats = [
+            'familiar' => FamilyPlanRequest::where('status', $paid)
+                ->where('plan_name', 'not ilike', '%institucional%')
+                ->where('plan_name', 'not ilike', '%empresarial%')
+                ->selectRaw('COUNT(*) as total, COALESCE(SUM(plan_preco),0) as receita')
+                ->first(),
+            'empresarial' => FamilyPlanRequest::where('status', $paid)
+                ->where('plan_name', 'ilike', '%empresarial%')
+                ->selectRaw('COUNT(*) as total, COALESCE(SUM(plan_preco),0) as receita')
+                ->first(),
+            'institucional' => FamilyPlanRequest::where('status', $paid)
+                ->where('plan_name', 'ilike', '%institucional%')
+                ->selectRaw('COUNT(*) as total, COALESCE(SUM(plan_preco),0) as receita')
+                ->first(),
         ];
 
-        return view('admin.family_requests.index', compact('requests', 'counts', 'typeCounts', 'status'));
+        return view('admin.family_requests.index', compact('requests', 'counts', 'typeStats', 'status'));
     }
 
     /**
