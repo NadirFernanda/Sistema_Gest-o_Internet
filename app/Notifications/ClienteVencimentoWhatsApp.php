@@ -53,7 +53,7 @@ class ClienteVencimentoWhatsApp extends Notification
             ? "Informamos que a sua subscrição de internet encontra-se vencida desde o dia *{$dataTerminoStr}*. "
             : "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. ";
 
-        $mensagem = "*Prezado(a) {$this->cliente->nome},*\n\n" .
+        $mensagem = "*Prezado(a) Cliente AngolaWiFi – {$this->cliente->nome},*\n\n" .
             "Cordiais saudações.\n\n" .
             $linhaInfo .
             "Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online.\n\n" .

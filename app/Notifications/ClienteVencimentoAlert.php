@@ -43,7 +43,7 @@ class ClienteVencimentoAlert extends Notification
         return (new MailMessage)
             ->subject($assunto)
             ->mailer('smtp')
-            ->greeting('Prezado(a) ' . $this->cliente->nome . ',')
+            ->greeting('Prezado(a) Cliente AngolaWiFi – ' . $this->cliente->nome . ',')
             ->line('Cordiais saudações.')
             ->line($linhaInfo)
             ->line('Para o efeito, siga por gentileza os passos abaixo indicados:')
