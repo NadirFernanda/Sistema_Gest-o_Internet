@@ -39,8 +39,8 @@ class FamilyPlanRequestAdminController extends Controller
             });
         }
 
-        if ($request->filled('payment_method')) {
-            $query->where('payment_method', $request->input('payment_method'));
+        if ($tipo = $request->get('tipo')) {
+            $query->where('plan_name', 'like', "%{$tipo}%");
         }
 
         if ($request->filled('date_from')) {

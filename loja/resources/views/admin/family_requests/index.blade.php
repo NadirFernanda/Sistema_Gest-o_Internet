@@ -115,6 +115,15 @@
     @if($status !== 'all')
       <input type="hidden" name="status" value="{{ $status }}">
     @endif
+    <div class="ap-fg">
+      <label class="ap-label">Tipo de plano</label>
+      <select name="tipo" class="ap-ctrl" style="min-width:170px;">
+        <option value="">Todos os tipos</option>
+        <option value="familiar"      @selected(request('tipo') === 'familiar')>Familiar</option>
+        <option value="empresarial"   @selected(request('tipo') === 'empresarial')>Empresarial</option>
+        <option value="institucional" @selected(request('tipo') === 'institucional')>Institucional</option>
+      </select>
+    </div>
     <div class="ap-fg grow">
       <label class="ap-label">Pesquisa</label>
       <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Nome, telefone, e-mail, plano, refer&ecirc;ncia...">
@@ -128,7 +137,7 @@
       <input type="date" name="date_to" value="{{ request('date_to') }}" class="ap-ctrl" style="min-width:140px;">
     </div>
     <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
-    @if(request()->hasAny(['q','payment_method','date_from','date_to']) || $status !== 'all')
+    @if(request()->hasAny(['q','tipo','date_from','date_to']) || $status !== 'all')
       <a href="{{ route('admin.family_requests.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
     @endif
   </form>

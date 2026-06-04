@@ -23,11 +23,14 @@ class AutovendaOrderAdminController extends Controller
         $totalPaid  = (clone $paidQuery)->count();
         $totalAoa   = (clone $paidQuery)->sum('amount_aoa');
 
+        $plans = \App\Models\VoucherPlan::orderBy('sort_order')->get(['slug', 'name']);
+
         return view('admin.orders.index', [
             'orders'       => $orders,
             'statusCounts' => $statusCounts,
             'totalPaid'    => $totalPaid,
             'totalAoa'     => $totalAoa,
+            'plans'        => $plans,
         ]);
     }
 
@@ -96,6 +99,10 @@ class AutovendaOrderAdminController extends Controller
 
         if ($paymentMethod = $request->get('payment_method')) {
             $query->where('payment_method', $paymentMethod);
+        }
+
+        if ($planId = $request->get('plan_id')) {
+            $query->where('plan_id', $planId);
         }
 
         if ($search = trim((string) $request->get('q', ''))) {

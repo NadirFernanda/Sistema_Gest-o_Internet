@@ -89,6 +89,15 @@
   <form method="get" class="ap-filters">
     <div class="ap-filter-row">
       <div class="ap-fg">
+        <label class="ap-label">Tipo de plano</label>
+        <select name="plan_id" class="ap-ctrl" style="min-width:160px;">
+          <option value="">Todos os planos</option>
+          @foreach($plans as $p)
+            <option value="{{ $p->slug }}" @selected(request('plan_id') === $p->slug)>{{ $p->name }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="ap-fg">
         <label class="ap-label">Estado</label>
         <select name="status" class="ap-ctrl" style="min-width:160px;">
           <option value="">Todos os estados</option>
