@@ -104,7 +104,7 @@
 
     @include('layouts.partials.clientes-hero', [
         'title'    => 'MikroTik',
-        'subtitle' => 'Gestão de sites e utilizadores HotSpot',
+        'subtitle' => 'Gestão de sites e utilizadores PPPoE',
     ])
 
     {{-- ── Toolbar ── --}}
