@@ -221,9 +221,9 @@ class MikroTikAdminController extends Controller
     }
 
     /** Exportar relatório PDF. */
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $planos = $this->planosParaExport();
+        $planos = $this->planosParaExport($request);
         $sites  = MikroTikSite::withCount('clientes')->where('active', true)->get();
 
         $pdf = Pdf::loadView('mikrotik.relatorio-pdf', compact('planos', 'sites'))
@@ -233,9 +233,9 @@ class MikroTikAdminController extends Controller
     }
 
     /** Exportar relatório Excel. */
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        $planos = $this->planosParaExport();
+        $planos = $this->planosParaExport($request);
         $sites  = MikroTikSite::withCount('clientes')->where('active', true)->get();
 
         return Excel::download(
@@ -244,14 +244,36 @@ class MikroTikAdminController extends Controller
         );
     }
 
-    private function planosParaExport()
+    private function planosParaExport(Request $request)
     {
-        return Plano::with('cliente.mikrotikSite', 'template')
+        $siteId       = $request->query('site_id');
+        $search       = trim($request->query('search', ''));
+        $estadoFiltro = $request->query('estado', '');
+
+        $query = Plano::with('cliente.mikrotikSite', 'template')
             ->leftJoin('clientes', 'planos.cliente_id', '=', 'clientes.id')
             ->select('planos.*')
             ->whereHas('cliente', fn($q) => $q->whereNotNull('mikrotik_site_id'))
-            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))")
-            ->get();
+            ->orderByRaw("LOWER(COALESCE(clientes.nome, ''))");
+
+        if ($siteId) {
+            $query->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', (int) $siteId));
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('clientes.nome', 'like', "%{$search}%")
+                  ->orWhere('planos.mikrotik_username', 'like', "%{$search}%");
+            });
+        }
+
+        if ($estadoFiltro === 'nao_sincronizado') {
+            $query->whereNotNull('planos.id')->whereNull('planos.mikrotik_username');
+        } elseif ($estadoFiltro !== '') {
+            $query->where('planos.estado', $estadoFiltro);
+        }
+
+        return $query->get();
     }
 
     /** Listar perfis HotSpot de um site (para diagnóstico). */

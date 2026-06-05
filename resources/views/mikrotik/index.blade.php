@@ -147,8 +147,8 @@
 
         <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
             <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
-            <a href="{{ route('mikrotik.export-pdf') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
-            <a href="{{ route('mikrotik.export-excel') }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
+            <a href="{{ route('mikrotik.export-pdf', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
+            <a href="{{ route('mikrotik.export-excel', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
             <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
