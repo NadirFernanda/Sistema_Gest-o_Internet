@@ -433,7 +433,7 @@ function verPerfis(btn) {
         .then(d => {
             btn.disabled = false; btn.textContent = 'Ver perfis';
             if (d.ok && d.profiles) {
-                alert('Perfis HotSpot no router:\n\n' + (d.profiles.length ? d.profiles.join('\n') : '(nenhum)'));
+                alert('Perfis PPPoE no router:\n\n' + (d.profiles.length ? d.profiles.join('\n') : '(nenhum)'));
             } else {
                 alert('Erro ao obter perfis.');
             }
