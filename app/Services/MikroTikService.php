@@ -198,7 +198,16 @@ class MikroTikService
                     'disabled' => 'yes',
                     'comment'  => ($existing['comment'] ?? '') . '|SUSPENSO',
                 ]);
-                Log::info('MikroTik: utilizador suspenso', [
+
+                // Desconectar sessões activas imediatamente (disabled=yes só impede novos logins)
+                $activeSessions = $this->api->command('/ip/hotspot/active/print', [], ['user' => $username]);
+                foreach ($activeSessions as $session) {
+                    if (($session['type'] ?? '') === '!re' && isset($session['.id'])) {
+                        $this->api->command('/ip/hotspot/active/remove', ['.id' => $session['.id']]);
+                    }
+                }
+
+                Log::info('MikroTik: utilizador suspenso e sessões activas terminadas', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
