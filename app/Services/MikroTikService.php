@@ -68,8 +68,8 @@ class MikroTikService
     // ─── Public operations ───────────────────────────────────────────────────
 
     /**
-     * Activate or renew a client's HotSpot account based on their Plano.
-     * Creates the user if absent; updates profile and enables if suspended.
+     * Activate or renew a client's PPPoE secret based on their Plano.
+     * Creates the secret if absent; updates profile and enables if suspended.
      */
     public function activateUser(Plano $plano): bool
     {
@@ -94,72 +94,79 @@ class MikroTikService
             $disabled = in_array($plano->estado, ['Suspenso', 'Cancelado']) ? 'yes' : 'no';
 
             if ($existing) {
-                $resp = $this->api->command('/ip/hotspot/user/set', [
+                $resp = $this->api->command('/ppp/secret/set', [
                     '.id'      => $existing['.id'],
                     'profile'  => $profile,
                     'disabled' => $disabled,
                     'comment'  => $comment,
                 ]);
                 if ($this->isProfileError($resp) && $profile !== $this->defaultProfile && $this->defaultProfile !== '') {
-                    Log::warning('MikroTik: perfil não existe no set, usando default_profile', [
+                    Log::warning('MikroTik PPPoE: perfil não existe no set, usando default_profile', [
                         'profile' => $profile, 'fallback' => $this->defaultProfile, 'host' => $this->host,
                     ]);
-                    $resp = $this->api->command('/ip/hotspot/user/set', [
+                    $resp = $this->api->command('/ppp/secret/set', [
                         '.id'      => $existing['.id'],
                         'profile'  => $this->defaultProfile,
                         'disabled' => $disabled,
                         'comment'  => $comment,
                     ]);
                 }
-                // Último recurso: actualizar só disabled/comment sem tocar no perfil
                 if ($this->isProfileError($resp)) {
-                    Log::warning('MikroTik: default_profile também inválido no set, a ignorar perfil', [
+                    Log::warning('MikroTik PPPoE: default_profile também inválido, a ignorar perfil', [
                         'host' => $this->host, 'username' => $username,
                     ]);
-                    $resp = $this->api->command('/ip/hotspot/user/set', [
+                    $resp = $this->api->command('/ppp/secret/set', [
                         '.id'      => $existing['.id'],
                         'disabled' => $disabled,
                         'comment'  => $comment,
                     ]);
                 }
                 $this->throwIfTrap($resp, 'set');
-                Log::info('MikroTik: utilizador actualizado', [
+
+                // Se foi reactivado, reconectar sessão (PPPoE não reconecta sozinho)
+                if ($disabled === 'no') {
+                    $this->disconnectActivePpp($username);
+                }
+
+                Log::info('MikroTik PPPoE: secret actualizado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
             } else {
-                $resp = $this->api->command('/ip/hotspot/user/add', [
+                $resp = $this->api->command('/ppp/secret/add', [
                     'name'     => $username,
                     'password' => $password,
                     'profile'  => $profile,
                     'disabled' => $disabled,
                     'comment'  => $comment,
+                    'service'  => 'pppoe',
                 ]);
                 if ($this->isProfileError($resp) && $profile !== $this->defaultProfile && $this->defaultProfile !== '') {
-                    Log::warning('MikroTik: perfil não existe no add, usando default_profile', [
+                    Log::warning('MikroTik PPPoE: perfil não existe no add, usando default_profile', [
                         'profile' => $profile, 'fallback' => $this->defaultProfile, 'host' => $this->host,
                     ]);
-                    $resp = $this->api->command('/ip/hotspot/user/add', [
+                    $resp = $this->api->command('/ppp/secret/add', [
                         'name'     => $username,
                         'password' => $password,
                         'profile'  => $this->defaultProfile,
                         'disabled' => $disabled,
                         'comment'  => $comment,
+                        'service'  => 'pppoe',
                     ]);
                 }
-                // Último recurso: criar sem perfil (MikroTik usa o seu default interno)
                 if ($this->isProfileError($resp)) {
-                    Log::warning('MikroTik: default_profile também inválido no add, a criar sem perfil', [
+                    Log::warning('MikroTik PPPoE: default_profile também inválido, a criar sem perfil', [
                         'host' => $this->host, 'username' => $username,
                     ]);
-                    $resp = $this->api->command('/ip/hotspot/user/add', [
+                    $resp = $this->api->command('/ppp/secret/add', [
                         'name'     => $username,
                         'password' => $password,
                         'disabled' => $disabled,
                         'comment'  => $comment,
+                        'service'  => 'pppoe',
                     ]);
                 }
                 $this->throwIfTrap($resp, 'add');
-                Log::info('MikroTik: utilizador criado', [
+                Log::info('MikroTik PPPoE: secret criado', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host, 'disabled' => $disabled,
                 ]);
             }
@@ -171,7 +178,7 @@ class MikroTikService
             return true;
         } catch (\Throwable $e) {
             $this->lastError = $e->getMessage();
-            Log::error('MikroTik: activação falhada', [
+            Log::error('MikroTik PPPoE: activação falhada', [
                 'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
@@ -181,7 +188,7 @@ class MikroTikService
     }
 
     /**
-     * Suspend a user when their plan expires (disabled=yes, not deleted).
+     * Suspend a PPPoE user: disable secret + disconnect active session immediately.
      */
     public function suspendUser(Plano $plano): bool
     {
@@ -193,21 +200,16 @@ class MikroTikService
             $existing = $this->findUser($username);
 
             if ($existing) {
-                $this->api->command('/ip/hotspot/user/set', [
+                $this->api->command('/ppp/secret/set', [
                     '.id'      => $existing['.id'],
                     'disabled' => 'yes',
                     'comment'  => ($existing['comment'] ?? '') . '|SUSPENSO',
                 ]);
 
-                // Desconectar sessões activas imediatamente (disabled=yes só impede novos logins)
-                $activeSessions = $this->api->command('/ip/hotspot/active/print', [], ['user' => $username]);
-                foreach ($activeSessions as $session) {
-                    if (($session['type'] ?? '') === '!re' && isset($session['.id'])) {
-                        $this->api->command('/ip/hotspot/active/remove', ['.id' => $session['.id']]);
-                    }
-                }
+                // Desconectar sessão PPPoE activa imediatamente
+                $this->disconnectActivePpp($username);
 
-                Log::info('MikroTik: utilizador suspenso e sessões activas terminadas', [
+                Log::info('MikroTik PPPoE: secret desactivado e sessão terminada', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
@@ -217,7 +219,7 @@ class MikroTikService
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('MikroTik: suspensão falhada', [
+            Log::error('MikroTik PPPoE: suspensão falhada', [
                 'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
@@ -227,7 +229,7 @@ class MikroTikService
     }
 
     /**
-     * Permanently remove a HotSpot user (cancelled plan).
+     * Permanently remove a PPPoE secret (cancelled plan).
      */
     public function removeUser(Plano $plano): bool
     {
@@ -239,8 +241,9 @@ class MikroTikService
             $existing = $this->findUser($username);
 
             if ($existing) {
-                $this->api->command('/ip/hotspot/user/remove', ['.id' => $existing['.id']]);
-                Log::info('MikroTik: utilizador removido', [
+                $this->disconnectActivePpp($username);
+                $this->api->command('/ppp/secret/remove', ['.id' => $existing['.id']]);
+                Log::info('MikroTik PPPoE: secret removido', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
             }
@@ -251,7 +254,7 @@ class MikroTikService
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('MikroTik: remoção falhada', [
+            Log::error('MikroTik PPPoE: remoção falhada', [
                 'plano_id' => $plano->id, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
             return false;
@@ -261,7 +264,7 @@ class MikroTikService
     }
 
     /**
-     * Return available HotSpot profiles (to map plan templates).
+     * Return available PPPoE profiles.
      */
     public function listProfiles(): array
     {
@@ -269,10 +272,10 @@ class MikroTikService
 
         try {
             $this->connect();
-            $result = $this->api->command('/ip/hotspot/user/profile/print');
+            $result = $this->api->command('/ppp/profile/print');
             return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
         } catch (\Throwable $e) {
-            Log::error('MikroTik: listProfiles falhado', ['host' => $this->host, 'error' => $e->getMessage()]);
+            Log::error('MikroTik PPPoE: listProfiles falhado', ['host' => $this->host, 'error' => $e->getMessage()]);
             return [];
         } finally {
             $this->safeDisconnect();
@@ -319,11 +322,21 @@ class MikroTikService
 
     private function findUser(string $username): ?array
     {
-        $result = $this->api->command('/ip/hotspot/user/print', [], ['name' => $username]);
+        $result = $this->api->command('/ppp/secret/print', [], ['name' => $username]);
         foreach ($result as $r) {
             if (($r['type'] ?? '') === '!re') return $r;
         }
         return null;
+    }
+
+    private function disconnectActivePpp(string $username): void
+    {
+        $sessions = $this->api->command('/ppp/active/print', [], ['name' => $username]);
+        foreach ($sessions as $s) {
+            if (($s['type'] ?? '') === '!re' && isset($s['.id'])) {
+                $this->api->command('/ppp/active/remove', ['.id' => $s['.id']]);
+            }
+        }
     }
 
     private function isProfileError(array $response): bool
