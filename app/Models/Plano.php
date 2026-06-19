@@ -39,4 +39,9 @@ class Plano extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
+
+    public function mikrotikOnlineStatus()
+    {
+        return $this->hasOne(MikroTikOnlineStatus::class);
+    }
 }

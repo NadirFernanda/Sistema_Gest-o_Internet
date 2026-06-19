@@ -82,7 +82,27 @@
         .col-user code { background:#f4f6f9; padding:1px 6px; border-radius:5px; font-size:0.81rem; color:#555; }
         .col-est  { width:10%; }
         .col-ren  { width:10%; font-size:0.83rem; color:#555; white-space:nowrap; }
+        .col-online { width:11%; text-align:center; }
         .col-acts { width:112px; white-space:nowrap; }
+
+        /* Status online/offline badge */
+        .status-badge {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:4px 9px; border-radius:20px; font-size:0.75rem; font-weight:700;
+            white-space:nowrap;
+        }
+        .status-online { background:#d4edda; color:#155724; }
+        .status-offline { background:#f8d7da; color:#721c24; }
+        .status-unknown { background:#e2e3e5; color:#383d41; }
+        .status-dot {
+            display:inline-block; width:6px; height:6px; border-radius:50%;
+        }
+        .status-dot-on { background:#28a745; }
+        .status-dot-off { background:#dc3545; }
+        .status-dot-unknown { background:#999; }
+        .downtime-info {
+            font-size:0.75rem; color:#999; margin-top:2px; line-height:1.3;
+        }
 
         .ebadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
         .eb-ativo    { background:#e8f7ef; color:#2a8a55; }
@@ -235,6 +255,7 @@
                         <th class="col-si">Site</th>
                         <th class="col-pl">Plano</th>
                         <th class="col-user">Username MikroTik</th>
+                        <th class="col-online">Status Online</th>
                         <th class="col-est">Estado</th>
                         <th class="col-ren">Renovação</th>
                         <th class="col-acts">Acções</th>
@@ -267,6 +288,44 @@
                                 <code title="Sync: {{ $item->mikrotik_synced_at ? \Carbon\Carbon::parse($item->mikrotik_synced_at)->format('d/m/Y H:i') : '—' }}">{{ $item->mikrotik_username }}</code>
                             @elseif($item->plano_id)
                                 <span style="color:#e05a4f; font-size:0.8rem; font-weight:600;">Não sincronizado</span>
+                            @else
+                                <span style="color:#bbb; font-size:0.8rem;">—</span>
+                            @endif
+                        </td>
+                        <td class="col-online">
+                            @if($item->plano_id && $item->mikrotik_username)
+                                @php
+                                    $onlineStatus = $item->mikrotik_online_status ?? null;
+                                    $isOnline = $onlineStatus?->is_online ?? null;
+                                @endphp
+                                @if($isOnline === true)
+                                    <span class="status-badge status-online">
+                                        <span class="status-dot status-dot-on"></span>
+                                        Online
+                                    </span>
+                                    <div class="downtime-info" title="Último acesso: {{ $onlineStatus->last_seen_online_at?->format('d/m/Y H:i') }}">
+                                        👁 {{ $onlineStatus->last_seen_online_at?->diffForHumans() ?? '—' }}
+                                    </div>
+                                @elseif($isOnline === false)
+                                    <span class="status-badge status-offline">
+                                        <span class="status-dot status-dot-off"></span>
+                                        Offline
+                                    </span>
+                                    <div class="downtime-info" title="Última queda: {{ $onlineStatus->last_seen_offline_at?->format('d/m/Y H:i') }}">
+                                        ⏱ {{ $onlineStatus->getDowntimeDays() > 0 
+                                            ? number_format($onlineStatus->getDowntimeDays(), 1) . ' dias'
+                                            : ($onlineStatus->getDowntimeHours() > 0 
+                                                ? intval($onlineStatus->getDowntimeHours()) . 'h'
+                                                : $onlineStatus->getDowttimeMinutes() . 'min'
+                                            )
+                                        }}
+                                    </div>
+                                @else
+                                    <span class="status-badge status-unknown">
+                                        <span class="status-dot status-dot-unknown"></span>
+                                        Aguardando...
+                                    </span>
+                                @endif
                             @else
                                 <span style="color:#bbb; font-size:0.8rem;">—</span>
                             @endif

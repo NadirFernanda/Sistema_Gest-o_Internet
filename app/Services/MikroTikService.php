@@ -283,6 +283,31 @@ class MikroTikService
     }
 
     /**
+     * List all active PPPoE sessions on this router.
+     * 
+     * @return array Array of active sessions, each with keys: name, address, uptime, etc.
+     */
+    public function listActiveSessions(): array
+    {
+        if (! $this->isConfigured()) {
+            return [];
+        }
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/ppp/active/print');
+            return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
+        } catch (\Throwable $e) {
+            Log::error('MikroTik PPPoE: listActiveSessions falhado', [
+                'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+            return [];
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
+    /**
      * Ping the router — used by the admin panel status widget.
      */
     public function testConnection(): array

@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\EnviarNotificacaoDevolucao::class,
         \App\Console\Commands\MikroTikSyncPlans::class,
         \App\Console\Commands\MikroTikExpirePlans::class,
+        \App\Console\Commands\MikroTikCheckOnlineStatus::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -54,6 +55,13 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
         // MikroTik: sincroniza planos activos a cada 5 minutos
         $schedule->command('mikrotik:sync-plans')
+            ->everyFiveMinutes()
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // MikroTik: verifica status online dos clientes a cada 5 minutos
+        $schedule->command('mikrotik:check-online-status')
             ->everyFiveMinutes()
             ->timezone(config('app.timezone'))
             ->withoutOverlapping()

@@ -25,4 +25,9 @@ class MikroTikSite extends Model
     {
         return $this->hasMany(Cliente::class, 'mikrotik_site_id');
     }
+
+    public function mikrotikOnlineStatuses()
+    {
+        return $this->hasMany(MikroTikOnlineStatus::class);
+    }
 }

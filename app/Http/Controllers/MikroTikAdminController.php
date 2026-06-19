@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class MikroTikAdminController extends Controller
 {
@@ -34,6 +35,7 @@ class MikroTikAdminController extends Controller
             ->leftJoinSub($bestPlanSub, 'bp', 'bp.cliente_id', '=', 'clientes.id')
             ->leftJoin('planos', 'planos.id', '=', 'bp.plano_id')
             ->leftJoin('mikrotik_sites', 'mikrotik_sites.id', '=', 'clientes.mikrotik_site_id')
+            ->leftJoin('mikrotik_online_statuses', 'mikrotik_online_statuses.plano_id', '=', 'planos.id')
             ->select(
                 'clientes.id as cliente_id',
                 'clientes.nome as cliente_nome',
@@ -43,7 +45,11 @@ class MikroTikAdminController extends Controller
                 'planos.mikrotik_username',
                 'planos.mikrotik_synced_at',
                 'planos.estado as plano_estado',
-                'planos.proxima_renovacao'
+                'planos.proxima_renovacao',
+                'mikrotik_online_statuses.is_online',
+                'mikrotik_online_statuses.last_seen_online_at',
+                'mikrotik_online_statuses.last_seen_offline_at',
+                'mikrotik_online_statuses.total_downtime_seconds'
             )
             ->whereNotNull('clientes.mikrotik_site_id')
             ->orderByRaw("LOWER(clientes.nome)");
@@ -66,6 +72,23 @@ class MikroTikAdminController extends Controller
         }
 
         $clientes = $query->paginate(30)->withQueryString();
+
+        // Processar resultados para adicionar objeto de status online
+        $clientes->getCollection()->transform(function ($item) {
+            // Criar objeto de status online a partir dos dados da query
+            if ($item->is_online !== null) {
+                $item->mikrotik_online_status = new MikroTikStatusDisplay(
+                    (bool) $item->is_online,
+                    $item->last_seen_online_at ? Carbon::parse($item->last_seen_online_at) : null,
+                    $item->last_seen_offline_at ? Carbon::parse($item->last_seen_offline_at) : null,
+                    (int) ($item->total_downtime_seconds ?? 0)
+                );
+            } else {
+                $item->mikrotik_online_status = null;
+            }
+            
+            return $item;
+        });
 
         $planosPending = DB::table('planos')
             ->join('clientes', 'clientes.id', '=', 'planos.cliente_id')
