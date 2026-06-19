@@ -45,9 +45,9 @@ class MikroTikCheckOnlineStatus extends Command
                     ->keys()
                     ->toArray();
 
-                // Get all synced planos for this site
+                // Get all synced planos for this site (usando relacionamento de clientes)
                 $planos = Plano::whereNotNull('mikrotik_username')
-                    ->where('mikrotik_site_id', $site->id)
+                    ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
                     ->where('estado', 'Ativo')
                     ->get();
 
