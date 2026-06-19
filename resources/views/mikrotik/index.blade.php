@@ -342,6 +342,7 @@
                         </td>
                         <td class="col-acts">
                             @if($item->plano_id)
+                            <a href="{{ route('mikrotik.planos.detalhes', $item->plano_id) }}" class="abtn" title="Ver detalhes" style="background:#6c757d; color:#fff; text-decoration:none; display:inline-flex;">📊</a>
                             <button onclick="syncPlano({{ $item->plano_id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
                             <button onclick="suspendPlano({{ $item->plano_id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
                             <button onclick="removePlano({{ $item->plano_id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>

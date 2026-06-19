@@ -41,6 +41,11 @@ class MikroTikOnlineStatus extends Model
         return $this->belongsTo(MikroTikSite::class);
     }
 
+    public function events()
+    {
+        return $this->hasMany(MikroTikOnlineStatusEvent::class);
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     public function getDowttimeMinutes(): int

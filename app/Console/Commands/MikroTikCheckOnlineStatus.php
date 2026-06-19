@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\MikroTikOnlineStatus;
+use App\Models\MikroTikOnlineStatusEvent;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
@@ -100,6 +101,15 @@ class MikroTikCheckOnlineStatus extends Command
             $status->last_seen_online_at = now();
             $status->disconnect_reason = null;
 
+            // Registar evento: voltou online
+            MikroTikOnlineStatusEvent::create([
+                'plano_id' => $plano->id,
+                'mikrotik_online_status_id' => $status->id,
+                'event_type' => 'online',
+                'occurred_at' => now(),
+                'duration_seconds' => $downtime,
+            ]);
+
             Log::info('MikroTik: cliente voltou online', [
                 'plano_id' => $plano->id,
                 'username' => $plano->mikrotik_username,
@@ -111,6 +121,15 @@ class MikroTikCheckOnlineStatus extends Command
             $status->is_online = false;
             $status->last_seen_offline_at = now();
             $status->disconnect_reason = 'Queda detectada';
+
+            // Registar evento: caiu offline
+            MikroTikOnlineStatusEvent::create([
+                'plano_id' => $plano->id,
+                'mikrotik_online_status_id' => $status->id,
+                'event_type' => 'offline',
+                'occurred_at' => now(),
+                'disconnect_reason' => 'Queda detectada',
+            ]);
 
             Log::warning('MikroTik: cliente caiu offline', [
                 'plano_id' => $plano->id,
