@@ -43,7 +43,7 @@ class MikroTikOnlineStatus extends Model
 
     public function events()
     {
-        return $this->hasMany(MikroTikOnlineStatusEvent::class);
+        return $this->hasMany(MikroTikOnlineStatusEvent::class, 'mikrotik_online_status_id');
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

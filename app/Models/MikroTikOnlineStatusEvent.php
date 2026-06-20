@@ -31,7 +31,7 @@ class MikroTikOnlineStatusEvent extends Model
 
     public function mikrotikOnlineStatus()
     {
-        return $this->belongsTo(MikroTikOnlineStatus::class);
+        return $this->belongsTo(MikroTikOnlineStatus::class, 'mikrotik_online_status_id');
     }
 
     // Helpers

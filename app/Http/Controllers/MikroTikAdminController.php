@@ -372,44 +372,32 @@ class MikroTikAdminController extends Controller
     /** Mostrar detalhes de um plano com histórico de status online/offline. */
     public function showDetails(Plano $plano)
     {
-        try {
-            $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus']);
+        $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus.events']);
 
-            $cliente = $plano->cliente;
-            if (!$cliente || !$cliente->mikrotik_site_id) {
-                abort(404, 'Cliente ou site MikroTik não encontrado');
-            }
-
-            $statusOnline = $plano->mikrotikOnlineStatus;
-
-            // Buscar eventos separadamente (query directa para evitar problemas de eager load)
-            $eventos = $statusOnline
-                ? \App\Models\MikroTikOnlineStatusEvent::where('mikrotik_online_status_id', $statusOnline->id)
-                    ->orderBy('occurred_at', 'desc')
-                    ->get()
-                : collect();
-
-            $totalOfflineEvents = $eventos->where('event_type', 'offline')->count();
-            $totalOnlineEvents  = $eventos->where('event_type', 'online')->count();
-            $totalDowntime      = (int) $eventos->where('event_type', 'offline')->sum('duration_seconds');
-            $avgDowntime        = $totalOfflineEvents > 0 ? intval($totalDowntime / $totalOfflineEvents) : 0;
-
-            $eventosUltimaSemana = $eventos->filter(function ($e) {
-                return $e->occurred_at && $e->occurred_at->gte(now()->subDays(7));
-            })->values();
-
-            return view('mikrotik.detalhes-plano', compact(
-                'plano', 'cliente', 'statusOnline',
-                'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
-                'totalDowntime', 'avgDowntime', 'eventosUltimaSemana'
-            ));
-        } catch (\Throwable $e) {
-            \Log::error('MikroTik showDetails erro', [
-                'plano_id' => $plano->id,
-                'error'    => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
-            ]);
-            abort(500, $e->getMessage());
+        $cliente = $plano->cliente;
+        if (!$cliente || !$cliente->mikrotik_site_id) {
+            abort(404, 'Cliente ou site MikroTik não encontrado');
         }
+
+        $statusOnline = $plano->mikrotikOnlineStatus;
+
+        $eventos = $statusOnline
+            ? $statusOnline->events()->orderBy('occurred_at', 'desc')->get()
+            : collect();
+
+        $totalOfflineEvents = $eventos->where('event_type', 'offline')->count();
+        $totalOnlineEvents  = $eventos->where('event_type', 'online')->count();
+        $totalDowntime      = (int) $eventos->where('event_type', 'offline')->sum('duration_seconds');
+        $avgDowntime        = $totalOfflineEvents > 0 ? intval($totalDowntime / $totalOfflineEvents) : 0;
+
+        $eventosUltimaSemana = $eventos->filter(function ($e) {
+            return $e->occurred_at && $e->occurred_at->gte(now()->subDays(7));
+        })->values();
+
+        return view('mikrotik.detalhes-plano', compact(
+            'plano', 'cliente', 'statusOnline',
+            'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
+            'totalDowntime', 'avgDowntime', 'eventosUltimaSemana'
+        ));
     }
 }
