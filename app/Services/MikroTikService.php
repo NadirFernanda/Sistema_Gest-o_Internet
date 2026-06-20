@@ -308,6 +308,28 @@ class MikroTikService
     }
 
     /**
+     * Get all simple queue stats (includes dynamic PPPoE queues <pppoe-username>).
+     * Used to sample bandwidth usage per client.
+     */
+    public function getAllQueueStats(): array
+    {
+        if (! $this->isConfigured()) return [];
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/queue/simple/print');
+            return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
+        } catch (\Throwable $e) {
+            Log::debug('MikroTik: falha ao obter queue stats', [
+                'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+            return [];
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
+    /**
      * Fetch recent PPP-related log entries from this router.
      * Used to determine disconnect reasons for offline clients.
      */

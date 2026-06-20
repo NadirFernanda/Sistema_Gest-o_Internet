@@ -173,6 +173,37 @@
         </div>
         @endif
 
+        {{-- ── Gráfico de largura de banda ── --}}
+        <div class="det-card" style="margin-bottom:20px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <h3 style="margin:0;">Largura de Banda</h3>
+                <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                    <div style="text-align:center;">
+                        <div id="bw-rx" style="font-size:1.3rem; font-weight:800; color:#2563eb;">—</div>
+                        <div style="font-size:0.72rem; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:.03em;">▼ Download</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="bw-tx" style="font-size:1.3rem; font-weight:800; color:#16a34a;">—</div>
+                        <div style="font-size:0.72rem; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:.03em;">▲ Upload</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="bw-ip" style="font-size:0.9rem; font-weight:700; color:#555; font-family:monospace;">—</div>
+                        <div style="font-size:0.72rem; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:.03em;">IP da sessão</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="bw-updated" style="font-size:0.78rem; color:#bbb;">—</div>
+                        <div style="font-size:0.72rem; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:.03em;">Actualizado</div>
+                    </div>
+                </div>
+            </div>
+            <div style="position:relative; height:180px;">
+                <canvas id="bandwidthChart"></canvas>
+            </div>
+            <div style="margin-top:8px; font-size:0.75rem; color:#bbb; text-align:right;">
+                Últimas 2 horas — actualiza automaticamente a cada minuto
+            </div>
+        </div>
+
         {{-- ── Histórico de eventos ── --}}
         <div class="det-card">
             <h3>Histórico de Eventos</h3>
@@ -263,7 +294,102 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// ── Gráfico de largura de banda ──────────────────────────────────────────────
+const initialData = @json([
+    'labels' => $bandwidthSamples->map(fn($s) => $s->sampled_at->format('H:i'))->values(),
+    'rx'     => $bandwidthSamples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values(),
+    'tx'     => $bandwidthSamples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values(),
+    'current_rx' => $bandwidthSamples->last()?->getFormattedRxRate(),
+    'current_tx' => $bandwidthSamples->last()?->getFormattedTxRate(),
+    'ip'         => $bandwidthSamples->last()?->ip_address,
+    'sampled_at' => $bandwidthSamples->last()?->sampled_at?->diffForHumans(),
+]);
+
+const ctx = document.getElementById('bandwidthChart').getContext('2d');
+const bwChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: initialData.labels,
+        datasets: [
+            {
+                label: 'Download (Mbps)',
+                data: initialData.rx,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: true,
+                tension: 0.3,
+            },
+            {
+                label: 'Upload (Mbps)',
+                data: initialData.tx,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22,163,74,0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: true,
+                tension: 0.3,
+            },
+        ],
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ` ${ctx.dataset.label.split(' ')[0]}: ${ctx.raw} Mbps`,
+                }
+            },
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 }, maxTicksLimit: 12, color: '#aaa' },
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: {
+                    font: { size: 10 }, color: '#aaa',
+                    callback: v => v + ' M',
+                },
+            },
+        },
+    },
+});
+
+function applyBwData(data) {
+    bwChart.data.labels                 = data.labels;
+    bwChart.data.datasets[0].data       = data.rx;
+    bwChart.data.datasets[1].data       = data.tx;
+    bwChart.update('none');
+
+    if (data.current_rx) document.getElementById('bw-rx').textContent = data.current_rx;
+    if (data.current_tx) document.getElementById('bw-tx').textContent = data.current_tx;
+    if (data.ip)         document.getElementById('bw-ip').textContent = data.ip;
+    if (data.sampled_at) document.getElementById('bw-updated').textContent = data.sampled_at;
+}
+
+// Aplicar dados iniciais
+applyBwData(initialData);
+
+// Actualizar a cada 60 segundos
+setInterval(() => {
+    fetch('{{ route('mikrotik.planos.traffic-data', $plano) }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(applyBwData)
+    .catch(() => {});
+}, 60_000);
+
+// ── Filtro de eventos ────────────────────────────────────────────────────────
 function filtrar(tipo, btn) {
     document.querySelectorAll('.det-filter').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');

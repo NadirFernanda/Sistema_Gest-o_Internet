@@ -191,7 +191,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/export-pdf',              [\App\Http\Controllers\MikroTikAdminController::class, 'exportPdf'])->name('export-pdf');
             Route::get('/export-excel',            [\App\Http\Controllers\MikroTikAdminController::class, 'exportExcel'])->name('export-excel');
             // Detalhes de um plano com histórico
-            Route::get('/planos/{plano}/detalhes', [\App\Http\Controllers\MikroTikAdminController::class, 'showDetails'])->name('planos.detalhes');
+            Route::get('/planos/{plano}/detalhes',      [\App\Http\Controllers\MikroTikAdminController::class, 'showDetails'])->name('planos.detalhes');
+            Route::get('/planos/{plano}/traffic-data',  [\App\Http\Controllers\MikroTikAdminController::class, 'trafficData'])->name('planos.traffic-data');
         });
 
     // Export routes removed per request

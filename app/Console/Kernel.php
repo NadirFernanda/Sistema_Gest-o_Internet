@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MikroTikExpirePlans::class,
         \App\Console\Commands\MikroTikCheckOnlineStatus::class,
         \App\Console\Commands\MikroTikBackfillDisconnectReasons::class,
+        \App\Console\Commands\MikroTikSampleBandwidth::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -57,6 +58,13 @@ class Kernel extends ConsoleKernel
         // MikroTik: sincroniza planos activos a cada 5 minutos
         $schedule->command('mikrotik:sync-plans')
             ->everyFiveMinutes()
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // MikroTik: amostra largura de banda a cada minuto
+        $schedule->command('mikrotik:sample-bandwidth')
+            ->everyMinute()
             ->timezone(config('app.timezone'))
             ->withoutOverlapping()
             ->runInBackground();

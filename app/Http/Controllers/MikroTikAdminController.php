@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\MikroTikExport;
 use App\Models\Cliente;
+use App\Models\MikroTikBandwidthSample;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
@@ -369,6 +370,30 @@ class MikroTikAdminController extends Controller
         ]);
     }
 
+    /** Dados de largura de banda para o gráfico (AJAX). */
+    public function trafficData(Plano $plano)
+    {
+        $samples = MikroTikBandwidthSample::where('plano_id', $plano->id)
+            ->orderBy('sampled_at', 'desc')
+            ->limit(120) // últimas 2 horas (1 amostra/min)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $latest = $samples->last();
+
+        return response()->json([
+            'labels'     => $samples->map(fn($s) => $s->sampled_at->format('H:i'))->values(),
+            'rx'         => $samples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values(),
+            'tx'         => $samples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values(),
+            'current_rx' => $latest ? MikroTikBandwidthSample::formatRate($latest->rx_rate) : null,
+            'current_tx' => $latest ? MikroTikBandwidthSample::formatRate($latest->tx_rate) : null,
+            'ip'         => $latest?->ip_address,
+            'sampled_at' => $latest?->sampled_at?->diffForHumans(),
+            'count'      => $samples->count(),
+        ]);
+    }
+
     /** Mostrar detalhes de um plano com histórico de status online/offline. */
     public function showDetails(Plano $plano)
     {
@@ -394,10 +419,18 @@ class MikroTikAdminController extends Controller
             return $e->occurred_at && $e->occurred_at->gte(now()->subDays(7));
         })->values();
 
+        $bandwidthSamples = MikroTikBandwidthSample::where('plano_id', $plano->id)
+            ->orderBy('sampled_at', 'desc')
+            ->limit(120)
+            ->get()
+            ->reverse()
+            ->values();
+
         return view('mikrotik.detalhes-plano', compact(
             'plano', 'cliente', 'statusOnline',
             'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
-            'totalDowntime', 'avgDowntime', 'eventosUltimaSemana'
+            'totalDowntime', 'avgDowntime', 'eventosUltimaSemana',
+            'bandwidthSamples'
         ));
     }
 }
