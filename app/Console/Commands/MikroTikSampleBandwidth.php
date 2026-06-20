@@ -17,7 +17,6 @@ class MikroTikSampleBandwidth extends Command
     public function handle(): int
     {
         $sites = MikroTikSite::where('active', true)->get();
-
         if ($sites->isEmpty()) return 0;
 
         $sampled = 0;
@@ -25,49 +24,51 @@ class MikroTikSampleBandwidth extends Command
         foreach ($sites as $site) {
             try {
                 $service = MikroTikService::forSite($site);
-                $test    = $service->testConnection();
-                if (! $test['ok']) continue;
+                if (! $service->testConnection()['ok']) continue;
 
+                // Sessões activas: username -> {address, caller-id, uptime}
+                $sessions = $service->listActiveSessions();
+                $sessionMap = [];
+                foreach ($sessions as $s) {
+                    $name = $s['name'] ?? $s['=name'] ?? '';
+                    if ($name !== '') $sessionMap[$name] = $s;
+                }
+
+                // Queues PPPoE: username -> {bytes, max-limit, target}
                 $queues = $service->getAllQueueStats();
-                if (empty($queues)) continue;
-
-                // Construir mapa: username -> stats da queue
-                // Queue name: "<pppoe-922922966>" ou "pppoe-922922966"
                 $queueMap = [];
                 foreach ($queues as $q) {
-                    $name = $q['name'] ?? '';
+                    $name = $q['name'] ?? $q['=name'] ?? '';
                     if (preg_match('/pppoe-(\S+?)(?:>|$)/', $name, $m)) {
                         $queueMap[$m[1]] = $q;
                     }
                 }
 
-                if (empty($queueMap)) continue;
+                $allUsernames = array_unique(array_merge(array_keys($sessionMap), array_keys($queueMap)));
+                if (empty($allUsernames)) continue;
 
-                $planos = Plano::whereIn('mikrotik_username', array_keys($queueMap))
+                $planos = Plano::whereIn('mikrotik_username', $allUsernames)
                     ->where('estado', 'Ativo')
                     ->get();
 
                 $now = now();
 
                 foreach ($planos as $plano) {
-                    $q = $queueMap[$plano->mikrotik_username] ?? null;
-                    if (! $q) continue;
+                    $u = $plano->mikrotik_username;
+                    $q = $queueMap[$u] ?? null;
+                    $s = $sessionMap[$u] ?? null;
 
-                    // Bytes: campo "bytes" = "in/out" ou campos separados "bytes-in"/"bytes-out"
-                    [$rxBytes, $txBytes] = $this->parseBytes($q);
+                    // Bytes cumulativos da sessão
+                    [$rxBytes, $txBytes] = $q ? $this->parseBytes($q) : [0, 0];
 
-                    // Calcular taxa com base na amostra anterior
-                    $prev    = MikroTikBandwidthSample::where('plano_id', $plano->id)
-                        ->orderBy('sampled_at', 'desc')
-                        ->first();
-
+                    // Taxa calculada contra amostra anterior
+                    $prev   = MikroTikBandwidthSample::where('plano_id', $plano->id)
+                        ->orderBy('sampled_at', 'desc')->first();
                     $rxRate = 0;
                     $txRate = 0;
 
-                    if ($prev && $prev->sampled_at) {
+                    if ($prev && $prev->sampled_at && ($rxBytes > 0 || $txBytes > 0)) {
                         $interval = max(1, $now->timestamp - $prev->sampled_at->timestamp);
-
-                        // Proteger contra reset de contadores (reconnect)
                         if ($rxBytes >= $prev->rx_bytes) {
                             $rxRate = (int) (($rxBytes - $prev->rx_bytes) * 8 / $interval);
                         }
@@ -76,26 +77,41 @@ class MikroTikSampleBandwidth extends Command
                         }
                     }
 
-                    // IP da sessão activa (se disponível na queue)
-                    $ip = $q['target'] ?? null;
+                    // IP — preferir da sessão activa (mais exacto que o target da queue)
+                    $ip = $s['address'] ?? $s['=address'] ?? $q['target'] ?? $q['=target'] ?? null;
                     if ($ip && str_contains($ip, '/')) {
-                        $ip = explode('/', $ip)[0]; // remover CIDR se existir
+                        $ip = explode('/', $ip)[0];
                     }
 
+                    // MAC address (caller-id no PPPoE)
+                    $callerId = $s['caller-id'] ?? $s['=caller-id'] ?? null;
+
+                    // Uptime da sessão
+                    $uptimeStr = $s['uptime'] ?? $s['=uptime'] ?? '';
+                    $uptimeSeconds = $uptimeStr ? $this->parseUptimeToSeconds($uptimeStr) : 0;
+
+                    // Velocidade máxima do plano (max-limit = "upload/download")
+                    $maxLimit = $q['max-limit'] ?? $q['=max-limit'] ?? '';
+                    [$maxTxBps, $maxRxBps] = $maxLimit ? $this->parseMaxLimit($maxLimit) : [0, 0];
+
                     MikroTikBandwidthSample::create([
-                        'plano_id'   => $plano->id,
-                        'sampled_at' => $now,
-                        'rx_bytes'   => max(0, $rxBytes),
-                        'tx_bytes'   => max(0, $txBytes),
-                        'rx_rate'    => max(0, $rxRate),
-                        'tx_rate'    => max(0, $txRate),
-                        'ip_address' => $ip,
+                        'plano_id'       => $plano->id,
+                        'sampled_at'     => $now,
+                        'rx_bytes'       => max(0, $rxBytes),
+                        'tx_bytes'       => max(0, $txBytes),
+                        'rx_rate'        => max(0, $rxRate),
+                        'tx_rate'        => max(0, $txRate),
+                        'ip_address'     => $ip,
+                        'caller_id'      => $callerId,
+                        'uptime_seconds' => $uptimeSeconds,
+                        'max_rx_bps'     => $maxRxBps,
+                        'max_tx_bps'     => $maxTxBps,
                     ]);
 
                     $sampled++;
                 }
 
-                // Limpar amostras com mais de 7 dias para não crescer indefinidamente
+                // Manter apenas os últimos 7 dias
                 MikroTikBandwidthSample::where('sampled_at', '<', now()->subDays(7))->delete();
 
             } catch (\Throwable $e) {
@@ -111,16 +127,40 @@ class MikroTikSampleBandwidth extends Command
 
     private function parseBytes(array $q): array
     {
-        // Tentar campo "bytes" no formato "in/out"
-        $bytesStr = $q['bytes'] ?? '';
-        if ($bytesStr && str_contains($bytesStr, '/')) {
-            [$in, $out] = explode('/', $bytesStr, 2);
+        $bytes = $q['bytes'] ?? $q['=bytes'] ?? '';
+        if ($bytes && str_contains($bytes, '/')) {
+            [$in, $out] = explode('/', $bytes, 2);
             return [(int) $in, (int) $out];
         }
-
-        // Tentar campos separados
         $in  = (int) ($q['bytes-in']  ?? $q['=bytes-in']  ?? 0);
         $out = (int) ($q['bytes-out'] ?? $q['=bytes-out'] ?? 0);
         return [$in, $out];
+    }
+
+    private function parseUptimeToSeconds(string $s): int
+    {
+        $total = 0;
+        if (preg_match('/(\d+)w/', $s, $m)) $total += (int)$m[1] * 604800;
+        if (preg_match('/(\d+)d/', $s, $m)) $total += (int)$m[1] * 86400;
+        if (preg_match('/(\d+)h/', $s, $m)) $total += (int)$m[1] * 3600;
+        if (preg_match('/(\d+)m/', $s, $m)) $total += (int)$m[1] * 60;
+        if (preg_match('/(\d+)s/', $s, $m)) $total += (int)$m[1];
+        return $total;
+    }
+
+    private function parseMaxLimit(string $limit): array
+    {
+        if (! str_contains($limit, '/')) return [0, 0];
+        [$txStr, $rxStr] = explode('/', $limit, 2);
+        return [$this->parseBps(trim($txStr)), $this->parseBps(trim($rxStr))];
+    }
+
+    private function parseBps(string $val): int
+    {
+        $val = trim(strtolower($val));
+        if (str_ends_with($val, 'g')) return (int) $val * 1_000_000_000;
+        if (str_ends_with($val, 'm')) return (int) $val * 1_000_000;
+        if (str_ends_with($val, 'k')) return (int) $val * 1_000;
+        return (int) $val;
     }
 }

@@ -370,27 +370,63 @@ class MikroTikAdminController extends Controller
         ]);
     }
 
-    /** Dados de largura de banda para o gráfico (AJAX). */
-    public function trafficData(Plano $plano)
+    /** Dados de largura de banda para o gráfico (AJAX) — suporta ?range=1h|6h|24h|7d. */
+    public function trafficData(Request $request, Plano $plano)
     {
+        $range = $request->query('range', '1h');
+
+        $cfg = match ($range) {
+            '6h'  => ['minutes' => 360,   'bucket' => 5,  'fmt' => 'H:i'],
+            '24h' => ['minutes' => 1440,  'bucket' => 15, 'fmt' => 'H:i'],
+            '7d'  => ['minutes' => 10080, 'bucket' => 60, 'fmt' => 'd/m'],
+            default => ['minutes' => 60,  'bucket' => 1,  'fmt' => 'H:i'],
+        };
+
+        $since   = now()->subMinutes($cfg['minutes']);
         $samples = MikroTikBandwidthSample::where('plano_id', $plano->id)
-            ->orderBy('sampled_at', 'desc')
-            ->limit(120) // últimas 2 horas (1 amostra/min)
-            ->get()
-            ->reverse()
-            ->values();
+            ->where('sampled_at', '>=', $since)
+            ->orderBy('sampled_at')
+            ->get();
+
+        // Agregar em baldes para reduzir pontos no gráfico
+        if ($cfg['bucket'] > 1 && $samples->count() > 0) {
+            $buckets = collect();
+            foreach ($samples->chunk($cfg['bucket']) as $chunk) {
+                if ($chunk->isEmpty()) continue;
+                $mid = $chunk->values()[(int)($chunk->count() / 2)];
+                $buckets->push([
+                    'label' => $mid->sampled_at->format($cfg['fmt']),
+                    'rx'    => round($chunk->avg('rx_rate') / 1_000_000, 3),
+                    'tx'    => round($chunk->avg('tx_rate') / 1_000_000, 3),
+                ]);
+            }
+            $labels = $buckets->pluck('label')->values();
+            $rx     = $buckets->pluck('rx')->values();
+            $tx     = $buckets->pluck('tx')->values();
+        } else {
+            $labels = $samples->map(fn($s) => $s->sampled_at->format($cfg['fmt']))->values();
+            $rx     = $samples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values();
+            $tx     = $samples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values();
+        }
 
         $latest = $samples->last();
 
         return response()->json([
-            'labels'     => $samples->map(fn($s) => $s->sampled_at->format('H:i'))->values(),
-            'rx'         => $samples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values(),
-            'tx'         => $samples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values(),
-            'current_rx' => $latest ? MikroTikBandwidthSample::formatRate($latest->rx_rate) : null,
-            'current_tx' => $latest ? MikroTikBandwidthSample::formatRate($latest->tx_rate) : null,
-            'ip'         => $latest?->ip_address,
-            'sampled_at' => $latest?->sampled_at?->diffForHumans(),
-            'count'      => $samples->count(),
+            'labels'         => $labels,
+            'rx'             => $rx,
+            'tx'             => $tx,
+            'current_rx'     => $latest ? MikroTikBandwidthSample::formatRate($latest->rx_rate) : null,
+            'current_tx'     => $latest ? MikroTikBandwidthSample::formatRate($latest->tx_rate) : null,
+            'ip'             => $latest?->ip_address,
+            'caller_id'      => $latest?->caller_id,
+            'uptime_seconds' => $latest?->uptime_seconds,
+            'uptime_fmt'     => $latest ? MikroTikBandwidthSample::formatSeconds($latest->uptime_seconds ?? 0) : null,
+            'max_rx_bps'     => $latest?->max_rx_bps,
+            'max_tx_bps'     => $latest?->max_tx_bps,
+            'max_rx_fmt'     => $latest?->max_rx_bps ? MikroTikBandwidthSample::formatRate($latest->max_rx_bps) : null,
+            'max_tx_fmt'     => $latest?->max_tx_bps ? MikroTikBandwidthSample::formatRate($latest->max_tx_bps) : null,
+            'sampled_at'     => $latest?->sampled_at?->diffForHumans(),
+            'count'          => $samples->count(),
         ]);
     }
 
@@ -419,18 +455,92 @@ class MikroTikAdminController extends Controller
             return $e->occurred_at && $e->occurred_at->gte(now()->subDays(7));
         })->values();
 
+        // ── Bandwidth: amostras iniciais (última hora para o gráfico) ──
         $bandwidthSamples = MikroTikBandwidthSample::where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', now()->subHour())
+            ->orderBy('sampled_at')
+            ->get();
+
+        $latestSample = MikroTikBandwidthSample::where('plano_id', $plano->id)
             ->orderBy('sampled_at', 'desc')
-            ->limit(120)
+            ->first();
+
+        // ── Consumo de dados ──
+        $todayDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
+            ->where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', now()->startOfDay())
+            ->sum(DB::raw('rx_rate * 60 / 8'));
+
+        $todayUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
+            ->where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', now()->startOfDay())
+            ->sum(DB::raw('tx_rate * 60 / 8'));
+
+        $monthDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
+            ->where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', now()->startOfMonth())
+            ->sum(DB::raw('rx_rate * 60 / 8'));
+
+        $monthUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
+            ->where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', now()->startOfMonth())
+            ->sum(DB::raw('tx_rate * 60 / 8'));
+
+        // ── Velocidade de pico ──
+        $peakRxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('rx_rate') ?? 0);
+        $peakTxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('tx_rate') ?? 0);
+
+        // ── Estabilidade 30 dias ──
+        $thirtyDaysAgo = now()->subDays(30);
+        $downtimeThirtyDays = (int) $eventos
+            ->where('event_type', 'offline')
+            ->filter(fn($e) => $e->occurred_at->gte($thirtyDaysAgo))
+            ->sum('duration_seconds');
+        $stabilityPct = max(0, min(100, round((1 - $downtimeThirtyDays / (30 * 86400)) * 100, 1)));
+
+        // ── Quedas por dia (últimos 30 dias) para o gráfico de oscilações ──
+        $dropsChart = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dropsChart[now()->subDays($i)->format('Y-m-d')] = 0;
+        }
+        $eventos
+            ->where('event_type', 'offline')
+            ->filter(fn($e) => $e->occurred_at->gte($thirtyDaysAgo))
+            ->groupBy(fn($e) => $e->occurred_at->format('Y-m-d'))
+            ->each(fn($g, $d) => array_key_exists($d, $dropsChart) ? $dropsChart[$d] = $g->count() : null);
+
+        // ── Consumo diário (últimos 7 dias) ──
+        $sevenDaysAgo = now()->subDays(6)->startOfDay();
+        $dailyBandwidthRaw = DB::table('mikrotik_bandwidth_samples')
+            ->where('plano_id', $plano->id)
+            ->where('sampled_at', '>=', $sevenDaysAgo)
+            ->selectRaw("DATE(sampled_at) as date, SUM(rx_rate * 60 / 8) as dl, SUM(tx_rate * 60 / 8) as ul")
+            ->groupBy('date')
             ->get()
-            ->reverse()
-            ->values();
+            ->keyBy('date');
+
+        $dailyUsage = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $day  = now()->subDays($i);
+            $date = $day->format('Y-m-d');
+            $row  = $dailyBandwidthRaw[$date] ?? null;
+            $dailyUsage[] = [
+                'label'    => $day->format('d/m') . ' ' . mb_substr($day->locale('pt')->dayName, 0, 3),
+                'download' => (int) ($row?->dl ?? 0),
+                'upload'   => (int) ($row?->ul ?? 0),
+                'drops'    => (int) ($dropsChart[$date] ?? 0),
+            ];
+        }
 
         return view('mikrotik.detalhes-plano', compact(
             'plano', 'cliente', 'statusOnline',
             'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
             'totalDowntime', 'avgDowntime', 'eventosUltimaSemana',
-            'bandwidthSamples'
+            'bandwidthSamples', 'latestSample',
+            'todayDownloadBytes', 'todayUploadBytes',
+            'monthDownloadBytes', 'monthUploadBytes',
+            'peakRxRate', 'peakTxRate',
+            'stabilityPct', 'dropsChart', 'dailyUsage'
         ));
     }
 }
