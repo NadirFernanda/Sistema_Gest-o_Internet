@@ -31,18 +31,10 @@ class VoucherPlan extends Model
     {
         if (!$application) return $this->price_reseller_aoa;
 
-        if ($application->reseller_mode === 'own') {
-            $discount = config('reseller.mode_own_discount_percent', 70);
-            return (int) round($this->price_public_aoa * (1 - $discount / 100));
-        }
+        $discount = $application->reseller_mode === 'own'
+            ? (int) config('reseller.mode_own_discount_percent', 70)
+            : (int) config('reseller.mode_angolawifi_discount_percent', 30);
 
-        // angolawifi: escalão baseado no gasto mensal acumulado
-        $tiers        = config('reseller.mode_angolawifi_discount_tiers', []);
-        $monthlySpend = $application->monthlySpendings();
-        $discount = 0;
-        foreach ($tiers as $min => $pct) {
-            if ($monthlySpend >= $min) $discount = $pct;
-        }
         return (int) round($this->price_public_aoa * (1 - $discount / 100));
     }
 

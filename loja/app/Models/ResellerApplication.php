@@ -72,23 +72,14 @@ class ResellerApplication extends Model
 
     // ─── Business logic helpers ───────────────────────────────────────────────
 
-    /** Returns the discount % to apply on a purchase of $grossAoa for this reseller. */
-    public function discountPercentFor(int $grossAoa): int
+    /** Returns the discount % for this reseller based on their mode. */
+    public function discountPercentFor(int $grossAoa = 0): int
     {
         if ($this->reseller_mode === self::INTERNET_OWN) {
             return (int) config('reseller.mode_own_discount_percent', 70);
         }
 
-        // Modo 2: escalões por volume
-        $tiers = config('reseller.mode_angolawifi_discount_tiers', []);
-        ksort($tiers);
-        $discount = 0;
-        foreach ($tiers as $min => $percent) {
-            if ($grossAoa >= $min) {
-                $discount = $percent;
-            }
-        }
-        return $discount;
+        return (int) config('reseller.mode_angolawifi_discount_percent', 30);
     }
 
     /** Total purchased this calendar month (gross). Kept for admin stats. */

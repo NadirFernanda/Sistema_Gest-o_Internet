@@ -887,38 +887,35 @@
           </button>
           <div class="rv-menu-body" id="rv-body-comprar" style="display:none;">
 
-            {{-- Tabela de descontos --}}
+            {{-- Condições comerciais --}}
             <div class="rv-panel" style="margin-bottom:1rem;">
-              <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> Tabela de descontos</div>
+              <div class="rv-panel-title"><span class="rv-panel-icon">🏷️</span> As suas condições comerciais</div>
               @if($application->reseller_mode === 'own')
-                <p style="font-size:.95rem;color:#374151;">
-                  Modo 1 — Internet Própria: desconto fixo de
-                  <strong style="color:#0d9488;">{{ config('reseller.mode_own_discount_percent', 70) }}%</strong>
-                  em todas as compras.
-                </p>
+                @php $disc = config('reseller.mode_own_discount_percent', 70); @endphp
+                <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+                  <div style="background:linear-gradient(135deg,#f7b500,#fbbf24);border-radius:.85rem;padding:1.1rem 1.5rem;text-align:center;min-width:120px;">
+                    <div style="font-size:2.2rem;font-weight:900;color:#1a1100;line-height:1;">{{ $disc }}%</div>
+                    <div style="font-size:.75rem;font-weight:700;color:#4a3a00;margin-top:.2rem;">desconto</div>
+                  </div>
+                  <div style="flex:1;min-width:220px;">
+                    <p style="font-size:.95rem;font-weight:700;color:#0f172a;margin:0 0 .35rem;">Modo 1 — Internet Própria</p>
+                    <p style="font-size:.88rem;color:#374151;margin:0 0 .5rem;">Compra vouchers com <strong>{{ $disc }}%</strong> de desconto sobre o preço de tabela. Os restantes <strong>{{ 100 - $disc }}%</strong> revertem para a AngolaWiFi.</p>
+                    <p style="font-size:.8rem;color:#64748b;margin:0;">⚠️ Os 6,5% de Imposto Industrial são retidos sobre o seu lucro bruto e entregues à AGT.</p>
+                  </div>
+                </div>
               @else
-                @php
-                  $tiers    = config('reseller.mode_angolawifi_discount_tiers', []);
-                  $tierKeys = array_values(array_keys($tiers));
-                  $mySpend  = $application->monthlySpendings();
-                @endphp
-                <table class="rv-disc-table">
-                  <thead><tr><th>Compra mensal (Kz)</th><th style="text-align:right;">Desconto</th></tr></thead>
-                  <tbody>
-                    @foreach($tiers as $min => $pct)
-                      @php
-                        $idx     = array_search($min, $tierKeys);
-                        $nextMin = isset($tierKeys[$idx + 1]) ? $tierKeys[$idx + 1] : null;
-                        $active  = $mySpend >= $min && (!$nextMin || $mySpend < $nextMin);
-                      @endphp
-                      <tr class="{{ $active ? 'active' : '' }}">
-                        <td>{{ number_format($min,0,',','.') }}{{ $nextMin ? ' – '.number_format($nextMin-1,0,',','.') : '+' }} Kz @if($active)<span class="rv-disc-current-chip">actual</span>@endif</td>
-                        <td>{{ $pct }}%</td>
-                      </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-                <p style="font-size:.8rem;color:#94a3b8;margin-top:.65rem;">O escalão em destaque corresponde ao seu volume de compras deste mês.</p>
+                @php $disc = config('reseller.mode_angolawifi_discount_percent', 30); @endphp
+                <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+                  <div style="background:linear-gradient(135deg,#f7b500,#fbbf24);border-radius:.85rem;padding:1.1rem 1.5rem;text-align:center;min-width:120px;">
+                    <div style="font-size:2.2rem;font-weight:900;color:#1a1100;line-height:1;">{{ $disc }}%</div>
+                    <div style="font-size:.75rem;font-weight:700;color:#4a3a00;margin-top:.2rem;">desconto</div>
+                  </div>
+                  <div style="flex:1;min-width:220px;">
+                    <p style="font-size:.95rem;font-weight:700;color:#0f172a;margin:0 0 .35rem;">Modo 2 — Internet AngolaWiFi</p>
+                    <p style="font-size:.88rem;color:#374151;margin:0 0 .5rem;">Compra vouchers com <strong>{{ $disc }}%</strong> de desconto sobre o preço de tabela. Os restantes <strong>{{ 100 - $disc }}%</strong> revertem para a AngolaWiFi.</p>
+                    <p style="font-size:.8rem;color:#64748b;margin:0;">⚠️ Os 6,5% de Imposto Industrial são retidos sobre o seu lucro bruto e entregues à AGT.</p>
+                  </div>
+                </div>
               @endif
             </div>
 

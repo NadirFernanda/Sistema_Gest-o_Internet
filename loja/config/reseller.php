@@ -38,13 +38,8 @@ return [
     'monthly_target_percent' => 50,
 
     // ─── Modo 2: Revendedor com Internet AngolaWiFi ───────────────────────────
-    // Escalões de desconto por volume de compra mensal (chave = mínimo em Kz)
-    'mode_angolawifi_discount_tiers' => [
-        10000  => 10,
-        50000  => 20,
-        100000 => 30,
-        200000 => 40,
-    ],
+    // Desconto fixo de 30% — 70% fica com a AngolaWiFi
+    'mode_angolawifi_discount_percent' => 30,
 
     // Taxa de manutenção mensal (Kz) — Modo 2
     'mode_angolawifi_maintenance_aoa' => 100000,
