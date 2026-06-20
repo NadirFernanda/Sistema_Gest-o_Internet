@@ -1,314 +1,638 @@
 @extends('layouts.app')
 
-@section('content')
+@push('styles')
 <style>
-/* ── Admin Dashboard ─────────────────────────────────── */
-:root {
-  --a-bg:     #f4f6f9;
-  --a-surf:   #ffffff;
-  --a-border: #dde2ea;
-  --a-text:   #1a202c;
-  --a-muted:  #64748b;
-  --a-faint:  #9aa5b4;
-  --a-brand:  #f7b500;
-  --a-green:  #16a34a;
-  --a-amber:  #d97706;
-  --a-red:    #dc2626;
-  --a-teal:   #0d9488;
-  --a-purple: #7c3aed;
-  --a-rose:   #e11d48;
+/* ── Admin Dashboard — rv-style ── */
+.adm-page {
+  min-height: 80vh;
+  background: #f8fafc;
+  padding: 2.5rem 1rem 6rem;
 }
-.ap { font-family: Inter, system-ui, sans-serif; background: var(--a-bg); min-height: 60vh; padding: 2rem 0 4rem; color: var(--a-text); }
-.ap-wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
-.ap-topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
-.ap-topbar h1 { font-size: 1.35rem; font-weight: 800; margin: 0 0 .15rem; letter-spacing: -.02em; }
-.ap-sub { font-size: .78rem; color: var(--a-faint); margin: 0; }
-.ap-btn-logout { font-size: .82rem; font-weight: 600; padding: .4rem .85rem; border: 1px solid #fecaca; border-radius: 7px; background: #fff1f2; color: var(--a-red); cursor: pointer; font-family: inherit; }
-.ap-btn-logout:hover { background: #fecaca; }
-.ap-nav { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.75rem; }
-.ap-nav a { font-size: .8rem; font-weight: 600; padding: .38rem .85rem; border-radius: 7px; border: 1px solid var(--a-border); background: var(--a-surf); color: var(--a-muted); text-decoration: none; white-space: nowrap; }
-.ap-nav a:hover, .ap-nav a.here { background: rgba(247,181,0,.13); border-color: var(--a-brand); color: #7a4f00; }
-.ap-sec { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--a-faint); margin: 2rem 0 1rem; display: flex; align-items: center; gap: .6rem; }
-.ap-sec::after { content: ''; flex: 1; height: 1px; background: var(--a-border); }
-.ap-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .85rem; margin-bottom: 1.5rem; }
-.ap-kpi { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1.2rem 1.3rem; border-left: 4px solid var(--a-border); }
-.ap-kpi.k-brand  { border-left-color: var(--a-brand); }
-.ap-kpi.k-green  { border-left-color: var(--a-green); }
-.ap-kpi.k-amber  { border-left-color: var(--a-amber); }
-.ap-kpi.k-purple { border-left-color: var(--a-purple); }
-.ap-kpi.k-rose   { border-left-color: var(--a-rose); }
-.ap-kpi.k-teal   { border-left-color: var(--a-teal); }
-.ap-kpi-val { font-size: 1.75rem; font-weight: 800; line-height: 1; margin: 0 0 .2rem; }
-.ap-kpi-lbl { font-size: .75rem; color: var(--a-muted); font-weight: 500; line-height: 1.3; }
-.ap-kpi-sub { font-size: .72rem; color: var(--a-faint); margin: .35rem 0 0; padding-top: .35rem; border-top: 1px solid var(--a-border); }
-.ap-banner-warn { padding: .7rem 1rem; border-radius: 8px; font-size: .84rem; font-weight: 600; margin-bottom: .6rem; background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
-.ap-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: .85rem; }
-.ap-card { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; padding: 1.3rem; }
-.ap-card h3 { font-size: .88rem; font-weight: 700; margin: 0 0 .75rem; color: var(--a-text); }
-.ap-card p  { font-size: .84rem; color: var(--a-muted); margin: .25rem 0; }
-.ap-card p strong { color: var(--a-text); }
-.ap-card-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; padding-top: .75rem; border-top: 1px solid var(--a-border); }
-.ap-card-actions a { font-size: .78rem; font-weight: 600; padding: .32rem .75rem; border-radius: 6px; background: #f1f5f9; color: #374151; text-decoration: none; border: 1px solid var(--a-border); }
-.ap-card-actions a:hover { background: rgba(247,181,0,.13); border-color: var(--a-brand); color: #7a4f00; }
-.plan-bars { display: flex; flex-direction: column; gap: .45rem; margin: .5rem 0; }
-.plan-bar { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
-.plan-bar-name  { width: 52px; font-weight: 600; color: var(--a-muted); flex-shrink: 0; }
-.plan-bar-track { flex: 1; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
-.plan-bar-fill  { height: 100%; border-radius: 999px; }
-.fill-brand  { background: var(--a-brand); }
-.fill-purple { background: var(--a-purple); }
-.fill-amber  { background: var(--a-amber); }
-.plan-bar-count { font-weight: 700; min-width: 24px; text-align: right; }
-.c-ok  { color: var(--a-green); }
-.c-low { color: var(--a-amber); }
-.c-out { color: var(--a-red); }
-.badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .73rem; font-weight: 700; }
-.bg-green  { background: #dcfce7; color: #15803d; }
-.bg-amber  { background: #fef3c7; color: #b45309; }
-.bg-gray   { background: #f1f5f9; color: #475569; }
-.ap-tcard { background: var(--a-surf); border: 1px solid var(--a-border); border-radius: 10px; overflow: hidden; margin-top: 2rem; }
-.ap-tcard-head { padding: .75rem 1.1rem; border-bottom: 1px solid var(--a-border); display: flex; justify-content: space-between; align-items: center; }
-.ap-tcard-head strong { font-size: .84rem; font-weight: 700; }
-.ap-tcard-head a { font-size: .78rem; color: #b8860b; text-decoration: none; font-weight: 600; }
-.ap-table { width: 100%; border-collapse: collapse; font-size: .845rem; }
-.ap-table thead { background: #f8fafc; }
-.ap-table th { text-align: left; padding: .65rem 1rem; font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--a-faint); border-bottom: 1px solid var(--a-border); white-space: nowrap; }
-.ap-table td { padding: .6rem 1rem; border-bottom: 1px solid #f4f6f9; vertical-align: middle; color: #374151; }
-.ap-table tbody tr:last-child td { border-bottom: none; }
-.ap-table tbody tr:hover td { background: #fffdf5; }
-.ap-table .dim { color: var(--a-faint); font-size: .82rem; }
+.adm-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Topbar */
+.adm-topbar {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.adm-topbar-left { display: flex; align-items: center; gap: .9rem; }
+.adm-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#f7b500,#d97706);
+  color: #1a202c;
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.adm-topbar-name { font-size: 1rem; font-weight: 700; color: #0f172a; }
+.adm-topbar-sub  { font-size: .82rem; color: #64748b; margin-top: .1rem; }
+.adm-logout-btn {
+  padding: .5rem 1.1rem;
+  border: 1.5px solid #fecaca;
+  border-radius: .6rem;
+  background: #fff1f2;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background .2s;
+}
+.adm-logout-btn:hover { background: #fecaca; }
+
+/* Alerts */
+.adm-alert {
+  border-radius: .75rem;
+  padding: .9rem 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  font-size: .92rem;
+}
+.adm-alert.warn { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; }
+.adm-alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: -.05rem; }
+.adm-alert strong { font-weight: 700; display: block; margin-bottom: .15rem; }
+
+/* KPI strip */
+.adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: .85rem;
+  margin-bottom: .5rem;
+}
+.adm-kpi {
+  background: #fff;
+  border-radius: .9rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.055);
+  padding: 1.1rem 1.2rem;
+  border-top: 3px solid transparent;
+}
+.adm-kpi.k-brand  { border-color: #f7b500; }
+.adm-kpi.k-green  { border-color: #16a34a; }
+.adm-kpi.k-amber  { border-color: #d97706; }
+.adm-kpi.k-purple { border-color: #7c3aed; }
+.adm-kpi.k-rose   { border-color: #e11d48; }
+.adm-kpi.k-teal   { border-color: #0d9488; }
+.adm-kpi-val { font-size: 1.65rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: .2rem; }
+.adm-kpi-lbl { font-size: .74rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .04em; }
+.adm-kpi-sub { font-size: .72rem; color: #9aa5b4; margin-top: .35rem; padding-top: .35rem; border-top: 1px solid #f1f5f9; }
+
+/* Accordion menu */
+.adm-menu { display: flex; flex-direction: column; gap: .65rem; margin-top: 1.5rem; }
+.adm-menu-item { border-radius: .85rem; overflow: hidden; box-shadow: 0 2px 8px rgba(15,23,42,.07); border: 1.5px solid #e2e8f0; background: #fff; }
+.adm-menu-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.4rem; background: #f7b500; color: #1a202c;
+  font-size: 1.05rem; font-weight: 700; cursor: pointer;
+  border: none; outline: none; text-align: left; gap: .75rem;
+  transition: background .15s;
+}
+.adm-menu-btn:hover, .adm-menu-btn.open { background: #e0a800; }
+.adm-menu-btn-left { display: flex; align-items: center; gap: .65rem; flex: 1; }
+.adm-menu-icon  { font-size: 1.2rem; flex-shrink: 0; }
+.adm-menu-label { flex: 1; }
+.adm-menu-badge {
+  font-size: .72rem; font-weight: 700; padding: .2rem .65rem;
+  border-radius: 999px; white-space: nowrap;
+}
+.adm-menu-chevron {
+  font-size: 1.4rem; line-height: 1; transition: transform .25s; color: rgba(26,32,44,.5);
+}
+.adm-menu-chevron.open { transform: rotate(90deg); color: #1a202c; }
+.adm-menu-body { padding: 1.25rem; background: #f8fafc; border-top: 1.5px solid #e2e8f0; }
+
+/* Panel inside accordion */
+.adm-panel {
+  background: #fff;
+  border-radius: .9rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.05);
+  padding: 1.25rem 1.35rem;
+  margin-bottom: 1rem;
+}
+.adm-panel:last-child { margin-bottom: 0; }
+.adm-panel-title {
+  font-size: .95rem;
+  font-weight: 800;
+  color: #0f172a;
+  padding-bottom: .65rem;
+  margin-bottom: .9rem;
+  border-bottom: 1.5px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+/* Action links */
+.adm-actions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .9rem; }
+.adm-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .42rem .95rem;
+  border-radius: .55rem;
+  font-size: .83rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #374151;
+  transition: border-color .15s, background .15s, color .15s;
+  cursor: pointer;
+}
+.adm-btn:hover { background: #fffbeb; border-color: #f7b500; color: #92400e; }
+.adm-btn.primary { background: #f7b500; border-color: #f7b500; color: #1a202c; }
+.adm-btn.primary:hover { background: #e0a800; border-color: #e0a800; }
+.adm-btn.purple { background: #f5f3ff; border-color: #c4b5fd; color: #7c3aed; }
+.adm-btn.purple:hover { background: #ede9fe; }
+.adm-btn.red { background: #fff1f2; border-color: #fecaca; color: #dc2626; }
+.adm-btn.red:hover { background: #fecaca; }
+
+/* Stats row */
+.adm-stats-row { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: .75rem; }
+.adm-stat-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: .6rem;
+  padding: .45rem .9rem;
+  font-size: .85rem;
+  color: #374151;
+}
+.adm-stat-pill strong { color: #0f172a; font-size: 1rem; }
+
+/* Plan bars */
+.adm-bars { display: flex; flex-direction: column; gap: .45rem; margin: .5rem 0; }
+.adm-bar { display: flex; align-items: center; gap: .6rem; font-size: .82rem; }
+.adm-bar-name  { width: 56px; font-weight: 600; color: #64748b; flex-shrink: 0; }
+.adm-bar-track { flex: 1; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+.adm-bar-fill  { height: 100%; border-radius: 999px; }
+.adm-bar-count { font-weight: 700; min-width: 28px; text-align: right; }
+.c-ok  { color: #16a34a; }
+.c-low { color: #d97706; }
+.c-out { color: #dc2626; }
+
+/* Recent table */
+.adm-tbl-wrap { overflow-x: auto; }
+.adm-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .855rem;
+  min-width: 520px;
+}
+.adm-tbl thead { background: #f8fafc; }
+.adm-tbl th {
+  text-align: left;
+  padding: .55rem 1rem;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #9aa5b4;
+  border-bottom: 1.5px solid #e2e8f0;
+  white-space: nowrap;
+}
+.adm-tbl td {
+  padding: .58rem 1rem;
+  border-bottom: 1px solid #f4f6f9;
+  vertical-align: middle;
+  color: #374151;
+}
+.adm-tbl tbody tr:last-child td { border-bottom: none; }
+.adm-tbl tbody tr:hover td { background: #fffdf5; }
+.adm-tbl .dim { color: #9aa5b4; font-size: .82rem; }
+.badge-pill {
+  display: inline-block;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+}
+.bp-green  { background: #dcfce7; color: #15803d; }
+.bp-amber  { background: #fef3c7; color: #b45309; }
+.bp-gray   { background: #f1f5f9; color: #475569; }
+.bp-red    { background: #fee2e2; color: #b91c1c; }
+
+@media (max-width: 640px) {
+  .adm-page { padding: 1.25rem .65rem 6rem; }
+  .adm-kpis { grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .adm-menu-btn { font-size: .97rem; padding: .9rem 1rem; }
+  .adm-menu-body { padding: .9rem; }
+  .adm-panel { padding: 1rem .9rem; }
+  .adm-topbar { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .adm-kpis { grid-template-columns: 1fr; }
+  .adm-kpi-val { font-size: 1.4rem; }
+}
 </style>
+@endpush
 
-<div class="ap">
-<div class="ap-wrap">
+@section('content')
+<div class="adm-page">
+<div class="adm-wrap">
 
-  <div class="ap-topbar">
-    <div>
-      <h1>Dashboard</h1>
-      <p class="ap-sub">Painel Administrativo &mdash; AngolaWiFi</p>
+  {{-- Topbar --}}
+  <div class="adm-topbar">
+    <div class="adm-topbar-left">
+      <div class="adm-avatar">A</div>
+      <div>
+        <div class="adm-topbar-name">Painel Administrativo</div>
+        <div class="adm-topbar-sub">AngolaWiFi &mdash; Área de Gestão</div>
+      </div>
     </div>
-    <form method="POST" action="{{ route('admin.logout') }}">
+    <form method="POST" action="{{ route('admin.logout') }}" style="margin:0;">
       @csrf
-      <button type="submit" class="ap-btn-logout">Sair</button>
+      <button type="submit" class="adm-logout-btn">Sair</button>
     </form>
   </div>
 
-  <nav class="ap-nav">
-    <a href="{{ route('admin.dashboard') }}" class="here">Dashboard</a>
-    <a href="{{ route('admin.autovenda.index') }}">Recargas</a>
-    <a href="{{ route('admin.wifi_codes.index') }}">C&oacute;digos WiFi</a>
-    <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>
-    <a href="{{ route('admin.manual_voucher_sale.create') }}">Venda Manual</a>
-    <a href="{{ route('admin.resellers.index') }}">Revendedores</a>
-    <a href="{{ route('admin.appointments.index') }}">Agendamentos</a>
-    <a href="{{ route('admin.equipment.orders.index') }}">Encomendas</a>
-    <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
-    <a href="{{ route('admin.family_requests.index') }}">Planos</a>
-    <a href="{{ route('admin.reconciliation.gpo') }}">Reconcilia&ccedil;&atilde;o GPO</a>
-    <a href="{{ route('admin.tickets.index') }}">Tickets</a>
-    <a href="{{ route('admin.site_stats.index') }}">Estat&iacute;sticas</a>
-    <a href="{{ route('admin.reports') }}">Relat&oacute;rios</a>
-  </nav>
-
+  {{-- Alertas --}}
   @if($availableWifiCodes === 0)
-    <div class="ap-banner-warn">&#9888; Sem stock de c&oacute;digos WiFi &mdash; importe urgentemente.</div>
+    <div class="adm-alert warn">
+      <span class="adm-alert-icon">⚠️</span>
+      <div><strong>Sem stock de códigos WiFi</strong>Importe urgentemente novos códigos.</div>
+    </div>
   @elseif($availableWifiCodes < 10)
-    <div class="ap-banner-warn">&#9888; Stock baixo ({{ $availableWifiCodes }} dispon&iacute;veis). Importe mais c&oacute;digos.</div>
+    <div class="adm-alert warn">
+      <span class="adm-alert-icon">⚠️</span>
+      <div><strong>Stock baixo</strong>Apenas {{ $availableWifiCodes }} código(s) disponíveis. Importe mais.</div>
+    </div>
   @endif
   @if($pendingFamilyRequests > 0)
-    <div class="ap-banner-warn">&#9888; {{ $pendingFamilyRequests }} pedido(s) de plano familiar aguardam confirma&ccedil;&atilde;o.</div>
+    <div class="adm-alert warn">
+      <span class="adm-alert-icon">🏠</span>
+      <div><strong>{{ $pendingFamilyRequests }} pedido(s) de plano familiar</strong>aguardam confirmação.</div>
+    </div>
   @endif
   @if($pendingAppointments > 0)
-    <div class="ap-banner-warn">&#9888; {{ $pendingAppointments }} pr&eacute;-cadastro(s) de instala&ccedil;&atilde;o aguardam contacto. <a href="{{ route('admin.appointments.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;">Ver agora &rarr;</a></div>
+    <div class="adm-alert warn">
+      <span class="adm-alert-icon">🗓️</span>
+      <div>
+        <strong>{{ $pendingAppointments }} pré-cadastro(s) de instalação</strong>aguardam contacto.
+        <a href="{{ route('admin.appointments.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;margin-left:.4rem;">Ver agora →</a>
+      </div>
+    </div>
   @endif
   @if(($openTickets ?? 0) > 0)
-    <div class="ap-banner-warn">&#9888; {{ $openTickets }} ticket(s) de suporte aberto(s) aguardam resposta. <a href="{{ route('admin.tickets.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;">Ver tickets &rarr;</a></div>
+    <div class="adm-alert warn">
+      <span class="adm-alert-icon">🎫</span>
+      <div>
+        <strong>{{ $openTickets }} ticket(s) de suporte aberto(s)</strong>aguardam resposta.
+        <a href="{{ route('admin.tickets.index') }}" style="color:inherit;font-weight:800;text-decoration:underline;margin-left:.4rem;">Ver tickets →</a>
+      </div>
+    </div>
   @endif
 
-  <p class="ap-sec">Resumo</p>
-  <div class="ap-kpis">
-    <div class="ap-kpi k-brand">
-      <p class="ap-kpi-val">{{ $paidOrders }}</p>
-      <p class="ap-kpi-lbl">Vendas confirmadas</p>
-      <p class="ap-kpi-sub">{{ $totalOrders }} total &middot; {{ $awaitingPayment }} pendentes</p>
+  {{-- KPIs --}}
+  <div class="adm-kpis">
+    <div class="adm-kpi k-brand">
+      <div class="adm-kpi-val">{{ $paidOrders }}</div>
+      <div class="adm-kpi-lbl">Vendas confirmadas</div>
+      <div class="adm-kpi-sub">{{ $totalOrders }} total &middot; {{ $awaitingPayment }} pendentes</div>
     </div>
-    <div class="ap-kpi k-green">
-      <p class="ap-kpi-val">{{ number_format($totalRevenueAoa, 0, ',', '.') }}</p>
-      <p class="ap-kpi-lbl">Receita AOA (autovenda)</p>
-      <p class="ap-kpi-sub">Ordens pagas</p>
+    <div class="adm-kpi k-green">
+      <div class="adm-kpi-val">{{ number_format($totalRevenueAoa, 0, ',', '.') }}</div>
+      <div class="adm-kpi-lbl">Receita AOA</div>
+      <div class="adm-kpi-sub">Ordens pagas (autovenda)</div>
     </div>
-    <div class="ap-kpi k-amber">
-      <p class="ap-kpi-val" style="color:{{ $availableWifiCodes > 0 ? 'var(--a-green)' : 'var(--a-red)' }}">{{ $availableWifiCodes }}</p>
-      <p class="ap-kpi-lbl">C&oacute;digos WiFi dispon&iacute;veis</p>
-      <p class="ap-kpi-sub">{{ $usedWifiCodes }} utilizados</p>
+    <div class="adm-kpi k-amber">
+      <div class="adm-kpi-val" style="color:{{ $availableWifiCodes > 0 ? '#16a34a' : '#dc2626' }}">{{ $availableWifiCodes }}</div>
+      <div class="adm-kpi-lbl">Códigos WiFi</div>
+      <div class="adm-kpi-sub">{{ $usedWifiCodes }} utilizados</div>
     </div>
-    <div class="ap-kpi k-purple">
-      <p class="ap-kpi-val">{{ $pendingResellers }}</p>
-      <p class="ap-kpi-lbl">Revendedores pendentes</p>
-      <p class="ap-kpi-sub">{{ $totalResellers }} candidaturas</p>
+    <div class="adm-kpi k-purple">
+      <div class="adm-kpi-val">{{ $pendingResellers }}</div>
+      <div class="adm-kpi-lbl">Revendedores pendentes</div>
+      <div class="adm-kpi-sub">{{ $totalResellers }} candidaturas</div>
     </div>
-    <div class="ap-kpi k-rose">
-      <p class="ap-kpi-val">{{ $newEquipOrders }}</p>
-      <p class="ap-kpi-lbl">Encomendas novas</p>
-      <p class="ap-kpi-sub">{{ $totalEquipOrders }} total &middot; {{ number_format($totalEquipRevenue,0,',','.') }} AOA</p>
+    <div class="adm-kpi k-rose">
+      <div class="adm-kpi-val">{{ $newEquipOrders }}</div>
+      <div class="adm-kpi-lbl">Encomendas novas</div>
+      <div class="adm-kpi-sub">{{ number_format($totalEquipRevenue,0,',','.') }} AOA receita</div>
     </div>
-    <div class="ap-kpi k-teal">
-      <p class="ap-kpi-val" style="display:flex;align-items:center;gap:.45rem;">
-        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0d9488;flex-shrink:0;"></span>
+    <div class="adm-kpi k-teal">
+      <div class="adm-kpi-val" style="display:flex;align-items:center;gap:.4rem;">
+        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#0d9488;flex-shrink:0;"></span>
         {{ $activeUsers }}
-      </p>
-      <p class="ap-kpi-lbl">Utilizadores online na loja</p>
-      <p class="ap-kpi-sub">Sess&otilde;es &uacute;nicas &middot; &uacute;lt. 5&nbsp;min</p>
+      </div>
+      <div class="adm-kpi-lbl">Online na loja</div>
+      <div class="adm-kpi-sub">Sessões únicas · últ. 5 min</div>
     </div>
   </div>
 
-  <p class="ap-sec">M&oacute;dulos</p>
-  @php
-    $wifiPlanText = ['diario' => 'Di&aacute;rio', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
-    $maxPlan = max(1, ...array_map(fn($p) => $wifiCodesByPlan[$p] ?? 0, ['diario','semanal','mensal']));
-  @endphp
-  <div class="ap-cards">
+  {{-- Accordion --}}
+  <div class="adm-menu">
 
-    <div class="ap-card">
-      <h3>Autovenda</h3>
-      <p>Total: <strong>{{ $totalOrders }}</strong></p>
-      <p>Pagas: <strong>{{ $paidOrders }}</strong></p>
-      <p>Aguarda pagamento: <strong>{{ $awaitingPayment }}</strong></p>
-      <p style="padding-top:.5rem;margin-top:.5rem;border-top:1px solid var(--a-border);">Receita: <strong>{{ number_format($totalRevenueAoa, 0, ',', '.') }} AOA</strong></p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.autovenda.index') }}">Ver ordens &rarr;</a>
-        <a href="{{ route('admin.reports') }}">Relat&oacute;rios</a>
-      </div>
-    </div>
-
-    <div class="ap-card">
-      <h3>Stock de C&oacute;digos WiFi</h3>
-      <div class="plan-bars">
-        @foreach(['diario','semanal','mensal'] as $pid)
-          @php $n = $wifiCodesByPlan[$pid] ?? 0; $pct = min(100, round($n / $maxPlan * 100)); @endphp
-          <div class="plan-bar">
-            <span class="plan-bar-name">{{ $wifiPlanText[$pid] }}</span>
-            <div class="plan-bar-track"><div class="plan-bar-fill fill-{{ $pid === 'diario' ? 'brand' : ($pid === 'semanal' ? 'purple' : 'amber') }}" style="width:{{ $pct }}%"></div></div>
-            <span class="plan-bar-count {{ $n===0 ? 'c-out' : ($n<5 ? 'c-low' : 'c-ok') }}">{{ $n }}</span>
+    {{-- ① RECARGAS --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('recargas')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🔄</span>
+          <span class="adm-menu-label">Recargas</span>
+          @if($awaitingPayment > 0)
+            <span class="adm-menu-badge" style="background:#fef3c7;color:#92400e;">{{ $awaitingPayment }} pendentes</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron open" id="adm-chev-recargas">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-recargas">
+        <div class="adm-panel">
+          <div class="adm-panel-title">📋 Resumo de Autovenda</div>
+          <div class="adm-stats-row">
+            <div class="adm-stat-pill">Total: <strong>{{ $totalOrders }}</strong></div>
+            <div class="adm-stat-pill" style="border-color:#86efac;">Pagas: <strong style="color:#16a34a;">{{ $paidOrders }}</strong></div>
+            <div class="adm-stat-pill" style="border-color:#fde68a;">Pendentes: <strong style="color:#d97706;">{{ $awaitingPayment }}</strong></div>
+            <div class="adm-stat-pill" style="border-color:#f7b500;">Receita: <strong>{{ number_format($totalRevenueAoa, 0, ',', '.') }} AOA</strong></div>
           </div>
-        @endforeach
-      </div>
-      <p style="font-size:.78rem;color:var(--a-faint);margin:.3rem 0 0;">{{ $usedWifiCodes }} utilizados</p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.wifi_codes.index') }}">Gerir e importar &rarr;</a>
+          <div class="adm-actions">
+            <a href="{{ route('admin.autovenda.index') }}" class="adm-btn primary">Ver todas as recargas →</a>
+            <a href="{{ route('admin.reports') }}" class="adm-btn">Relatórios</a>
+          </div>
+        </div>
+
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">🕐 Últimas recargas</div>
+          <div class="adm-tbl-wrap">
+            <table class="adm-tbl">
+              <thead>
+                <tr>
+                  <th>#</th><th>Plano</th><th>Valor</th><th>Estado</th><th>Criada em</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($recentOrders as $order)
+                  <tr>
+                    <td class="dim">#{{ $order->id }}</td>
+                    <td><strong>{{ $order->plan_name ?? $order->plan_id }}</strong></td>
+                    <td style="font-weight:700;">{{ number_format($order->amount_aoa, 0, ',', '.') }} <span class="dim">AOA</span></td>
+                    <td>
+                      @if($order->status === 'paid')
+                        <span class="badge-pill bp-green">Pago</span>
+                      @elseif($order->status === 'awaiting_payment')
+                        <span class="badge-pill bp-amber">Aguarda</span>
+                      @else
+                        <span class="badge-pill bp-gray">{{ $order->status }}</span>
+                      @endif
+                    </td>
+                    <td class="dim">{{ optional($order->created_at)->format('d/m/Y H:i') }}</td>
+                  </tr>
+                @empty
+                  <tr><td colspan="5" style="padding:2rem;text-align:center;color:#9aa5b4;">Nenhuma ordem registada.</td></tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card">
-      <h3>Revenda</h3>
-      <p>Pendentes:
-        @if($pendingResellers > 0)
-            <span class="badge bg-amber">{{ $pendingResellers }}</span>
-        @else <strong>0</strong>
-        @endif
-      </p>
-      <p>Total de candidaturas: <strong>{{ $totalResellers }}</strong></p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.resellers.index') }}">Candidaturas &rarr;</a>
-        <a href="{{ route('admin.resellers.purchases.index') }}">Compras em Bloco</a>
+    {{-- ② CÓDIGOS WIFI --}}
+    @php
+      $wifiPlanText = ['diario' => 'Diário', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
+      $maxPlan = max(1, ...array_map(fn($p) => $wifiCodesByPlan[$p] ?? 0, ['diario','semanal','mensal']));
+    @endphp
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('wifi')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">📶</span>
+          <span class="adm-menu-label">Códigos WiFi</span>
+          @if($availableWifiCodes === 0)
+            <span class="adm-menu-badge" style="background:#fee2e2;color:#b91c1c;">sem stock</span>
+          @else
+            <span class="adm-menu-badge" style="background:#dcfce7;color:#15803d;">{{ $availableWifiCodes }} disponíveis</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-wifi">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-wifi" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">📦 Stock por Plano</div>
+          <div class="adm-bars">
+            @foreach(['diario','semanal','mensal'] as $pid)
+              @php $n = $wifiCodesByPlan[$pid] ?? 0; $pct = min(100, $maxPlan > 0 ? round($n / $maxPlan * 100) : 0); @endphp
+              <div class="adm-bar">
+                <span class="adm-bar-name">{{ $wifiPlanText[$pid] }}</span>
+                <div class="adm-bar-track">
+                  <div class="adm-bar-fill" style="width:{{ $pct }}%;background:{{ $pid === 'diario' ? '#f7b500' : ($pid === 'semanal' ? '#7c3aed' : '#d97706') }};"></div>
+                </div>
+                <span class="adm-bar-count {{ $n===0 ? 'c-out' : ($n<5 ? 'c-low' : 'c-ok') }}">{{ $n }}</span>
+              </div>
+            @endforeach
+          </div>
+          <p style="font-size:.78rem;color:#9aa5b4;margin:.3rem 0 .75rem;">{{ $usedWifiCodes }} códigos já utilizados</p>
+          <div class="adm-actions">
+            <a href="{{ route('admin.wifi_codes.index') }}" class="adm-btn primary">Gerir e importar →</a>
+            <a href="{{ route('admin.voucher_plans.index') }}" class="adm-btn">Planos Voucher</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card">
-      <h3>Equipamentos</h3>
-      <p>Produtos: <strong>{{ $totalProducts }}</strong></p>
-      <p>Encomendas: <strong>{{ $totalEquipOrders }}</strong></p>
-      <p>Pendentes: <strong>{{ $newEquipOrders }}</strong></p>
-      <p style="padding-top:.5rem;margin-top:.5rem;border-top:1px solid var(--a-border);">Receita: <strong>{{ number_format($totalEquipRevenue, 0, ',', '.') }} AOA</strong></p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.equipment.orders.index') }}">Encomendas &rarr;</a>
-        <a href="{{ route('admin.equipment.products.index') }}">Produtos</a>
+    {{-- ③ REVENDEDORES --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('revendedores')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🤝</span>
+          <span class="adm-menu-label">Revendedores</span>
+          @if($pendingResellers > 0)
+            <span class="adm-menu-badge" style="background:#fef3c7;color:#92400e;">{{ $pendingResellers }} pendentes</span>
+          @else
+            <span class="adm-menu-badge" style="background:#dcfce7;color:#15803d;">em dia</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-revendedores">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-revendedores" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">👥 Candidaturas</div>
+          <div class="adm-stats-row">
+            <div class="adm-stat-pill">Total: <strong>{{ $totalResellers }}</strong></div>
+            @if($pendingResellers > 0)
+              <div class="adm-stat-pill" style="border-color:#fde68a;">Pendentes: <strong style="color:#d97706;">{{ $pendingResellers }}</strong></div>
+            @endif
+          </div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.resellers.index') }}" class="adm-btn primary">Ver candidaturas →</a>
+            <a href="{{ route('admin.resellers.purchases.index') }}" class="adm-btn">Compras em Bloco</a>
+            <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card">
-      <h3>Planos Familiares / Empresariais</h3>
-      <p>Pendentes:
-        @if($pendingFamilyRequests > 0)
-            <span class="badge bg-amber">{{ $pendingFamilyRequests }}</span>
-        @else <strong>0</strong>
-        @endif
-      </p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.family_requests.index') }}">Ver pedidos &rarr;</a>
+    {{-- ④ AGENDAMENTOS --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('agendamentos')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🗓️</span>
+          <span class="adm-menu-label">Agendamentos</span>
+          @if($pendingAppointments > 0)
+            <span class="adm-menu-badge" style="background:#fef3c7;color:#92400e;">{{ $pendingAppointments }} por contactar</span>
+          @else
+            <span class="adm-menu-badge" style="background:#dcfce7;color:#15803d;">em dia</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-agendamentos">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-agendamentos" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">📋 Pré-Cadastros / Instalações</div>
+          <div class="adm-stats-row">
+            <div class="adm-stat-pill">Total: <strong>{{ $totalAppointments }}</strong></div>
+            @if($pendingAppointments > 0)
+              <div class="adm-stat-pill" style="border-color:#fde68a;">Por contactar: <strong style="color:#d97706;">{{ $pendingAppointments }}</strong></div>
+            @endif
+          </div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.appointments.index') }}" class="adm-btn primary">Ver todos os pedidos →</a>
+            <a href="{{ route('admin.appointments.index') }}?status=pending" class="adm-btn">Só pendentes</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card">
-      <h3>Pr&eacute;-Cadastros / Instala&ccedil;&otilde;es</h3>
-      <p>Pendentes (por contactar):
-        @if($pendingAppointments > 0)
-          <span class="badge bg-amber">{{ $pendingAppointments }}</span>
-        @else <strong>0</strong>
-        @endif
-      </p>
-      <p>Total de pedidos: <strong>{{ $totalAppointments }}</strong></p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.appointments.index') }}">Ver pedidos &rarr;</a>
-        <a href="{{ route('admin.appointments.index') }}?status=pending">Pendentes</a>
+    {{-- ⑤ ENCOMENDAS DE EQUIPAMENTOS --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('encomendas')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">📦</span>
+          <span class="adm-menu-label">Encomendas</span>
+          @if($newEquipOrders > 0)
+            <span class="adm-menu-badge" style="background:#fef3c7;color:#92400e;">{{ $newEquipOrders }} novas</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-encomendas">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-encomendas" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">🖥️ Equipamentos</div>
+          <div class="adm-stats-row">
+            <div class="adm-stat-pill">Produtos: <strong>{{ $totalProducts }}</strong></div>
+            <div class="adm-stat-pill">Encomendas: <strong>{{ $totalEquipOrders }}</strong></div>
+            @if($newEquipOrders > 0)
+              <div class="adm-stat-pill" style="border-color:#fde68a;">Novas: <strong style="color:#d97706;">{{ $newEquipOrders }}</strong></div>
+            @endif
+            <div class="adm-stat-pill" style="border-color:#86efac;">Receita: <strong style="color:#16a34a;">{{ number_format($totalEquipRevenue, 0, ',', '.') }} AOA</strong></div>
+          </div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.equipment.orders.index') }}" class="adm-btn primary">Ver encomendas →</a>
+            <a href="{{ route('admin.equipment.products.index') }}" class="adm-btn">Produtos</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card">
-      <h3>Estat&iacute;sticas da P&aacute;gina</h3>
-      <p style="font-size:.82rem;line-height:1.5;">Os 4 n&uacute;meros de destaque na p&aacute;gina inicial.</p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.site_stats.index') }}">Editar &rarr;</a>
+    {{-- ⑥ PLANOS FAMILIARES --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('planos')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🏠</span>
+          <span class="adm-menu-label">Planos Familiares / Empresariais</span>
+          @if($pendingFamilyRequests > 0)
+            <span class="adm-menu-badge" style="background:#fef3c7;color:#92400e;">{{ $pendingFamilyRequests }} pendentes</span>
+          @else
+            <span class="adm-menu-badge" style="background:#dcfce7;color:#15803d;">em dia</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-planos">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-planos" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">📋 Pedidos de Planos</div>
+          @if($pendingFamilyRequests > 0)
+            <p style="font-size:.9rem;color:#374151;margin:0 0 .75rem;">
+              Existem <strong style="color:#d97706;">{{ $pendingFamilyRequests }} pedido(s)</strong> aguardam activação no Sistema de Gestão.
+            </p>
+          @else
+            <p style="font-size:.9rem;color:#64748b;margin:0 0 .75rem;">Sem pedidos pendentes.</p>
+          @endif
+          <div class="adm-actions">
+            <a href="{{ route('admin.family_requests.index') }}" class="adm-btn primary">Ver todos os pedidos →</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="ap-card" style="border-left: 4px solid var(--a-purple);">
-      <h3 style="display:flex;align-items:center;gap:.45rem;">&#128722; Venda Manual de Vouchers</h3>
-      <p style="font-size:.82rem;line-height:1.5;color:var(--a-muted);">Envie vouchers directamente para o painel de um agente revendedor sem necessidade de pagamento online. Ideal quando o agente tem dificuldade em usar a plataforma.</p>
-      <div class="ap-card-actions">
-        <a href="{{ route('admin.manual_voucher_sale.create') }}" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed;">Vender Manualmente &rarr;</a>
+    {{-- ⑦ TICKETS --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('tickets')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🎫</span>
+          <span class="adm-menu-label">Tickets de Suporte</span>
+          @if(($openTickets ?? 0) > 0)
+            <span class="adm-menu-badge" style="background:#fee2e2;color:#b91c1c;">{{ $openTickets }} abertos</span>
+          @else
+            <span class="adm-menu-badge" style="background:#dcfce7;color:#15803d;">tudo tratado</span>
+          @endif
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-tickets">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-tickets" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">💬 Suporte ao Cliente</div>
+          @if(($openTickets ?? 0) > 0)
+            <p style="font-size:.9rem;color:#374151;margin:0 0 .75rem;">
+              <strong style="color:#dc2626;">{{ $openTickets }} ticket(s) aberto(s)</strong> aguardam resposta da equipa.
+            </p>
+          @else
+            <p style="font-size:.9rem;color:#64748b;margin:0 0 .75rem;">Sem tickets em aberto.</p>
+          @endif
+          <div class="adm-actions">
+            <a href="{{ route('admin.tickets.index') }}" class="adm-btn primary">Ver todos os tickets →</a>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="ap-tcard">
-    <div class="ap-tcard-head">
-      <strong>&Uacute;ltimas recargas</strong>
-      <a href="{{ route('admin.autovenda.index') }}">Ver todas &rarr;</a>
+    {{-- ⑧ FERRAMENTAS --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('ferramentas')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🔧</span>
+          <span class="adm-menu-label">Ferramentas & Relatórios</span>
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-ferramentas">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-ferramentas" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">⚙️ Gestão avançada</div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.reports') }}" class="adm-btn primary">📈 Relatórios →</a>
+            <a href="{{ route('admin.reconciliation.gpo') }}" class="adm-btn">💳 Reconciliação GPO</a>
+            <a href="{{ route('admin.site_stats.index') }}" class="adm-btn">📊 Estatísticas da Página</a>
+            <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual de Vouchers</a>
+            <a href="{{ route('admin.activity.index') }}" class="adm-btn">🕐 Actividade</a>
+          </div>
+        </div>
+      </div>
     </div>
-    <div style="overflow-x:auto;">
-      <table class="ap-table">
-        <thead>
-          <tr>
-            <th>#</th><th>Plano</th><th>Valor</th><th>Estado</th><th>M&eacute;todo</th><th>Criada em</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($recentOrders as $order)
-            <tr>
-              <td class="dim">#{{ $order->id }}</td>
-              <td><strong>{{ $order->plan_name ?? $order->plan_id }}</strong></td>
-              <td style="font-weight:700;">{{ number_format($order->amount_aoa, 0, ',', '.') }} <span class="dim">AOA</span></td>
-              <td>
-                @if($order->status === 'paid')
-                    <span class="badge bg-amber">Pago</span>
-                @elseif($order->status === 'awaiting_payment')
-                    <span class="badge bg-amber">Aguarda</span>
-                @else
-                  <span class="badge bg-gray">{{ $order->status }}</span>
-                @endif
-              </td>
-              <td class="dim">{{ $order->payment_method ?? '&mdash;' }}</td>
-              <td class="dim">{{ optional($order->created_at)->format('d/m/Y H:i') }}</td>
-            </tr>
-          @empty
-            <tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--a-faint);">Nenhuma ordem registada ainda.</td></tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-  </div>
+
+  </div>{{-- /.adm-menu --}}
 
 </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function admToggle(id) {
+  var body = document.getElementById('adm-body-' + id);
+  var chev = document.getElementById('adm-chev-' + id);
+  var btn  = chev ? chev.closest('.adm-menu-btn') : null;
+  var open = body && body.style.display !== 'none';
+  if (body) body.style.display = open ? 'none' : 'block';
+  if (chev) chev.classList.toggle('open', !open);
+  if (btn)  btn.classList.toggle('open', !open);
+}
+</script>
+@endpush
