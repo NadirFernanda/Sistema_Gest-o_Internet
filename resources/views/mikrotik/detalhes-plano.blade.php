@@ -442,26 +442,28 @@
     </div>
 </div>
 
+@php
+    $jsBwData = [
+        'labels'     => $bandwidthSamples->map(fn($s) => $s->sampled_at->format('H:i'))->values()->toArray(),
+        'rx'         => $bandwidthSamples->map(fn($s) => round($s->rx_rate / 1000000, 3))->values()->toArray(),
+        'tx'         => $bandwidthSamples->map(fn($s) => round($s->tx_rate / 1000000, 3))->values()->toArray(),
+        'current_rx' => $latestSample ? $latestSample->getFormattedRxRate() : null,
+        'current_tx' => $latestSample ? $latestSample->getFormattedTxRate() : null,
+        'ip'         => $latestSample ? $latestSample->ip_address : null,
+        'caller_id'  => $latestSample ? $latestSample->caller_id : null,
+        'uptime_fmt' => $latestSample ? $latestSample->getFormattedUptime() : null,
+        'sampled_at' => ($latestSample && $latestSample->sampled_at) ? $latestSample->sampled_at->diffForHumans() : null,
+    ];
+    $jsDropsData = [
+        'labels' => array_map(fn($d) => substr($d, 8, 2) . '/' . substr($d, 5, 2), array_keys($dropsChart)),
+        'values' => array_values($dropsChart),
+    ];
+@endphp
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-// ── Dados iniciais ────────────────────────────────────────────────────────────
-const initialBw = @json([
-    'labels'         => $bandwidthSamples->map(fn($s) => $s->sampled_at->format('H:i'))->values(),
-    'rx'             => $bandwidthSamples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values(),
-    'tx'             => $bandwidthSamples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values(),
-    'current_rx'     => $latestSample?->getFormattedRxRate(),
-    'current_tx'     => $latestSample?->getFormattedTxRate(),
-    'ip'             => $latestSample?->ip_address,
-    'caller_id'      => $latestSample?->caller_id,
-    'uptime_fmt'     => $latestSample?->getFormattedUptime(),
-    'sampled_at'     => $latestSample?->sampled_at?->diffForHumans(),
-]);
-
-const dropsData = @json([
-    'labels' => array_map(fn($d) => substr($d, 8, 2) . '/' . substr($d, 5, 2), array_keys($dropsChart)),
-    'values' => array_values($dropsChart),
-]);
+const initialBw = {!! json_encode($jsBwData) !!};
+const dropsData = {!! json_encode($jsDropsData) !!};
 
 const trafficUrl = '{{ route('mikrotik.planos.traffic-data', $plano) }}';
 
