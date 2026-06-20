@@ -49,6 +49,14 @@ class MikroTikBackfillDisconnectReasons extends Command
 
         $this->line('📊 Total de entradas de log: ' . count($allLogs));
 
+        // Diagnóstico: mostrar 10 amostras de mensagens PPP para perceber o formato
+        $this->line('');
+        $this->line('🔬 Amostras de mensagens PPP no log:');
+        foreach (array_slice($allLogs, 0, 10) as $entry) {
+            $this->line('  [' . ($entry['topics'] ?? '') . '] ' . ($entry['message'] ?? ''));
+        }
+        $this->line('');
+
         // Encontrar eventos offline sem razão ou com razão genérica
         $eventos = MikroTikOnlineStatusEvent::where('event_type', 'offline')
             ->where(fn($q) => $q->whereNull('disconnect_reason')
@@ -60,6 +68,13 @@ class MikroTikBackfillDisconnectReasons extends Command
         $this->line("📋 {$eventos->count()} eventos offline sem razão definida");
 
         $updated = 0;
+        $this->line('🔑 Usernames a procurar:');
+        foreach ($eventos as $evento) {
+            $u = $evento->mikrotikOnlineStatus?->plano?->mikrotik_username;
+            $this->line("  - {$u}");
+        }
+        $this->line('');
+
         foreach ($eventos as $evento) {
             $username = $evento->mikrotikOnlineStatus?->plano?->mikrotik_username;
             if (! $username) continue;
