@@ -372,7 +372,7 @@ class MikroTikAdminController extends Controller
     /** Mostrar detalhes de um plano com histórico de status online/offline. */
     public function showDetails(Plano $plano)
     {
-        $plano->load(['cliente', 'mikrotikOnlineStatus.events']);
+        $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus.events']);
 
         $cliente = $plano->cliente;
         if (!$cliente || !$cliente->mikrotik_site_id) {

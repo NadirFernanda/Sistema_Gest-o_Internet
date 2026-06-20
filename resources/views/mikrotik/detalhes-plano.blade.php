@@ -1,227 +1,271 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container mx-auto py-8 px-4">
-    <!-- Breadcrumb -->
-    <div class="mb-6">
-        <a href="{{ route('mikrotik.index') }}" class="text-blue-600 hover:underline">← Voltar</a>
-    </div>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+    <style>
+        .det-container { max-width:1100px; margin:0 auto; padding:0 16px 40px; }
 
-    <!-- Cabeçalho com info do cliente -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex justify-between items-start">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $cliente->nome }}</h1>
-                <p class="text-gray-600">
-                    <strong>Site:</strong> {{ $cliente->mikrotikSite->nome ?? 'N/A' }} |
-                    <strong>Username:</strong> <code class="bg-gray-100 px-2 py-1 rounded">{{ $plano->mikrotik_username ?? 'N/A' }}</code> |
-                    <strong>Plano:</strong> {{ $plano->nome ?? 'Sem plano' }}
-                </p>
+        /* ── Breadcrumb ── */
+        .det-back { display:inline-flex; align-items:center; gap:6px; color:#888; font-size:0.88rem; text-decoration:none; margin-bottom:18px; }
+        .det-back:hover { color:#f5a623; }
+
+        /* ── Header card ── */
+        .det-header { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.07); padding:22px 26px; margin-bottom:20px; display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+        .det-header__info h2 { font-size:1.4rem; font-weight:800; color:#1a1a2e; margin:0 0 6px; }
+        .det-header__meta { font-size:0.88rem; color:#777; display:flex; flex-wrap:wrap; gap:10px 20px; margin-top:8px; }
+        .det-header__meta span { display:inline-flex; align-items:center; gap:4px; }
+        .det-header__meta code { background:#f4f6f9; padding:1px 7px; border-radius:5px; font-size:0.82rem; color:#444; }
+
+        /* ── Status badge grande ── */
+        .det-status { display:flex; align-items:center; gap:10px; padding:14px 20px; border-radius:12px; font-weight:700; font-size:1rem; white-space:nowrap; }
+        .det-status--online  { background:#d4edda; color:#155724; border:1.5px solid #c3e6cb; }
+        .det-status--offline { background:#f8d7da; color:#721c24; border:1.5px solid #f5c6cb; }
+        .det-status--unknown { background:#e2e3e5; color:#383d41; border:1.5px solid #d6d8db; }
+        .det-status__dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+        .det-status__dot--on  { background:#28a745; }
+        .det-status__dot--off { background:#dc3545; }
+        .det-status__dot--unk { background:#999; }
+        .det-status__sub { font-size:0.8rem; font-weight:400; opacity:.8; margin-top:3px; }
+
+        /* ── Stats cards ── */
+        .det-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+        @media(max-width:700px){ .det-stats { grid-template-columns:repeat(2,1fr); } }
+        .det-stat { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:18px 20px; }
+        .det-stat__val { font-size:1.6rem; font-weight:800; margin-bottom:4px; }
+        .det-stat__lbl { font-size:0.78rem; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+        .det-stat--orange .det-stat__val { color:#e07a20; }
+        .det-stat--green  .det-stat__val { color:#2a8a55; }
+        .det-stat--red    .det-stat__val { color:#c0392b; }
+        .det-stat--blue   .det-stat__val { color:#2563eb; }
+
+        /* ── History card ── */
+        .det-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.07); padding:22px 26px; }
+        .det-card h3 { font-size:1rem; font-weight:700; color:#222; margin:0 0 16px; }
+
+        /* ── Filter buttons ── */
+        .det-filters { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+        .det-filter { padding:5px 16px; border-radius:20px; border:1.5px solid #e0e6f0; background:#fff; font-size:0.82rem; font-weight:600; cursor:pointer; color:#666; transition:all .15s; }
+        .det-filter:hover { border-color:#f5a623; color:#f5a623; }
+        .det-filter.active { background:#f5a623; border-color:#f5a623; color:#fff; }
+
+        /* ── Events table ── */
+        .det-table { width:100%; border-collapse:collapse; font-size:0.86rem; }
+        .det-table thead { background:#f7f9fb; }
+        .det-table th { padding:9px 12px; text-align:left; font-size:0.73rem; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; border-bottom:2px solid #edf0f4; }
+        .det-table td { padding:10px 12px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
+        .det-table tbody tr:last-child td { border-bottom:none; }
+        .det-table tbody tr:hover { background:#fafbfd; }
+
+        .ev-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
+        .ev-online  { background:#d4edda; color:#155724; }
+        .ev-offline { background:#f8d7da; color:#721c24; }
+
+        /* ── Timeline ── */
+        .det-timeline { margin-top:24px; padding-top:20px; border-top:1px solid #f0f2f5; }
+        .det-timeline h4 { font-size:0.92rem; font-weight:700; color:#333; margin:0 0 14px; }
+        .tl-item { display:flex; gap:14px; align-items:flex-start; margin-bottom:10px; }
+        .tl-time { min-width:90px; font-size:0.77rem; font-family:monospace; color:#888; padding-top:4px; }
+        .tl-body { flex:1; }
+        .tl-event { padding:8px 14px; border-radius:8px; font-size:0.83rem; font-weight:600; }
+        .tl-event--online  { background:#d4edda; color:#155724; border-left:4px solid #28a745; }
+        .tl-event--offline { background:#f8d7da; color:#721c24; border-left:4px solid #dc3545; }
+
+        .empty-state { text-align:center; padding:40px; color:#bbb; font-size:0.9rem; }
+    </style>
+@endpush
+
+@section('content')
+<div class="estoque-container-moderna">
+
+    @include('layouts.partials.clientes-hero', [
+        'title'    => 'Detalhes do Cliente',
+        'subtitle' => 'Histórico de ligação e eventos online/offline',
+    ])
+
+    <div class="det-container">
+
+        <a href="{{ route('mikrotik.index') }}" class="det-back">← Voltar à lista MikroTik</a>
+
+        {{-- ── Header ── --}}
+        <div class="det-header">
+            <div class="det-header__info">
+                <h2>{{ $cliente->nome }}</h2>
+                <div class="det-header__meta">
+                    <span>🏢 {{ $cliente->mikrotikSite?->nome ?? '—' }}</span>
+                    <span>🖧 Username: <code>{{ $plano->mikrotik_username ?? 'Não sincronizado' }}</code></span>
+                    <span>📋 Plano: {{ $plano->nome ?? '—' }}</span>
+                    @if($plano->proxima_renovacao)
+                    <span>📅 Renova em: {{ \Carbon\Carbon::parse($plano->proxima_renovacao)->format('d/m/Y') }}</span>
+                    @endif
+                </div>
             </div>
-            <div class="text-right">
+
+            <div>
                 @if($statusOnline)
                     @if($statusOnline->is_online)
-                        <div class="bg-green-100 border border-green-400 rounded-lg p-4">
-                            <div class="text-green-700 font-bold text-lg">✅ ONLINE</div>
-                            <div class="text-sm text-green-600">
-                                Desde {{ $statusOnline->last_seen_online_at->diffForHumans() }}
+                        <div class="det-status det-status--online">
+                            <span class="det-status__dot det-status__dot--on"></span>
+                            <div>
+                                <div>ONLINE</div>
+                                <div class="det-status__sub">Desde {{ $statusOnline->last_seen_online_at?->diffForHumans() ?? '—' }}</div>
                             </div>
                         </div>
                     @else
-                        <div class="bg-red-100 border border-red-400 rounded-lg p-4">
-                            <div class="text-red-700 font-bold text-lg">❌ OFFLINE</div>
-                            <div class="text-sm text-red-600">
-                                Desde {{ $statusOnline->last_seen_offline_at->diffForHumans() }}
+                        <div class="det-status det-status--offline">
+                            <span class="det-status__dot det-status__dot--off"></span>
+                            <div>
+                                <div>OFFLINE</div>
+                                <div class="det-status__sub">Desde {{ $statusOnline->last_seen_offline_at?->diffForHumans() ?? '—' }}</div>
                             </div>
                         </div>
                     @endif
                 @else
-                    <div class="bg-gray-100 border border-gray-400 rounded-lg p-4">
-                        <div class="text-gray-700 font-bold text-lg">⏳ Aguardando...</div>
-                        <div class="text-sm text-gray-600">Primeira verificação</div>
+                    <div class="det-status det-status--unknown">
+                        <span class="det-status__dot det-status__dot--unk"></span>
+                        <div>
+                            <div>Aguardando…</div>
+                            <div class="det-status__sub">Primeira verificação pendente</div>
+                        </div>
                     </div>
                 @endif
             </div>
         </div>
-    </div>
 
-    <!-- Estatísticas -->
-    @if($statusOnline)
-    <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-2xl font-bold text-orange-600">{{ $totalOfflineEvents }}</div>
-            <div class="text-sm text-gray-600">Eventos Offline</div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-2xl font-bold text-green-600">{{ $totalOnlineEvents }}</div>
-            <div class="text-sm text-gray-600">Eventos Online</div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-2xl font-bold text-purple-600">
+        {{-- ── Estatísticas ── --}}
+        @if($statusOnline)
+        <div class="det-stats">
+            <div class="det-stat det-stat--red">
+                <div class="det-stat__val">{{ $totalOfflineEvents }}</div>
+                <div class="det-stat__lbl">Quedas detectadas</div>
+            </div>
+            <div class="det-stat det-stat--green">
+                <div class="det-stat__val">{{ $totalOnlineEvents }}</div>
+                <div class="det-stat__lbl">Reconexões</div>
+            </div>
+            <div class="det-stat det-stat--orange">
                 @php
-                    $days = intdiv($totalDowntime, 86400);
-                    $hours = intdiv($totalDowntime % 86400, 3600);
+                    $td = (int) $totalDowntime;
+                    $tdDays  = intdiv($td, 86400);
+                    $tdHours = intdiv($td % 86400, 3600);
+                    $tdMins  = intdiv($td % 3600, 60);
                 @endphp
-                {{ $days }}d {{ $hours }}h
+                <div class="det-stat__val">
+                    @if($tdDays > 0) {{ $tdDays }}d {{ $tdHours }}h
+                    @elseif($tdHours > 0) {{ $tdHours }}h {{ $tdMins }}m
+                    @else {{ $tdMins }}m
+                    @endif
+                </div>
+                <div class="det-stat__lbl">Downtime total</div>
             </div>
-            <div class="text-sm text-gray-600">Downtime Total</div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-2xl font-bold text-blue-600">
+            <div class="det-stat det-stat--blue">
                 @php
-                    $avgDays = intdiv($avgDowntime, 86400);
-                    $avgHours = intdiv($avgDowntime % 86400, 3600);
+                    $ad = (int) $avgDowntime;
+                    $adHours = intdiv($ad, 3600);
+                    $adMins  = intdiv($ad % 3600, 60);
                 @endphp
-                {{ $avgDays }}d {{ $avgHours }}h
+                <div class="det-stat__val">
+                    @if($adHours > 0) {{ $adHours }}h {{ $adMins }}m
+                    @else {{ $adMins }}m
+                    @endif
+                </div>
+                <div class="det-stat__lbl">Média por queda</div>
             </div>
-            <div class="text-sm text-gray-600">Média por Evento</div>
         </div>
-    </div>
-    @endif
+        @endif
 
-    <!-- Histórico de Eventos -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 Histórico de Eventos</h2>
+        {{-- ── Histórico de eventos ── --}}
+        <div class="det-card">
+            <h3>Histórico de Eventos</h3>
 
-        @if($eventos->isEmpty())
-            <div class="bg-gray-50 border border-gray-200 rounded p-4 text-center text-gray-600">
-                Sem eventos registados. O cliente ainda não foi verificado.
-            </div>
-        @else
-            <!-- Filtros -->
-            <div class="flex gap-4 mb-4">
-                <button onclick="filterEvents('todos')" class="filter-btn px-4 py-2 rounded bg-blue-600 text-white font-semibold" data-filter="todos">
-                    Todos ({{ $eventos->count() }})
-                </button>
-                <button onclick="filterEvents('offline')" class="filter-btn px-4 py-2 rounded bg-gray-200 text-gray-800 font-semibold" data-filter="offline">
-                    Offline ({{ $eventos->where('event_type', 'offline')->count() }})
-                </button>
-                <button onclick="filterEvents('online')" class="filter-btn px-4 py-2 rounded bg-gray-200 text-gray-800 font-semibold" data-filter="online">
-                    Online ({{ $eventos->where('event_type', 'online')->count() }})
-                </button>
-            </div>
+            @if($eventos->isEmpty())
+                <div class="empty-state">Sem eventos registados. A monitorização começará na próxima verificação (cada 5 minutos).</div>
+            @else
+                <div class="det-filters">
+                    <button class="det-filter active" onclick="filtrar('todos', this)">Todos ({{ $eventos->count() }})</button>
+                    <button class="det-filter" onclick="filtrar('offline', this)">Quedas ({{ $eventos->where('event_type','offline')->count() }})</button>
+                    <button class="det-filter" onclick="filtrar('online', this)">Reconexões ({{ $eventos->where('event_type','online')->count() }})</button>
+                </div>
 
-            <!-- Tabela de Eventos -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="det-table">
                     <thead>
-                        <tr class="border-b border-gray-300 bg-gray-50">
-                            <th class="text-left px-4 py-3 font-semibold text-gray-700">Data/Hora</th>
-                            <th class="text-left px-4 py-3 font-semibold text-gray-700">Evento</th>
-                            <th class="text-left px-4 py-3 font-semibold text-gray-700">Duração</th>
-                            <th class="text-left px-4 py-3 font-semibold text-gray-700">Observações</th>
+                        <tr>
+                            <th>Data / Hora</th>
+                            <th>Evento</th>
+                            <th>Duração offline</th>
+                            <th>Observação</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($eventos as $evento)
-                            <tr class="border-b border-gray-200 event-row" data-type="{{ $evento->event_type }}">
-                                <td class="px-4 py-3 text-gray-800">
-                                    <div class="font-mono text-xs">
-                                        {{ $evento->occurred_at->format('d/m/Y H:i:s') }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        {{ $evento->occurred_at->diffForHumans() }}
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if($evento->event_type === 'online')
-                                        <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold text-xs">
-                                            ✅ ONLINE
-                                        </span>
-                                    @else
-                                        <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold text-xs">
-                                            ❌ OFFLINE
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if($evento->event_type === 'offline' && $evento->duration_seconds)
-                                        @php
-                                            $days = intdiv($evento->duration_seconds, 86400);
-                                            $hours = intdiv($evento->duration_seconds % 86400, 3600);
-                                            $mins = intdiv($evento->duration_seconds % 3600, 60);
-                                        @endphp
-                                        <span class="text-orange-600 font-semibold">
-                                            {{ $days }}d {{ $hours }}h {{ $mins }}m
-                                        </span>
-                                    @elseif($evento->event_type === 'online' && $evento->duration_seconds)
-                                        <span class="text-blue-600 text-xs">
-                                            Recuperado após {{ $evento->getReadableDuration() }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-500">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $evento->disconnect_reason ?? 'N/A' }}
-                                </td>
-                            </tr>
+                        <tr class="ev-row" data-type="{{ $evento->event_type }}">
+                            <td>
+                                <div style="font-family:monospace; font-size:0.83rem;">{{ $evento->occurred_at->format('d/m/Y H:i:s') }}</div>
+                                <div style="font-size:0.76rem; color:#aaa;">{{ $evento->occurred_at->diffForHumans() }}</div>
+                            </td>
+                            <td>
+                                @if($evento->event_type === 'online')
+                                    <span class="ev-badge ev-online">✓ Online</span>
+                                @else
+                                    <span class="ev-badge ev-offline">✕ Offline</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($evento->duration_seconds)
+                                    <span style="font-weight:600; color:{{ $evento->event_type==='offline' ? '#c0392b' : '#2563eb' }};">
+                                        {{ $evento->getReadableDuration() }}
+                                    </span>
+                                @else
+                                    <span style="color:#bbb;">—</span>
+                                @endif
+                            </td>
+                            <td style="color:#777; font-size:0.82rem;">{{ $evento->disconnect_reason ?? '—' }}</td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
 
-            <!-- Timeline dos últimos 7 dias -->
-            @if($eventosUltimaSemana->isNotEmpty())
-            <div class="mt-8 pt-6 border-t border-gray-300">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">📅 Últimos 7 Dias</h3>
-                <div class="space-y-3">
-                    @foreach($eventosUltimaSemana as $evento)
-                        <div class="flex gap-4 items-start">
-                            <div class="min-w-max">
-                                <div class="text-xs font-mono text-gray-600">
-                                    {{ $evento->occurred_at->format('d/m H:i') }}
+                {{-- Últimos 7 dias --}}
+                @if($eventosUltimaSemana->isNotEmpty())
+                <div class="det-timeline">
+                    <h4>Últimos 7 dias</h4>
+                    @foreach($eventosUltimaSemana as $ev)
+                    <div class="tl-item">
+                        <div class="tl-time">{{ $ev->occurred_at->format('d/m H:i') }}</div>
+                        <div class="tl-body">
+                            @if($ev->event_type === 'online')
+                                <div class="tl-event tl-event--online">
+                                    ✓ Voltou Online
+                                    @if($ev->duration_seconds)
+                                        <span style="font-weight:400; font-size:0.8rem;"> — Após {{ $ev->getReadableDuration() }} offline</span>
+                                    @endif
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                @if($evento->event_type === 'online')
-                                    <div class="bg-green-50 border-l-4 border-green-500 pl-3 py-2">
-                                        <span class="text-green-700 font-semibold">✅ Voltou Online</span>
-                                        @if($evento->duration_seconds)
-                                            <span class="text-xs text-green-600 ml-2">
-                                                Após {{ $evento->getReadableDuration() }} offline
-                                            </span>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="bg-red-50 border-l-4 border-red-500 pl-3 py-2">
-                                        <span class="text-red-700 font-semibold">❌ Saiu Offline</span>
-                                    </div>
-                                @endif
-                            </div>
+                            @else
+                                <div class="tl-event tl-event--offline">
+                                    ✕ Saiu Offline
+                                    @if($ev->disconnect_reason)
+                                        <span style="font-weight:400; font-size:0.8rem;"> — {{ $ev->disconnect_reason }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
+                    </div>
                     @endforeach
                 </div>
-            </div>
+                @endif
             @endif
-        @endif
+        </div>
+
     </div>
 </div>
 
+@push('scripts')
 <script>
-function filterEvents(type) {
-    // Update button states
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white');
-        btn.classList.add('bg-gray-200', 'text-gray-800');
-    });
-    event.target.classList.remove('bg-gray-200', 'text-gray-800');
-    event.target.classList.add('bg-blue-600', 'text-white');
-
-    // Filter rows
-    document.querySelectorAll('.event-row').forEach(row => {
-        if (type === 'todos' || row.dataset.type === type) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+function filtrar(tipo, btn) {
+    document.querySelectorAll('.det-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.ev-row').forEach(row => {
+        row.style.display = (tipo === 'todos' || row.dataset.type === tipo) ? '' : 'none';
     });
 }
 </script>
-
-<style>
-.filter-btn {
-    transition: all 0.3s ease;
-}
-</style>
-@endsection
+@endpush
