@@ -21,8 +21,8 @@ class MikroTikCheckOnlineStatus extends Command
         $this->info('🔍 Verificando status online dos clientes MikroTik...');
 
         $siteId = $this->option('site');
-        $sites = $siteId
-            ? [MikroTikSite::findOrFail($siteId)]
+        $sites  = $siteId
+            ? MikroTikSite::where('id', $siteId)->get()
             : MikroTikSite::where('active', true)->get();
 
         if ($sites->isEmpty()) {
@@ -30,79 +30,76 @@ class MikroTikCheckOnlineStatus extends Command
             return 0;
         }
 
-        $totalChecked = 0;
-        $totalUpdated = 0;
+        // Passo 1: recolher TODAS as sessões activas de todos os routers acessíveis
+        // (clientes podem estar conectados num router diferente do atribuído no BD)
+        $allActiveUsernames = [];
+        $accessibleSiteIds  = [];
 
         foreach ($sites as $site) {
             try {
-                $this->info("📡 Verificando site: {$site->nome} ({$site->host})");
-
                 $service = MikroTikService::forSite($site);
+                $test    = $service->testConnection();
 
-                // Verifica ligação antes de actualizar — se falhar, não marca ninguém offline
-                $test = $service->testConnection();
                 if (! $test['ok']) {
-                    $this->warn("  ⚠️  Router inacessível ({$site->nome}): " . ($test['error'] ?? 'sem resposta'));
+                    $this->warn("⚠️  Router inacessível ({$site->nome}): " . ($test['error'] ?? 'sem resposta'));
                     Log::warning('MikroTik: check-online-status ignorado — router inacessível', [
                         'site_id' => $site->id, 'site' => $site->nome, 'error' => $test['error'] ?? '',
                     ]);
                     continue;
                 }
 
-                $activeSessions = $service->listActiveSessions();
-
-                // Create a map of active usernames
-                $activeUsernames = collect($activeSessions)
-                    ->keyBy(fn($s) => $s['name'] ?? '')
-                    ->keys()
-                    ->filter(fn($n) => $n !== '')
-                    ->values()
-                    ->toArray();
-
-                $this->line("  📶 Sessões PPPoE activas no router: " . count($activeUsernames));
-                if (count($activeUsernames) > 0) {
-                    $this->line("  👤 Exemplos: " . implode(', ', array_slice($activeUsernames, 0, 5)));
-                } else {
-                    $this->warn("  ⚠️  Nenhuma sessão PPPoE activa encontrada no router!");
+                $sessions = $service->listActiveSessions();
+                $count    = 0;
+                foreach ($sessions as $s) {
+                    $name = $s['name'] ?? '';
+                    if ($name !== '') {
+                        $allActiveUsernames[$name] = true;
+                        $count++;
+                    }
                 }
-                Log::info('MikroTik: sessões activas encontradas', [
-                    'site' => $site->nome, 'count' => count($activeUsernames),
-                    'sample' => array_slice($activeUsernames, 0, 10),
+
+                $accessibleSiteIds[] = $site->id;
+                $this->line("📡 {$site->nome}: {$count} sessões activas");
+                Log::info('MikroTik: sessões activas recolhidas', [
+                    'site' => $site->nome, 'count' => $count,
                 ]);
-
-                // Get all synced planos for this site (usando relacionamento de clientes)
-                $planos = Plano::whereNotNull('mikrotik_username')
-                    ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
-                    ->where('estado', 'Ativo')
-                    ->get();
-
-                foreach ($planos as $plano) {
-                    $isOnline = in_array($plano->mikrotik_username, $activeUsernames);
-                    $this->updateStatus($plano, $site, $isOnline, $activeSessions);
-                    $totalChecked++;
-                    $totalUpdated++;
-                }
-
-                $this->line("  ✅ {$planos->count()} clientes verificados");
             } catch (\Throwable $e) {
-                $this->error("❌ Erro ao verificar site {$site->nome}: {$e->getMessage()}");
-                Log::error('MikroTik: check-online-status falhou', [
-                    'site_id' => $site->id,
-                    'error' => $e->getMessage(),
+                $this->error("❌ Erro ao ligar a {$site->nome}: {$e->getMessage()}");
+                Log::error('MikroTik: falha ao recolher sessões', [
+                    'site_id' => $site->id, 'error' => $e->getMessage(),
                 ]);
             }
         }
 
-        $this->info("✨ Verificação completa! {$totalUpdated}/{$totalChecked} clientes atualizados.");
+        if (empty($accessibleSiteIds)) {
+            $this->warn('⚠️  Nenhum router acessível. Status não actualizado.');
+            return 0;
+        }
+
+        $this->line('📊 Total de usernames activos (todos os routers): ' . count($allActiveUsernames));
+
+        // Passo 2: verificar todos os clientes Ativo de todos os sites acessíveis
+        // contra a lista unificada de sessões (independente de qual router)
+        $planos = Plano::whereNotNull('mikrotik_username')
+            ->whereHas('cliente', fn($q) => $q->whereIn('mikrotik_site_id', $accessibleSiteIds))
+            ->where('estado', 'Ativo')
+            ->with('cliente.mikrotikSite')
+            ->get();
+
+        $totalChecked = 0;
+        foreach ($planos as $plano) {
+            $isOnline = isset($allActiveUsernames[$plano->mikrotik_username]);
+            $site     = $plano->cliente->mikrotikSite;
+            $this->updateStatus($plano, $site, $isOnline);
+            $totalChecked++;
+        }
+
+        $this->info("✨ Verificação completa! {$totalChecked} clientes verificados.");
         return 0;
     }
 
-    private function updateStatus(
-        Plano $plano,
-        MikroTikSite $site,
-        bool $isOnline,
-        array $activeSessions,
-    ): void {
+    private function updateStatus(Plano $plano, MikroTikSite $site, bool $isOnline): void
+    {
         $status = MikroTikOnlineStatus::firstOrCreate(
             [
                 'plano_id' => $plano->id,
