@@ -74,21 +74,22 @@
         .mkt-table td { padding:9px 10px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
         .mkt-table tbody tr:last-child td { border-bottom:none; }
         .mkt-table tbody tr:hover { background:#fafbfd; }
-        .col-n    { width:36px; text-align:center; color:#bbb; font-size:0.8rem; }
-        .col-nm   { width:18%; font-weight:600; color:#222; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .col-si   { width:13%; color:#777; font-size:0.83rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .col-pl   { width:17%; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .col-user { width:18%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-n    { width:30px; text-align:center; color:#bbb; font-size:0.8rem; padding:9px 4px; }
+        .col-nm   { width:15%; font-weight:600; color:#222; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-si   { width:11%; color:#777; font-size:0.83rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-pl   { width:14%; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .col-user { width:14%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .col-user code { background:#f4f6f9; padding:1px 6px; border-radius:5px; font-size:0.81rem; color:#555; }
-        .col-est  { width:10%; }
-        .col-ren  { width:10%; font-size:0.83rem; color:#555; white-space:nowrap; }
-        .col-online { width:11%; text-align:center; }
-        .col-acts { width:112px; white-space:nowrap; }
+        .col-est  { width:9%; }
+        .col-ren  { width:9%; font-size:0.83rem; color:#555; white-space:nowrap; }
+        .col-online { width:13%; }
+        .col-acts { width:128px; padding:9px 6px; }
+        .abtn-group { display:flex; gap:3px; align-items:center; flex-wrap:nowrap; }
 
         /* Status online/offline badge */
         .status-badge {
             display:inline-flex; align-items:center; gap:4px;
-            padding:4px 9px; border-radius:20px; font-size:0.75rem; font-weight:700;
+            padding:3px 8px; border-radius:20px; font-size:0.74rem; font-weight:700;
             white-space:nowrap;
         }
         .status-online { background:#d4edda; color:#155724; }
@@ -110,7 +111,7 @@
         .eb-aviso    { background:#fef9e7; color:#b7770d; }
         .eb-outro    { background:#f0f0f0; color:#888; }
 
-        .abtn { width:31px; height:31px; border-radius:7px; border:none; cursor:pointer; font-size:0.9rem; display:inline-flex; align-items:center; justify-content:center; transition:opacity .15s; }
+        .abtn { width:27px; height:27px; border-radius:6px; border:none; cursor:pointer; font-size:0.85rem; display:inline-flex; align-items:center; justify-content:center; transition:opacity .15s; flex-shrink:0; }
         .abtn:hover { opacity:.72; }
         .abtn-sync    { background:#4a90d9; color:#fff; }
         .abtn-suspend { background:#fff5f5; border:1px solid #e05a4f !important; color:#e05a4f; }
@@ -342,10 +343,12 @@
                         </td>
                         <td class="col-acts">
                             @if($item->plano_id)
-                            <a href="{{ route('mikrotik.planos.detalhes', $item->plano_id) }}" class="abtn" title="Ver detalhes" style="background:#6c757d; color:#fff; text-decoration:none; display:inline-flex;">📊</a>
-                            <button onclick="syncPlano({{ $item->plano_id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
-                            <button onclick="suspendPlano({{ $item->plano_id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
-                            <button onclick="removePlano({{ $item->plano_id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
+                            <div class="abtn-group">
+                                <a href="{{ route('mikrotik.planos.detalhes', $item->plano_id) }}" class="abtn" title="Ver detalhes" style="background:#6c757d; color:#fff; text-decoration:none;">📊</a>
+                                <button onclick="syncPlano({{ $item->plano_id }}, this)" class="abtn abtn-sync" title="Sincronizar">↻</button>
+                                <button onclick="suspendPlano({{ $item->plano_id }}, this)" class="abtn abtn-suspend" title="Suspender">⏸</button>
+                                <button onclick="removePlano({{ $item->plano_id }}, this)" class="abtn abtn-remove" title="Remover do MikroTik">✕</button>
+                            </div>
                             @endif
                         </td>
                     </tr>
