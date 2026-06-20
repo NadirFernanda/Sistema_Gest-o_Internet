@@ -255,7 +255,7 @@
                         <th class="col-si">Site</th>
                         <th class="col-pl">Plano</th>
                         <th class="col-user">Username MikroTik</th>
-                        <th class="col-online">Status Online</th>
+                        <th class="col-online">Online</th>
                         <th class="col-est">Estado</th>
                         <th class="col-ren">Renovação</th>
                         <th class="col-acts">Acções</th>
@@ -312,11 +312,11 @@
                                         Offline
                                     </span>
                                     <div class="downtime-info" title="Última queda: {{ $onlineStatus->last_seen_offline_at?->format('d/m/Y H:i') }}">
-                                        ⏱ {{ $onlineStatus->getDowntimeDays() > 0 
+                                        ⏱ {{ $onlineStatus->getDowntimeDays() >= 1
                                             ? number_format($onlineStatus->getDowntimeDays(), 1) . ' dias'
-                                            : ($onlineStatus->getDowntimeHours() > 0 
+                                            : ($onlineStatus->getDowntimeHours() >= 1
                                                 ? intval($onlineStatus->getDowntimeHours()) . 'h'
-                                                : $onlineStatus->getDowttimeMinutes() . 'min'
+                                                : ($onlineStatus->getDowttimeMinutes() > 0 ? $onlineStatus->getDowttimeMinutes() . 'min' : 'agora')
                                             )
                                         }}
                                     </div>
