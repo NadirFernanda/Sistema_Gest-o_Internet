@@ -55,7 +55,20 @@ class MikroTikCheckOnlineStatus extends Command
                 $activeUsernames = collect($activeSessions)
                     ->keyBy(fn($s) => $s['name'] ?? '')
                     ->keys()
+                    ->filter(fn($n) => $n !== '')
+                    ->values()
                     ->toArray();
+
+                $this->line("  📶 Sessões PPPoE activas no router: " . count($activeUsernames));
+                if (count($activeUsernames) > 0) {
+                    $this->line("  👤 Exemplos: " . implode(', ', array_slice($activeUsernames, 0, 5)));
+                } else {
+                    $this->warn("  ⚠️  Nenhuma sessão PPPoE activa encontrada no router!");
+                }
+                Log::info('MikroTik: sessões activas encontradas', [
+                    'site' => $site->nome, 'count' => count($activeUsernames),
+                    'sample' => array_slice($activeUsernames, 0, 10),
+                ]);
 
                 // Get all synced planos for this site (usando relacionamento de clientes)
                 $planos = Plano::whereNotNull('mikrotik_username')
