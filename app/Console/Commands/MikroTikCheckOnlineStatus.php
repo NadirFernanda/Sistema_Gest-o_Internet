@@ -30,9 +30,9 @@ class MikroTikCheckOnlineStatus extends Command
             return 0;
         }
 
-        // Passo 1: recolher TODAS as sessões activas de todos os routers acessíveis
-        // (clientes podem estar conectados num router diferente do atribuído no BD)
+        // Passo 1: recolher TODAS as sessões activas e logs PPP de todos os routers
         $allActiveUsernames = [];
+        $allPppLogs         = [];
         $accessibleSiteIds  = [];
 
         foreach ($sites as $site) {
@@ -58,8 +58,12 @@ class MikroTikCheckOnlineStatus extends Command
                     }
                 }
 
+                // Recolher logs PPP para detectar razões de desconexão
+                $logs        = $service->getRecentPppLogs();
+                $allPppLogs  = array_merge($allPppLogs, $logs);
+
                 $accessibleSiteIds[] = $site->id;
-                $this->line("📡 {$site->nome}: {$count} sessões activas");
+                $this->line("📡 {$site->nome}: {$count} sessões activas, " . count($logs) . " entradas de log PPP");
                 Log::info('MikroTik: sessões activas recolhidas', [
                     'site' => $site->nome, 'count' => $count,
                 ]);
@@ -90,7 +94,8 @@ class MikroTikCheckOnlineStatus extends Command
         foreach ($planos as $plano) {
             $isOnline = isset($allActiveUsernames[$plano->mikrotik_username]);
             $site     = $plano->cliente->mikrotikSite;
-            $this->updateStatus($plano, $site, $isOnline);
+            $reason   = $isOnline ? null : $this->findDisconnectReason($plano->mikrotik_username, $allPppLogs);
+            $this->updateStatus($plano, $site, $isOnline, $reason);
             $totalChecked++;
         }
 
@@ -98,7 +103,37 @@ class MikroTikCheckOnlineStatus extends Command
         return 0;
     }
 
-    private function updateStatus(Plano $plano, MikroTikSite $site, bool $isOnline): void
+    private function findDisconnectReason(string $username, array $logs): string
+    {
+        foreach ($logs as $entry) {
+            $message = $entry['message'] ?? '';
+
+            if (! str_contains($message, $username)) continue;
+
+            // Padrões mais específicos primeiro
+            if (str_contains($message, 'lcp-echo-timeout'))  return 'lcp-echo-timeout (sinal fraco ou cabo)';
+            if (str_contains($message, 'user request'))       return 'Desligado pelo utilizador';
+            if (str_contains($message, 'auth'))               return 'Falha de autenticação';
+            if (str_contains($message, 'link failure'))       return 'Falha de ligação física';
+            if (str_contains($message, 'session timeout'))    return 'Timeout de sessão';
+            if (str_contains($message, 'idle timeout'))       return 'Timeout por inactividade';
+            if (str_contains($message, 'admin'))              return 'Desconectado pelo administrador';
+            if (str_contains($message, 'terminated'))         return 'Sessão terminada';
+
+            // Tentar extrair razão do padrão "logged out: <razão>"
+            if (preg_match('/logged\s+out[:\s]+(.+)/i', $message, $m)) {
+                return trim($m[1]);
+            }
+            // Qualquer entrada que mencione o username já é relevante
+            if (str_contains($message, 'disconnected') || str_contains($message, 'logged')) {
+                return 'Desconectado';
+            }
+        }
+
+        return 'Queda detectada';
+    }
+
+    private function updateStatus(Plano $plano, MikroTikSite $site, bool $isOnline, ?string $disconnectReason = null): void
     {
         $status = MikroTikOnlineStatus::firstOrCreate(
             [
@@ -148,9 +183,10 @@ class MikroTikCheckOnlineStatus extends Command
             ]);
         } elseif (!$isOnline && $wasOnline) {
             // Transição: online → offline
+            $reason = $disconnectReason ?? 'Queda detectada';
             $status->is_online = false;
             $status->last_seen_offline_at = now();
-            $status->disconnect_reason = 'Queda detectada';
+            $status->disconnect_reason = $reason;
 
             // Registar evento: caiu offline
             MikroTikOnlineStatusEvent::create([
@@ -158,7 +194,7 @@ class MikroTikCheckOnlineStatus extends Command
                 'mikrotik_online_status_id' => $status->id,
                 'event_type' => 'offline',
                 'occurred_at' => now(),
-                'disconnect_reason' => 'Queda detectada',
+                'disconnect_reason' => $reason,
             ]);
 
             Log::warning('MikroTik: cliente caiu offline', [

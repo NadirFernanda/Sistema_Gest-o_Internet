@@ -308,6 +308,35 @@ class MikroTikService
     }
 
     /**
+     * Fetch recent PPP-related log entries from this router.
+     * Used to determine disconnect reasons for offline clients.
+     */
+    public function getRecentPppLogs(): array
+    {
+        if (! $this->isConfigured()) return [];
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/log/print');
+
+            $logs = array_filter(
+                array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'),
+                fn($r) => str_contains($r['topics'] ?? '', 'ppp')
+            );
+
+            // Most recent first
+            return array_reverse(array_values($logs));
+        } catch (\Throwable $e) {
+            Log::debug('MikroTik: falha ao obter logs PPP', [
+                'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+            return [];
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
+    /**
      * Ping the router — used by the admin panel status widget.
      */
     public function testConnection(): array
