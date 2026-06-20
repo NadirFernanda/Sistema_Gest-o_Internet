@@ -14,6 +14,7 @@ class WifiCode extends Model
         'status',
         'autovenda_order_id',
         'reseller_purchase_id',
+        'reseller_staff_id',
         'reseller_distributed_at',
         'reseller_customer_ref',
         'used_at',
@@ -36,5 +37,10 @@ class WifiCode extends Model
     public function resellerPurchase()
     {
         return $this->belongsTo(ResellerPurchase::class, 'reseller_purchase_id');
+    }
+
+    public function resellerStaff()
+    {
+        return $this->belongsTo(ResellerStaff::class, 'reseller_staff_id');
     }
 }

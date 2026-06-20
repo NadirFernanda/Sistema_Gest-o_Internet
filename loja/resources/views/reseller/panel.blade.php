@@ -1475,6 +1475,40 @@
         </div>
         @endif
 
+        {{-- ────── EQUIPA ────── --}}
+        <div class="rv-menu-item" id="rv-sec-equipa">
+          <button class="rv-menu-btn" onclick="rvToggle('equipa')">
+            <span class="rv-menu-btn-left">
+              <span class="rv-menu-icon">👥</span>
+              <span class="rv-menu-label">Equipa de Revenda</span>
+              @php $staffCount = \App\Models\ResellerStaff::where('reseller_application_id', $application->id)->count(); @endphp
+              @if($staffCount > 0)
+                <span class="rv-menu-badge" style="background:#ede9fe;color:#6d28d9;">{{ $staffCount }}/{{ \App\Models\ResellerStaff::MAX_PER_RESELLER }} membros</span>
+              @else
+                <span class="rv-menu-badge" style="background:#f1f5f9;color:#64748b;">sem membros</span>
+              @endif
+            </span>
+            <span class="rv-menu-chevron" id="rv-chev-equipa">›</span>
+          </button>
+          <div class="rv-menu-body" id="rv-body-equipa" style="display:none;">
+            <p style="font-size:.88rem;color:#64748b;margin:0 0 1rem;line-height:1.5;">
+              Registe até <strong>{{ \App\Models\ResellerStaff::MAX_PER_RESELLER }}</strong> membros de equipa.
+              Cada membro tem acesso ao painel próprio (<strong>/painel-equipa</strong>) e vende vouchers do seu stock.
+              O sistema regista quem vendeu o quê — a reconciliação financeira é feita directamente por si.
+            </p>
+            <div style="display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;">
+              <a href="{{ route('reseller.staff.index') }}"
+                 style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#f7b500;color:#1a202c;border-radius:.6rem;font-size:.88rem;font-weight:700;text-decoration:none;">
+                👥 Gerir equipa
+              </a>
+              <a href="{{ route('staff.panel') }}" target="_blank"
+                 style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;background:#f1f5f9;color:#374151;border:1.5px solid #e2e8f0;border-radius:.6rem;font-size:.88rem;font-weight:700;text-decoration:none;">
+                ↗ Abrir painel da equipa
+              </a>
+            </div>
+          </div>
+        </div>
+
       </div>{{-- /.rv-menu --}}
 
     </div>

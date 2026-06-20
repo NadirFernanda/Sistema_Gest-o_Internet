@@ -124,6 +124,19 @@ Route::get('/painel-revendedor/taxa-manutencao/gpo/confirmar', [ResellerPanelCon
 Route::get('/painel-revendedor/compras/{purchase}/factura', [ResellerPanelController::class, 'downloadInvoice'])->name('reseller.panel.purchase.invoice');
 Route::get('/painel-revendedor/taxa-manutencao/factura', [ResellerPanelController::class, 'downloadMaintenanceInvoice'])->name('reseller.maintenance.invoice');
 
+// Equipa do Revendedor (sub-revendedores)
+Route::get('/painel-revendedor/equipa', [\App\Http\Controllers\ResellerStaffController::class, 'index'])->name('reseller.staff.index');
+Route::post('/painel-revendedor/equipa', [\App\Http\Controllers\ResellerStaffController::class, 'store'])->middleware('throttle:20,1')->name('reseller.staff.store');
+Route::patch('/painel-revendedor/equipa/{staff}/toggle', [\App\Http\Controllers\ResellerStaffController::class, 'toggle'])->name('reseller.staff.toggle');
+Route::post('/painel-revendedor/equipa/{staff}/pin', [\App\Http\Controllers\ResellerStaffController::class, 'resetPin'])->name('reseller.staff.pin');
+Route::delete('/painel-revendedor/equipa/{staff}', [\App\Http\Controllers\ResellerStaffController::class, 'destroy'])->name('reseller.staff.destroy');
+
+// Painel da Equipa (sub-revendedores)
+Route::get('/painel-equipa', [\App\Http\Controllers\StaffPanelController::class, 'index'])->name('staff.panel');
+Route::post('/painel-equipa/login', [\App\Http\Controllers\StaffPanelController::class, 'login'])->middleware('throttle:10,1')->name('staff.panel.login');
+Route::post('/painel-equipa/logout', [\App\Http\Controllers\StaffPanelController::class, 'logout'])->name('staff.panel.logout');
+Route::post('/painel-equipa/vender', [\App\Http\Controllers\StaffPanelController::class, 'sell'])->middleware('throttle:60,1')->name('staff.sell');
+
 // Carrinho de vouchers do revendedor
 Route::post('/painel-revendedor/carrinho/adicionar', [ResellerPanelController::class, 'cartAdd'])->name('reseller.cart.add');
 Route::post('/painel-revendedor/carrinho/adicionar-todos', [ResellerPanelController::class, 'cartAddAll'])->name('reseller.cart.add.all');
