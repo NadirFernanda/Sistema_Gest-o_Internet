@@ -116,8 +116,8 @@ class MikroTikCheckOnlineStatus extends Command
 
         if ($isOnline && !$wasOnline) {
             // Transição: offline → online
-            $downtime = now()->diffInSeconds($status->last_seen_offline_at ?? now());
-            $status->total_downtime_seconds += $downtime;
+            $downtime = max(0, (int) now()->diffInSeconds($status->last_seen_offline_at ?? now(), true));
+            $status->total_downtime_seconds = ((int) $status->total_downtime_seconds) + $downtime;
             $status->is_online = true;
             $status->last_seen_online_at = now();
             $status->disconnect_reason = null;
