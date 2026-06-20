@@ -49,14 +49,6 @@ class MikroTikBackfillDisconnectReasons extends Command
 
         $this->line('📊 Total de entradas de log: ' . count($allLogs));
 
-        // Diagnóstico: mostrar 10 amostras de mensagens PPP para perceber o formato
-        $this->line('');
-        $this->line('🔬 Amostras de mensagens PPP no log:');
-        foreach (array_slice($allLogs, 0, 10) as $entry) {
-            $this->line('  [' . ($entry['topics'] ?? '') . '] ' . ($entry['message'] ?? ''));
-        }
-        $this->line('');
-
         // Encontrar eventos offline sem razão ou com razão genérica
         $eventos = MikroTikOnlineStatusEvent::where('event_type', 'offline')
             ->where(fn($q) => $q->whereNull('disconnect_reason')
@@ -68,13 +60,6 @@ class MikroTikBackfillDisconnectReasons extends Command
         $this->line("📋 {$eventos->count()} eventos offline sem razão definida");
 
         $updated = 0;
-        $this->line('🔑 Usernames a procurar:');
-        foreach ($eventos as $evento) {
-            $u = $evento->mikrotikOnlineStatus?->plano?->mikrotik_username;
-            $this->line("  - {$u}");
-        }
-        $this->line('');
-
         foreach ($eventos as $evento) {
             $username = $evento->mikrotikOnlineStatus?->plano?->mikrotik_username;
             if (! $username) continue;
@@ -109,21 +94,24 @@ class MikroTikBackfillDisconnectReasons extends Command
         foreach ($logs as $entry) {
             $message = $entry['message'] ?? '';
 
+            // Formato RouterOS: "<b466>: user 922922966 authentication failed"
+            // ou: "922922966 lcp-echo-timeout", "user 922922966 disconnected"
             if (! str_contains($message, $username)) continue;
 
-            if (str_contains($message, 'lcp-echo-timeout'))  return 'lcp-echo-timeout (sinal fraco ou cabo)';
-            if (str_contains($message, 'user request'))       return 'Desligado pelo utilizador';
-            if (str_contains($message, 'auth'))               return 'Falha de autenticação';
-            if (str_contains($message, 'link failure'))       return 'Falha de ligação física';
-            if (str_contains($message, 'session timeout'))    return 'Timeout de sessão';
-            if (str_contains($message, 'idle timeout'))       return 'Timeout por inactividade';
-            if (str_contains($message, 'admin'))              return 'Desconectado pelo administrador';
-            if (str_contains($message, 'terminated'))         return 'Sessão terminada';
+            if (str_contains($message, 'lcp-echo-timeout'))       return 'lcp-echo-timeout (sinal fraco ou cabo)';
+            if (str_contains($message, 'authentication failed'))   return 'Falha de autenticação (senha errada)';
+            if (str_contains($message, 'user request'))            return 'Desligado pelo utilizador';
+            if (str_contains($message, 'link failure'))            return 'Falha de ligação física';
+            if (str_contains($message, 'session timeout'))         return 'Timeout de sessão';
+            if (str_contains($message, 'idle timeout'))            return 'Timeout por inactividade';
+            if (str_contains($message, 'admin'))                   return 'Desconectado pelo administrador';
+            if (str_contains($message, 'terminated'))              return 'Sessão terminada';
+            if (str_contains($message, 'auth'))                    return 'Falha de autenticação';
 
             if (preg_match('/logged\s+out[:\s]+(.+)/i', $message, $m)) {
                 return trim($m[1]);
             }
-            if (str_contains($message, 'disconnected') || str_contains($message, 'logged')) {
+            if (str_contains($message, 'disconnected') || str_contains($message, 'logged out')) {
                 return 'Desconectado';
             }
         }

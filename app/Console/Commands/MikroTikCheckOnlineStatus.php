@@ -111,14 +111,15 @@ class MikroTikCheckOnlineStatus extends Command
             if (! str_contains($message, $username)) continue;
 
             // Padrões mais específicos primeiro
-            if (str_contains($message, 'lcp-echo-timeout'))  return 'lcp-echo-timeout (sinal fraco ou cabo)';
-            if (str_contains($message, 'user request'))       return 'Desligado pelo utilizador';
-            if (str_contains($message, 'auth'))               return 'Falha de autenticação';
-            if (str_contains($message, 'link failure'))       return 'Falha de ligação física';
-            if (str_contains($message, 'session timeout'))    return 'Timeout de sessão';
-            if (str_contains($message, 'idle timeout'))       return 'Timeout por inactividade';
-            if (str_contains($message, 'admin'))              return 'Desconectado pelo administrador';
-            if (str_contains($message, 'terminated'))         return 'Sessão terminada';
+            if (str_contains($message, 'lcp-echo-timeout'))       return 'lcp-echo-timeout (sinal fraco ou cabo)';
+            if (str_contains($message, 'authentication failed'))   return 'Falha de autenticação (senha errada)';
+            if (str_contains($message, 'user request'))            return 'Desligado pelo utilizador';
+            if (str_contains($message, 'link failure'))            return 'Falha de ligação física';
+            if (str_contains($message, 'session timeout'))         return 'Timeout de sessão';
+            if (str_contains($message, 'idle timeout'))            return 'Timeout por inactividade';
+            if (str_contains($message, 'admin'))                   return 'Desconectado pelo administrador';
+            if (str_contains($message, 'terminated'))              return 'Sessão terminada';
+            if (str_contains($message, 'auth'))                    return 'Falha de autenticação';
 
             // Tentar extrair razão do padrão "logged out: <razão>"
             if (preg_match('/logged\s+out[:\s]+(.+)/i', $message, $m)) {
