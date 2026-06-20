@@ -897,11 +897,12 @@ class ClienteController extends Controller
                 ->with('error', $mensagem ?? 'Erro ao cadastrar cliente. Verifique os campos.');
         } catch (\Exception $e) {
             // Erro inesperado
-            \Log::error('Erro ao cadastrar cliente', ['exception' => $e]);
+            \Log::error('Erro ao cadastrar cliente', ['exception' => $e, 'message' => $e->getMessage()]);
+            $detalhe = $e->getMessage();
             if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => 'Erro inesperado ao cadastrar cliente.'], 500);
+                return response()->json(['success' => false, 'message' => 'Erro ao cadastrar cliente: ' . $detalhe], 500);
             }
-            return redirect()->route('clientes')->with('error', 'Erro inesperado ao cadastrar cliente.');
+            return redirect()->route('clientes')->with('error', 'Erro ao cadastrar cliente: ' . $detalhe);
         }
     }
 

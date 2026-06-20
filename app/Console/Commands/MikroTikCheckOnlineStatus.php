@@ -38,6 +38,17 @@ class MikroTikCheckOnlineStatus extends Command
                 $this->info("📡 Verificando site: {$site->nome} ({$site->host})");
 
                 $service = MikroTikService::forSite($site);
+
+                // Verifica ligação antes de actualizar — se falhar, não marca ninguém offline
+                $test = $service->testConnection();
+                if (! $test['ok']) {
+                    $this->warn("  ⚠️  Router inacessível ({$site->nome}): " . ($test['error'] ?? 'sem resposta'));
+                    Log::warning('MikroTik: check-online-status ignorado — router inacessível', [
+                        'site_id' => $site->id, 'site' => $site->nome, 'error' => $test['error'] ?? '',
+                    ]);
+                    continue;
+                }
+
                 $activeSessions = $service->listActiveSessions();
 
                 // Create a map of active usernames
