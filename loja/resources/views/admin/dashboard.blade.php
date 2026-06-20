@@ -463,6 +463,7 @@
           </div>
           <div class="adm-actions">
             <a href="{{ route('admin.resellers.index') }}" class="adm-btn primary">Ver candidaturas →</a>
+            <a href="{{ route('admin.resellers.history') }}" class="adm-btn" style="background:#f0fdf4;border-color:#86efac;color:#15803d;">📊 Compras vs Vendas</a>
             <a href="{{ route('admin.resellers.purchases.index') }}" class="adm-btn">Compras em Bloco</a>
             <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual</a>
           </div>

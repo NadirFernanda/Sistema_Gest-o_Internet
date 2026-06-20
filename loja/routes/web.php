@@ -185,6 +185,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/revendedores', [ResellerAdminController::class, 'index'])->name('admin.resellers.index');
     Route::post('/revendedores/apagar-seleccionados', [ResellerAdminController::class, 'bulkDestroy'])->name('admin.resellers.bulk-destroy');
     Route::get('/revendedores/compras', [ResellerPurchaseAdminController::class, 'index'])->name('admin.resellers.purchases.index');
+    Route::get('/revendedores/historico', [ResellerAdminController::class, 'historyOverview'])->name('admin.resellers.history');
     Route::get('/revendedores/{application}', [ResellerAdminController::class, 'show'])->name('admin.resellers.show');
     Route::put('/revendedores/{application}', [ResellerAdminController::class, 'update'])->name('admin.resellers.update');
     Route::patch('/revendedores/{application}/status', [ResellerAdminController::class, 'updateStatus'])->name('admin.resellers.status');

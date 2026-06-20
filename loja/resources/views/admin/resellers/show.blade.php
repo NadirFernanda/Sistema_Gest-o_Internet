@@ -151,40 +151,67 @@
     @endif
   </div>
 
-  {{-- Resumo financeiro --}}
-  <div class="ap-stats">
-    <div class="ap-stat">
+  {{-- Resumo financeiro + Compras vs Vendas --}}
+  @php
+    $escoado = $totalVouchersBought > 0 ? min(100, round($totalVouchersSold / $totalVouchersBought * 100)) : 0;
+    $profitEstimate = $totalSalesAoa - $totalRevenue;
+  @endphp
+  <div class="ap-stats" style="grid-template-columns:repeat(auto-fill,minmax(165px,1fr));">
+    <div class="ap-stat" style="border-top:3px solid var(--a-amber);">
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Total comprado</p>
       <p class="ap-stat-val">{{ number_format($totalRevenue, 0, ',', '.') }}</p>
-      <p class="ap-stat-lbl">Receita l&iacute;quida (Kz)</p>
-      <p class="ap-stat-sub">Total pago &agrave; AngolaWiFi</p>
+      <p class="ap-stat-sub">{{ number_format($totalVouchersBought, 0, ',', '.') }} vouchers adquiridos</p>
+    </div>
+    <div class="ap-stat" style="border-top:3px solid var(--a-green);">
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Total vendido</p>
+      <p class="ap-stat-val" style="color:var(--a-green);">{{ number_format($totalSalesAoa, 0, ',', '.') }}</p>
+      <p class="ap-stat-sub">{{ number_format($totalVouchersSold, 0, ',', '.') }} vouchers distribuídos</p>
+    </div>
+    <div class="ap-stat" style="border-top:3px solid #7c3aed;">
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Lucro estimado AR</p>
+      <p class="ap-stat-val" style="color:{{ $profitEstimate >= 0 ? 'var(--a-green)' : 'var(--a-red)' }};">
+        {{ $profitEstimate >= 0 ? '+' : '' }}{{ number_format($profitEstimate, 0, ',', '.') }}
+      </p>
+      <p class="ap-stat-sub">vendas − custo</p>
+    </div>
+    <div class="ap-stat" style="border-top:3px solid var(--a-brand);">
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Stock em mão</p>
+      <p class="ap-stat-val" style="color:{{ $stockRemaining > 0 ? 'var(--a-amber)' : 'var(--a-green)' }};">
+        {{ number_format($stockRemaining, 0, ',', '.') }}
+      </p>
+      <p class="ap-stat-sub">vouchers por distribuir</p>
     </div>
     <div class="ap-stat">
-      <p class="ap-stat-val" style="color:var(--a-green);">{{ number_format($totalProfit, 0, ',', '.') }}</p>
-      <p class="ap-stat-lbl">Lucro revendedor (Kz)</p>
-      <p class="ap-stat-sub">Soma de todos os descontos</p>
-    </div>
-    <div class="ap-stat">
-      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Vendas este m&ecirc;s (meta)</p>
-      @if($application->monthly_target_aoa > 0)
-        @php $pct = min(100, round($monthlySpend * 100 / $application->monthly_target_aoa)); @endphp
-        <p class="ap-stat-val" style="font-size:1rem;font-weight:700;">
-          {{ number_format($monthlySpend, 0, ',', '.') }} / {{ number_format($application->monthly_target_aoa, 0, ',', '.') }} Kz
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">% Escoado</p>
+      @if($totalVouchersBought > 0)
+        <p class="ap-stat-val" style="color:{{ $escoado >= 80 ? 'var(--a-green)' : ($escoado >= 40 ? 'var(--a-amber)' : 'var(--a-red)') }};">
+          {{ $escoado }}%
         </p>
-        <div class="ap-bar"><div class="ap-bar-fill" style="width:{{ $pct }}%;background:{{ $pct >= 100 ? 'var(--a-green)' : 'var(--a-brand)' }};"></div></div>
-        <p class="ap-stat-sub">{{ $pct }}% atingido &mdash; vendas ao cliente final</p>
+        <div class="ap-bar"><div class="ap-bar-fill" style="width:{{ $escoado }}%;background:{{ $escoado >= 80 ? 'var(--a-green)' : 'var(--a-brand)' }};"></div></div>
+      @else
+        <p class="ap-stat-sub">Sem compras</p>
+      @endif
+    </div>
+    <div class="ap-stat">
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Meta este mês</p>
+      @if($application->monthly_target_aoa > 0)
+        @php $metaPct = min(100, round($monthlySpend * 100 / $application->monthly_target_aoa)); @endphp
+        <p class="ap-stat-val" style="font-size:.95rem;font-weight:700;">
+          {{ number_format($monthlySpend, 0, ',', '.') }} / {{ number_format($application->monthly_target_aoa, 0, ',', '.') }}
+        </p>
+        <div class="ap-bar"><div class="ap-bar-fill" style="width:{{ $metaPct }}%;background:{{ $metaPct >= 100 ? 'var(--a-green)' : 'var(--a-brand)' }};"></div></div>
+        <p class="ap-stat-sub">{{ $metaPct }}% da meta mensal</p>
       @else
         <p class="ap-stat-sub">Sem meta definida</p>
       @endif
     </div>
     <div class="ap-stat">
-      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Manuten&ccedil;&atilde;o</p>
+      <p class="ap-stat-lbl" style="margin-bottom:.3rem;">Manutenção</p>
       @if($application->maintenanceDueThisMonth())
-        <span class="badge bg-red">Pendente este m&ecirc;s</span>
+        <span class="badge bg-red">Pendente</span>
         <p class="ap-stat-sub">{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz</p>
       @elseif($application->maintenance_paid_year && $application->maintenance_paid_month)
-        <span class="badge bg-green">Paga ({{ str_pad($application->maintenance_paid_month, 2, '0', STR_PAD_LEFT) }}/{{ $application->maintenance_paid_year }})</span>
-      @elseif($application->maintenance_paid_year)
-        <span class="badge bg-green">Paga ({{ $application->maintenance_paid_year }})</span>
+        <span class="badge bg-green">Paga {{ str_pad($application->maintenance_paid_month, 2, '0', STR_PAD_LEFT) }}/{{ $application->maintenance_paid_year }}</span>
       @else
         <p class="ap-stat-sub">Sem dados</p>
       @endif
@@ -374,44 +401,172 @@
     @endif
   </div>
 
-  {{-- Hist&oacute;rico de compras --}}
-  <div class="ap-tcard">
-    <div class="ap-tcard-head">
-      <p class="ap-tcard-head-title">Hist&oacute;rico de compras</p>
-      <a href="{{ route('admin.resellers.purchases.index', ['reseller_id' => $application->id]) }}"
-         class="ap-btn ap-btn-primary ap-btn-sm">Ver todas &rarr;</a>
-    </div>
-    @if($purchases->count())
-      <table class="ap-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Data</th>
-            <th class="r">Bruto (Kz)</th>
-            <th class="r">Desconto</th>
-            <th class="r">L&iacute;quido (Kz)</th>
-            <th class="r">Vouchers</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($purchases as $purchase)
+  {{-- ══ SECÇÃO COMPRAS VS VENDAS ══ --}}
+  <div id="cv-section" style="scroll-margin-top:1rem;">
+
+    {{-- Evolução mensal --}}
+    @php
+      $allMonths = collect();
+      foreach($monthlyCompras as $m => $r) $allMonths->push($m);
+      foreach($monthlyVendas  as $m => $r) $allMonths->push($m);
+      $allMonths = $allMonths->unique()->sort()->values();
+      $maxVal = 1;
+      foreach($allMonths as $m) {
+        $c = $monthlyCompras[$m]->total ?? 0;
+        $v = $monthlyVendas[$m]->total  ?? 0;
+        if ($c > $maxVal) $maxVal = $c;
+        if ($v > $maxVal) $maxVal = $v;
+      }
+    @endphp
+
+    @if($allMonths->isNotEmpty())
+    <div class="ap-card" style="margin-bottom:1.25rem;">
+      <p class="ap-card-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>📅 Evolução Mensal — Compras vs Vendas</span>
+        <span style="font-size:.76rem;font-weight:500;color:var(--a-muted);">últimos 12 meses</span>
+      </p>
+      <div style="overflow-x:auto;">
+        <table class="ap-table" style="min-width:600px;">
+          <thead>
             <tr>
-              <td class="dim">#{{ $purchase->id }}</td>
-              <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
-              <td class="r">{{ number_format($purchase->gross_amount_aoa, 0, ',', '.') }}</td>
-              <td class="r" style="color:var(--a-green);font-weight:600;">{{ $purchase->discount_percent }}%</td>
-              <td class="r" style="font-weight:700;">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
-              <td class="r">{{ $purchase->codes_count }}</td>
+              <th>Mês</th>
+              <th class="r">Comprado (Kz)</th>
+              <th class="r">Vouchers comprados</th>
+              <th class="r">Vendido (Kz)</th>
+              <th class="r">Vouchers vendidos</th>
+              <th style="min-width:120px;">Comparação</th>
             </tr>
-          @endforeach
-        </tbody>
-      </table>
-      <div class="ap-pager">{{ $purchases->links() }}</div>
-    @else
-      <div style="padding:2rem 1rem;text-align:center;color:var(--a-faint);">
-        <p style="margin:0;font-size:.9rem;">Este revendedor ainda n&atilde;o efectuou compras.</p>
+          </thead>
+          <tbody>
+            @foreach($allMonths as $m)
+              @php
+                $comp   = $monthlyCompras[$m] ?? null;
+                $vend   = $monthlyVendas[$m]  ?? null;
+                $cVal   = $comp ? (int)$comp->total : 0;
+                $vVal   = $vend ? (int)$vend->total : 0;
+                $cCodes = $comp ? (int)$comp->codes  : 0;
+                $vCodes = $vend ? (int)$vend->codes  : 0;
+                $cPct   = round($cVal / $maxVal * 100);
+                $vPct   = round($vVal / $maxVal * 100);
+                $label  = \Carbon\Carbon::createFromFormat('Y-m', $m)->locale('pt')->isoFormat('MMM YYYY');
+              @endphp
+              <tr>
+                <td style="font-weight:600;white-space:nowrap;">{{ $label }}</td>
+                <td class="r" style="color:var(--a-amber);font-weight:{{ $cVal > 0 ? '700' : '400' }};">
+                  {{ $cVal > 0 ? number_format($cVal, 0, ',', '.') : '—' }}
+                </td>
+                <td class="r">{{ $cCodes > 0 ? $cCodes : '—' }}</td>
+                <td class="r" style="color:var(--a-green);font-weight:{{ $vVal > 0 ? '700' : '400' }};">
+                  {{ $vVal > 0 ? number_format($vVal, 0, ',', '.') : '—' }}
+                </td>
+                <td class="r">{{ $vCodes > 0 ? $vCodes : '—' }}</td>
+                <td>
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <div style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--a-amber);">
+                      <div style="width:{{ max(3,$cPct) }}%;height:6px;background:var(--a-brand);border-radius:3px;min-width:3px;"></div>
+                      <span>C</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--a-green);">
+                      <div style="width:{{ max(3,$vPct) }}%;height:6px;background:var(--a-green);border-radius:3px;min-width:3px;"></div>
+                      <span>V</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
+    </div>
     @endif
+
+    {{-- Hist&oacute;rico de compras com vendas por compra --}}
+    <div class="ap-tcard">
+      <div class="ap-tcard-head">
+        <p class="ap-tcard-head-title">Hist&oacute;rico de Compras vs Vendas por Lote</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:.76rem;color:var(--a-muted);">
+            <span style="display:inline-block;width:8px;height:8px;background:var(--a-brand);border-radius:2px;margin-right:.25rem;"></span>amarelo = comprou
+            &nbsp;
+            <span style="display:inline-block;width:8px;height:8px;background:var(--a-green);border-radius:2px;margin-right:.25rem;"></span>verde = vendeu
+          </span>
+          <a href="{{ route('admin.resellers.purchases.index', ['reseller_id' => $application->id]) }}"
+             class="ap-btn ap-btn-primary ap-btn-sm">Ver todas &rarr;</a>
+        </div>
+      </div>
+      @if($purchases->count())
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Data</th>
+              <th>Plano</th>
+              <th class="r">Custo (Kz)</th>
+              <th class="r">Desc.</th>
+              <th class="r">Comprou</th>
+              <th class="r">Vendeu</th>
+              <th class="r">Em stock</th>
+              <th style="min-width:90px;">Progresso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($purchases as $purchase)
+              @php
+                $sold      = $soldPerPurchase[$purchase->id] ?? 0;
+                $remaining = max(0, ($purchase->codes_count ?? 0) - $sold);
+                $soldPct   = $purchase->codes_count > 0 ? round($sold / $purchase->codes_count * 100) : 0;
+              @endphp
+              <tr>
+                <td class="dim">#{{ $purchase->id }}</td>
+                <td>{{ optional($purchase->created_at)->format('d/m/Y') }}</td>
+                <td style="font-weight:600;">{{ $purchase->plan_name ?? '—' }}</td>
+                <td class="r" style="font-weight:700;">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }}</td>
+                <td class="r" style="color:var(--a-green);font-weight:600;">{{ $purchase->discount_percent }}%</td>
+                <td class="r">
+                  <span style="font-weight:700;color:var(--a-amber);">{{ $purchase->codes_count }}</span>
+                </td>
+                <td class="r">
+                  @if($sold > 0)
+                    <span style="font-weight:700;color:var(--a-green);">{{ $sold }}</span>
+                  @else
+                    <span class="dim">0</span>
+                  @endif
+                </td>
+                <td class="r">
+                  @if($remaining > 0)
+                    <span class="badge" style="background:#fef3c7;color:#b45309;">{{ $remaining }}</span>
+                  @elseif($purchase->codes_count > 0)
+                    <span class="badge bg-green">✔ 0</span>
+                  @else
+                    <span class="dim">—</span>
+                  @endif
+                </td>
+                <td>
+                  @if(($purchase->codes_count ?? 0) > 0)
+                    <div style="background:#e5e7eb;border-radius:9999px;height:7px;overflow:hidden;">
+                      <div style="height:7px;border-radius:9999px;width:{{ $soldPct }}%;background:{{ $soldPct >= 80 ? 'var(--a-green)' : ($soldPct >= 40 ? 'var(--a-brand)' : 'var(--a-red)') }};transition:width .4s;"></div>
+                    </div>
+                    <div style="font-size:.7rem;color:var(--a-muted);margin-top:2px;text-align:right;">{{ $soldPct }}%</div>
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        <div class="ap-pager">{{ $purchases->links() }}</div>
+      @else
+        <div style="padding:2rem 1rem;text-align:center;color:var(--a-faint);">
+          <p style="margin:0;font-size:.9rem;">Este revendedor ainda n&atilde;o efectuou compras.</p>
+        </div>
+      @endif
+    </div>
+
+  </div>{{-- /#cv-section --}}
+
+  <div style="margin-top:1rem;text-align:right;">
+    <a href="{{ route('admin.resellers.history') }}" style="font-size:.82rem;color:var(--a-muted);text-decoration:none;">
+      ← Ver todos os agentes (Compras vs Vendas)
+    </a>
   </div>
 
 </div></div>
