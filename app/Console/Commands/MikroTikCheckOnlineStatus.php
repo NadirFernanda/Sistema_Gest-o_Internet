@@ -123,6 +123,14 @@ class MikroTikCheckOnlineStatus extends Command
             $status->last_seen_online_at = now();
             $status->disconnect_reason = null;
 
+            // Actualizar o evento "offline" mais recente com a duração real da queda
+            MikroTikOnlineStatusEvent::where('mikrotik_online_status_id', $status->id)
+                ->where('event_type', 'offline')
+                ->whereNull('duration_seconds')
+                ->orderBy('occurred_at', 'desc')
+                ->first()
+                ?->update(['duration_seconds' => $downtime]);
+
             // Registar evento: voltou online
             MikroTikOnlineStatusEvent::create([
                 'plano_id' => $plano->id,

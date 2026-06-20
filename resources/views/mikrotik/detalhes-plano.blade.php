@@ -191,7 +191,7 @@
                         <tr>
                             <th>Data / Hora</th>
                             <th>Evento</th>
-                            <th>Duração offline</th>
+                            <th>Duração</th>
                             <th>Observação</th>
                         </tr>
                     </thead>
@@ -210,8 +210,10 @@
                                 @endif
                             </td>
                             <td>
-                                @if($evento->duration_seconds)
-                                    <span style="font-weight:600; color:{{ $evento->event_type==='offline' ? '#c0392b' : '#2563eb' }};">
+                                @if($evento->event_type === 'offline' && !$evento->duration_seconds)
+                                    <span style="color:#e05a4f; font-size:0.79rem; font-weight:700;">⏳ Em andamento</span>
+                                @elseif($evento->duration_seconds)
+                                    <span style="font-weight:600; color:{{ $evento->event_type === 'offline' ? '#c0392b' : '#2563eb' }};">
                                         {{ $evento->getReadableDuration() }}
                                     </span>
                                 @else
@@ -242,8 +244,10 @@
                             @else
                                 <div class="tl-event tl-event--offline">
                                     ✕ Saiu Offline
-                                    @if($ev->disconnect_reason)
-                                        <span style="font-weight:400; font-size:0.8rem;"> — {{ $ev->disconnect_reason }}</span>
+                                    @if($ev->duration_seconds)
+                                        <span style="font-weight:400; font-size:0.8rem;"> — Durou {{ $ev->getReadableDuration() }}</span>
+                                    @elseif(!$ev->duration_seconds)
+                                        <span style="font-weight:400; font-size:0.8rem; opacity:.75;"> — ⏳ Em andamento</span>
                                     @endif
                                 </div>
                             @endif
