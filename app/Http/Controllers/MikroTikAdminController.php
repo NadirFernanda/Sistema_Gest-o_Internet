@@ -465,26 +465,26 @@ class MikroTikAdminController extends Controller
             ->orderBy('sampled_at', 'desc')
             ->first();
 
-        // ── Consumo de dados ──
+        // ── Consumo de dados (PostgreSQL: ::bigint evita overflow de integer) ──
         $todayDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfDay())
-            ->sum(DB::raw('rx_rate * 60 / 8'));
+            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
 
         $todayUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfDay())
-            ->sum(DB::raw('tx_rate * 60 / 8'));
+            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
 
         $monthDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfMonth())
-            ->sum(DB::raw('rx_rate * 60 / 8'));
+            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
 
         $monthUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfMonth())
-            ->sum(DB::raw('tx_rate * 60 / 8'));
+            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
 
         // ── Velocidade de pico ──
         $peakRxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('rx_rate') ?? 0);
@@ -503,29 +503,36 @@ class MikroTikAdminController extends Controller
         for ($i = 29; $i >= 0; $i--) {
             $dropsChart[now()->subDays($i)->format('Y-m-d')] = 0;
         }
-        $eventos
+        $dropsByDate = $eventos
             ->where('event_type', 'offline')
             ->filter(fn($e) => $e->occurred_at->gte($thirtyDaysAgo))
             ->groupBy(fn($e) => $e->occurred_at->format('Y-m-d'))
-            ->each(fn($g, $d) => array_key_exists($d, $dropsChart) ? $dropsChart[$d] = $g->count() : null);
+            ->map(fn($g) => $g->count())
+            ->toArray();
+        foreach ($dropsByDate as $date => $count) {
+            if (array_key_exists($date, $dropsChart)) {
+                $dropsChart[$date] = $count;
+            }
+        }
 
-        // ── Consumo diário (últimos 7 dias) ──
-        $sevenDaysAgo = now()->subDays(6)->startOfDay();
+        // ── Consumo diário (últimos 7 dias) — PostgreSQL: usar ::date em vez de DATE() ──
+        $sevenDaysAgo      = now()->subDays(6)->startOfDay();
         $dailyBandwidthRaw = DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', $sevenDaysAgo)
-            ->selectRaw("DATE(sampled_at) as date, SUM(rx_rate * 60 / 8) as dl, SUM(tx_rate * 60 / 8) as ul")
-            ->groupBy('date')
+            ->selectRaw("sampled_at::date as date, SUM(rx_rate::bigint * 60 / 8) as dl, SUM(tx_rate::bigint * 60 / 8) as ul")
+            ->groupByRaw("sampled_at::date")
             ->get()
             ->keyBy('date');
 
+        $ptDays   = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         $dailyUsage = [];
         for ($i = 6; $i >= 0; $i--) {
             $day  = now()->subDays($i);
             $date = $day->format('Y-m-d');
             $row  = $dailyBandwidthRaw[$date] ?? null;
             $dailyUsage[] = [
-                'label'    => $day->format('d/m') . ' ' . mb_substr($day->locale('pt')->dayName, 0, 3),
+                'label'    => $day->format('d/m') . ' ' . $ptDays[$day->dayOfWeek],
                 'download' => (int) ($row?->dl ?? 0),
                 'upload'   => (int) ($row?->ul ?? 0),
                 'drops'    => (int) ($dropsChart[$date] ?? 0),
