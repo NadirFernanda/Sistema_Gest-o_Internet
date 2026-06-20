@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MikroTikSyncPlans::class,
         \App\Console\Commands\MikroTikExpirePlans::class,
         \App\Console\Commands\MikroTikCheckOnlineStatus::class,
+        \App\Console\Commands\MikroTikBackfillDisconnectReasons::class,
     ];
 
     protected function schedule(Schedule $schedule)

@@ -206,8 +206,19 @@ class MikroTikCheckOnlineStatus extends Command
             // Mantém-se online
             $status->last_seen_online_at = now();
         } else {
-            // Mantém-se offline
+            // Mantém-se offline — tentar actualizar razão se ainda genérica
             $status->last_seen_offline_at = now();
+            if ($disconnectReason && $disconnectReason !== 'Queda detectada'
+                && (! $status->disconnect_reason || $status->disconnect_reason === 'Queda detectada')) {
+                $status->disconnect_reason = $disconnectReason;
+                MikroTikOnlineStatusEvent::where('mikrotik_online_status_id', $status->id)
+                    ->where('event_type', 'offline')
+                    ->where(fn($q) => $q->whereNull('disconnect_reason')
+                        ->orWhere('disconnect_reason', 'Queda detectada'))
+                    ->orderBy('occurred_at', 'desc')
+                    ->first()
+                    ?->update(['disconnect_reason' => $disconnectReason]);
+            }
         }
 
         $status->save();
