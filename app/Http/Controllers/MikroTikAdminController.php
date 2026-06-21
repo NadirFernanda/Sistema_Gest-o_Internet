@@ -27,14 +27,9 @@ class MikroTikAdminController extends Controller
         $search         = trim($request->query('search', ''));
         $estadoFiltro   = $request->query('estado', '');
 
-        // Query centrada no cliente: 1 linha por cliente, com o plano mais recente via LEFT JOIN
-        $bestPlanSub = DB::table('planos')
-            ->selectRaw('MAX(id) as plano_id, cliente_id')
-            ->groupBy('cliente_id');
-
-        $query = DB::table('clientes')
-            ->leftJoinSub($bestPlanSub, 'bp', 'bp.cliente_id', '=', 'clientes.id')
-            ->leftJoin('planos', 'planos.id', '=', 'bp.plano_id')
+        // Query centrada no plano: 1 linha por plano (clientes com múltiplos planos aparecem várias vezes)
+        $query = DB::table('planos')
+            ->join('clientes', 'clientes.id', '=', 'planos.cliente_id')
             ->leftJoin('mikrotik_sites', 'mikrotik_sites.id', '=', 'clientes.mikrotik_site_id')
             ->leftJoin('mikrotik_online_statuses', 'mikrotik_online_statuses.plano_id', '=', 'planos.id')
             ->select(
@@ -53,7 +48,8 @@ class MikroTikAdminController extends Controller
                 'mikrotik_online_statuses.total_downtime_seconds'
             )
             ->whereNotNull('clientes.mikrotik_site_id')
-            ->orderByRaw("LOWER(clientes.nome)");
+            ->whereIn('planos.estado', ['Ativo', 'Em aviso', 'Suspenso', 'Cancelado'])
+            ->orderByRaw("LOWER(clientes.nome), planos.id DESC");
 
         if ($selectedSiteId) {
             $query->where('clientes.mikrotik_site_id', (int) $selectedSiteId);
