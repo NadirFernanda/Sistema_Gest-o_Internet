@@ -392,8 +392,8 @@ class MikroTikAdminController extends Controller
                 $mid = $chunk->values()[(int)($chunk->count() / 2)];
                 $buckets->push([
                     'label' => $mid->sampled_at->format($cfg['fmt']),
-                    'rx'    => round($chunk->avg('rx_rate') / 1_000_000, 3),
-                    'tx'    => round($chunk->avg('tx_rate') / 1_000_000, 3),
+                    'rx'    => round($chunk->avg('rx_rate') / 1_000, 1),
+                    'tx'    => round($chunk->avg('tx_rate') / 1_000, 1),
                 ]);
             }
             $labels = $buckets->pluck('label')->values();
@@ -401,8 +401,8 @@ class MikroTikAdminController extends Controller
             $tx     = $buckets->pluck('tx')->values();
         } else {
             $labels = $samples->map(fn($s) => $s->sampled_at->format($cfg['fmt']))->values();
-            $rx     = $samples->map(fn($s) => round($s->rx_rate / 1_000_000, 3))->values();
-            $tx     = $samples->map(fn($s) => round($s->tx_rate / 1_000_000, 3))->values();
+            $rx     = $samples->map(fn($s) => round($s->rx_rate / 1_000, 1))->values();
+            $tx     = $samples->map(fn($s) => round($s->tx_rate / 1_000, 1))->values();
         }
 
         $latest = $samples->last();

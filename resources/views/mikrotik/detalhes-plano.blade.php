@@ -445,8 +445,8 @@
 @php
     $jsBwData = [
         'labels'     => $bandwidthSamples->map(fn($s) => $s->sampled_at->format('H:i'))->values()->toArray(),
-        'rx'         => $bandwidthSamples->map(fn($s) => round($s->rx_rate / 1000000, 3))->values()->toArray(),
-        'tx'         => $bandwidthSamples->map(fn($s) => round($s->tx_rate / 1000000, 3))->values()->toArray(),
+        'rx'         => $bandwidthSamples->map(fn($s) => round($s->rx_rate / 1000, 1))->values()->toArray(),
+        'tx'         => $bandwidthSamples->map(fn($s) => round($s->tx_rate / 1000, 1))->values()->toArray(),
         'current_rx' => $latestSample ? $latestSample->getFormattedRxRate() : null,
         'current_tx' => $latestSample ? $latestSample->getFormattedTxRate() : null,
         'ip'         => $latestSample ? $latestSample->ip_address : null,
@@ -475,14 +475,14 @@ const bwChart = new Chart(bwCtx, {
         labels: initialBw.labels,
         datasets: [
             {
-                label: 'Download (Mbps)',
+                label: 'Download (Kbps)',
                 data: initialBw.rx,
                 borderColor: '#2563eb',
                 backgroundColor: 'rgba(37,99,235,0.07)',
                 borderWidth: 2, pointRadius: 0, fill: true, tension: 0.35,
             },
             {
-                label: 'Upload (Mbps)',
+                label: 'Upload (Kbps)',
                 data: initialBw.tx,
                 borderColor: '#16a34a',
                 backgroundColor: 'rgba(22,163,74,0.07)',
@@ -498,7 +498,7 @@ const bwChart = new Chart(bwCtx, {
             legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
             tooltip: {
                 callbacks: {
-                    label: c => ` ${c.dataset.label.split(' ')[0]}: ${c.raw} Mbps`,
+                    label: c => ` ${c.dataset.label.split(' ')[0]}: ${c.raw} Kbps`,
                 },
             },
         },
@@ -507,7 +507,7 @@ const bwChart = new Chart(bwCtx, {
             y: {
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.04)' },
-                ticks: { font: { size: 10 }, color: '#bbb', callback: v => v + ' M' },
+                ticks: { font: { size: 10 }, color: '#bbb', callback: v => v + ' K' },
             },
         },
     },
