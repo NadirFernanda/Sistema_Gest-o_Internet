@@ -41,49 +41,26 @@ class MikroTikSampleBandwidth extends Command
                     }
                 }
 
-                // Queues PPPoE: username -> {bytes, max-limit, target}
-                // Inclui queues dinâmicas (<pppoe-username>) e queues contadoras SGA (sgmr-username)
+                // Queues PPPoE dinâmicas (<pppoe-username>) — criadas pelo RouterOS quando o
+                // perfil PPPoE tem Rate Limit configurado. Sem rate limit no perfil = sem queue.
                 $queues = $service->getAllQueueStats();
                 $queueMap = [];
                 foreach ($queues as $q) {
                     $name = $q['name'] ?? $q['=name'] ?? '';
-                    $username = null;
                     if (preg_match('/pppoe-(\S+?)(?:>|$)/', $name, $m)) {
-                        $username = $m[1];
-                    } elseif (str_starts_with($name, 'sgmr-')) {
-                        $username = substr($name, 5);
+                        $queueMap[$m[1]] = $q;
                     }
-                    if ($username !== null) $queueMap[$username] = $q;
                 }
 
                 if ($this->option('debug')) {
-                    $this->line("\n=== ALL QUEUES RAW (site {$site->host}) ===");
-                    foreach ($queues as $q) {
-                        $name   = $q['name']      ?? $q['=name']      ?? '?';
-                        $target = $q['target']    ?? $q['=target']    ?? 'n/a';
-                        $bytes  = $q['bytes']     ?? $q['=bytes']     ?? 'n/a';
-                        $limit  = $q['max-limit'] ?? $q['=max-limit'] ?? 'n/a';
-                        $this->line("  name=$name | target=$target | bytes=$bytes | max-limit=$limit");
-                    }
-                    $this->line("\n=== QUEUES MATCHED (site {$site->host}) ===");
+                    $this->line("\n=== QUEUES (site {$site->host}) ===");
                     foreach ($queueMap as $u => $q) {
-                        $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " target=" . ($q['target'] ?? $q['=target'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
+                        $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
                     }
-                }
-
-                // Criar queues contadoras para sessões sem queue (bytes da sessão PPPoE não ficam disponíveis via API)
-                $withoutQueue = [];
-                foreach ($sessionMap as $u => $s) {
-                    if (!isset($queueMap[$u])) {
-                        $ip = $s['address'] ?? $s['=address'] ?? '';
-                        if ($ip) $withoutQueue[$u] = $ip;
-                    }
-                }
-                if (!empty($withoutQueue)) {
-                    $service->ensureCountingQueues($withoutQueue);
-                    if ($this->option('debug')) {
-                        $this->line("\n=== QUEUES CONTADORAS CRIADAS ===");
-                        foreach ($withoutQueue as $u => $ip) $this->line("  sgmr-{$u} → {$ip}");
+                    $noQueue = array_diff(array_keys($sessionMap), array_keys($queueMap));
+                    if ($noQueue) {
+                        $this->line("\n⚠️  Sessões SEM queue (perfil PPPoE sem Rate Limit): " . implode(', ', $noQueue));
+                        $this->line("   → Configure Rate Limit no WinBox: PPP > Profiles > [perfil] > Rate Limit");
                     }
                 }
 
