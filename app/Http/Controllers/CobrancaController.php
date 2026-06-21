@@ -9,6 +9,7 @@ use App\Models\Cobranca;
 use App\Models\Cliente;
 use App\Models\EstoqueEquipamento;
 use App\Models\ClienteEquipamento;
+use App\Services\PlanoRenovacaoService;
 use Illuminate\Http\Request;
 use App\Exports\CobrancasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -100,7 +101,12 @@ class CobrancaController extends Controller
             'data_pagamento' => 'nullable|date',
             'status' => 'required|in:pendente,pago,atrasado',
         ]);
-        Cobranca::create($validated);
+        $cobranca = Cobranca::create($validated);
+
+        if (($validated['status'] ?? '') === 'pago') {
+            PlanoRenovacaoService::avancarPlano($cobranca);
+        }
+
         return redirect()->route('cobrancas.index')->with('success', 'Cobrança cadastrada com sucesso!');
     }
     public function index(Request $request)
@@ -214,7 +220,14 @@ class CobrancaController extends Controller
             'status' => 'required|in:pendente,pago,atrasado',
         ]);
         $cobranca = Cobranca::findOrFail($id);
+        $eraPago  = $cobranca->status === 'pago';
         $cobranca->update($validated);
+
+        // Activar plano se a cobrança foi marcada como paga agora (transição → pago)
+        if (! $eraPago && $cobranca->status === 'pago') {
+            PlanoRenovacaoService::avancarPlano($cobranca);
+        }
+
         return redirect()->route('cobrancas.index')->with('success', 'Cobrança atualizada com sucesso!');
     }
 

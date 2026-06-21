@@ -7,6 +7,7 @@ use App\Models\Pagamento;
 use App\Models\Plano;
 use App\Services\MikroTikService;
 use App\Services\Pay4AllService;
+use App\Services\PlanoRenovacaoService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -166,83 +167,10 @@ class PagamentoController extends Controller
                 'pagamento_id' => $pagamento->id,
             ]);
 
-            $this->avancarRenovacaoPlano($cobranca);
+            PlanoRenovacaoService::avancarPlano($cobranca);
         }
 
         return response()->json(['received' => true]);
-    }
-
-    /**
-     * Após pagamento aprovado, avança o proxima_renovacao do plano activo do cliente
-     * e reactiva o utilizador no MikroTik se estava suspenso.
-     */
-    private function avancarRenovacaoPlano(Cobranca $cobranca): void
-    {
-        $cliente = $cobranca->cliente()->with('mikrotikSite')->first();
-        if (! $cliente) return;
-
-        // Buscar planos ordenados por proxima_renovacao asc (o que expira mais cedo primeiro)
-        $planos = Plano::where('cliente_id', $cliente->id)
-            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
-            ->whereNotNull('proxima_renovacao')
-            ->whereNotNull('ciclo')
-            ->orderBy('proxima_renovacao', 'asc')
-            ->get();
-
-        if ($planos->isEmpty()) {
-            Log::warning('Pay4All: nenhum plano activo encontrado para renovar', [
-                'cliente_id'  => $cliente->id,
-                'cobranca_id' => $cobranca->id,
-            ]);
-            return;
-        }
-
-        // Tentar fazer match pelo data_vencimento da cobrança (janela de ±5 dias)
-        $plano = null;
-        if ($cobranca->data_vencimento) {
-            $vencimento = Carbon::parse($cobranca->data_vencimento);
-            $plano = $planos->first(fn($p) =>
-                Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) >= -5
-                && Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) <= 5
-            );
-        }
-
-        // Fallback: plano com proxima_renovacao mais próxima
-        $plano = $plano ?? $planos->first();
-
-        $ciclo = (int) $plano->ciclo;
-        if ($ciclo <= 0) return;
-
-        $estadoAnterior   = $plano->estado;
-        $novaRenovacao    = Carbon::parse($plano->proxima_renovacao)->addDays($ciclo);
-
-        $plano->proxima_renovacao = $novaRenovacao->toDateString();
-        if (in_array($plano->estado, ['Suspenso', 'Em aviso'])) {
-            $plano->estado = 'Ativo';
-        }
-        $plano->saveQuietly();
-
-        Log::info('Pay4All: proxima_renovacao avançada', [
-            'cobranca_id'     => $cobranca->id,
-            'plano_id'        => $plano->id,
-            'cliente'         => $cliente->nome,
-            'estado_anterior' => $estadoAnterior,
-            'nova_renovacao'  => $novaRenovacao->toDateString(),
-            'ciclo'           => $ciclo,
-        ]);
-
-        // Se estava suspenso, reactivar no MikroTik
-        if (in_array($estadoAnterior, ['Suspenso', 'Em aviso']) && $cliente->mikrotikSite) {
-            try {
-                MikroTikService::forSite($cliente->mikrotikSite)->activateUser($plano->fresh());
-                Log::info('Pay4All: utilizador reactivado no MikroTik', ['plano_id' => $plano->id]);
-            } catch (\Throwable $e) {
-                Log::warning('Pay4All: falha ao reactivar MikroTik após pagamento', [
-                    'plano_id' => $plano->id,
-                    'error'    => $e->getMessage(),
-                ]);
-            }
-        }
     }
 
     /**
