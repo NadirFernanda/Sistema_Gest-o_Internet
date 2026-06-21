@@ -317,6 +317,16 @@
                 /* Actualizar estado se o template tiver default */
                 if (t.estado) document.getElementById('estadoPlano').value = t.estado;
 
+                /* Auto-selecionar tipo baseado no template */
+                if (t.tipo) {
+                    var tipoRadio = document.querySelector('input[name="tipo"][value="' + t.tipo + '"]');
+                    if (tipoRadio) {
+                        tipoRadio.checked = true;
+                        document.querySelectorAll('.tipo-pill').forEach(function (p) { p.classList.remove('selected'); });
+                        tipoRadio.closest('.tipo-pill').classList.add('selected');
+                    }
+                }
+
                 /* Mostrar resumo */
                 tplName.textContent  = t.name || '—';
                 tplPreco.textContent = t.preco

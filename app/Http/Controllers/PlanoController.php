@@ -361,11 +361,11 @@ class PlanoController extends Controller
         try {
             // Require a template_id for web form creation. Populate plan fields from template.
             $validated = $request->validate([
-                'template_id' => 'required|exists:plan_templates,id',
-                'cliente_id' => 'required|exists:clientes,id',
-                'estado' => 'required|string',
-                'data_ativacao' => 'required|date',
-                'tipo' => 'required|in:familiar,institucional,empresarial,site',
+                'template_id'  => 'required|exists:plan_templates,id',
+                'cliente_id'   => 'required|exists:clientes,id',
+                'estado'       => 'required|string',
+                'data_ativacao'=> 'required|date',
+                'tipo'         => 'nullable|in:familiar,institucional,empresarial,site',
             ]);
 
             $template = PlanTemplate::find($validated['template_id']);
@@ -373,11 +373,16 @@ class PlanoController extends Controller
                 return back()->withErrors(['template_id' => 'Template não encontrado'])->withInput();
             }
 
-            $validated['nome'] = $template->name;
-            $validated['descricao'] = $template->description ?? '';
-            $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
-            $validated['ciclo'] = $template->ciclo;
+            $validated['nome']        = $template->name;
+            $validated['descricao']   = $template->description ?? '';
+            $validated['preco']       = (string) number_format($template->preco ?? 0, 2, '.', '');
+            $validated['ciclo']       = $template->ciclo;
             $validated['template_id'] = $template->id;
+
+            // Derivar tipo do template se não foi enviado pelo formulário
+            if (empty($validated['tipo']) && $template->tipo) {
+                $validated['tipo'] = $template->tipo;
+            }
 
             if (!empty($validated['data_ativacao']) && !empty($validated['ciclo'])) {
                 $validated['proxima_renovacao'] = Carbon::parse($validated['data_ativacao'])

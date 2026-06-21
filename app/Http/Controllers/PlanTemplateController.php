@@ -91,7 +91,7 @@ class PlanTemplateController extends Controller
         $list = Cache::remember('plan_templates:list_json', 300, function () {
             return PlanTemplate::withCount(['planos as template_active_clients_count' => function ($q) {
                 $q->where('ativo', true);
-            }])->orderBy('name')->get(['id','name','preco','ciclo','estado']);
+            }])->orderBy('name')->get(['id','name','preco','ciclo','estado','tipo']);
         });
 
         // ensure numeric counts are present (0 when none)
