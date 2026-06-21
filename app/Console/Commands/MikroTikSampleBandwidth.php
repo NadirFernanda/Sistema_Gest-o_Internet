@@ -57,9 +57,17 @@ class MikroTikSampleBandwidth extends Command
                 }
 
                 if ($this->option('debug')) {
-                    $this->line("\n=== QUEUES (site {$site->host}) ===");
+                    $this->line("\n=== ALL QUEUES RAW (site {$site->host}) ===");
+                    foreach ($queues as $q) {
+                        $name   = $q['name']      ?? $q['=name']      ?? '?';
+                        $target = $q['target']    ?? $q['=target']    ?? 'n/a';
+                        $bytes  = $q['bytes']     ?? $q['=bytes']     ?? 'n/a';
+                        $limit  = $q['max-limit'] ?? $q['=max-limit'] ?? 'n/a';
+                        $this->line("  name=$name | target=$target | bytes=$bytes | max-limit=$limit");
+                    }
+                    $this->line("\n=== QUEUES MATCHED (site {$site->host}) ===");
                     foreach ($queueMap as $u => $q) {
-                        $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
+                        $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " target=" . ($q['target'] ?? $q['=target'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
                     }
                 }
 
