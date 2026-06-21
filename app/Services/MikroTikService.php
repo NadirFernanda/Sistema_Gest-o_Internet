@@ -396,6 +396,37 @@ class MikroTikService
         try { $this->api->disconnect(); } catch (\Throwable) {}
     }
 
+    /**
+     * Apply a rate-limit directly on the PPP secret and reconnect the active session.
+     * This causes RouterOS to create a dynamic queue on reconnection, enabling byte counting.
+     */
+    public function applySecretRateLimit(string $username, string $rateLimit): bool
+    {
+        try {
+            $this->connect();
+            $existing = $this->findUser($username);
+            if (! $existing) return false;
+
+            $this->api->command('/ppp/secret/set', [
+                '.id'        => $existing['.id'],
+                'rate-limit' => $rateLimit,
+            ]);
+            $this->disconnectActivePpp($username);
+
+            Log::info('MikroTik: rate-limit aplicado e sessão reconectada', [
+                'username' => $username, 'rate-limit' => $rateLimit, 'host' => $this->host,
+            ]);
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('MikroTik: falha ao aplicar rate-limit', [
+                'username' => $username, 'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+            return false;
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
     private function findUser(string $username): ?array
     {
         $result = $this->api->command('/ppp/secret/print', [], ['name' => $username]);
