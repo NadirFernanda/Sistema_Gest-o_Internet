@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class MikroTikSampleBandwidth extends Command
 {
-    protected $signature = 'mikrotik:sample-bandwidth';
+    protected $signature = 'mikrotik:sample-bandwidth {--debug : Mostra campos raw das sessões e queues}';
     protected $description = 'Amostra o consumo de largura de banda de todos os clientes PPPoE activos';
 
     public function handle(): int
@@ -34,6 +34,13 @@ class MikroTikSampleBandwidth extends Command
                     if ($name !== '') $sessionMap[$name] = $s;
                 }
 
+                if ($this->option('debug')) {
+                    $this->line("\n=== SESSIONS (site {$site->host}) ===");
+                    foreach ($sessionMap as $u => $s) {
+                        $this->line("[$u] " . json_encode(array_filter($s, fn($v) => $v !== '')));
+                    }
+                }
+
                 // Queues PPPoE: username -> {bytes, max-limit, target}
                 $queues = $service->getAllQueueStats();
                 $queueMap = [];
@@ -41,6 +48,13 @@ class MikroTikSampleBandwidth extends Command
                     $name = $q['name'] ?? $q['=name'] ?? '';
                     if (preg_match('/pppoe-(\S+?)(?:>|$)/', $name, $m)) {
                         $queueMap[$m[1]] = $q;
+                    }
+                }
+
+                if ($this->option('debug')) {
+                    $this->line("\n=== QUEUES (site {$site->host}) ===");
+                    foreach ($queueMap as $u => $q) {
+                        $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
                     }
                 }
 
