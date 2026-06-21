@@ -88,24 +88,14 @@ class AutovendaOrderService
             $order->save();
         }); // fim da transacção — lock libertado antes do envio do e-mail
 
-        // Se stock esgotado: enviar email de alerta ao admin (se configurado)
+        // Se stock esgotado: ordem fica paga sem código — admin entrega manualmente
         if ($stockExausted) {
-            $adminEmail = config('mail.admin_address', env('ADMIN_ALERT_EMAIL'));
-            if ($adminEmail) {
-                try {
-                    \Illuminate\Support\Facades\Mail::raw(
-                        "⚠️ STOCK ESGOTADO\n\nOrdem #{$order->id} foi PAGA ({$order->amount_aoa} AOA) mas não há códigos WiFi disponíveis para o plano \"{$order->plan_id}\".\n\nCliente: " . ($order->customer_email ?? $order->customer_phone ?? 'anónimo') . "\n\nActue já em: https://angolawifi.ao/admin/recargas",
-                        function ($msg) use ($adminEmail, $order) {
-                            $msg->to($adminEmail)->subject("⚠️ URGENTE: Stock esgotado — Ordem #{$order->id} PAGA sem código");
-                        }
-                    );
-                } catch (\Throwable $e) {
-                    Log::warning('Falha ao enviar alerta de stock esgotado: ' . $e->getMessage());
-                }
-            }
-            // Lança excepção para que o callback GPO retorne 500 e GPO não marque como processado
-            // (permitindo reprocessamento manual) — mas a ordem já está marcada como paga.
-            throw new \Exception('Stock esgotado para o plano "' . $order->plan_id . '" — ordem ' . $order->id . ' marcada como paga mas sem código. Intervenção manual necessária.');
+            Log::critical('AUTOVENDA — STOCK ESGOTADO: ordem ' . $order->id . ' paga sem código. Intervenção manual urgente.', [
+                'plan_id' => $order->plan_id,
+                'amount'  => $order->amount_aoa,
+                'contact' => $order->customer_email ?? $order->customer_phone ?? 'anónimo',
+            ]);
+            return $order;
         }
 
         // Envia e-mail com o código apenas se o cliente tiver providenciado e-mail.

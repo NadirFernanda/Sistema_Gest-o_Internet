@@ -25,12 +25,18 @@ class AutovendaOrderAdminController extends Controller
 
         $plans = \App\Models\VoucherPlan::orderBy('sort_order')->get(['slug', 'name']);
 
+        // Ordens pagas sem código — exigem intervenção manual (stock esgotado na altura do pagamento)
+        $paidWithoutCode = AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)
+            ->whereNull('wifi_code')
+            ->count();
+
         return view('admin.orders.index', [
-            'orders'       => $orders,
-            'statusCounts' => $statusCounts,
-            'totalPaid'    => $totalPaid,
-            'totalAoa'     => $totalAoa,
-            'plans'        => $plans,
+            'orders'          => $orders,
+            'statusCounts'    => $statusCounts,
+            'totalPaid'       => $totalPaid,
+            'totalAoa'        => $totalAoa,
+            'plans'           => $plans,
+            'paidWithoutCode' => $paidWithoutCode,
         ]);
     }
 

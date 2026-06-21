@@ -69,6 +69,13 @@
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
 
+  @if(($paidWithoutCode ?? 0) > 0)
+    <div class="ap-err" style="margin-bottom:1rem;">
+      <strong>⚠️ {{ $paidWithoutCode }} ordem(ns) PAGA(s) SEM CÓDIGO WiFi</strong> — stock estava esgotado no momento do pagamento. O cliente pagou mas não recebeu código.
+      <br><small>Filtre por estado <strong>Pago</strong> e verifique as entradas com campo "Código WiFi" vazio. Entregue manualmente ou reembolse.</small>
+    </div>
+  @endif
+
   <div class="ap-recon">
     <strong>Reconcilia&ccedil;&atilde;o com o extracto GPO/EMIS:</strong> Use o filtro de per&iacute;odo abaixo para seleccionar o intervalo de datas do extracto. Depois exporte o CSV &mdash; a coluna <strong>Refer&ecirc;ncia GPO</strong> corresponde ao campo <em>merchantReference</em> no extracto da EMIS.<br>
     Apenas ordens com estado <strong>Pago</strong> geram cobran&ccedil;a no gateway.
