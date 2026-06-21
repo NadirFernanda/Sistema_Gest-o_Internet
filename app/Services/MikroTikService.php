@@ -397,31 +397,59 @@ class MikroTikService
     }
 
     /**
-     * Apply a rate-limit directly on the PPP secret and reconnect the active session.
-     * This causes RouterOS to create a dynamic queue on reconnection, enabling byte counting.
+     * Apply a rate-limit on the PPP PROFILE of a given username and reconnect their session.
+     * RouterOS only creates dynamic queues (<pppoe-username>) when the profile has rate-limit.
+     * Affects all clients on the same profile (correct: same plan = same speed).
+     *
+     * @return array{ok: bool, profile: string, message: string}
      */
-    public function applySecretRateLimit(string $username, string $rateLimit): bool
+    public function applyRateLimitViaProfile(string $username, string $rateLimit): array
     {
         try {
             $this->connect();
-            $existing = $this->findUser($username);
-            if (! $existing) return false;
 
-            $this->api->command('/ppp/secret/set', [
-                '.id'        => $existing['.id'],
+            // Find the user's secret to get their profile name
+            $secret = $this->findUser($username);
+            if (! $secret) {
+                return ['ok' => false, 'profile' => '', 'message' => "Secret '{$username}' não encontrado"];
+            }
+
+            $profileName = $secret['profile'] ?? $secret['=profile'] ?? '';
+            if (! $profileName) {
+                return ['ok' => false, 'profile' => '', 'message' => 'Profile não definido no secret'];
+            }
+
+            // Find the profile on the router
+            $profiles = $this->api->command('/ppp/profile/print', [], ['name' => $profileName]);
+            $profile  = null;
+            foreach ($profiles as $p) {
+                if (($p['type'] ?? '') === '!re') { $profile = $p; break; }
+            }
+
+            if (! $profile) {
+                return ['ok' => false, 'profile' => $profileName, 'message' => "Profile '{$profileName}' não encontrado no router"];
+            }
+
+            // Set rate-limit on the profile
+            $this->api->command('/ppp/profile/set', [
+                '.id'        => $profile['.id'],
                 'rate-limit' => $rateLimit,
             ]);
+
+            // Disconnect active session → client reconnects with new profile → dynamic queue created
             $this->disconnectActivePpp($username);
 
-            Log::info('MikroTik: rate-limit aplicado e sessão reconectada', [
-                'username' => $username, 'rate-limit' => $rateLimit, 'host' => $this->host,
+            Log::info('MikroTik: rate-limit aplicado no perfil e sessão reconectada', [
+                'username' => $username, 'profile' => $profileName,
+                'rate-limit' => $rateLimit, 'host' => $this->host,
             ]);
-            return true;
+
+            return ['ok' => true, 'profile' => $profileName, 'message' => 'OK'];
         } catch (\Throwable $e) {
-            Log::error('MikroTik: falha ao aplicar rate-limit', [
+            Log::error('MikroTik: falha ao aplicar rate-limit no perfil', [
                 'username' => $username, 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
-            return false;
+            return ['ok' => false, 'profile' => '', 'message' => $e->getMessage()];
         } finally {
             $this->safeDisconnect();
         }

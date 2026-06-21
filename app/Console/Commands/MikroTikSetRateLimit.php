@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class MikroTikSetRateLimit extends Command
 {
     protected $signature = 'mikrotik:set-rate-limit {username : Username PPPoE} {rate : Rate limit ex. 8M/8M (upload/download)}';
-    protected $description = 'Aplica rate-limit num secret PPPoE e força reconexão para criar queue dinâmica';
+    protected $description = 'Aplica rate-limit no perfil PPPoE e força reconexão para criar queue dinâmica';
 
     public function handle(): int
     {
@@ -29,14 +29,18 @@ class MikroTikSetRateLimit extends Command
                 continue;
             }
 
-            $ok = $service->applySecretRateLimit($username, $rateLimit);
-            if ($ok) {
-                $this->info("✅ [{$site->host}] rate-limit={$rateLimit} aplicado em '{$username}' e sessão reconectada.");
-                $this->line("   Aguarda 5-10 segundos para o cliente reconectar, depois corre:");
-                $this->line("   php artisan mikrotik:sample-bandwidth --debug");
+            $result = $service->applyRateLimitViaProfile($username, $rateLimit);
+
+            if ($result['ok']) {
+                $this->info("✅ [{$site->host}] Perfil '{$result['profile']}' → rate-limit={$rateLimit}");
+                $this->info("   Sessão de '{$username}' desconectada — aguarda 10s para reconectar.");
+                $this->line("   Depois corre:");
+                $this->line("   php artisan mikrotik:sample-bandwidth --debug 2>&1 | grep QUEUES -A12");
                 return 0;
+            } elseif (str_contains($result['message'], 'não encontrado') && str_contains($result['message'], 'Secret')) {
+                $this->warn("⚠️  [{$site->host}] username '{$username}' não encontrado.");
             } else {
-                $this->warn("⚠️  [{$site->host}] username '{$username}' não encontrado neste site.");
+                $this->error("❌ [{$site->host}] {$result['message']}");
             }
         }
 
