@@ -84,7 +84,7 @@ class MikroTikService
             $this->connect();
 
             $cliente  = $plano->cliente;
-            $username = $this->buildUsername($cliente);
+            $username = $plano->mikrotik_username ?? $this->buildUsername($cliente);
             $password = $this->buildPassword($cliente);
             $profile  = $this->resolveProfile($plano);
             $comment  = "SGA#{$plano->id}|{$cliente->nome}";
