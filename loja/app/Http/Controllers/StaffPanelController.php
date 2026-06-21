@@ -36,8 +36,10 @@ class StaffPanelController extends Controller
         $purchaseIds = $application->purchases()->pluck('id');
 
         // Available stock from AR, by plan
+        // AR codes have status='used' (set by resellerCallback when purchased);
+        // reseller_distributed_at=null means not yet sold to a customer.
         $availableByPlan = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
-            ->where('status', 'available')
+            ->where('status', WifiCode::STATUS_USED)
             ->whereNull('reseller_distributed_at')
             ->selectRaw('plan_id, COUNT(*) as qty')
             ->groupBy('plan_id')
@@ -129,7 +131,7 @@ class StaffPanelController extends Controller
         $code = DB::transaction(function () use ($purchaseIds, $validated, $staff) {
             $code = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
                 ->where('plan_id', $validated['plan_slug'])
-                ->where('status', 'available')
+                ->where('status', WifiCode::STATUS_USED)
                 ->whereNull('reseller_distributed_at')
                 ->lockForUpdate()
                 ->orderBy('id')

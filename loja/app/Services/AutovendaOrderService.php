@@ -43,8 +43,10 @@ class AutovendaOrderService
         // Envolve a atribuição do código WiFi e o guardado da ordem numa transacção
         // com bloqueio pessimista (lockForUpdate) para impedir que dois pedidos
         // simultâneos retirem o mesmo código do stock (race condition).
-        DB::transaction(function () use (&$order, $now) {
-            // Marca como pago
+        $stockExausted = false;
+
+        DB::transaction(function () use (&$order, &$stockExausted, $now) {
+            // Marca como pago — o pagamento foi confirmado pelo gateway
             $order->status = AutovendaOrder::STATUS_PAID;
             $order->paid_at = $now;
 
@@ -53,9 +55,11 @@ class AutovendaOrderService
             // Cada plano (diario, semanal, mensal) tem o seu próprio stock de códigos.
             if (empty($order->wifi_code)) {
                 $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)
-                    ->where('plan_id', $order->plan_id)  // seleccionar apenas códigos do plano correcto
-                    ->lockForUpdate()   // bloqueia a linha; impede outro pedido de a seleccionar
+                    ->where('plan_id', $order->plan_id)
+                    ->whereNull('reseller_purchase_id')  // apenas stock de autovenda
+                    ->lockForUpdate()
                     ->first();
+
                 if ($wifiCode) {
                     $wifiCode->status = \App\Models\WifiCode::STATUS_USED;
                     $wifiCode->autovenda_order_id = $order->id;
@@ -63,21 +67,46 @@ class AutovendaOrderService
                     $wifiCode->save();
                     $order->wifi_code = $wifiCode->code;
                 } else {
-                    Log::error('Sem códigos WiFi disponíveis para o plano "' . $order->plan_id . '" — ordem ' . $order->id);
-                    throw new \Exception('Sem códigos WiFi disponíveis para o plano "' . $order->plan_id . '". Tente mais tarde ou contacte o suporte.');
+                    // Stock esgotado — o pagamento JÁ foi feito; marcamos como pago mas
+                    // sem código. O admin deve entregar manualmente ou reembolsar.
+                    $stockExausted = true;
+                    Log::error('STOCK ESGOTADO — autovenda sem códigos WiFi', [
+                        'plan_id'  => $order->plan_id,
+                        'order_id' => $order->id,
+                        'amount'   => $order->amount_aoa,
+                        'customer' => $order->customer_email ?? $order->customer_phone ?? 'anónimo',
+                    ]);
                 }
             }
 
-            $order->delivered_at = $now;
-
-            // Marca a entrega apenas pelos canais que realmente existem para esta ordem.
-            // Para planos individuais, e-mail e WhatsApp são opcionais — não são recolhidos
-            // por omissão. Por isso, só marcamos como entregue se o canal tiver dados.
-            $order->delivered_via_email     = !empty($order->customer_email);
-            $order->delivered_via_whatsapp  = !empty($order->customer_phone);
+            if (!$stockExausted) {
+                $order->delivered_at           = $now;
+                $order->delivered_via_email    = !empty($order->customer_email);
+                $order->delivered_via_whatsapp = !empty($order->customer_phone);
+            }
 
             $order->save();
         }); // fim da transacção — lock libertado antes do envio do e-mail
+
+        // Se stock esgotado: enviar email de alerta ao admin (se configurado)
+        if ($stockExausted) {
+            $adminEmail = config('mail.admin_address', env('ADMIN_ALERT_EMAIL'));
+            if ($adminEmail) {
+                try {
+                    \Illuminate\Support\Facades\Mail::raw(
+                        "⚠️ STOCK ESGOTADO\n\nOrdem #{$order->id} foi PAGA ({$order->amount_aoa} AOA) mas não há códigos WiFi disponíveis para o plano \"{$order->plan_id}\".\n\nCliente: " . ($order->customer_email ?? $order->customer_phone ?? 'anónimo') . "\n\nActue já em: https://angolawifi.ao/admin/recargas",
+                        function ($msg) use ($adminEmail, $order) {
+                            $msg->to($adminEmail)->subject("⚠️ URGENTE: Stock esgotado — Ordem #{$order->id} PAGA sem código");
+                        }
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('Falha ao enviar alerta de stock esgotado: ' . $e->getMessage());
+                }
+            }
+            // Lança excepção para que o callback GPO retorne 500 e GPO não marque como processado
+            // (permitindo reprocessamento manual) — mas a ordem já está marcada como paga.
+            throw new \Exception('Stock esgotado para o plano "' . $order->plan_id . '" — ordem ' . $order->id . ' marcada como paga mas sem código. Intervenção manual necessária.');
+        }
 
         // Envia e-mail com o código apenas se o cliente tiver providenciado e-mail.
         // Mantido FORA da transacção para não segurar o lock durante uma operação de rede.

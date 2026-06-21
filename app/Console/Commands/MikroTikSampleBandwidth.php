@@ -42,19 +42,40 @@ class MikroTikSampleBandwidth extends Command
                 }
 
                 // Queues PPPoE: username -> {bytes, max-limit, target}
+                // Inclui queues dinâmicas (<pppoe-username>) e queues contadoras SGA (sgmr-username)
                 $queues = $service->getAllQueueStats();
                 $queueMap = [];
                 foreach ($queues as $q) {
                     $name = $q['name'] ?? $q['=name'] ?? '';
+                    $username = null;
                     if (preg_match('/pppoe-(\S+?)(?:>|$)/', $name, $m)) {
-                        $queueMap[$m[1]] = $q;
+                        $username = $m[1];
+                    } elseif (str_starts_with($name, 'sgmr-')) {
+                        $username = substr($name, 5);
                     }
+                    if ($username !== null) $queueMap[$username] = $q;
                 }
 
                 if ($this->option('debug')) {
                     $this->line("\n=== QUEUES (site {$site->host}) ===");
                     foreach ($queueMap as $u => $q) {
                         $this->line("[$u] bytes=" . ($q['bytes'] ?? $q['=bytes'] ?? 'n/a') . " max-limit=" . ($q['max-limit'] ?? $q['=max-limit'] ?? 'n/a'));
+                    }
+                }
+
+                // Criar queues contadoras para sessões sem queue (bytes da sessão PPPoE não ficam disponíveis via API)
+                $withoutQueue = [];
+                foreach ($sessionMap as $u => $s) {
+                    if (!isset($queueMap[$u])) {
+                        $ip = $s['address'] ?? $s['=address'] ?? '';
+                        if ($ip) $withoutQueue[$u] = $ip;
+                    }
+                }
+                if (!empty($withoutQueue)) {
+                    $service->ensureCountingQueues($withoutQueue);
+                    if ($this->option('debug')) {
+                        $this->line("\n=== QUEUES CONTADORAS CRIADAS ===");
+                        foreach ($withoutQueue as $u => $ip) $this->line("  sgmr-{$u} → {$ip}");
                     }
                 }
 
@@ -72,16 +93,8 @@ class MikroTikSampleBandwidth extends Command
                     $q = $queueMap[$u] ?? null;
                     $s = $sessionMap[$u] ?? null;
 
-                    // Bytes cumulativos: preferir queue (mais fiável), fallback para sessão PPPoE
-                    // Na sessão: bytes-out = enviado ao cliente (download), bytes-in = upload
-                    if ($q) {
-                        [$rxBytes, $txBytes] = $this->parseBytes($q);
-                    } elseif ($s) {
-                        $rxBytes = (int) ($s['bytes-out'] ?? $s['=bytes-out'] ?? 0);
-                        $txBytes = (int) ($s['bytes-in']  ?? $s['=bytes-in']  ?? 0);
-                    } else {
-                        $rxBytes = $txBytes = 0;
-                    }
+                    // Bytes cumulativos da queue (session PPPoE não expõe bytes via API RouterOS)
+                    [$rxBytes, $txBytes] = $q ? $this->parseBytes($q) : [0, 0];
 
                     // Taxa calculada contra amostra anterior
                     $prev   = MikroTikBandwidthSample::where('plano_id', $plano->id)
@@ -112,14 +125,8 @@ class MikroTikSampleBandwidth extends Command
                     $uptimeStr = $s['uptime'] ?? $s['=uptime'] ?? '';
                     $uptimeSeconds = $uptimeStr ? $this->parseUptimeToSeconds($uptimeStr) : 0;
 
-                    // Velocidade máxima do plano:
-                    // 1. Preferir da queue (inclui max-limit configurado)
-                    // 2. Se sem queue, tentar obter da sessão (rate-limit definido no perfil PPPoE)
+                    // Velocidade máxima do plano (max-limit da queue)
                     $maxLimit = $q['max-limit'] ?? $q['=max-limit'] ?? '';
-                    if (! $maxLimit && $s) {
-                        // A sessão PPPoE pode ter rate-limit definido no perfil
-                        $maxLimit = $s['rate-limit'] ?? $s['=rate-limit'] ?? '';
-                    }
                     [$maxTxBps, $maxRxBps] = $maxLimit ? $this->parseMaxLimit($maxLimit) : [0, 0];
 
                     MikroTikBandwidthSample::create([

@@ -308,6 +308,50 @@ class MikroTikService
     }
 
     /**
+     * Create simple queues (sgmr-{username}) for sessions that lack a dynamic PPPoE queue.
+     * RouterOS API does not expose bytes-in/bytes-out on /ppp/active/print, so a queue
+     * is the only way to count traffic for clients whose PPPoE profile has no rate limit.
+     *
+     * @param array $usernameIpMap  ['username' => 'ip_address', ...]
+     */
+    public function ensureCountingQueues(array $usernameIpMap): void
+    {
+        if (! $this->isConfigured() || empty($usernameIpMap)) return;
+
+        try {
+            $this->connect();
+
+            $allQueues = $this->api->command('/queue/simple/print');
+            $existingNames = [];
+            foreach ($allQueues as $q) {
+                if (($q['type'] ?? '') === '!re') {
+                    $existingNames[] = $q['name'] ?? $q['=name'] ?? '';
+                }
+            }
+
+            foreach ($usernameIpMap as $username => $ip) {
+                $queueName = "sgmr-{$username}";
+                if (in_array($queueName, $existingNames, true)) continue;
+
+                $this->api->command('/queue/simple/add', [
+                    'name'    => $queueName,
+                    'target'  => $ip . '/32',
+                    'comment' => "SGA-counter|{$username}",
+                ]);
+                Log::info('MikroTik: queue contadora criada', [
+                    'queue' => $queueName, 'target' => $ip, 'host' => $this->host,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::debug('MikroTik: falha ao criar queues contadoras', [
+                'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
+    /**
      * Get all simple queue stats (includes dynamic PPPoE queues <pppoe-username>).
      * Used to sample bandwidth usage per client.
      */
