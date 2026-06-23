@@ -282,6 +282,55 @@
   </div>
 </section>
 
+{{-- Agente Revendedor --}}
+<section class="howto-section howto-section--reseller" id="revendedores">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header__tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Parceiro de negócios
+      </div>
+      <h2>Agente Revendedor AngolaWiFi</h2>
+      <div class="section-header__rule"></div>
+      <p>Torne-se um Agente Revendedor em apenas 4 passos e comece a faturar com a venda de internet por vouchers. Também pode cadastrar a sua equipa de vendas para aumentar os seus rendimentos.</p>
+    </div>
+    <div class="howto-grid">
+      <div class="step-card step-card--reseller">
+        <div class="step-num step-num--dark">1</div>
+        <h3>Torne-se Revendedor</h3>
+        <p>Clique em <strong>"Torne-se Revendedor"</strong> e inicie o processo de candidatura.</p>
+      </div>
+      <div class="step-card step-card--reseller">
+        <div class="step-num step-num--dark">2</div>
+        <h3>Preencha o formulário</h3>
+        <p>Preencha o formulário de inscrição com os seus dados e aguarde a aprovação.</p>
+      </div>
+      <div class="step-card step-card--reseller">
+        <div class="step-num step-num--dark">3</div>
+        <h3>Submeta o pedido</h3>
+        <p>Submeta o pedido. A nossa equipa analisa e aprova em tempo útil.</p>
+      </div>
+      <div class="step-card step-card--reseller">
+        <div class="step-num step-num--dark">4</div>
+        <h3>Comece a vender</h3>
+        <p>Receba as credenciais por e-mail, aceda ao Painel do Revendedor e comece a gerar receita imediatamente.</p>
+      </div>
+    </div>
+
+    {{-- Destaque e CTA --}}
+    <div class="reseller-cta-block">
+      <div class="reseller-cta-text">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        <p>Transforme um ponto de internet numa fonte de rendimento e gere receitas todos os dias, com uma plataforma que faz a gestão automática das vendas e dos seus ganhos.</p>
+      </div>
+      <a href="{{ route('reseller.apply') }}" class="reseller-cta-btn">
+        Torne-se Revendedor
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
 {{-- Planos Familiares --}}
 <section class="planos-section planos-section--family" id="planos-familiares">
   <div class="container">
