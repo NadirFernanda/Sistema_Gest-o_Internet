@@ -123,8 +123,10 @@ class MikroTikService
                 }
                 $this->throwIfTrap($resp, 'set');
 
-                // Se foi reactivado, reconectar sessão (PPPoE não reconecta sozinho)
-                if ($disabled === 'no') {
+                // Só desconectar para forçar reconexão quando o secret estava suspenso
+                // e está agora a ser reactivado. Se já estava activo, não interromper a sessão.
+                $wasDisabled = ($existing['disabled'] ?? $existing['=disabled'] ?? 'no') === 'yes';
+                if ($disabled === 'no' && $wasDisabled) {
                     $this->disconnectActivePpp($username);
                 }
 
