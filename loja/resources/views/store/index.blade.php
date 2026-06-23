@@ -206,7 +206,8 @@
         </div>
         <h2>Planos Individuais</h2>
         <div class="section-header__rule"></div>
-        <p>Compre o seu código e conecte-se imediatamente. Sem contratos, sem burocracia — só internet.</p>
+        <p><strong>Compre o seu código, ligue-se e navegue sem limites!</strong></p>
+        <p style="margin-top:.65rem;">Adquira o seu voucher AngolaWiFi, conecte-se a um dos nossos pontos de acesso e desfrute de uma experiência de internet rápida, estável e sem complicações.</p>
       </div>
 
       <div class="plans-grid plans-grid--individual" aria-live="polite">
