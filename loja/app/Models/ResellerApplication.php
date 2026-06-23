@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ResellerApplication extends Model
 {
@@ -163,6 +165,101 @@ class ResellerApplication extends Model
         return $this->reseller_mode === self::INTERNET_OWN
             ? (int) config('reseller.mode_own_maintenance_aoa', 50000)
             : (int) config('reseller.mode_angolawifi_maintenance_aoa', 100000);
+    }
+
+    /**
+     * Allocate voucher codes as maintenance benefit.
+     * Budget = maintenanceFeeAoa(); qty per plan is calculated using the AR's
+     * actual cost price (resellerPriceFor), which already encodes the 70/30 or 30/70 margin.
+     * Returns an array of ['plan', 'qty', 'purchase_id'] entries.
+     */
+    public function allocateMaintenanceVouchers(int $year, int $month): array
+    {
+        $budget = $this->maintenanceFeeAoa();
+        if ($budget <= 0) return [];
+
+        $bonusRef = 'BONUS-MNT-' . $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+
+        if (ResellerPurchase::where('reseller_application_id', $this->id)
+                ->where('payment_reference', $bonusRef)->exists()) {
+            return [];
+        }
+
+        $plans = VoucherPlan::active()->orderBy('sort_order')->get();
+        if ($plans->isEmpty()) return [];
+
+        $perPlanBudget = (int) floor($budget / $plans->count());
+        $allocated     = [];
+
+        try {
+            DB::transaction(function () use ($plans, $perPlanBudget, $year, $month, $bonusRef, &$allocated) {
+                foreach ($plans as $plan) {
+                    $costPrice = $plan->resellerPriceFor($this);
+                    if ($costPrice <= 0) continue;
+
+                    $qty = max(1, (int) floor($perPlanBudget / $costPrice));
+
+                    $codes = WifiCode::where('plan_id', $plan->slug)
+                        ->where('status', WifiCode::STATUS_AVAILABLE)
+                        ->whereNull('reseller_purchase_id')
+                        ->lockForUpdate()
+                        ->limit($qty)
+                        ->get();
+
+                    if ($codes->isEmpty()) continue;
+
+                    $actualQty = $codes->count();
+                    $path      = 'resellers/' . $this->id
+                                 . '/manutencao_' . $plan->slug . '_' . now()->format('Ymd_His') . '.csv';
+
+                    $purchase = ResellerPurchase::create([
+                        'reseller_application_id' => $this->id,
+                        'voucher_plan_id'          => $plan->id,
+                        'plan_slug'                => $plan->slug,
+                        'plan_name'                => $plan->name,
+                        'quantity'                 => $actualQty,
+                        'unit_price_aoa'           => $costPrice,
+                        'gross_amount_aoa'         => $plan->price_public_aoa * $actualQty,
+                        'discount_percent'         => $this->discountPercentFor(),
+                        'net_amount_aoa'           => $costPrice * $actualQty,
+                        'codes_count'              => $actualQty,
+                        'profit_aoa'               => ($plan->price_public_aoa - $costPrice) * $actualQty,
+                        'tax_aoa'                  => 0,
+                        'csv_path'                 => $path,
+                        'status'                   => 'completed',
+                        'payment_method'           => 'bonus_manutencao',
+                        'payment_reference'        => $bonusRef,
+                        'paid_at'                  => now(),
+                    ]);
+
+                    $codeLines = ['plano,codigo,validade'];
+                    foreach ($codes as $wc) {
+                        $codeLines[] = "{$plan->name},{$wc->code},{$plan->validity_label}";
+                    }
+                    Storage::disk('local')->put($path, implode("\n", $codeLines) . "\n");
+
+                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
+                        'status'               => WifiCode::STATUS_USED,
+                        'used_at'              => now(),
+                        'reseller_purchase_id' => $purchase->id,
+                    ]);
+
+                    $allocated[] = [
+                        'plan'        => $plan->name,
+                        'qty'         => $actualQty,
+                        'purchase_id' => $purchase->id,
+                    ];
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Manutenção: erro ao alocar vouchers', [
+                'reseller_id' => $this->id,
+                'period'      => "$year/$month",
+                'error'       => $e->getMessage(),
+            ]);
+        }
+
+        return $allocated;
     }
 
     /** Mark installation fee paid and generate bonus vouchers credit. */

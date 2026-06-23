@@ -215,6 +215,22 @@
       @else
         <p class="ap-stat-sub">Sem dados</p>
       @endif
+      <form action="{{ route('admin.resellers.pay-maintenance', $application) }}" method="POST"
+            style="margin-top:.6rem;display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;">
+        @csrf
+        <select name="month" class="ap-ctrl" style="width:auto;padding:.2rem .4rem;font-size:.8rem;">
+          @foreach(range(1,12) as $m)
+            <option value="{{ $m }}" @selected($m === now()->month)>{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
+          @endforeach
+        </select>
+        <input name="year" type="number" min="2020" max="2100"
+               value="{{ now()->year }}"
+               class="ap-ctrl" style="width:72px;padding:.2rem .4rem;font-size:.8rem;">
+        <button type="submit" class="ap-btn ap-btn-primary" style="padding:.25rem .7rem;font-size:.8rem;"
+                onclick="return confirm('Registar pagamento de manutenção e alocar vouchers?')">
+          Registar pagamento
+        </button>
+      </form>
     </div>
   </div>
 

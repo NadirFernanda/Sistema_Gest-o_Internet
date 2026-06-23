@@ -270,4 +270,36 @@ class ResellerAdminController extends Controller
         return redirect()->route('admin.resellers.show', $application)
             ->with('status', 'Bónus de ' . number_format($data['amount_aoa'], 0, ',', '.') . ' Kz enviado com sucesso.');
     }
+
+    public function payMaintenance(Request $request, ResellerApplication $application)
+    {
+        $data = $request->validate([
+            'year'  => 'required|integer|min:2020|max:2100',
+            'month' => 'required|integer|min:1|max:12',
+        ]);
+
+        $year  = (int) $data['year'];
+        $month = (int) $data['month'];
+
+        // Idempotência: já registado para este período?
+        if ((int) ($application->maintenance_paid_year ?? 0)  === $year
+            && (int) ($application->maintenance_paid_month ?? 0) === $month) {
+            return redirect()->route('admin.resellers.show', $application)
+                ->with('status', 'Manutenção de ' . str_pad($month, 2, '0', STR_PAD_LEFT) . '/' . $year . ' já estava registada.');
+        }
+
+        $application->update([
+            'maintenance_paid_year'  => $year,
+            'maintenance_paid_month' => $month,
+            'maintenance_status'     => ResellerApplication::MAINTENANCE_OK,
+        ]);
+
+        $allocated = $application->allocateMaintenanceVouchers($year, $month);
+
+        $fee   = number_format($application->maintenanceFeeAoa(), 0, ',', '.');
+        $total = array_sum(array_column($allocated, 'qty'));
+        $msg   = "Manutenção {$month}/{$year} registada ({$fee} Kz). Vouchers alocados: {$total} código(s).";
+
+        return redirect()->route('admin.resellers.show', $application)->with('status', $msg);
+    }
 }

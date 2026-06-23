@@ -239,6 +239,16 @@
           </div>
         @endif
 
+        @if($maintenance_blocked ?? false)
+          <div class="st-alert error" style="margin-bottom:1rem;">
+            <span>🔒</span>
+            <div>
+              <strong>Painel temporariamente indisponível.</strong><br>
+              A taxa de manutenção mensal do Agente Revendedor não foi liquidada. Contacte o seu Agente Revendedor para regularizar a situação.
+            </div>
+          </div>
+        @endif
+
         <h2>Entrar no painel</h2>
         <p class="st-sub">Acesso exclusivo para membros de equipa registados por um Agente Revendedor.</p>
 

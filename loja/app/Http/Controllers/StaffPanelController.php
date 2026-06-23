@@ -33,6 +33,12 @@ class StaffPanelController extends Controller
         }
 
         $application = $staff->application;
+
+        if ($application->maintenanceDueThisMonth()) {
+            $request->session()->forget(self::SESS);
+            return view('staff.panel', ['staff' => null, 'suspended' => false, 'maintenance_blocked' => true]);
+        }
+
         $purchaseIds = $application->purchases()->pluck('id');
 
         // Available stock from AR, by plan
@@ -120,12 +126,16 @@ class StaffPanelController extends Controller
             return redirect()->route('staff.panel');
         }
 
+        $application = $staff->application;
+        if ($application->maintenanceDueThisMonth()) {
+            return redirect()->route('staff.panel');
+        }
+
         $validated = $request->validate([
             'plan_slug'    => 'required|string|exists:voucher_plans,slug',
             'customer_ref' => 'nullable|string|max:255',
         ]);
 
-        $application = $staff->application;
         $purchaseIds = $application->purchases()->pluck('id');
 
         $code = DB::transaction(function () use ($purchaseIds, $validated, $staff) {
