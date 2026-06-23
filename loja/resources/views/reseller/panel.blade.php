@@ -932,14 +932,14 @@
                       style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.1rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem;">
                   @csrf
                   @foreach($voucherPlans as $plan)
-                    @php $saStock = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->count(); @endphp
+                    @php $saStock = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->whereNull('reseller_purchase_id')->count(); @endphp
                     <div style="display:flex;flex-direction:column;gap:.25rem;min-width:110px;">
                       <label style="font-size:.72rem;font-weight:700;color:#64748b;">{{ $plan->name }}</label>
                       <input type="number" name="plans[{{ $plan->slug }}]" value="0" min="0"
                              style="width:90px;padding:.38rem .5rem;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.88rem;text-align:center;"
                              {{ $saStock === 0 ? 'disabled' : '' }}>
                       <span style="font-size:.68rem;color:{{ $saStock > 0 ? '#16a34a' : '#94a3b8' }};">
-                        {{ $saStock > 0 ? $saStock.' disponíveis' : 'Sem stock' }}
+                        {{ $saStock > 0 ? 'Disponível' : 'Sem stock' }}
                       </span>
                     </div>
                   @endforeach
@@ -958,7 +958,7 @@
                           : (str_contains(strtolower($pcfg['name']), 'semana') ? '📅'
                           : (str_contains(strtolower($pcfg['name']), 'mês') || str_contains(strtolower($pcfg['name']), 'mensal') ? '🗓️' : '💡')))
                         : '💡';
-                      $stockAvail = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->count();
+                      $stockAvail = \App\Models\WifiCode::where('plan_id', $plan->slug)->where('status', 'available')->whereNull('reseller_purchase_id')->count();
                     @endphp
                     <div class="rv-plan-card{{ $stockAvail === 0 ? ' rv-plan-card--out' : '' }}">
                       <div class="rv-plan-card-header">

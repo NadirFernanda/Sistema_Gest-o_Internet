@@ -424,10 +424,10 @@ class ResellerPanelController extends Controller
             if (!$plan) {
                 return redirect()->route('reseller.panel')->with('error', "Plano \"$slug\" não encontrado.");
             }
-            $stock = WifiCode::where('plan_id', $slug)->where('status', 'available')->count();
+            $stock = WifiCode::where('plan_id', $slug)->where('status', 'available')->whereNull('reseller_purchase_id')->count();
             if ($stock < (int) $qty) {
                 return redirect()->route('reseller.panel')
-                    ->with('error', "Stock insuficiente para \"{$plan->name}\": pediu {$qty}, disponível {$stock}.");
+                    ->with('error', "Stock insuficiente para \"{$plan->name}\": a quantidade pedida ({$qty}) excede o stock disponível. Reduza a quantidade ou tente mais tarde.");
             }
         }
 
