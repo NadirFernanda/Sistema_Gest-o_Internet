@@ -6,41 +6,53 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TicketAdminController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Ticket::orderByRaw("CASE status WHEN 'open' THEN 0 WHEN 'in_progress' THEN 1 WHEN 'resolved' THEN 2 ELSE 3 END")
-                       ->orderByDesc('created_at');
+        try {
+            // ORDER BY explícito: prioridade por estado (open→in_progress→resolved→closed), depois data
+            $statusOrder = DB::raw("CASE status WHEN 'open' THEN 0 WHEN 'in_progress' THEN 1 WHEN 'resolved' THEN 2 ELSE 3 END");
 
-        if ($status = $request->get('status')) {
-            $query->where('status', $status);
-        }
-        if ($category = $request->get('category')) {
-            $query->where('category', $category);
-        }
-        if ($priority = $request->get('priority')) {
-            $query->where('priority', $priority);
-        }
-        if ($q = trim((string) $request->get('q', ''))) {
-            $query->where(function ($qb) use ($q) {
-                $qb->where('ref', 'like', "%{$q}%")
-                   ->orWhere('name', 'like', "%{$q}%")
-                   ->orWhere('email', 'like', "%{$q}%")
-                   ->orWhere('phone', 'like', "%{$q}%")
-                   ->orWhere('subject', 'like', "%{$q}%");
-            });
-        }
+            $query = Ticket::orderBy($statusOrder)->orderByDesc('created_at');
 
-        $tickets = $query->withCount('replies')->paginate(25)->withQueryString();
+            if ($status = $request->get('status')) {
+                $query->where('status', $status);
+            }
+            if ($category = $request->get('category')) {
+                $query->where('category', $category);
+            }
+            if ($priority = $request->get('priority')) {
+                $query->where('priority', $priority);
+            }
+            if ($q = trim((string) $request->get('q', ''))) {
+                $query->where(function ($qb) use ($q) {
+                    $qb->where('ref', 'like', "%{$q}%")
+                       ->orWhere('name', 'like', "%{$q}%")
+                       ->orWhere('email', 'like', "%{$q}%")
+                       ->orWhere('phone', 'like', "%{$q}%")
+                       ->orWhere('subject', 'like', "%{$q}%");
+                });
+            }
 
-        $counts = [
-            'open'        => Ticket::where('status', Ticket::STATUS_OPEN)->count(),
-            'in_progress' => Ticket::where('status', Ticket::STATUS_IN_PROGRESS)->count(),
-            'resolved'    => Ticket::where('status', Ticket::STATUS_RESOLVED)->count(),
-            'closed'      => Ticket::where('status', Ticket::STATUS_CLOSED)->count(),
-        ];
+            $tickets = $query->withCount('replies')->paginate(25)->withQueryString();
+
+            $counts = [
+                'open'        => Ticket::where('status', Ticket::STATUS_OPEN)->count(),
+                'in_progress' => Ticket::where('status', Ticket::STATUS_IN_PROGRESS)->count(),
+                'resolved'    => Ticket::where('status', Ticket::STATUS_RESOLVED)->count(),
+                'closed'      => Ticket::where('status', Ticket::STATUS_CLOSED)->count(),
+            ];
+        } catch (\Throwable $e) {
+            Log::error('TicketAdminController@index falhou: ' . $e->getMessage(), [
+                'sql'   => method_exists($e, 'getSql') ? $e->getSql() : null,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         return view('admin.tickets.index', compact('tickets', 'counts'));
     }
