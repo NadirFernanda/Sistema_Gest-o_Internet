@@ -639,4 +639,94 @@ class MikroTikAdminController extends Controller
             'filterDateFrom', 'filterDateTo'
         ));
     }
+
+    /** Página de diagnóstico PPPoE: clientes sem username ou com username inválido. */
+    public function diagnostico()
+    {
+        $sites = MikroTikSite::where('active', true)->orderBy('nome')->get();
+
+        $dadosPorSite = [];
+        foreach ($sites as $site) {
+            $semUsername = Plano::with('cliente')
+                ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+                ->whereNull('mikrotik_username')
+                ->orderByRaw("CASE estado WHEN 'Ativo' THEN 1 WHEN 'Em aviso' THEN 2 ELSE 3 END")
+                ->get();
+
+            $totalPlanos = Plano::whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+                ->count();
+
+            $dadosPorSite[$site->id] = [
+                'site'        => $site,
+                'totalPlanos' => $totalPlanos,
+                'semUsername' => $semUsername,
+            ];
+        }
+
+        return view('mikrotik.diagnostico', compact('dadosPorSite'));
+    }
+
+    /** AJAX: compara planos com secrets do router para detectar usernames inválidos e órfãos. */
+    public function siteDiagnosticoRouter(MikroTikSite $site)
+    {
+        $service = MikroTikService::forSite($site);
+        $secrets = $service->listSecrets();
+
+        if (empty($secrets)) {
+            return response()->json(['error' => 'Router não respondeu ou sem secrets. Verifique os logs do servidor.'], 503);
+        }
+
+        $secretsByName = [];
+        foreach ($secrets as $s) {
+            $name = $s['name'] ?? $s['=name'] ?? '';
+            if ($name !== '') {
+                $secretsByName[$name] = [
+                    'name'     => $name,
+                    'disabled' => $s['disabled'] ?? $s['=disabled'] ?? 'no',
+                    'profile'  => $s['profile']  ?? $s['=profile']  ?? '',
+                    'comment'  => $s['comment']  ?? $s['=comment']  ?? '',
+                ];
+            }
+        }
+
+        $planosComUsername = Plano::with('cliente')
+            ->whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+            ->whereNotNull('mikrotik_username')
+            ->get();
+
+        $planosUsernameErrado = $planosComUsername
+            ->filter(fn($p) => ! isset($secretsByName[$p->mikrotik_username]))
+            ->values()
+            ->map(fn($p) => [
+                'plano_id'          => $p->id,
+                'cliente_nome'      => $p->cliente?->nome,
+                'cliente_tel'       => preg_replace('/\D/', '', $p->cliente?->contato ?? ''),
+                'mikrotik_username' => $p->mikrotik_username,
+                'estado'            => $p->estado,
+                'detalhes_url'      => route('mikrotik.planos.detalhes', $p->id),
+            ]);
+
+        $planosOk = $planosComUsername
+            ->filter(fn($p) => isset($secretsByName[$p->mikrotik_username]))
+            ->count();
+
+        $usernamesComPlano = Plano::whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+            ->whereNotNull('mikrotik_username')
+            ->pluck('mikrotik_username')
+            ->flip();
+
+        $secretsOrfaos = array_values(
+            array_filter($secretsByName, fn($s) => ! isset($usernamesComPlano[$s['name']]))
+        );
+
+        return response()->json([
+            'totalSecrets'         => count($secretsByName),
+            'planosOk'             => $planosOk,
+            'planosUsernameErrado' => $planosUsernameErrado,
+            'secretsOrfaos'        => $secretsOrfaos,
+        ]);
+    }
 }
