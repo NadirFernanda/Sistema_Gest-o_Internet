@@ -50,7 +50,10 @@ class PlanoRenovacaoService
         if ($ciclo <= 0) return;
 
         $estadoAnterior = $plano->estado;
-        $novaRenovacao  = Carbon::parse($plano->proxima_renovacao)->addDays($ciclo);
+        // Se proxima_renovacao já está no passado, parte de hoje para garantir
+        // que o novo prazo fica no futuro e o expire-plans não suspende imediatamente
+        $base          = Carbon::parse($plano->proxima_renovacao)->max(Carbon::today());
+        $novaRenovacao = $base->addDays($ciclo);
 
         $plano->proxima_renovacao = $novaRenovacao->toDateString();
         if (in_array($plano->estado, ['Suspenso', 'Em aviso'])) {
