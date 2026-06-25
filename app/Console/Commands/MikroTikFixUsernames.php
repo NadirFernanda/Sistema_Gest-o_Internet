@@ -12,14 +12,16 @@ class MikroTikFixUsernames extends Command
 {
     protected $signature = 'mikrotik:fix-usernames
                             {--site= : ID do site (omitir = todos os sites activos)}
-                            {--dry-run : Mostrar correspondências sem gravar na BD}';
+                            {--dry-run : Mostrar correspondências sem gravar na BD}
+                            {--list-secrets : Listar todos os secrets do router com plano associado (para matching manual)}';
 
     protected $description = 'Associa mikrotik_username nos planos encontrando o secret correcto no router pelo nº de telemóvel';
 
     public function handle(): int
     {
-        $dryRun = $this->option('dry-run');
-        $siteId = $this->option('site');
+        $dryRun      = $this->option('dry-run');
+        $listSecrets = $this->option('list-secrets');
+        $siteId      = $this->option('site');
 
         $sites = $siteId
             ? MikroTikSite::where('id', $siteId)->get()
@@ -52,6 +54,24 @@ class MikroTikFixUsernames extends Command
             }
 
             $this->line('Secrets no router: ' . count($secretsByName));
+
+            // Índice de usernames já usados por algum plano neste site
+            $usedUsernames = Plano::whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                ->whereNotNull('mikrotik_username')
+                ->pluck('mikrotik_username')
+                ->flip(); // username => true
+
+            if ($listSecrets) {
+                $this->info("\nSecrets no router — coluna: nome | disabled | profile | comment");
+                foreach ($secretsByName as $name => $s) {
+                    $disabled = $s['disabled'] ?? $s['=disabled'] ?? '?';
+                    $profile  = $s['profile']  ?? $s['=profile']  ?? '?';
+                    $comment  = $s['comment']  ?? $s['=comment']  ?? '';
+                    $linked   = isset($usedUsernames[$name]) ? ' [SGA ✓]' : ' [SEM PLANO]';
+                    $this->line("  {$name} | disabled={$disabled} | profile={$profile} | {$comment}{$linked}");
+                }
+                $this->line('');
+            }
 
             // Todos os planos activos/suspensos para clientes deste site
             $planos = Plano::with('cliente')
