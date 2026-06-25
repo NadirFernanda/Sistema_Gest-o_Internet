@@ -358,8 +358,38 @@
         <div class="det-card">
             <div class="det-card__title">Histórico de Eventos</div>
 
+            {{-- Filtro por período --}}
+            <form method="GET" action="{{ request()->url() }}"
+                  style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #eef0f5;">
+                <div>
+                    <label style="font-size:.75rem;font-weight:600;color:#888;display:block;margin-bottom:.25rem;">Data início</label>
+                    <input type="date" name="date_from" value="{{ $filterDateFrom ?? '' }}"
+                           style="border:1.5px solid #e0e6f0;border-radius:8px;padding:.3rem .65rem;font-size:.85rem;color:#333;background:#fff;">
+                </div>
+                <div>
+                    <label style="font-size:.75rem;font-weight:600;color:#888;display:block;margin-bottom:.25rem;">Data fim</label>
+                    <input type="date" name="date_to" value="{{ $filterDateTo ?? '' }}"
+                           style="border:1.5px solid #e0e6f0;border-radius:8px;padding:.3rem .65rem;font-size:.85rem;color:#333;background:#fff;">
+                </div>
+                <button type="submit"
+                        style="background:#f5a623;color:#fff;border:none;border-radius:8px;padding:.35rem 1rem;font-size:.85rem;font-weight:600;cursor:pointer;">
+                    Filtrar
+                </button>
+                @if($filterDateFrom || $filterDateTo)
+                <a href="{{ request()->url() }}"
+                   style="background:#f5f5f5;color:#666;border-radius:8px;padding:.35rem .9rem;font-size:.85rem;font-weight:600;text-decoration:none;line-height:2;">
+                    Limpar
+                </a>
+                <span style="font-size:.8rem;color:#888;align-self:center;">
+                    A mostrar {{ $eventos->count() }} evento(s)
+                    {{ $filterDateFrom ? 'de '.\Carbon\Carbon::parse($filterDateFrom)->format('d/m/Y') : '' }}
+                    {{ $filterDateTo ? 'até '.\Carbon\Carbon::parse($filterDateTo)->format('d/m/Y') : '' }}
+                </span>
+                @endif
+            </form>
+
             @if($eventos->isEmpty())
-                <div class="empty-state">Sem eventos registados. A monitorização começará na próxima verificação (cada 5 minutos).</div>
+                <div class="empty-state">Sem eventos no período seleccionado.</div>
             @else
                 <div class="det-filters">
                     <button class="det-filter active" onclick="filtrar('todos', this)">Todos ({{ $eventos->count() }})</button>

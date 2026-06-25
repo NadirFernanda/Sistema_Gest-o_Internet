@@ -427,20 +427,37 @@ class MikroTikAdminController extends Controller
     }
 
     /** Mostrar detalhes de um plano com histórico de status online/offline. */
-    public function showDetails(Plano $plano)
+    public function showDetails(Request $request, Plano $plano)
     {
-        $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus.events']);
+        $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus']);
 
         $cliente = $plano->cliente;
         if (!$cliente || !$cliente->mikrotik_site_id) {
             abort(404, 'Cliente ou site MikroTik não encontrado');
         }
 
+        // Filtro de período
+        $dateFrom = $request->get('date_from')
+            ? \Carbon\Carbon::parse($request->get('date_from'))->startOfDay()
+            : null;
+        $dateTo   = $request->get('date_to')
+            ? \Carbon\Carbon::parse($request->get('date_to'))->endOfDay()
+            : null;
+
         $statusOnline = $plano->mikrotikOnlineStatus;
 
-        $eventos = $statusOnline
-            ? $statusOnline->events()->orderBy('occurred_at', 'desc')->get()
-            : collect();
+        $eventosQuery = $statusOnline
+            ? $statusOnline->events()->orderBy('occurred_at', 'desc')
+            : null;
+
+        if ($eventosQuery && $dateFrom) {
+            $eventosQuery->where('occurred_at', '>=', $dateFrom);
+        }
+        if ($eventosQuery && $dateTo) {
+            $eventosQuery->where('occurred_at', '<=', $dateTo);
+        }
+
+        $eventos = $eventosQuery ? $eventosQuery->get() : collect();
 
         $totalOfflineEvents = $eventos->where('event_type', 'offline')->count();
         $totalOnlineEvents  = $eventos->where('event_type', 'online')->count();
@@ -486,22 +503,25 @@ class MikroTikAdminController extends Controller
         $peakRxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('rx_rate') ?? 0);
         $peakTxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('tx_rate') ?? 0);
 
-        // ── Estabilidade 30 dias ──
-        $thirtyDaysAgo = now()->subDays(30);
+        // ── Estabilidade: usa o período filtrado ou 30 dias por defeito ──
+        $thirtyDaysAgo   = now()->subDays(30);
+        $statsFrom       = $dateFrom ?? $thirtyDaysAgo;
+        $statsTo         = $dateTo   ?? now();
+        $statsDays       = max(1, (int) ceil($statsFrom->diffInSeconds($statsTo) / 86400));
         $downtimeThirtyDays = (int) $eventos
             ->where('event_type', 'offline')
-            ->filter(fn($e) => $e->occurred_at->gte($thirtyDaysAgo))
+            ->filter(fn($e) => $e->occurred_at->gte($statsFrom))
             ->sum('duration_seconds');
-        $stabilityPct = max(0, min(100, round((1 - $downtimeThirtyDays / (30 * 86400)) * 100, 1)));
+        $stabilityPct = max(0, min(100, round((1 - $downtimeThirtyDays / ($statsDays * 86400)) * 100, 1)));
 
-        // ── Quedas por dia (últimos 30 dias) para o gráfico de oscilações ──
+        // ── Quedas por dia (período filtrado ou últimos 30 dias) ──
         $dropsChart = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $dropsChart[now()->subDays($i)->format('Y-m-d')] = 0;
+        for ($i = $statsDays - 1; $i >= 0; $i--) {
+            $dropsChart[$statsTo->copy()->subDays($i)->format('Y-m-d')] = 0;
         }
         $dropsByDate = $eventos
             ->where('event_type', 'offline')
-            ->filter(fn($e) => $e->occurred_at->gte($thirtyDaysAgo))
+            ->filter(fn($e) => $e->occurred_at->gte($statsFrom))
             ->groupBy(fn($e) => $e->occurred_at->format('Y-m-d'))
             ->map(fn($g) => $g->count())
             ->toArray();
@@ -535,6 +555,9 @@ class MikroTikAdminController extends Controller
             ];
         }
 
+        $filterDateFrom = $dateFrom?->format('Y-m-d');
+        $filterDateTo   = $dateTo?->format('Y-m-d');
+
         return view('mikrotik.detalhes-plano', compact(
             'plano', 'cliente', 'statusOnline',
             'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
@@ -543,7 +566,8 @@ class MikroTikAdminController extends Controller
             'todayDownloadBytes', 'todayUploadBytes',
             'monthDownloadBytes', 'monthUploadBytes',
             'peakRxRate', 'peakTxRate',
-            'stabilityPct', 'dropsChart', 'dailyUsage'
+            'stabilityPct', 'dropsChart', 'dailyUsage',
+            'filterDateFrom', 'filterDateTo'
         ));
     }
 }
