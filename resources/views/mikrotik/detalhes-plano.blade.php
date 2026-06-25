@@ -166,47 +166,34 @@
         </div>
 
         {{-- ── Configuração PPPoE Username ── --}}
-        @if(!$plano->mikrotik_username)
-        <div class="det-card" style="border:2px solid #f5a62355;">
-        @else
-        <details class="det-card" style="cursor:pointer;">
-        <summary style="font-size:0.9rem;font-weight:700;color:#555;list-style:none;display:flex;align-items:center;gap:8px;">
-            <span>⚙</span> Configuração PPPoE Username
-            <span style="margin-left:auto;font-size:0.78rem;color:#aaa;">Clique para expandir</span>
-        </summary>
-        @endif
-            <div @if($plano->mikrotik_username) style="margin-top:14px;" @endif>
-                @if(!$plano->mikrotik_username)
-                <div style="background:#fff8ec;border:1.5px solid #f5a623;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:0.85rem;color:#7a5200;">
-                    ⚠ Este plano <strong>não tem username PPPoE associado</strong>. O sistema não consegue suspender/activar este cliente no router. Selecione o username correcto abaixo.
-                </div>
-                @endif
-                <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-                    <div style="flex:1;min-width:220px;">
-                        <label style="font-size:0.72rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Username PPPoE no router</label>
-                        <input type="text" id="inputMikrotikUsername"
-                               value="{{ $plano->mikrotik_username ?? '' }}"
-                               placeholder="Ex: 923456789"
-                               style="width:100%;height:42px;padding:0 12px;border:1.5px solid #e0e6f0;border-radius:10px;font-size:0.93rem;box-sizing:border-box;">
-                    </div>
-                    <button onclick="guardarUsername()" style="height:42px;padding:0 20px;background:#f5a623;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">
-                        Guardar e Sincronizar
-                    </button>
-                    <button onclick="carregarSecrets()" style="height:42px;padding:0 16px;background:#fff;color:#555;border:1.5px solid #e0e6f0;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap;">
-                        Ver secrets do router
-                    </button>
-                </div>
-                <div id="secretsPanel" style="display:none;margin-top:14px;">
-                    <div style="font-size:0.78rem;color:#aaa;margin-bottom:8px;">Clique num username para seleccionar:</div>
-                    <div id="secretsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;"></div>
-                </div>
-                <div id="usernameMsg" style="margin-top:8px;font-size:0.82rem;"></div>
+        <div class="det-card" @if(!$plano->mikrotik_username) style="border:2px solid #f5a62355;" @endif>
+            <div class="det-card__title">⚙ Configuração PPPoE Username</div>
+            @if(!$plano->mikrotik_username)
+            <div style="background:#fff8ec;border:1.5px solid #f5a623;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:0.85rem;color:#7a5200;">
+                ⚠ Este plano <strong>não tem username PPPoE associado</strong>. O sistema não consegue suspender/activar este cliente no router. Selecione o username correcto abaixo.
             </div>
-        @if($plano->mikrotik_username)
-        </details>
-        @else
+            @endif
+            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:1;min-width:220px;">
+                    <label style="font-size:0.72rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Username PPPoE no router</label>
+                    <input type="text" id="inputMikrotikUsername"
+                           value="{{ $plano->mikrotik_username ?? '' }}"
+                           placeholder="Ex: 923456789"
+                           style="width:100%;height:42px;padding:0 12px;border:1.5px solid #e0e6f0;border-radius:10px;font-size:0.93rem;box-sizing:border-box;">
+                </div>
+                <button onclick="guardarUsername()" style="height:42px;padding:0 20px;background:#f5a623;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                    Guardar e Sincronizar
+                </button>
+                <button onclick="carregarSecrets()" style="height:42px;padding:0 16px;background:#fff;color:#555;border:1.5px solid #e0e6f0;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap;">
+                    Ver secrets do router
+                </button>
+            </div>
+            <div id="secretsPanel" style="display:none;margin-top:14px;">
+                <div style="font-size:0.78rem;color:#aaa;margin-bottom:8px;">Clique num username para seleccionar:</div>
+                <div id="secretsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;"></div>
+            </div>
+            <div id="usernameMsg" style="margin-top:8px;font-size:0.82rem;"></div>
         </div>
-        @endif
 
         {{-- ── Sessão Actual ── --}}
         @if($latestSample && $latestSample->sampled_at && $latestSample->sampled_at->gte(now()->subMinutes(10)))
