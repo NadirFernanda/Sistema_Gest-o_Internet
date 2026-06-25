@@ -427,6 +427,67 @@ class MikroTikAdminController extends Controller
     }
 
     /** Mostrar detalhes de um plano com histórico de status online/offline. */
+    /**
+     * Lista todos os PPP secrets de um site — usada pelo dropdown de associação manual.
+     */
+    public function listSiteSecrets(MikroTikSite $site)
+    {
+        $service = MikroTikService::forSite($site);
+        $test    = $service->testConnection();
+
+        if (! $test['ok']) {
+            return response()->json(['error' => 'Router inacessível: ' . ($test['error'] ?? '')], 503);
+        }
+
+        $secrets = $service->listSecrets();
+        $result  = [];
+        foreach ($secrets as $s) {
+            $name = $s['name'] ?? $s['=name'] ?? '';
+            if ($name === '') continue;
+            $result[] = [
+                'name'     => $name,
+                'disabled' => $s['disabled']  ?? $s['=disabled']  ?? 'no',
+                'profile'  => $s['profile']   ?? $s['=profile']   ?? '',
+                'comment'  => $s['comment']   ?? $s['=comment']   ?? '',
+            ];
+        }
+
+        usort($result, fn($a, $b) => strcmp($a['name'], $b['name']));
+
+        return response()->json($result);
+    }
+
+    /**
+     * Actualiza mikrotik_username de um plano e força re-sync.
+     */
+    public function updateUsername(Request $request, Plano $plano)
+    {
+        $validated = $request->validate([
+            'mikrotik_username' => 'required|string|max:100',
+        ]);
+
+        $plano->mikrotik_username  = $validated['mikrotik_username'];
+        $plano->mikrotik_synced_at = null; // forçar re-sync pelo sync-plans
+        $plano->saveQuietly();
+
+        \Log::info('MikroTik: username actualizado manualmente', [
+            'plano_id' => $plano->id,
+            'username' => $validated['mikrotik_username'],
+            'by'       => auth()->user()?->name ?? 'admin',
+        ]);
+
+        // Activar imediatamente se o plano está Ativo/Em aviso
+        if (in_array($plano->estado, ['Ativo', 'Em aviso', 'Suspenso'])) {
+            $plano->load('cliente.mikrotikSite');
+            $site = $plano->cliente?->mikrotikSite;
+            if ($site) {
+                MikroTikService::forSite($site)->activateUser($plano->fresh());
+            }
+        }
+
+        return response()->json(['success' => true, 'mikrotik_username' => $validated['mikrotik_username']]);
+    }
+
     public function showDetails(Request $request, Plano $plano)
     {
         $plano->load(['cliente.mikrotikSite', 'mikrotikOnlineStatus']);

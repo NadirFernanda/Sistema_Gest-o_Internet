@@ -193,6 +193,8 @@ Route::middleware('auth')->group(function () {
             // Detalhes de um plano com histórico
             Route::get('/planos/{plano}/detalhes',      [\App\Http\Controllers\MikroTikAdminController::class, 'showDetails'])->name('planos.detalhes');
             Route::get('/planos/{plano}/traffic-data',  [\App\Http\Controllers\MikroTikAdminController::class, 'trafficData'])->name('planos.traffic-data');
+            Route::post('/planos/{plano}/username',     [\App\Http\Controllers\MikroTikAdminController::class, 'updateUsername'])->name('planos.update-username');
+            Route::get('/sites/{site}/secrets',         [\App\Http\Controllers\MikroTikAdminController::class, 'listSiteSecrets'])->name('sites.secrets');
         });
 
     // Export routes removed per request
