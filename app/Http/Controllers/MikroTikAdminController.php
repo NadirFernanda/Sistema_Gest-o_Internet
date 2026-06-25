@@ -433,14 +433,22 @@ class MikroTikAdminController extends Controller
     public function listSiteSecrets(MikroTikSite $site)
     {
         $service = MikroTikService::forSite($site);
-        $test    = $service->testConnection();
 
-        if (! $test['ok']) {
-            return response()->json(['error' => 'Router inacessível: ' . ($test['error'] ?? '')], 503);
+        try {
+            $secrets = $service->listSecrets();
+        } catch (\Throwable $e) {
+            \Log::error('listSiteSecrets: falha ao listar secrets', [
+                'site' => $site->nome, 'error' => $e->getMessage(),
+            ]);
+            return response()->json(['error' => 'Erro ao ligar ao router: ' . $e->getMessage()], 503);
         }
 
-        $secrets = $service->listSecrets();
-        $result  = [];
+        if (empty($secrets)) {
+            \Log::warning('listSiteSecrets: resposta vazia do router', ['site' => $site->nome]);
+            return response()->json(['error' => 'Router não devolveu secrets — verifique logs do servidor.'], 503);
+        }
+
+        $result = [];
         foreach ($secrets as $s) {
             $name = $s['name'] ?? $s['=name'] ?? '';
             if ($name === '') continue;

@@ -16,7 +16,7 @@ class MikroTikApiClient
     public function __construct(
         private readonly string $host,
         private readonly int    $port    = 8728,
-        private readonly int    $timeout = 5,
+        private readonly int    $timeout = 15,
     ) {}
 
     public function connect(string $username, string $password): void

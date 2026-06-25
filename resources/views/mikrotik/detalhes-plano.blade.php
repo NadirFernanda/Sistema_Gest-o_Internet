@@ -692,9 +692,14 @@ function carregarSecrets() {
     panel.style.display = 'block';
 
     fetch(secretsUrl, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } })
-    .then(r => r.json())
-    .then(secrets => {
-        if (!Array.isArray(secrets) || secrets.length === 0) {
+    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+    .then(({ ok, data: secrets }) => {
+        if (!ok || !Array.isArray(secrets)) {
+            const msg = (typeof secrets === 'object' && secrets.error) ? secrets.error : 'Resposta inválida do servidor.';
+            list.innerHTML = `<span style="color:#c0392b;font-size:0.82rem;">⚠ ${msg}</span>`;
+            return;
+        }
+        if (secrets.length === 0) {
             list.innerHTML = '<span style="color:#aaa;font-size:0.82rem;">Nenhum secret encontrado.</span>';
             return;
         }
