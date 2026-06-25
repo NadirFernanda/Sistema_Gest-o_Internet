@@ -261,23 +261,23 @@
     <div class="howto-grid">
       <div class="step-card">
         <div class="step-num">1</div>
-        <h3>Escolhe o plano</h3>
-        <p>Selecciona o plano que melhor se adapta — diário, semanal ou mensal.</p>
+        <h3>Conecte-se</h3>
+        <p>Ligue o seu dispositivo à rede AngolaWiFi.</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
-        <h3>Preenche os dados</h3>
-        <p>Nome, telefone e referência de pagamento. Simples, rápido e seguro.</p>
+        <h3>Aceda à loja</h3>
+        <p>Na página de login, clique em www.angolawifi.ao.</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
-        <h3>Efectua o pagamento</h3>
-        <p>Paga por Multicaixa Express ou transferência bancária — tudo em segundos.</p>
+        <h3>Compre o voucher</h3>
+        <p>Escolha o plano e efectue o pagamento de forma segura através do Gateway de Pagamentos Online da EMIS.</p>
       </div>
       <div class="step-card">
         <div class="step-num">4</div>
-        <h3>Recebe o código</h3>
-        <p>O seu código WiFi aparece imediatamente no ecrã após confirmação do pagamento.</p>
+        <h3>Navegue</h3>
+        <p>Receba o código, introduza-o na página de login e comece a navegar imediatamente e sem limites.</p>
       </div>
     </div>
   </div>
