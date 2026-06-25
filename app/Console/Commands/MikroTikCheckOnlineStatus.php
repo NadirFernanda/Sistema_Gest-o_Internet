@@ -82,23 +82,50 @@ class MikroTikCheckOnlineStatus extends Command
 
         $this->line('📊 Total de usernames activos (todos os routers): ' . count($allActiveUsernames));
 
-        // Passo 2: verificar todos os clientes Ativo de todos os sites acessíveis
+        // Passo 2: verificar planos Ativo/Em aviso/Suspenso de todos os sites acessíveis
         // contra a lista unificada de sessões (independente de qual router)
         $planos = Plano::whereNotNull('mikrotik_username')
             ->whereHas('cliente', fn($q) => $q->whereIn('mikrotik_site_id', $accessibleSiteIds))
-            ->where('estado', 'Ativo')
+            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
             ->with('cliente.mikrotikSite')
             ->get();
 
-        $totalChecked = 0;
+        $totalChecked  = 0;
+        $forcedSuspend = 0;
+
+        // Agrupar services por site para reutilizar a ligação ao forçar suspensão
+        $siteServices = [];
+
         foreach ($planos as $plano) {
             $isOnline = isset($allActiveUsernames[$plano->mikrotik_username]);
             $site     = $plano->cliente->mikrotikSite;
             $reason   = $isOnline ? null : $this->findDisconnectReason($plano->mikrotik_username, $allPppLogs);
             $this->updateStatus($plano, $site, $isOnline, $reason);
             $totalChecked++;
+
+            // Se o plano está Suspenso mas o cliente ainda tem sessão activa no router,
+            // forçar suspensão imediata (username estava errado na primeira tentativa ou
+            // a suspensão falhou silenciosamente).
+            if ($plano->estado === 'Suspenso' && $isOnline) {
+                $siteId = $site->id;
+                if (! isset($siteServices[$siteId])) {
+                    $siteServices[$siteId] = \App\Services\MikroTikService::forSite($site);
+                }
+                if ($siteServices[$siteId]->suspendUser($plano)) {
+                    $forcedSuspend++;
+                    Log::warning('MikroTik: plano Suspenso ainda online — forçada suspensão', [
+                        'plano_id' => $plano->id,
+                        'username' => $plano->mikrotik_username,
+                        'site'     => $site->nome,
+                    ]);
+                    $this->warn("  ⚠  Plano #{$plano->id} ({$plano->mikrotik_username}) suspenso forçado — estava online indevidamente.");
+                }
+            }
         }
 
+        if ($forcedSuspend > 0) {
+            $this->warn("🔒 {$forcedSuspend} plano(s) suspenso(s) à força (estavam online indevidamente).");
+        }
         $this->info("✨ Verificação completa! {$totalChecked} clientes verificados.");
         return 0;
     }
