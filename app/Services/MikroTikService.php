@@ -457,6 +457,26 @@ class MikroTikService
         }
     }
 
+    /**
+     * List all PPP secrets on the router.
+     * Returns array of secrets, each with keys: name, password, profile, disabled, comment, service, etc.
+     */
+    public function listSecrets(): array
+    {
+        if (! $this->isConfigured()) return [];
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/ppp/secret/print');
+            return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
+        } catch (\Throwable $e) {
+            Log::error('MikroTik PPPoE: listSecrets falhado', ['host' => $this->host, 'error' => $e->getMessage()]);
+            return [];
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
     private function findUser(string $username): ?array
     {
         $result = $this->api->command('/ppp/secret/print', [], ['name' => $username]);
