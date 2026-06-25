@@ -256,7 +256,7 @@
       </div>
       <h2>Como Funciona</h2>
       <div class="section-header__rule"></div>
-      <p>Em menos de 2 minutos tens internet. Sem conta, sem password, sem esperas.</p>
+      <p>Compre o seu voucher, conecte-se e navegue sem limites!</p>
     </div>
     <div class="howto-grid">
       <div class="step-card">
