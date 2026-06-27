@@ -372,16 +372,7 @@ function verificarRouter(siteId, url) {
             if (invalidList.length > 0) {
                 invalidCount.textContent = invalidList.length;
 
-                // Opções de select: secrets órfãos + placeholder (com comentário do router)
-                const optionsHtml = '<option value="">— escolher secret —</option>' +
-                    orphanList.map(s => {
-                        const label = s.comment
-                            ? `${esc(s.name)} — ${esc(s.comment)}${s.disabled==='yes' ? ' (desact.)' : ''}`
-                            : `${esc(s.name)}${s.disabled==='yes' ? ' (desact.)' : ''}`;
-                        return `<option value="${esc(s.name)}">${label}</option>`;
-                    }).join('');
-
-                // Auto-match: se o comentário do secret contiver parte do nome do cliente, pré-selecciona
+                // Auto-match: se o comentário do secret contiver parte do nome do cliente
                 function autoMatch(clienteNome) {
                     const nome = clienteNome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
                     const parts = nome.split(/\s+/).filter(w => w.length > 3);
@@ -392,8 +383,25 @@ function verificarRouter(siteId, url) {
                     return '';
                 }
 
+                // Opções de secret órfão (com comentário do router)
+                const orphanOptionsHtml = orphanList.map(s => {
+                    const label = s.comment
+                        ? `${esc(s.name)} — ${esc(s.comment)}${s.disabled==='yes' ? ' ⚠' : ''}`
+                        : `${esc(s.name)}${s.disabled==='yes' ? ' ⚠ desact.' : ''}`;
+                    return `<option value="${esc(s.name)}">${label}</option>`;
+                }).join('');
+
+                // Gerar linhas — opção "criar no router" é específica por plano (usa o username actual)
                 invalidBody.innerHTML = invalidList.map(p => {
-                    const matched = autoMatch(p.cliente_nome || '');
+                    const createOpt = `<option value="${esc(p.mikrotik_username)}" data-create="1">` +
+                        `↩ ${esc(p.mikrotik_username)} — criar no router com este username</option>`;
+                    const selectHtml = `<select class="fix-select inv-select-${siteId}" id="inv-sel-${p.plano_id}"
+                                    data-plano-id="${p.plano_id}" data-current="${esc(p.mikrotik_username)}"
+                                    onchange="updateBulkBarInv(${siteId})">
+                                <option value="">— escolher secret —</option>
+                                ${createOpt}
+                                ${orphanOptionsHtml}
+                            </select>`;
                     return `
                     <tr id="inv-row-${p.plano_id}">
                         <td><input type="checkbox" class="fix-cb inv-cb-${siteId}"
@@ -402,23 +410,25 @@ function verificarRouter(siteId, url) {
                         <td style="font-weight:600;color:#222;">${esc(p.cliente_nome)}</td>
                         <td><code class="uname">${esc(p.cliente_tel || '—')}</code></td>
                         <td><code class="uname missing">${esc(p.mikrotik_username)}</code></td>
-                        <td>
-                            <select class="fix-select inv-select-${siteId}" id="inv-sel-${p.plano_id}"
-                                    data-plano-id="${p.plano_id}"
-                                    onchange="updateBulkBarInv(${siteId})">
-                                ${optionsHtml}
-                            </select>
-                        </td>
+                        <td>${selectHtml}</td>
                         <td><span class="ebadge ${ p.estado==='Ativo' ? 'eb-ativo' : (p.estado==='Suspenso' ? 'eb-suspenso' : 'eb-aviso') }">${esc(p.estado)}</span></td>
                     </tr>`;
                 }).join('');
 
-                // Aplicar auto-match após inserir as linhas no DOM
+                // Pré-seleccionar: orphan match → verde | sem match → "criar no router" → azul
                 invalidList.forEach(p => {
+                    const sel = document.getElementById('inv-sel-' + p.plano_id);
+                    if (!sel) return;
                     const matched = autoMatch(p.cliente_nome || '');
                     if (matched) {
-                        const sel = document.getElementById('inv-sel-' + p.plano_id);
-                        if (sel) { sel.value = matched; sel.style.borderColor = '#27ae60'; }
+                        sel.value = matched;
+                        sel.style.borderColor = '#27ae60';
+                        sel.title = 'Auto-match pelo nome do cliente';
+                    } else {
+                        // Pré-seleccionar "criar no router" — o username actual já é correcto
+                        sel.value = p.mikrotik_username;
+                        sel.style.borderColor = '#4a90d9';
+                        sel.title = 'Secret não existe — será criado no router com este username';
                     }
                 });
                 updateBulkBarInv(siteId);
