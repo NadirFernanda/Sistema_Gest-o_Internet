@@ -201,20 +201,25 @@ class MikroTikService
             $username = $plano->mikrotik_username ?? $this->buildUsername($plano->cliente);
             $existing = $this->findUser($username);
 
-            if ($existing) {
-                $this->api->command('/ppp/secret/set', [
-                    '.id'      => $existing['.id'],
-                    'disabled' => 'yes',
-                    'comment'  => ($existing['comment'] ?? '') . '|SUSPENSO',
-                ]);
-
-                // Desconectar sessão PPPoE activa imediatamente
-                $this->disconnectActivePpp($username);
-
-                Log::info('MikroTik PPPoE: secret desactivado e sessão terminada', [
+            if (! $existing) {
+                Log::warning('MikroTik PPPoE: suspendUser — secret não encontrado no router', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
+                return false;
             }
+
+            $this->api->command('/ppp/secret/set', [
+                '.id'      => $existing['.id'],
+                'disabled' => 'yes',
+                'comment'  => 'SGA#' . $plano->id . '|SUSPENSO',
+            ]);
+
+            // Desconectar sessão PPPoE activa imediatamente
+            $this->disconnectActivePpp($username);
+
+            Log::info('MikroTik PPPoE: secret desactivado e sessão terminada', [
+                'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
+            ]);
 
             $plano->mikrotik_synced_at = now();
             $plano->saveQuietly();

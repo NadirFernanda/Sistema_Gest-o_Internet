@@ -118,7 +118,14 @@ class MikroTikCheckOnlineStatus extends Command
                         'username' => $plano->mikrotik_username,
                         'site'     => $site->nome,
                     ]);
-                    $this->warn("  ⚠  Plano #{$plano->id} ({$plano->mikrotik_username}) suspenso forçado — estava online indevidamente.");
+                    $this->warn("  🔒 Plano #{$plano->id} ({$plano->mikrotik_username}) suspenso forçado — estava online indevidamente.");
+                } else {
+                    Log::error('MikroTik: plano Suspenso online — suspensão FALHOU (secret não existe no router?)', [
+                        'plano_id' => $plano->id,
+                        'username' => $plano->mikrotik_username,
+                        'site'     => $site->nome,
+                    ]);
+                    $this->error("  ✗ Plano #{$plano->id} ({$plano->mikrotik_username}) — FALHOU suspender. Secret não existe no router. Ir ao Diagnóstico PPPoE.");
                 }
             }
         }
