@@ -30,10 +30,12 @@ class MikroTikCheckOnlineStatus extends Command
             return 0;
         }
 
-        // Passo 1: recolher TODAS as sessões activas e logs PPP de todos os routers
-        $allActiveUsernames = [];
-        $allPppLogs         = [];
-        $accessibleSiteIds  = [];
+        // Passo 1: recolher sessões activas e logs PPP POR SITE (não juntar tudo)
+        // para evitar colisões de username entre routers diferentes
+        $activeUsersBySite = []; // [siteId => [username => true]]
+        $logsBySite        = []; // [siteId => [...entries]]
+        $accessibleSiteIds = [];
+        $siteServices      = []; // reutilizar instâncias para force-suspend
 
         foreach ($sites as $site) {
             try {
@@ -49,20 +51,22 @@ class MikroTikCheckOnlineStatus extends Command
                 }
 
                 $sessions = $service->listActiveSessions();
-                $count    = 0;
+                $activeUsersBySite[$site->id] = [];
+                $count = 0;
                 foreach ($sessions as $s) {
                     $name = $s['name'] ?? '';
                     if ($name !== '') {
-                        $allActiveUsernames[$name] = true;
+                        $activeUsersBySite[$site->id][$name] = true;
                         $count++;
                     }
                 }
 
-                // Recolher logs PPP para detectar razões de desconexão
-                $logs        = $service->getRecentPppLogs();
-                $allPppLogs  = array_merge($allPppLogs, $logs);
+                $logs = $service->getRecentPppLogs();
+                $logsBySite[$site->id] = $logs;
 
-                $accessibleSiteIds[] = $site->id;
+                $accessibleSiteIds[]      = $site->id;
+                $siteServices[$site->id]  = $service;
+
                 $this->line("📡 {$site->nome}: {$count} sessões activas, " . count($logs) . " entradas de log PPP");
                 Log::info('MikroTik: sessões activas recolhidas', [
                     'site' => $site->nome, 'count' => $count,
@@ -80,10 +84,10 @@ class MikroTikCheckOnlineStatus extends Command
             return 0;
         }
 
-        $this->line('📊 Total de usernames activos (todos os routers): ' . count($allActiveUsernames));
+        $totalActive = array_sum(array_map('count', $activeUsersBySite));
+        $this->line("📊 Total de usernames activos (todos os routers): {$totalActive}");
 
-        // Passo 2: verificar planos Ativo/Em aviso/Suspenso de todos os sites acessíveis
-        // contra a lista unificada de sessões (independente de qual router)
+        // Passo 2: verificar cada plano apenas contra o router do seu próprio site
         $planos = Plano::whereNotNull('mikrotik_username')
             ->whereHas('cliente', fn($q) => $q->whereIn('mikrotik_site_id', $accessibleSiteIds))
             ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
@@ -93,21 +97,21 @@ class MikroTikCheckOnlineStatus extends Command
         $totalChecked  = 0;
         $forcedSuspend = 0;
 
-        // Agrupar services por site para reutilizar a ligação ao forçar suspensão
-        $siteServices = [];
-
         foreach ($planos as $plano) {
-            $isOnline = isset($allActiveUsernames[$plano->mikrotik_username]);
-            $site     = $plano->cliente->mikrotikSite;
-            $reason   = $isOnline ? null : $this->findDisconnectReason($plano->mikrotik_username, $allPppLogs);
+            $site   = $plano->cliente->mikrotikSite;
+            $siteId = $site->id;
+
+            // Verificar apenas contra sessões do router deste plano
+            $siteActive = $activeUsersBySite[$siteId] ?? [];
+            $isOnline   = isset($siteActive[$plano->mikrotik_username]);
+
+            $siteLogs = $logsBySite[$siteId] ?? [];
+            $reason   = $isOnline ? null : $this->findDisconnectReason($plano->mikrotik_username, $siteLogs);
+
             $this->updateStatus($plano, $site, $isOnline, $reason);
             $totalChecked++;
 
-            // Se o plano está Suspenso mas o cliente ainda tem sessão activa no router,
-            // forçar suspensão imediata (username estava errado na primeira tentativa ou
-            // a suspensão falhou silenciosamente).
             if ($plano->estado === 'Suspenso' && $isOnline) {
-                $siteId = $site->id;
                 if (! isset($siteServices[$siteId])) {
                     $siteServices[$siteId] = \App\Services\MikroTikService::forSite($site);
                 }
