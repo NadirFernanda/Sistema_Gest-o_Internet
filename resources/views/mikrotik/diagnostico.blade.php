@@ -372,13 +372,29 @@ function verificarRouter(siteId, url) {
             if (invalidList.length > 0) {
                 invalidCount.textContent = invalidList.length;
 
-                // Opções de select: secrets órfãos + placeholder
+                // Opções de select: secrets órfãos + placeholder (com comentário do router)
                 const optionsHtml = '<option value="">— escolher secret —</option>' +
-                    orphanList.map(s =>
-                        `<option value="${esc(s.name)}">${esc(s.name)}${s.disabled==='yes' ? ' (desact.)' : ''}</option>`
-                    ).join('');
+                    orphanList.map(s => {
+                        const label = s.comment
+                            ? `${esc(s.name)} — ${esc(s.comment)}${s.disabled==='yes' ? ' (desact.)' : ''}`
+                            : `${esc(s.name)}${s.disabled==='yes' ? ' (desact.)' : ''}`;
+                        return `<option value="${esc(s.name)}">${label}</option>`;
+                    }).join('');
 
-                invalidBody.innerHTML = invalidList.map(p => `
+                // Auto-match: se o comentário do secret contiver parte do nome do cliente, pré-selecciona
+                function autoMatch(clienteNome) {
+                    const nome = clienteNome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+                    const parts = nome.split(/\s+/).filter(w => w.length > 3);
+                    for (const s of orphanList) {
+                        const cmt = (s.comment || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+                        if (parts.some(w => cmt.includes(w))) return s.name;
+                    }
+                    return '';
+                }
+
+                invalidBody.innerHTML = invalidList.map(p => {
+                    const matched = autoMatch(p.cliente_nome || '');
+                    return `
                     <tr id="inv-row-${p.plano_id}">
                         <td><input type="checkbox" class="fix-cb inv-cb-${siteId}"
                                    data-plano-id="${p.plano_id}"
@@ -394,7 +410,18 @@ function verificarRouter(siteId, url) {
                             </select>
                         </td>
                         <td><span class="ebadge ${ p.estado==='Ativo' ? 'eb-ativo' : (p.estado==='Suspenso' ? 'eb-suspenso' : 'eb-aviso') }">${esc(p.estado)}</span></td>
-                    </tr>`).join('');
+                    </tr>`;
+                }).join('');
+
+                // Aplicar auto-match após inserir as linhas no DOM
+                invalidList.forEach(p => {
+                    const matched = autoMatch(p.cliente_nome || '');
+                    if (matched) {
+                        const sel = document.getElementById('inv-sel-' + p.plano_id);
+                        if (sel) { sel.value = matched; sel.style.borderColor = '#27ae60'; }
+                    }
+                });
+                updateBulkBarInv(siteId);
 
                 invalidWrap.style.display = '';
             }
