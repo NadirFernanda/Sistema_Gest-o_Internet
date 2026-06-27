@@ -98,6 +98,15 @@ class MikroTikCheckOnlineStatus extends Command
         // Pre-carregar modelos de sites para instanciar serviços de suspensão
         $siteModels = MikroTikSite::whereIn('id', $accessibleSiteIds)->get()->keyBy('id');
 
+        // Índice de usernames com plano Ativo/Em aviso → impede suspender um secret
+        // partilhado com outro plano que esteja activo (conflito de username duplicado)
+        $usernamesAtivos = $planos
+            ->whereIn('estado', ['Ativo', 'Em aviso'])
+            ->pluck('mikrotik_username')
+            ->filter()
+            ->flip()
+            ->toArray();
+
         $totalChecked  = 0;
         $forcedSuspend = 0;
 
@@ -128,6 +137,19 @@ class MikroTikCheckOnlineStatus extends Command
             // Plano Suspenso mas com sessão activa → suspender em TODOS os routers
             // e só depois gravar o status (evita "Online flash" na BD)
             if ($plano->estado === 'Suspenso' && $isOnline) {
+                // Segurança: se outro plano Ativo usa o MESMO username, não desactivar
+                // o secret (bloquearia o cliente legítimo). Registar conflito e ignorar.
+                if (isset($usernamesAtivos[$username])) {
+                    Log::error('MikroTik: CONFLITO de username — plano Suspenso partilha username com plano Ativo, suspensão ignorada', [
+                        'plano_id' => $plano->id,
+                        'username' => $username,
+                    ]);
+                    $this->error("  ⚠ Plano #{$plano->id} ({$username}) CONFLITO: outro plano Ativo usa o mesmo username! Corrigir no Diagnóstico PPPoE.");
+                    // Marcar como online (é a sessão do Ativo que está activa)
+                    $this->updateStatus($plano, $site, true, null);
+                    continue;
+                }
+
                 $suspended       = false;
                 $routersUsados   = [];
 
