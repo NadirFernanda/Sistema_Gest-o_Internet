@@ -106,15 +106,14 @@ class MikroTikCheckOnlineStatus extends Command
             $siteId   = $site->id;
             $username = $plano->mikrotik_username;
 
-            // 1º — verificar no router atribuído ao site do plano
-            $isOnline      = false;
-            $activeSiteId  = null;
+            // Verificar no router atribuído primeiro; depois nos outros
+            $isOnline     = false;
+            $activeSiteId = null;
 
             if (isset($activeUsersBySite[$siteId][$username])) {
                 $isOnline     = true;
                 $activeSiteId = $siteId;
             } else {
-                // 2º — verificar nos outros routers (clientes podem ligar a qualquer router)
                 foreach ($activeUsersBySite as $otherSiteId => $users) {
                     if ($otherSiteId !== $siteId && isset($users[$username])) {
                         $isOnline     = true;
@@ -124,43 +123,54 @@ class MikroTikCheckOnlineStatus extends Command
                 }
             }
 
-            $siteLogs = $logsBySite[$siteId] ?? [];
-            $reason   = $isOnline ? null : $this->findDisconnectReason($username, $siteLogs);
-
-            $this->updateStatus($plano, $site, $isOnline, $reason);
             $totalChecked++;
 
-            if ($plano->estado === 'Suspenso' && $isOnline && $activeSiteId !== null) {
-                // Suspender no router onde a sessão está activa (pode ser diferente do site atribuído)
-                if (! isset($siteServices[$activeSiteId])) {
-                    $siteServices[$activeSiteId] = \App\Services\MikroTikService::forSite(
-                        $siteModels[$activeSiteId]
-                    );
+            // Plano Suspenso mas com sessão activa → suspender em TODOS os routers
+            // e só depois gravar o status (evita "Online flash" na BD)
+            if ($plano->estado === 'Suspenso' && $isOnline) {
+                $suspended       = false;
+                $routersUsados   = [];
+
+                foreach ($accessibleSiteIds as $svSiteId) {
+                    if (! isset($siteServices[$svSiteId])) {
+                        $siteServices[$svSiteId] = \App\Services\MikroTikService::forSite(
+                            $siteModels[$svSiteId]
+                        );
+                    }
+                    if ($siteServices[$svSiteId]->suspendUser($plano)) {
+                        $suspended      = true;
+                        $routersUsados[] = $siteModels[$svSiteId]->nome;
+                    }
                 }
 
-                $routerLabel = $activeSiteId !== $siteId
-                    ? " (via router {$siteModels[$activeSiteId]->nome})"
-                    : '';
-
-                if ($siteServices[$activeSiteId]->suspendUser($plano)) {
+                if ($suspended) {
                     $forcedSuspend++;
+                    // Gravar como Offline — o cliente foi desligado agora
+                    $this->updateStatus($plano, $site, false, 'Suspenso — acesso bloqueado pelo sistema');
                     Log::warning('MikroTik: plano Suspenso ainda online — forçada suspensão', [
-                        'plano_id'        => $plano->id,
-                        'username'        => $username,
-                        'site_atribuido'  => $site->nome,
-                        'site_activo'     => $siteModels[$activeSiteId]->nome,
+                        'plano_id' => $plano->id,
+                        'username' => $username,
+                        'routers'  => $routersUsados,
                     ]);
-                    $this->warn("  🔒 Plano #{$plano->id} ({$username}) suspenso forçado{$routerLabel}.");
+                    $label = implode(' + ', $routersUsados);
+                    $this->warn("  🔒 Plano #{$plano->id} ({$username}) suspenso em: {$label}.");
                 } else {
-                    Log::error('MikroTik: plano Suspenso online — suspensão FALHOU', [
-                        'plano_id'       => $plano->id,
-                        'username'       => $username,
-                        'site_atribuido' => $site->nome,
-                        'site_activo'    => $siteModels[$activeSiteId]->nome,
+                    // Suspensão falhou em todos os routers — gravar como Online com aviso
+                    $this->updateStatus($plano, $site, true, null);
+                    Log::error('MikroTik: plano Suspenso online — suspensão FALHOU em todos os routers', [
+                        'plano_id' => $plano->id,
+                        'username' => $username,
+                        'site'     => $site->nome,
                     ]);
-                    $this->error("  ✗ Plano #{$plano->id} ({$username}) — FALHOU suspender{$routerLabel}. Ir ao Diagnóstico PPPoE.");
+                    $this->error("  ✗ Plano #{$plano->id} ({$username}) — FALHOU suspender em todos os routers. Ir ao Diagnóstico PPPoE.");
                 }
+                continue;
             }
+
+            // Plano normal (Ativo/Em aviso) ou Suspenso já offline
+            $siteLogs = $logsBySite[$siteId] ?? [];
+            $reason   = $isOnline ? null : $this->findDisconnectReason($username, $siteLogs);
+            $this->updateStatus($plano, $site, $isOnline, $reason);
         }
 
         if ($forcedSuspend > 0) {
