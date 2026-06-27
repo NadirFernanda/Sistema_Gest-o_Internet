@@ -197,6 +197,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/sites/{site}/secrets',              [\App\Http\Controllers\MikroTikAdminController::class, 'listSiteSecrets'])->name('sites.secrets');
             Route::get('/diagnostico',                        [\App\Http\Controllers\MikroTikAdminController::class, 'diagnostico'])->name('diagnostico');
             Route::get('/sites/{site}/diagnostico-router',   [\App\Http\Controllers\MikroTikAdminController::class, 'siteDiagnosticoRouter'])->name('sites.diagnostico-router');
+            Route::post('/diagnostico/bulk-fix',             [\App\Http\Controllers\MikroTikAdminController::class, 'bulkUpdateUsernames'])->name('diagnostico.bulk-fix');
         });
 
     // Export routes removed per request

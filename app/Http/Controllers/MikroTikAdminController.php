@@ -668,6 +668,59 @@ class MikroTikAdminController extends Controller
         return view('mikrotik.diagnostico', compact('dadosPorSite'));
     }
 
+    /** Corrigir múltiplos usernames de uma só vez (bulk). */
+    public function bulkUpdateUsernames(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'fixes'             => 'required|array|min:1|max:200',
+            'fixes.*.plano_id'  => 'required|integer|exists:planos,id',
+            'fixes.*.username'  => 'required|string|max:100',
+        ]);
+
+        $updated = 0;
+        $errors  = [];
+
+        // Agrupar planos por site para reutilizar a ligação ao router
+        $planosPorSite = [];
+        foreach ($validated['fixes'] as $fix) {
+            $plano = Plano::with('cliente.mikrotikSite')->find($fix['plano_id']);
+            if (! $plano) continue;
+
+            $plano->mikrotik_username  = $fix['username'];
+            $plano->mikrotik_synced_at = null;
+            $plano->saveQuietly();
+
+            \Log::info('MikroTik: username actualizado em massa', [
+                'plano_id'    => $plano->id,
+                'new_username'=> $fix['username'],
+                'by'          => auth()->user()?->name ?? 'admin',
+            ]);
+
+            $site = $plano->cliente?->mikrotikSite;
+            if ($site && in_array($plano->estado, ['Ativo', 'Em aviso'])) {
+                $siteId = $site->id;
+                if (! isset($planosPorSite[$siteId])) {
+                    $planosPorSite[$siteId] = ['site' => $site, 'planos' => []];
+                }
+                $planosPorSite[$siteId]['planos'][] = $plano;
+            }
+
+            $updated++;
+        }
+
+        // Activar no router (um serviço por site)
+        foreach ($planosPorSite as $group) {
+            $svc = MikroTikService::forSite($group['site']);
+            foreach ($group['planos'] as $plano) {
+                if (! $svc->activateUser($plano->fresh())) {
+                    $errors[] = ($plano->cliente?->nome ?? "Plano #{$plano->id}") . ': username guardado mas falhou activar no router';
+                }
+            }
+        }
+
+        return response()->json(['updated' => $updated, 'errors' => $errors]);
+    }
+
     /** AJAX: compara planos com secrets do router para detectar usernames inválidos e órfãos. */
     public function siteDiagnosticoRouter(MikroTikSite $site)
     {
