@@ -124,7 +124,7 @@ code.uname.orphan  { background:#fff8e1; color:#7a5c00; }
     border:none; cursor:pointer; transition:opacity .15s;
 }
 .btn-bulk-fix:hover:not(:disabled) { opacity:.85; }
-.btn-bulk-fix:disabled { opacity:.45; cursor:default; }
+.btn-bulk-fix:disabled { opacity:.6; cursor:default; background:#aaa; }
 .bulk-result { font-size:0.82rem; font-weight:700; padding:4px 12px; border-radius:6px; display:none; }
 .bulk-result.ok  { background:#e8f7ef; color:#2a8a55; }
 .bulk-result.err { background:#fdecea; color:#c0392b; }
@@ -475,18 +475,20 @@ function toggleAllInv(siteId, checked) {
 // Bulk bar update (sem username)
 // ──────────────────────────────────────────────
 function updateBulkBarSem(siteId) {
-    const checked = [...document.querySelectorAll('.sem-cb-' + siteId)].filter(c => c.checked);
+    const checked    = [...document.querySelectorAll('.sem-cb-' + siteId)].filter(c => c.checked);
+    const withValue  = checked.filter(cb => {
+        const inp = document.getElementById('sem-input-' + cb.dataset.planoId);
+        return inp && inp.value.trim() !== '';
+    });
     const bar     = document.getElementById('bulk-bar-sem-' + siteId);
     const countEl = document.getElementById('bulk-count-sem-' + siteId);
     const btn     = document.getElementById('btn-bulk-sem-' + siteId);
 
-    const allHaveValue = checked.every(cb => {
-        const inp = document.getElementById('sem-input-' + cb.dataset.planoId);
-        return inp && inp.value.trim() !== '';
-    });
-
-    countEl.textContent = checked.length + ' seleccionado' + (checked.length !== 1 ? 's' : '');
-    btn.disabled        = checked.length === 0 || !allHaveValue;
+    countEl.textContent = checked.length + ' seleccionado' + (checked.length !== 1 ? 's' : '')
+        + (checked.length > withValue.length && withValue.length > 0
+            ? ' (' + withValue.length + ' com username preenchido)'
+            : '');
+    btn.disabled = withValue.length === 0;
 
     if (checked.length > 0) {
         bar.classList.add('visible');
@@ -500,24 +502,33 @@ function updateBulkBarSem(siteId) {
 // Bulk bar update (username errado)
 // ──────────────────────────────────────────────
 function updateBulkBarInv(siteId) {
-    const checked = [...document.querySelectorAll('.inv-cb-' + siteId)].filter(c => c.checked);
+    const checked    = [...document.querySelectorAll('.inv-cb-' + siteId)].filter(c => c.checked);
+    const withValue  = checked.filter(cb => {
+        const sel = document.getElementById('inv-sel-' + cb.dataset.planoId);
+        return sel && sel.value.trim() !== '';
+    });
     const bar     = document.getElementById('bulk-bar-inv-' + siteId);
     const countEl = document.getElementById('bulk-count-inv-' + siteId);
     const btn     = document.getElementById('btn-bulk-inv-' + siteId);
 
-    const allHaveValue = checked.every(cb => {
-        const sel = document.getElementById('inv-sel-' + cb.dataset.planoId);
-        return sel && sel.value.trim() !== '';
-    });
-
-    countEl.textContent = checked.length + ' seleccionado' + (checked.length !== 1 ? 's' : '');
-    btn.disabled        = checked.length === 0 || !allHaveValue;
-
-    if (checked.length > 0) {
-        bar.classList.add('visible');
-    } else {
+    if (checked.length === 0) {
+        countEl.textContent = '0 seleccionados';
+        btn.disabled = true;
         bar.classList.remove('visible');
         document.getElementById('bulk-result-inv-' + siteId).style.display = 'none';
+        return;
+    }
+
+    bar.classList.add('visible');
+
+    if (withValue.length === 0) {
+        countEl.textContent = checked.length + ' seleccionado' + (checked.length !== 1 ? 's' : '')
+            + ' — escolhe o secret no dropdown de cada linha';
+        btn.disabled = true;
+    } else {
+        countEl.textContent = checked.length + ' seleccionado' + (checked.length !== 1 ? 's' : '')
+            + (withValue.length < checked.length ? ' (' + withValue.length + ' prontos para corrigir)' : '');
+        btn.disabled = false;
     }
 }
 
