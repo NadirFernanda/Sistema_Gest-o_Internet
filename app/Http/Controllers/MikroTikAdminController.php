@@ -677,11 +677,10 @@ class MikroTikAdminController extends Controller
             'fixes.*.username'  => 'required|string|max:100',
         ]);
 
-        $updated = 0;
-        $errors  = [];
+        $updated        = 0;
+        $errors         = [];
+        $updatedPlanos  = []; // todos os planos actualizados (para sync multi-router)
 
-        // Agrupar planos por site para reutilizar a ligação ao router
-        $planosPorSite = [];
         foreach ($validated['fixes'] as $fix) {
             $plano = Plano::with('cliente.mikrotikSite')->find($fix['plano_id']);
             if (! $plano) continue;
@@ -696,24 +695,30 @@ class MikroTikAdminController extends Controller
                 'by'          => auth()->user()?->name ?? 'admin',
             ]);
 
-            $site = $plano->cliente?->mikrotikSite;
-            if ($site && in_array($plano->estado, ['Ativo', 'Em aviso'])) {
-                $siteId = $site->id;
-                if (! isset($planosPorSite[$siteId])) {
-                    $planosPorSite[$siteId] = ['site' => $site, 'planos' => []];
-                }
-                $planosPorSite[$siteId]['planos'][] = $plano;
+            if (in_array($plano->estado, ['Ativo', 'Em aviso', 'Suspenso'])) {
+                $updatedPlanos[] = $plano;
             }
 
             $updated++;
         }
 
-        // Activar no router (um serviço por site)
-        foreach ($planosPorSite as $group) {
-            $svc = MikroTikService::forSite($group['site']);
-            foreach ($group['planos'] as $plano) {
-                if (! $svc->activateUser($plano->fresh())) {
-                    $errors[] = ($plano->cliente?->nome ?? "Plano #{$plano->id}") . ': username guardado mas falhou activar no router';
+        // Sincronizar em TODOS os routers acessíveis.
+        // O Camama é o servidor PPPoE primário e serve clientes de ambos os sites,
+        // por isso é essencial criar/actualizar o secret lá mesmo para clientes Zango.
+        // Só reportamos erro se o router do site ATRIBUÍDO ao cliente falhar.
+        $allSites = MikroTikSite::where('active', true)->get();
+        foreach ($allSites as $routerSite) {
+            if ($updatedPlanos === []) break;
+            $svc = MikroTikService::forSite($routerSite);
+            foreach ($updatedPlanos as $plano) {
+                $fresh = $plano->fresh();
+                if (! $svc->activateUser($fresh)) {
+                    $assignedSiteId = $plano->cliente?->mikrotik_site_id;
+                    if ($assignedSiteId === $routerSite->id) {
+                        $errors[] = ($plano->cliente?->nome ?? "Plano #{$plano->id}")
+                            . ': username guardado mas falhou activar no router '
+                            . $routerSite->nome;
+                    }
                 }
             }
         }
