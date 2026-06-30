@@ -81,7 +81,10 @@ class ClienteCompensacaoController extends Controller
         }
         if (! $plano) {
             $plano = $cliente->planos()
-                ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN (?)", ['ativo'])
+                ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) = ?", ['ativo'])
+                ->where(function ($q) {
+                    $q->where('ativo', true)->orWhereNull('ativo');
+                })
                 ->orderByDesc('data_ativacao')
                 ->first();
         }
