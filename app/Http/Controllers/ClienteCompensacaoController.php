@@ -164,7 +164,7 @@ class ClienteCompensacaoController extends Controller
             ]);
         }
 
-        return redirect()->route('clientes.show', $cliente->id)
+        return redirect()->route('clientes.ficha', $cliente->id)
             ->with('success', "Compensados {$diasComp} dias. Próxima renovação: " . Carbon::parse($novo)->format('d/m/Y'));
     }
 }

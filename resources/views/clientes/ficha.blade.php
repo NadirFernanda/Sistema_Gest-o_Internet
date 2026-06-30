@@ -5,7 +5,16 @@
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
 @endpush
 <div class="clientes-container ficha-cliente">
-    {{-- Compensação controls moved to plano detail view to avoid duplication --}}
+    @if(session('success'))
+        <div style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:8px;padding:12px 18px;margin-bottom:16px;font-weight:500;">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:8px;padding:12px 18px;margin-bottom:16px;font-weight:500;">
+            ✗ {{ session('error') }}
+        </div>
+    @endif
 
     {{-- Cabeçalho da ficha com logotipo --}}
     <div class="ficha-header">
