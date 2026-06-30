@@ -117,6 +117,8 @@
                                     $hoje = \Carbon\Carbon::today();
                                     $cicloShown = $pl->ciclo ?? '-';
                                     $preco = isset($pl->preco) ? number_format($pl->preco,2,',','.') . ' Kz' : '-';
+                                    $ultimaCompensacao = \App\Models\Compensacao::where('plano_id', $pl->id)
+                                        ->orderByDesc('created_at')->first();
                                     $estado = $pl->estado ?? '-';
                                     $diasRest = $dataTerm ? $hoje->diffInDays($dataTerm, false) : null;
                                     $totalCiclo = null;
@@ -156,10 +158,22 @@
                                         <div class="muted small">{{ $totalCiclo ? $percent . '% do ciclo decorrido' : 'Progresso indisponível' }} @if(!is_null($diasRest)) • {{ $diasRest >= 0 ? $diasRest . ' dias restantes' : abs($diasRest) . ' dias vencido' }} @endif</div>
                                     </div>
 
+                                    @if($ultimaCompensacao)
+                                    <div style="margin:6px 0 2px;padding:6px 10px;background:#fffbe7;border-radius:8px;font-size:0.85rem;color:#7a6000;border:1px solid #ffe6a0;">
+                                        ⏱ Última compensação: <strong>+{{ $ultimaCompensacao->dias_compensados }} dias</strong>
+                                        em {{ \Carbon\Carbon::parse($ultimaCompensacao->created_at)->format('d/m/Y') }}
+                                        @if($ultimaCompensacao->novo)
+                                            → renovação até <strong>{{ \Carbon\Carbon::parse($ultimaCompensacao->novo)->format('d/m/Y') }}</strong>
+                                        @endif
+                                        &nbsp;·&nbsp;<a href="{{ route('clientes.compensacoes', $cliente->id) }}" style="color:#b07d00;">ver histórico</a>
+                                    </div>
+                                    @endif
+
                                     <div class="plan-actions">
                                         <a href="{{ route('clientes.show', $cliente->id) }}?plano={{ $pl->id }}" class="btn btn-sm btn-ghost">Ver Detalhes</a>
                                         <button onclick="document.getElementById('janela-plano-{{ $pl->id }}').classList.add('active')" class="btn btn-sm btn-primary">+ Janela</button>
                                         <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.add('active')" class="btn btn-sm btn-ghost">Compensar Dias</button>
+                                        <a href="{{ route('clientes.compensacoes', $cliente->id) }}" class="btn btn-sm btn-ghost">📋 Compensações</a>
                                     </div>
 
                                     {{-- Modal: Adicionar Janela (com dias manual) --}}
