@@ -130,10 +130,14 @@ class ClienteController extends Controller
             return back()->with('error', 'Nenhum plano encontrado para adicionar janela.');
         }
 
-        // determina dias a adicionar a partir do campo `ciclo` (fallback para 30)
-        $dias = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo));
-        if ($dias <= 0) {
-            $dias = 30;
+        // Dias: usa o valor manual enviado no form; fallback para o ciclo do plano
+        if ($request->filled('dias') && (int) $request->input('dias') > 0) {
+            $dias = (int) $request->input('dias');
+        } else {
+            $dias = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo));
+            if ($dias <= 0) {
+                $dias = 30;
+            }
         }
 
         $hoje = Carbon::today();

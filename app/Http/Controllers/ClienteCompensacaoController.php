@@ -15,13 +15,20 @@ class ClienteCompensacaoController extends Controller
      */
     public function index($clienteId)
     {
-        $cliente = Cliente::findOrFail($clienteId);
-        // compensacoes table has no cliente_id column — query via plan IDs
-        $planoIds = $cliente->planos()->pluck('id')->toArray();
+        $cliente  = Cliente::findOrFail($clienteId);
+        $planos   = $cliente->planos()->get();
+        $planoIds = $planos->pluck('id')->toArray();
+
         $compensacoes = Compensacao::whereIn('plano_id', $planoIds)
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('clientes.compensacoes', compact('cliente', 'compensacoes'));
+
+        $planoMap = $planos->keyBy('id');
+
+        $userIds = $compensacoes->pluck('user_id')->filter()->unique();
+        $users   = \App\Models\User::whereIn('id', $userIds)->with('roles')->get()->keyBy('id');
+
+        return view('clientes.compensacoes', compact('cliente', 'compensacoes', 'planoMap', 'users'));
     }
 
     /**
@@ -30,7 +37,8 @@ class ClienteCompensacaoController extends Controller
     public function store(Request $request, $clienteId)
     {
         $request->validate([
-            'dias_compensados' => 'required|integer|min:1|max:90',
+            'dias_compensados' => 'required|integer|min:1|max:365',
+            'plano_id'        => 'nullable|integer|exists:planos,id',
         ]);
 
         $user = Auth::user();
@@ -66,14 +74,17 @@ class ClienteCompensacaoController extends Controller
 
         $cliente = Cliente::findOrFail($clienteId);
 
-        // Localiza o plano ativo mais recente do cliente
-        $plano = $cliente->planos()
-            ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) = ?", ['ativo'])
-            ->where(function($q) {
-                $q->where('ativo', true)->orWhereNull('ativo');
-            })
-            ->orderByDesc('data_ativacao')
-            ->first();
+        // Usa o plano_id enviado pelo form; fallback para o plano ativo mais recente
+        $plano = null;
+        if ($request->filled('plano_id')) {
+            $plano = $cliente->planos()->where('id', $request->input('plano_id'))->first();
+        }
+        if (! $plano) {
+            $plano = $cliente->planos()
+                ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) IN (?)", ['ativo'])
+                ->orderByDesc('data_ativacao')
+                ->first();
+        }
 
         if (! $plano) {
             try {

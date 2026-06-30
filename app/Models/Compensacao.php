@@ -12,15 +12,21 @@ class Compensacao extends Model
     protected $table = 'compensacoes';
 
     protected $fillable = [
-        'cliente_id',
+        'plano_id',
         'user_id',
-        'dias',
-        'motivo',
+        'dias_compensados',
+        'anterior',
+        'novo',
     ];
 
-    public function cliente()
+    protected $casts = [
+        'anterior' => 'date',
+        'novo'     => 'date',
+    ];
+
+    public function plano()
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id');
+        return $this->belongsTo(Plano::class, 'plano_id');
     }
 
     public function user()

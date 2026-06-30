@@ -158,15 +158,31 @@
 
                                     <div class="plan-actions">
                                         <a href="{{ route('clientes.show', $cliente->id) }}?plano={{ $pl->id }}" class="btn btn-sm btn-ghost">Ver Detalhes</a>
-                                        <form method="POST" action="{{ route('clientes.adicionar_janela', $cliente->id) }}" style="display:inline-block;">
-                                            @csrf
-                                            <input type="hidden" name="plano_id" value="{{ $pl->id }}">
-                                            <button type="submit" class="btn btn-sm btn-primary">Adicionar Janela</button>
-                                        </form>
+                                        <button onclick="document.getElementById('janela-plano-{{ $pl->id }}').classList.add('active')" class="btn btn-sm btn-primary">+ Janela</button>
                                         <button onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.add('active')" class="btn btn-sm btn-ghost">Compensar Dias</button>
                                     </div>
 
-                                    {{-- Modal mínimo por plano (apenas se necessário) --}}
+                                    {{-- Modal: Adicionar Janela (com dias manual) --}}
+                                    <div id="janela-plano-{{ $pl->id }}" class="modal-overlay" aria-hidden="true">
+                                        <div class="modal">
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                                <strong>Adicionar Janela — {{ $pl->nome ?? 'Plano' }}</strong>
+                                                <button onclick="document.getElementById('janela-plano-{{ $pl->id }}').classList.remove('active')" class="btn btn-ghost">×</button>
+                                            </div>
+                                            <form method="POST" action="{{ route('clientes.adicionar_janela', $cliente->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="plano_id" value="{{ $pl->id }}">
+                                                <label class="muted">Dias a adicionar <span style="color:#aaa;font-size:.9em;">(deixar em branco = ciclo do plano: {{ (int) preg_replace('/[^0-9]/', '', $pl->ciclo ?? '30') }} dias)</span></label>
+                                                <input name="dias" type="number" min="1" max="365" placeholder="{{ (int) preg_replace('/[^0-9]/', '', $pl->ciclo ?? '30') }}" class="form-control" style="margin-top:6px;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                                                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                                                    <button type="button" onclick="document.getElementById('janela-plano-{{ $pl->id }}').classList.remove('active')" class="btn btn-ghost">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    {{-- Modal: Compensar Dias --}}
                                     <div id="compensar-dias-plano-{{ $pl->id }}" class="modal-overlay" aria-hidden="true">
                                         <div class="modal">
                                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -176,8 +192,8 @@
                                             <form method="POST" action="{{ route('clientes.compensar_dias', $cliente->id) }}">
                                                 @csrf
                                                 <input type="hidden" name="plano_id" value="{{ $pl->id }}">
-                                                <label class="muted">Dias a compensar</label>
-                                                <input name="dias_compensados" id="dias_compensados" type="number" min="1" max="90" class="form-control" style="margin-top:6px;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                                                <label class="muted">Dias a compensar (queda/indisponibilidade)</label>
+                                                <input name="dias_compensados" type="number" min="1" max="365" class="form-control" style="margin-top:6px;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;" required>
                                                 <div style="display:flex;gap:8px;justify-content:flex-end;">
                                                     <button type="button" onclick="document.getElementById('compensar-dias-plano-{{ $pl->id }}').classList.remove('active')" class="btn btn-ghost">Cancelar</button>
                                                     <button type="submit" class="btn btn-cta">Confirmar</button>
