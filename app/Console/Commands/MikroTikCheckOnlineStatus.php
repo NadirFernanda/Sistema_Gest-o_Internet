@@ -291,7 +291,26 @@ class MikroTikCheckOnlineStatus extends Command
                 'site' => $site->nome,
             ]);
         } elseif (!$isOnline && $wasOnline) {
-            // Transição: online → offline
+            // Debounce: aguardar um segundo ciclo antes de confirmar queda.
+            // PPPoE sessions podem desaparecer brevemente durante renovação de sessão
+            // ou por falha momentânea da API do router — registar só se o cliente
+            // estiver offline em dois ciclos consecutivos (≥ cron interval).
+            $minsSinceOnline = $status->last_seen_online_at
+                ? now()->diffInMinutes($status->last_seen_online_at)
+                : 999;
+
+            if ($minsSinceOnline < 7) {
+                // Primeira detecção offline — aguardar confirmação no próximo ciclo.
+                // Não alterar is_online nem criar evento ainda.
+                Log::debug('MikroTik: cliente aparece offline mas aguarda confirmação (debounce)', [
+                    'plano_id' => $plano->id,
+                    'username' => $plano->mikrotik_username,
+                    'mins_since_online' => $minsSinceOnline,
+                ]);
+                return;
+            }
+
+            // Transição confirmada: online → offline (dois ciclos consecutivos offline)
             $reason = $disconnectReason ?? 'Queda detectada';
             $status->is_online = false;
             $status->last_seen_offline_at = now();
@@ -306,7 +325,7 @@ class MikroTikCheckOnlineStatus extends Command
                 'disconnect_reason' => $reason,
             ]);
 
-            Log::warning('MikroTik: cliente caiu offline', [
+            Log::warning('MikroTik: cliente caiu offline (confirmado em 2 ciclos)', [
                 'plano_id' => $plano->id,
                 'username' => $plano->mikrotik_username,
                 'site' => $site->nome,
