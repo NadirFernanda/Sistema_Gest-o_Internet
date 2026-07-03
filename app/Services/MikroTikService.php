@@ -96,6 +96,7 @@ class MikroTikService
             if ($existing) {
                 $resp = $this->api->command('/ppp/secret/set', [
                     '.id'      => $existing['.id'],
+                    'password' => $password,
                     'profile'  => $profile,
                     'disabled' => $disabled,
                     'comment'  => $comment,
@@ -106,6 +107,7 @@ class MikroTikService
                     ]);
                     $resp = $this->api->command('/ppp/secret/set', [
                         '.id'      => $existing['.id'],
+                        'password' => $password,
                         'profile'  => $this->defaultProfile,
                         'disabled' => $disabled,
                         'comment'  => $comment,
@@ -117,6 +119,7 @@ class MikroTikService
                     ]);
                     $resp = $this->api->command('/ppp/secret/set', [
                         '.id'      => $existing['.id'],
+                        'password' => $password,
                         'disabled' => $disabled,
                         'comment'  => $comment,
                     ]);
