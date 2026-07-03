@@ -51,6 +51,15 @@ class MikroTikCheckOnlineStatus extends Command
                 }
 
                 $sessions = $service->listActiveSessions();
+                if ($sessions === null) {
+                    // API falhou ou resposta incompleta — não actualizar status deste site
+                    // para evitar marcar clientes como Offline por falha de ligação ao router
+                    $this->warn("⚠️  {$site->nome}: listActiveSessions falhou (resposta incompleta) — status não actualizado.");
+                    Log::warning('MikroTik: check-online-status ignorado para site — listActiveSessions null', [
+                        'site_id' => $site->id, 'site' => $site->nome,
+                    ]);
+                    continue;
+                }
                 $activeUsersBySite[$site->id] = [];
                 $count = 0;
                 foreach ($sessions as $s) {

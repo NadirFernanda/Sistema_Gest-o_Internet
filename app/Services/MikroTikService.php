@@ -291,10 +291,13 @@ class MikroTikService
 
     /**
      * List all active PPPoE sessions on this router.
-     * 
-     * @return array Array of active sessions, each with keys: name, address, uptime, etc.
+     *
+     * Returns null if the API call failed or returned an incomplete response
+     * (no !done marker), so callers can distinguish "0 sessions" from "API error".
+     *
+     * @return array|null Sessions array, or null on API failure.
      */
-    public function listActiveSessions(): array
+    public function listActiveSessions(): ?array
     {
         if (! $this->isConfigured()) {
             return [];
@@ -303,12 +306,29 @@ class MikroTikService
         try {
             $this->connect();
             $result = $this->api->command('/ppp/active/print');
+
+            // Confirm the command completed. Without !done, the response is
+            // incomplete (timeout / connection reset) — treat as API failure.
+            $hasDone = false;
+            foreach ($result as $r) {
+                if (($r['type'] ?? '') === '!done') {
+                    $hasDone = true;
+                    break;
+                }
+            }
+            if (! $hasDone) {
+                Log::warning('MikroTik: listActiveSessions — resposta incompleta (sem !done), status não actualizado', [
+                    'host' => $this->host,
+                ]);
+                return null;
+            }
+
             return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
         } catch (\Throwable $e) {
             Log::error('MikroTik PPPoE: listActiveSessions falhado', [
                 'host' => $this->host, 'error' => $e->getMessage(),
             ]);
-            return [];
+            return null;
         } finally {
             $this->safeDisconnect();
         }
