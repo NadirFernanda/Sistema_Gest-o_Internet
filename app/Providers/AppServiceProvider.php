@@ -11,6 +11,7 @@ use App\Models\ClienteEquipamento;
 use App\Models\Cobranca;
 use App\Models\User;
 use App\Observers\ModelAuditObserver;
+use App\Observers\PlanoMikroTikObserver;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\Channels\WhatsAppChannel;
 use App\Services\WhatsAppService;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         // Register generic model observer for critical models
         Cliente::observe(new ModelAuditObserver());
         Plano::observe(new ModelAuditObserver());
+        Plano::observe(new PlanoMikroTikObserver());
         Equipamento::observe(new ModelAuditObserver());
         EstoqueEquipamento::observe(new ModelAuditObserver());
         ClienteEquipamento::observe(new ModelAuditObserver());
