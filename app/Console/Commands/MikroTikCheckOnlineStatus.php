@@ -146,6 +146,22 @@ class MikroTikCheckOnlineStatus extends Command
             // Plano Suspenso mas com sessão activa → suspender em TODOS os routers
             // e só depois gravar o status (evita "Online flash" na BD)
             if ($plano->estado === 'Suspenso' && $isOnline) {
+                // Segurança: proxima_renovacao no futuro indica cliente que pagou mas
+                // cujo estado ficou Suspenso por inconsistência (ex: compensação sem reactivar).
+                // Reactivar automaticamente em vez de suspender para não cortar cliente a pagar.
+                if ($plano->proxima_renovacao && \Carbon\Carbon::parse($plano->proxima_renovacao)->isFuture()) {
+                    Log::warning('MikroTik: plano Suspenso com renovação futura — reactivando automaticamente', [
+                        'plano_id'          => $plano->id,
+                        'username'          => $username,
+                        'proxima_renovacao' => $plano->proxima_renovacao,
+                    ]);
+                    $plano->estado = 'Ativo';
+                    $plano->save();
+                    $this->updateStatus($plano, $site, true, null);
+                    $this->warn("  ♻  Plano #{$plano->id} ({$username}) reactivado automaticamente — proxima_renovacao no futuro.");
+                    continue;
+                }
+
                 // Segurança: se outro plano Ativo usa o MESMO username, não desactivar
                 // o secret (bloquearia o cliente legítimo). Registar conflito e ignorar.
                 if (isset($usernamesAtivos[$username])) {

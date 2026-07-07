@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Compensacao;
 use App\Models\Cliente;
+use App\Models\MikroTikSite;
+use App\Services\MikroTikService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ClienteCompensacaoController extends Controller
 {
@@ -145,8 +148,28 @@ class ClienteCompensacaoController extends Controller
         $diasComp = (int) $request->input('dias_compensados');
         $novo = $base->copy()->addDays($diasComp)->toDateString();
 
+        $estadoAnterior = $plano->estado;
         $plano->proxima_renovacao = $novo;
+        // Se o plano estava suspenso e a nova data está no futuro, reactivar
+        if (in_array($plano->estado, ['Suspenso', 'Em aviso'])) {
+            $plano->estado = 'Ativo';
+        }
         $plano->save();
+
+        // Sincronizar com MikroTik se o plano foi reactivado
+        if (in_array($estadoAnterior, ['Suspenso', 'Em aviso']) && $plano->estado === 'Ativo') {
+            $sites = MikroTikSite::where('active', true)->get();
+            $planoFresh = $plano->fresh()->load('cliente');
+            foreach ($sites as $routerSite) {
+                try {
+                    MikroTikService::forSite($routerSite)->activateUser($planoFresh);
+                } catch (\Throwable $e) {
+                    Log::warning('CompensacaoController: falha ao reactivar MikroTik após compensação', [
+                        'plano_id' => $plano->id, 'router' => $routerSite->nome, 'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
 
         // Regista detalhe da compensação na mesma tabela de histórico usada por adicionarJanela
         try {
