@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Cobranca;
+use App\Models\MikroTikSite;
 use App\Models\Plano;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -69,15 +70,23 @@ class PlanoRenovacaoService
             'nova_renovacao'  => $novaRenovacao->toDateString(),
         ]);
 
-        if (in_array($estadoAnterior, ['Suspenso', 'Em aviso']) && $cliente->mikrotikSite) {
-            try {
-                MikroTikService::forSite($cliente->mikrotikSite)->activateUser($plano->fresh());
-                Log::info('PlanoRenovacaoService: utilizador reactivado no MikroTik', ['plano_id' => $plano->id]);
-            } catch (\Throwable $e) {
-                Log::warning('PlanoRenovacaoService: falha ao reactivar MikroTik', [
-                    'plano_id' => $plano->id,
-                    'error'    => $e->getMessage(),
-                ]);
+        if (in_array($estadoAnterior, ['Suspenso', 'Em aviso'])) {
+            $sites = MikroTikSite::where('active', true)->get();
+            $planoFresh = $plano->fresh();
+            foreach ($sites as $routerSite) {
+                try {
+                    MikroTikService::forSite($routerSite)->activateUser($planoFresh);
+                    Log::info('PlanoRenovacaoService: utilizador reactivado no MikroTik', [
+                        'plano_id' => $plano->id,
+                        'router'   => $routerSite->nome,
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::warning('PlanoRenovacaoService: falha ao reactivar MikroTik', [
+                        'plano_id' => $plano->id,
+                        'router'   => $routerSite->nome,
+                        'error'    => $e->getMessage(),
+                    ]);
+                }
             }
         }
     }
