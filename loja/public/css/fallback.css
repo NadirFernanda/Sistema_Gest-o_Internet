@@ -1008,6 +1008,17 @@ main .container {
   color: #9ca3af;
   margin-bottom: .65rem;
 }
+.vhist-total {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #f7b500;
+  line-height: 1;
+  margin-bottom: .2rem;
+}
+.vhist-total-sub {
+  font-size: .78rem;
+  color: #9ca3af;
+}
 .vhist-spark {
   flex: 1;
   display: flex;

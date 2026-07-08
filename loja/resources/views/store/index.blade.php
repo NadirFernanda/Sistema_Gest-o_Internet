@@ -264,8 +264,9 @@
             </div>
           </div>
           <div class="vhist-spark-wrap">
-            <div class="vhist-spark-title">Acessos — últimos 7 dias</div>
-            <div class="vhist-spark js-sparkline"></div>
+            <div class="vhist-spark-title">Total de acessos</div>
+            <div class="vhist-total js-hist-total">—</div>
+            <div class="vhist-total-sub">visitas registadas</div>
           </div>
         </div>
 
@@ -527,20 +528,6 @@
     el.innerHTML = html;
   }
 
-  function renderSparkline(data) {
-    var el = document.querySelector('.js-sparkline');
-    if (!el || !data || !data.length) return;
-    var max = Math.max.apply(null, data.map(function(d){ return d.v; })) || 1;
-    var html = data.map(function(d) {
-      var h = max > 0 ? Math.round((d.v / max) * 100) : 0;
-      return '<div class="spark-col">'
-        + '<div class="spark-bar" style="height:' + h + '%"></div>'
-        + '<span class="spark-lbl">' + d.d + '</span>'
-        + '</div>';
-    }).join('');
-    el.innerHTML = html;
-  }
-
   function fetchStats() {
     fetch('/store/live-stats')
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -553,8 +540,8 @@
         setNum('.js-hist-today',    data.visitors_today,  '');
         setNum('.js-hist-week',     data.visitors_week,   '');
         setNum('.js-hist-month',    data.visitors_month,  '');
+        setNum('.js-hist-total',    data.visitors_total,  '');
         renderChart(data.top_countries);
-        renderSparkline(data.sparkline);
         setUpdated();
       })
       .catch(function(){});
