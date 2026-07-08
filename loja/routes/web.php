@@ -42,6 +42,7 @@ Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::cl
 Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder'])->middleware('throttle:10,1');
 Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
+Route::get('/store/live-stats', [\App\Http\Controllers\StorefrontController::class, 'liveStats'])->middleware('throttle:30,1')->name('store.live-stats');
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);

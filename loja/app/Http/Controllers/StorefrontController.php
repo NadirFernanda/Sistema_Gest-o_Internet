@@ -7,6 +7,7 @@ use App\Models\SiteStat;
 use App\Models\VoucherPlan;
 use App\Services\AutovendaOrderService;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Exception;
@@ -30,12 +31,43 @@ class StorefrontController extends Controller
             $siteStats = collect();
         }
 
-        // Planos familiares/empresariais e contagem de clientes activos carregados
-        // do SG via API (cache de 5 minutos). Null se o SG estiver inacessível.
+        // Estatísticas live da loja (protegidas contra tabela inexistente)
+        try {
+            $vouchersSoldToday = AutovendaOrder::whereNotNull('delivered_at')
+                ->whereDate('delivered_at', today())
+                ->count();
+            $totalDelivered = AutovendaOrder::whereNotNull('delivered_at')->count();
+        } catch (\Throwable $e) {
+            $vouchersSoldToday = null;
+            $totalDelivered    = null;
+        }
+
         return view('store.index', [
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
             'activeClientCount' => $this->fetchActiveClientCount(),
+            'vouchersSoldToday' => $vouchersSoldToday,
+            'totalDelivered'    => $totalDelivered,
+        ]);
+    }
+
+    /** Endpoint JSON para polling live das estatísticas da loja. */
+    public function liveStats(): JsonResponse
+    {
+        try {
+            $vouchersSoldToday = AutovendaOrder::whereNotNull('delivered_at')
+                ->whereDate('delivered_at', today())
+                ->count();
+            $totalDelivered = AutovendaOrder::whereNotNull('delivered_at')->count();
+        } catch (\Throwable $e) {
+            $vouchersSoldToday = null;
+            $totalDelivered    = null;
+        }
+
+        return response()->json([
+            'active_clients'    => $this->fetchActiveClientCount(),
+            'vouchers_today'    => $vouchersSoldToday,
+            'total_delivered'   => $totalDelivered,
         ]);
     }
 

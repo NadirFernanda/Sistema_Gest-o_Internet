@@ -154,46 +154,70 @@
   {{-- Stat Bar --}}
   <div class="stat-bar">
     <div class="stat-bar__grid">
-      @forelse($siteStats ?? [] as $stat)
-        @php
-          /* Para o item "Clientes activos" usa sempre o n.º real do SG.
-             Se o SG estiver inacessível, exibe '—' em vez de um número falso. */
-          $isClientsItem = mb_strtolower(trim($stat->legenda)) === 'clientes activos';
-          $liveCount     = ($isClientsItem && isset($activeClientCount) && $activeClientCount !== null)
-                         ? $activeClientCount : null;
-        @endphp
+
+      {{-- Indicador "Ao vivo" --}}
+      <div class="stat-bar__live">
+        <span class="live-dot"></span>
+        <span class="live-label">Ao vivo</span>
+      </div>
+
+      {{-- Online agora (SG API) --}}
+      <div class="stat-bar__item">
+        @php $ac = $activeClientCount ?? null; @endphp
+        <span class="stat-bar__num js-live-active"
+          @if($ac !== null) data-count-to="{{ $ac }}" data-count-decimals="0" data-count-suffix="" @else data-count-static="1" @endif>
+          {{ $ac !== null ? number_format($ac, 0, ',', '.') : '—' }}
+        </span>
+        <span class="stat-bar__lbl">Online agora</span>
+      </div>
+
+      {{-- Vouchers entregues hoje --}}
+      <div class="stat-bar__item">
+        @php $vt = $vouchersSoldToday ?? null; @endphp
+        <span class="stat-bar__num js-live-today"
+          @if($vt !== null) data-count-to="{{ $vt }}" data-count-decimals="0" data-count-suffix="" @else data-count-static="1" @endif>
+          {{ $vt !== null ? number_format($vt, 0, ',', '.') : '—' }}
+        </span>
+        <span class="stat-bar__lbl">Vouchers hoje</span>
+      </div>
+
+      {{-- Total entregues --}}
+      <div class="stat-bar__item">
+        @php $td = $totalDelivered ?? null; @endphp
+        <span class="stat-bar__num js-live-total"
+          @if($td !== null) data-count-to="{{ $td }}" data-count-decimals="0" data-count-suffix="+" @else data-count-static="1" @endif>
+          {{ $td !== null ? number_format($td, 0, ',', '.') . '+' : '—' }}
+        </span>
+        <span class="stat-bar__lbl">Vouchers entregues</span>
+      </div>
+
+      {{-- Stats configuráveis via DB (SiteStat), excluindo "Clientes activos" que já está acima) --}}
+      @foreach($siteStats ?? [] as $stat)
+        @if(mb_strtolower(trim($stat->legenda)) === 'clientes activos') @continue @endif
         <div class="stat-bar__item">
           <span class="stat-bar__num"
-            @if($liveCount !== null)
-              data-count-to="{{ $liveCount }}"
-              data-count-decimals="0"
-              data-count-suffix=""
-            @elseif(!$isClientsItem && $stat->count_to !== null)
-              {{-- Nunca animar o item de clientes com um valor estático falso --}}
+            @if($stat->count_to !== null)
               data-count-to="{{ $stat->count_to }}"
               data-count-decimals="{{ $stat->count_decimals }}"
               data-count-suffix="{{ $stat->count_suffix }}"
             @else
               data-count-static="1"
             @endif
-          >{{ $liveCount !== null
-               ? number_format($liveCount, 0, ',', '.')
-               : ($isClientsItem ? '—' : $stat->valor) }}</span>
+          >{{ $stat->valor }}</span>
           <span class="stat-bar__lbl">{{ $stat->legenda }}</span>
         </div>
-      @empty
-        <div class="stat-bar__item">
-          @if(isset($activeClientCount) && $activeClientCount !== null)
-            <span class="stat-bar__num" data-count-to="{{ $activeClientCount }}" data-count-decimals="0" data-count-suffix="">{{ number_format($activeClientCount, 0, ',', '.') }}</span>
-          @else
-            <span class="stat-bar__num js-active-clients" data-count-decimals="0" data-count-suffix="">—</span>
-          @endif
-          <span class="stat-bar__lbl">Clientes activos</span>
-        </div>
+      @endforeach
+
+      {{-- Fallback se SiteStat vazio: uptime + suporte --}}
+      @if(($siteStats ?? collect())->isEmpty())
         <div class="stat-bar__item"><span class="stat-bar__num" data-count-to="99.8" data-count-decimals="1" data-count-suffix="%">99.8%</span><span class="stat-bar__lbl">Uptime garantido</span></div>
-        <div class="stat-bar__item"><span class="stat-bar__num" data-count-static="1">24–48h</span><span class="stat-bar__lbl">Instalação rápida</span></div>
         <div class="stat-bar__item"><span class="stat-bar__num" data-count-static="1">24/7</span><span class="stat-bar__lbl">Suporte técnico</span></div>
-      @endforelse
+      @endif
+
+      {{-- Timestamp de última actualização --}}
+      <div class="stat-bar__live stat-bar__live--right">
+        <span class="live-updated js-live-updated"></span>
+      </div>
     </div>
   </div>
 
@@ -409,21 +433,41 @@
 
 @push('scripts')
 <script>
-// Carrega o número de clientes activos de forma assíncrona para não bloquear o render
 (function () {
-  var el = document.querySelector('.js-active-clients');
-  if (!el) return;
-  fetch('/sg/active-clients')
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(data){
-      if (data && data.count !== null && data.count !== undefined) {
-        el.dataset.countTo = data.count;
-        el.textContent = new Intl.NumberFormat('pt-PT').format(data.count);
-        // dispara animação se o contador global já estiver inicializado
-        if (window.initCounters) window.initCounters();
-      }
-    })
-    .catch(function(){});
+  var fmt = new Intl.NumberFormat('pt-PT');
+
+  function setNum(sel, val, suffix) {
+    var el = document.querySelector(sel);
+    if (!el || val === null || val === undefined) return;
+    el.dataset.countTo  = val;
+    el.dataset.countSuffix = suffix || '';
+    el.removeAttribute('data-count-static');
+    el.textContent = fmt.format(val) + (suffix || '');
+    if (window.initCounters) window.initCounters();
+  }
+
+  function setUpdated() {
+    var el = document.querySelector('.js-live-updated');
+    if (el) el.textContent = 'Actualizado ' + new Date().toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  }
+
+  function fetchStats() {
+    fetch('/store/live-stats')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){
+        if (!data) return;
+        setNum('.js-live-active', data.active_clients, '');
+        setNum('.js-live-today',  data.vouchers_today,  '');
+        setNum('.js-live-total',  data.total_delivered, '+');
+        setUpdated();
+      })
+      .catch(function(){});
+  }
+
+  // Carregamento inicial assíncrono
+  fetchStats();
+  // Polling a cada 60 segundos
+  setInterval(fetchStats, 60000);
 })();
 </script>
 @endpush
