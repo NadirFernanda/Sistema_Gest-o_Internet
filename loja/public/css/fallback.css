@@ -1051,7 +1051,7 @@ main .container {
 .vhist-ccount {
   font-size: .78rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #b45309;
   grid-column: 2; grid-row: 1;
   white-space: nowrap;
 }
@@ -1064,7 +1064,7 @@ main .container {
 }
 .vhist-cbar {
   height: 100%;
-  background: #2563eb;
+  background: #f7b500;
   border-radius: 2px;
   transition: width .4s ease;
 }
