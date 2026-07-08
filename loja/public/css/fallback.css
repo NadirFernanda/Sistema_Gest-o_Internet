@@ -1011,7 +1011,7 @@ main .container {
 .vhist-total {
   font-size: 2.4rem;
   font-weight: 800;
-  color: #f7b500;
+  color: #1a202c;
   line-height: 1;
   margin-bottom: .2rem;
 }
@@ -1033,7 +1033,7 @@ main .container {
 .vhist-country-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
 .vhist-country-loading {
   font-size: .8rem;
-  color: #9ca3af;
+  color: #64748b;
 }
 .vhist-crow {
   display: grid;
@@ -1045,26 +1045,26 @@ main .container {
 .vhist-cname {
   font-size: .8rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #1a202c;
   grid-column: 1; grid-row: 1;
 }
 .vhist-ccount {
   font-size: .78rem;
   font-weight: 700;
-  color: #f7b500;
+  color: #2563eb;
   grid-column: 2; grid-row: 1;
   white-space: nowrap;
 }
 .vhist-cbar-wrap {
   grid-column: 1 / span 2; grid-row: 2;
-  background: rgba(255,255,255,.1);
+  background: #e2e8f0;
   border-radius: 2px;
   height: 4px;
   overflow: hidden;
 }
 .vhist-cbar {
   height: 100%;
-  background: #f7b500;
+  background: #2563eb;
   border-radius: 2px;
   transition: width .4s ease;
 }
