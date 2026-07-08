@@ -221,79 +221,6 @@
     </div>
   </div>
 
-  {{-- ══ Secção de Estatísticas Live ══ --}}
-  <section class="live-stats-section" id="estatisticas">
-    <div class="container">
-      <div class="live-stats-header">
-        <span class="live-dot"></span>
-        <span class="live-stats-title">Em tempo real</span>
-      </div>
-
-      <div class="visitor-wrap">
-
-        {{-- Card tempo real --}}
-        <div class="visitor-card">
-          <div class="visitor-card__left">
-            <div class="visitor-card__num js-live-visitors">—</div>
-            <div class="visitor-card__lbl">Visitantes agora</div>
-            <div class="visitor-card__desc">Pessoas na loja neste momento</div>
-            <p class="live-stats-update js-live-updated"></p>
-          </div>
-          <div class="visitor-card__right">
-            <div class="visitor-chart__title">Por país</div>
-            <div class="visitor-chart js-visitor-chart">
-              <div class="visitor-chart__empty">A carregar...</div>
-            </div>
-          </div>
-        </div>
-
-        {{-- Totais históricos --}}
-        <div class="visitor-history">
-          <div class="vhist-totals">
-            <div class="vhist-item">
-              <span class="vhist-num js-hist-today"
-                @if(($visitorsToday ?? null) !== null) data-count-to="{{ $visitorsToday }}" data-count-decimals="0" data-count-suffix="" @endif>
-                {{ ($visitorsToday ?? null) !== null ? number_format($visitorsToday, 0, ',', '.') : '—' }}
-              </span>
-              <span class="vhist-lbl">Hoje</span>
-            </div>
-            <div class="vhist-item">
-              <span class="vhist-num js-hist-week"
-                @if(($visitorsWeek ?? null) !== null) data-count-to="{{ $visitorsWeek }}" data-count-decimals="0" data-count-suffix="" @endif>
-                {{ ($visitorsWeek ?? null) !== null ? number_format($visitorsWeek, 0, ',', '.') : '—' }}
-              </span>
-              <span class="vhist-lbl">Últimos 7 dias</span>
-            </div>
-            <div class="vhist-item">
-              <span class="vhist-num js-hist-month"
-                @if(($visitorsMonth ?? null) !== null) data-count-to="{{ $visitorsMonth }}" data-count-decimals="0" data-count-suffix="" @endif>
-                {{ ($visitorsMonth ?? null) !== null ? number_format($visitorsMonth, 0, ',', '.') : '—' }}
-              </span>
-              <span class="vhist-lbl">Este mês</span>
-            </div>
-          </div>
-          <div class="vhist-spark-wrap">
-            <div class="vhist-spark-title">Total de acessos</div>
-            <div class="vhist-total js-hist-total"
-              @if(($visitorsTotal ?? null) !== null) data-count-to="{{ $visitorsTotal }}" data-count-decimals="0" data-count-suffix="" @endif>
-              {{ ($visitorsTotal ?? null) !== null ? number_format($visitorsTotal, 0, ',', '.') : '—' }}
-            </div>
-            <div class="vhist-total-sub">visitas registadas</div>
-          </div>
-
-          <div class="vhist-countries-wrap">
-            <div class="vhist-spark-title" style="margin-top:1rem;">Por país (histórico)</div>
-            <div class="vhist-country-list js-country-totals">
-              <div class="vhist-country-loading">A carregar...</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
   <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
@@ -508,7 +435,6 @@
 <script>
 (function () {
   var fmt = new Intl.NumberFormat('pt-PT');
-
   function setNum(sel, val, suffix) {
     if (val === null || val === undefined) return;
     document.querySelectorAll(sel).forEach(function(el) {
@@ -519,77 +445,20 @@
     });
     if (window.initCounters) window.initCounters();
   }
-
-  function setUpdated() {
-    var time = 'Actualizado às ' + new Date().toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    document.querySelectorAll('.js-live-updated').forEach(function(el) { el.textContent = time; });
-  }
-
-  function renderChart(countries) {
-    var el = document.querySelector('.js-visitor-chart');
-    if (!el || !countries) return;
-    var entries = Object.entries(countries);
-    if (!entries.length) {
-      el.innerHTML = '<div class="visitor-chart__empty">Sem dados ainda</div>';
-      return;
-    }
-    var max = Math.max.apply(null, entries.map(function(e){ return e[1]; }));
-    var html = entries.map(function(e) {
-      var pct = max > 0 ? Math.round((e[1] / max) * 100) : 0;
-      return '<div class="vchart-row">'
-        + '<span class="vchart-lbl">' + e[0] + '</span>'
-        + '<div class="vchart-bar-wrap">'
-        +   '<div class="vchart-bar" style="width:' + pct + '%"></div>'
-        + '</div>'
-        + '<span class="vchart-val">' + e[1] + '</span>'
-        + '</div>';
-    }).join('');
-    el.innerHTML = html;
-  }
-
-  function renderCountryTotals(totals) {
-    var el = document.querySelector('.js-country-totals');
-    if (!el || !totals) return;
-    var entries = Object.entries(totals);
-    if (!entries.length) {
-      el.innerHTML = '<div class="vhist-country-loading">Sem dados ainda</div>';
-      return;
-    }
-    var countrySum = entries.reduce(function(s, e){ return s + e[1]; }, 0) || 1;
-    el.innerHTML = entries.map(function(e) {
-      var pct = Math.max(1, Math.round((e[1] / countrySum) * 100));
-      return '<div class="vhist-crow">'
-        + '<span class="vhist-cname">' + e[0] + '</span>'
-        + '<span class="vhist-ccount">' + fmt.format(e[1]) + ' <span style="opacity:.6;font-size:.72rem;">(' + pct + '%)</span></span>'
-        + '<div class="vhist-cbar-wrap"><div class="vhist-cbar" style="width:' + pct + '%"></div></div>'
-        + '</div>';
-    }).join('');
-  }
-
-  function fetchStats() {
+  // Actualiza apenas a stat-bar (clientes activos + vouchers) a cada 60s
+  function fetchStatBar() {
     fetch('/store/live-stats')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(data){
         if (!data) return;
-        setNum('.js-live-visitors', data.visitors_now,    '');
-        setNum('.js-live-active',   data.active_clients,  '');
-        setNum('.js-live-today',    data.vouchers_today,  '');
-        setNum('.js-live-total',    data.total_delivered, '+');
-        setNum('.js-hist-today',    data.visitors_today,  '');
-        setNum('.js-hist-week',     data.visitors_week,   '');
-        setNum('.js-hist-month',    data.visitors_month,  '');
-        setNum('.js-hist-total',    data.visitors_total,  '');
-        renderChart(data.top_countries);
-        renderCountryTotals(data.country_totals);
-        setUpdated();
+        setNum('.js-live-active', data.active_clients,  '');
+        setNum('.js-live-today',  data.vouchers_today,  '');
+        setNum('.js-live-total',  data.total_delivered, '+');
       })
       .catch(function(){});
   }
-
-  // Carregamento inicial assíncrono
-  fetchStats();
-  // Polling a cada 60 segundos
-  setInterval(fetchStats, 60000);
+  fetchStatBar();
+  setInterval(fetchStatBar, 60000);
 })();
 </script>
 @endpush
