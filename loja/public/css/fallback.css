@@ -820,6 +820,86 @@ main .container {
 }
 
 /* =====================================================================
+   LIVE STATS SECTION (.live-stats-section)
+   ===================================================================== */
+.live-stats-section {
+  background: #fff;
+  padding: 3rem 1rem;
+  border-bottom: 1px solid #f0f2f8;
+}
+.live-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  margin-bottom: 2rem;
+}
+.live-stats-title {
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  color: #1a202c;
+}
+.live-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.live-stat-card {
+  background: #f8faff;
+  border: 1.5px solid #e8edf8;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: transform .18s, box-shadow .18s;
+}
+.live-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(26,32,44,.08);
+}
+.live-stat-card--accent {
+  background: #1a202c;
+  border-color: #f7b500;
+}
+.live-stat-card--accent .live-stat-num { color: #f7b500; }
+.live-stat-card--accent .live-stat-lbl { color: #f0f2f8; }
+.live-stat-card--accent .live-stat-desc { color: rgba(255,255,255,.45); }
+.live-stat-num {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #1a202c;
+  line-height: 1;
+  letter-spacing: -.04em;
+  margin-bottom: .4rem;
+}
+.live-stat-lbl {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #1a202c;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: .4rem;
+}
+.live-stat-desc {
+  font-size: .78rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+.live-stats-update {
+  text-align: center;
+  font-size: .72rem;
+  color: #9ca3af;
+  margin-top: 1.25rem;
+}
+@media (max-width: 680px) {
+  .live-stats-grid { grid-template-columns: 1fr; max-width: 340px; }
+  .live-stat-num { font-size: 2.2rem; }
+}
+
+/* =====================================================================
    SECTION HEADER — title + rule (.section-header)
    ===================================================================== */
 .section-header {

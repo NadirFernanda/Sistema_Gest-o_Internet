@@ -221,6 +221,40 @@
     </div>
   </div>
 
+  {{-- ══ Secção de Estatísticas Live ══ --}}
+  <section class="live-stats-section" id="estatisticas">
+    <div class="container">
+      <div class="live-stats-header">
+        <span class="live-dot"></span>
+        <span class="live-stats-title">Em tempo real</span>
+      </div>
+      <div class="live-stats-grid">
+        <div class="live-stat-card">
+          <div class="live-stat-num js-live-active">
+            {{ ($activeClientCount ?? null) !== null ? number_format($activeClientCount, 0, ',', '.') : '—' }}
+          </div>
+          <div class="live-stat-lbl">Utilizadores online agora</div>
+          <div class="live-stat-desc">Clientes activos neste momento na rede AngolaWiFi</div>
+        </div>
+        <div class="live-stat-card live-stat-card--accent">
+          <div class="live-stat-num js-live-today">
+            {{ ($vouchersSoldToday ?? null) !== null ? number_format($vouchersSoldToday, 0, ',', '.') : '—' }}
+          </div>
+          <div class="live-stat-lbl">Vouchers entregues hoje</div>
+          <div class="live-stat-desc">Clientes que compraram e se ligaram hoje</div>
+        </div>
+        <div class="live-stat-card">
+          <div class="live-stat-num js-live-total">
+            {{ ($totalDelivered ?? null) !== null ? number_format($totalDelivered, 0, ',', '.') . '+' : '—' }}
+          </div>
+          <div class="live-stat-lbl">Total de vouchers vendidos</div>
+          <div class="live-stat-desc">Clientes servidos desde o início da plataforma</div>
+        </div>
+      </div>
+      <p class="live-stats-update js-live-updated"></p>
+    </div>
+  </section>
+
   <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
@@ -437,18 +471,19 @@
   var fmt = new Intl.NumberFormat('pt-PT');
 
   function setNum(sel, val, suffix) {
-    var el = document.querySelector(sel);
-    if (!el || val === null || val === undefined) return;
-    el.dataset.countTo  = val;
-    el.dataset.countSuffix = suffix || '';
-    el.removeAttribute('data-count-static');
-    el.textContent = fmt.format(val) + (suffix || '');
+    if (val === null || val === undefined) return;
+    document.querySelectorAll(sel).forEach(function(el) {
+      el.dataset.countTo     = val;
+      el.dataset.countSuffix = suffix || '';
+      el.removeAttribute('data-count-static');
+      el.textContent = fmt.format(val) + (suffix || '');
+    });
     if (window.initCounters) window.initCounters();
   }
 
   function setUpdated() {
-    var el = document.querySelector('.js-live-updated');
-    if (el) el.textContent = 'Actualizado ' + new Date().toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    var time = 'Actualizado às ' + new Date().toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.querySelectorAll('.js-live-updated').forEach(function(el) { el.textContent = time; });
   }
 
   function fetchStats() {
