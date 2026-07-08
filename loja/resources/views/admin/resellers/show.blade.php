@@ -234,6 +234,80 @@
     </div>
   </div>
 
+  {{-- ── Tipo de Internet & Margens ── --}}
+  @php
+    $currentMode   = $application->reseller_mode ?? $application->internet_type;
+    $submittedMode = $application->internet_type;
+    $modeLabel = [
+      'own'        => ['text' => 'Internet Própria',   'badge' => 'bg-blue',  'margin' => '70% desconto — AR paga 30% do PVP'],
+      'angolawifi' => ['text' => 'Internet AngolaWiFi', 'badge' => 'bg-amber', 'margin' => '30% desconto — AR paga 70% do PVP'],
+    ];
+    $cur = $modeLabel[$currentMode]   ?? null;
+    $sub = $modeLabel[$submittedMode] ?? null;
+  @endphp
+  <div class="ap-card" style="border-left:4px solid var(--a-brand);">
+    <p class="ap-card-title">Tipo de Internet &amp; Margens</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+      <div>
+        <p style="font-size:.77rem;font-weight:600;color:var(--a-muted);margin:0 0 .35rem;">Tipo activo (usado para margens)</p>
+        @if($cur)
+          <span class="badge {{ $cur['badge'] }}" style="font-size:.8rem;padding:.3rem .75rem;">{{ $cur['text'] }}</span>
+          <p style="font-size:.8rem;color:#374151;margin:.4rem 0 0;">{{ $cur['margin'] }}</p>
+          <p style="font-size:.77rem;color:var(--a-faint);margin:.2rem 0 0;">
+            Taxa manutenção: <strong>{{ number_format($application->maintenanceFeeAoa(), 0, ',', '.') }} Kz/mês</strong>
+          </p>
+        @else
+          <span class="badge bg-gray">Não definido</span>
+        @endif
+      </div>
+      <div>
+        <p style="font-size:.77rem;font-weight:600;color:var(--a-muted);margin:0 0 .35rem;">Solicitado pelo candidato</p>
+        @if($sub)
+          <span class="badge {{ $sub['badge'] }}">{{ $sub['text'] }}</span>
+          @if($submittedMode !== $currentMode)
+            <p style="font-size:.77rem;color:var(--a-red);margin:.3rem 0 0;">
+              ⚠ Tipo activo difere do solicitado
+            </p>
+          @else
+            <p style="font-size:.77rem;color:var(--a-green);margin:.3rem 0 0;">✔ Coincide com o tipo activo</p>
+          @endif
+        @else
+          <span style="font-size:.82rem;color:var(--a-faint);">—</span>
+        @endif
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--a-border);margin:0 0 1rem;">
+
+    <p style="font-size:.8rem;font-weight:700;color:var(--a-muted);margin:0 0 .65rem;text-transform:uppercase;letter-spacing:.05em;">Corrigir tipo de internet</p>
+
+    <form action="{{ route('admin.resellers.change-internet', $application) }}" method="POST"
+          onsubmit="
+            var sel = this.querySelector('[name=reseller_mode]');
+            var labels = {own:'Internet Própria (AR paga 30%)',angolawifi:'Internet AngolaWiFi (AR paga 70%)'};
+            return confirm('Alterar o tipo de internet para:\n\n' + (labels[sel.value]||sel.value) + '\n\nEsta acção ajusta as margens e a taxa de manutenção futuras. Compras já efectuadas não são afectadas.\n\nConfirmar?');
+          ">
+      @csrf
+      <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
+        <div>
+          <label class="ap-label" for="reseller_mode_change">Novo tipo de internet</label>
+          <select id="reseller_mode_change" name="reseller_mode" class="ap-ctrl" style="width:auto;min-width:300px;">
+            <option value="own"        @selected($currentMode === 'own')       >Internet Própria &mdash; desconto 70% (AR paga 30%)</option>
+            <option value="angolawifi" @selected($currentMode === 'angolawifi')>Internet AngolaWiFi &mdash; desconto 30% (AR paga 70%)</option>
+          </select>
+        </div>
+        <button type="submit" class="ap-btn ap-btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Alterar tipo de internet
+        </button>
+      </div>
+      <p style="font-size:.77rem;color:var(--a-faint);margin:.5rem 0 0;">
+        As compras já efectuadas <strong>não</strong> são retroactivamente alteradas. Apenas as futuras transacções usarão as novas margens.
+      </p>
+    </form>
+  </div>
+
   {{-- Configuração --}}
   <div class="ap-card">
     <p class="ap-card-title">Configura&ccedil;&atilde;o do revendedor</p>

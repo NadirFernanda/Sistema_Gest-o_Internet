@@ -271,6 +271,34 @@ class ResellerAdminController extends Controller
             ->with('status', 'Bónus de ' . number_format($data['amount_aoa'], 0, ',', '.') . ' Kz enviado com sucesso.');
     }
 
+    public function changeInternetType(Request $request, ResellerApplication $application)
+    {
+        $data = $request->validate([
+            'reseller_mode' => 'required|in:own,angolawifi',
+        ]);
+
+        $old = $application->reseller_mode;
+        $new = $data['reseller_mode'];
+
+        $labels = [
+            'own'        => 'Internet Própria (AR paga 30% — desconto 70%)',
+            'angolawifi' => 'Internet AngolaWiFi (AR paga 70% — desconto 30%)',
+        ];
+
+        if ($old === $new) {
+            return redirect()->route('admin.resellers.show', $application)
+                ->with('status', 'Sem alteração — o tipo de internet já estava definido como: ' . ($labels[$new] ?? $new));
+        }
+
+        $application->update(['reseller_mode' => $new]);
+
+        $oldLabel = $labels[$old] ?? ($old ?? 'não definido');
+        $newLabel = $labels[$new];
+
+        return redirect()->route('admin.resellers.show', $application)
+            ->with('status', "Tipo de internet alterado: «{$oldLabel}» → «{$newLabel}». As margens e taxa de manutenção futuras foram ajustadas automaticamente.");
+    }
+
     public function payMaintenance(Request $request, ResellerApplication $application)
     {
         $data = $request->validate([

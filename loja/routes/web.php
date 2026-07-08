@@ -205,6 +205,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::patch('/revendedores/{application}/status', [ResellerAdminController::class, 'updateStatus'])->name('admin.resellers.status');
     Route::post('/revendedores/{application}/bonus', [ResellerAdminController::class, 'sendBonus'])->name('admin.resellers.bonus');
     Route::post('/revendedores/{application}/pagar-manutencao', [ResellerAdminController::class, 'payMaintenance'])->name('admin.resellers.pay-maintenance');
+    Route::post('/revendedores/{application}/alterar-internet', [ResellerAdminController::class, 'changeInternetType'])->name('admin.resellers.change-internet');
 
     // Gestão de produtos (equipamentos)
     Route::get('/equipamentos', [ProductAdminController::class, 'index'])->name('admin.equipment.products.index');
