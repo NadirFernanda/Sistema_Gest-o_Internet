@@ -64,8 +64,21 @@ class StorefrontController extends Controller
             $totalDelivered    = null;
         }
 
+        // Visitantes online agora + breakdown por país
+        $onlineRaw = Cache::get('store_online_visitors', []);
+        $onlineNow = count($onlineRaw);
+        $countries = [];
+        foreach ($onlineRaw as $entry) {
+            $c = is_array($entry) ? ($entry['country'] ?? 'Desconhecido') : 'Desconhecido';
+            $countries[$c] = ($countries[$c] ?? 0) + 1;
+        }
+        arsort($countries);
+        $topCountries = array_slice($countries, 0, 5, true);
+
         return response()->json([
             'active_clients'    => $this->fetchActiveClientCount(),
+            'visitors_now'      => $onlineNow,
+            'top_countries'     => $topCountries,
             'vouchers_today'    => $vouchersSoldToday,
             'total_delivered'   => $totalDelivered,
         ]);

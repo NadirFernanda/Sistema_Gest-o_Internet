@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -25,10 +26,13 @@ class TrackOnlineVisitors
             $ts  = $now->timestamp;
             $ttl = 300;
 
+            // ── 0. País do visitante (geolocalização por IP, cache 1h) ────────
+            $country = $this->resolveCountry($request->ip());
+
             // ── 1. In-memory 5-min window (para o KPI "online agora") ────
-            $online          = Cache::get('store_online_visitors', []);
-            $online[$sid]    = $ts;
-            $online          = array_filter($online, fn ($t) => $ts - $t < $ttl);
+            $online       = Cache::get('store_online_visitors', []);
+            $online[$sid] = ['ts' => $ts, 'country' => $country];
+            $online       = array_filter($online, fn ($v) => $ts - (is_array($v) ? $v['ts'] : $v) < $ttl);
             Cache::put('store_online_visitors', $online, $ttl + 60);
 
             // ── 2. Persistent hourly log ──────────────────────────────────
@@ -56,5 +60,32 @@ class TrackOnlineVisitors
         }
 
         return $next($request);
+    }
+
+    private function resolveCountry(string $ip): string
+    {
+        // IPs privados/localhost
+        if (in_array($ip, ['127.0.0.1', '::1'])
+            || str_starts_with($ip, '192.168.')
+            || str_starts_with($ip, '10.')
+            || str_starts_with($ip, '172.')) {
+            return 'Local';
+        }
+
+        $cacheKey = 'geoip_' . md5($ip);
+        return Cache::remember($cacheKey, 3600, function () use ($ip) {
+            try {
+                $res = (new Client(['timeout' => 2]))->get(
+                    "http://ip-api.com/json/{$ip}?fields=country,countryCode&lang=pt"
+                );
+                if ($res->getStatusCode() === 200) {
+                    $data = json_decode((string) $res->getBody(), true);
+                    return $data['country'] ?? 'Desconhecido';
+                }
+            } catch (\Throwable) {
+                // API inacessível — fallback silencioso
+            }
+            return 'Angola'; // fallback padrão para o mercado principal
+        });
     }
 }
