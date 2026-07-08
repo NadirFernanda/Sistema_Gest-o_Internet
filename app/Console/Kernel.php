@@ -31,6 +31,12 @@ class Kernel extends ConsoleKernel
         Log::info('Console Kernel::schedule() invoked to register scheduled tasks');
         // Dispara alertas de vencimento duas vezes ao dia (13:00 e 18:00)
         $schedule->command('alertas:disparar')->twiceDaily(13, 18);
+        // Lembrete diário de cobrança para planos Suspensos (pagamento em atraso)
+        $schedule->command('alertas:disparar --apenas-suspensos')
+            ->dailyAt('10:00')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
         // Envia avisos de devolução diariamente para cobranças vencidas há mais de 30 dias
         $schedule->command('notificacao:devolucao')
             ->dailyAt('09:00')
