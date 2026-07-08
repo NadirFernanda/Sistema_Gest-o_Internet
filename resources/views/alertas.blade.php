@@ -45,14 +45,22 @@
                 // Enviar apenas o parâmetro 'dias' para o backend
                 const diasAlertaInput = document.getElementById('diasAlerta');
                 const dias = diasAlertaInput ? parseInt(diasAlertaInput.value) : 5;
+                // Se houver checkboxes seleccionados, enviar apenas para eles.
+                // Se nenhum seleccionado, enviar para TODOS os visíveis na lista.
                 const selecionados = Array.from(document.querySelectorAll('#alertasLista .chk-alerta:checked'))
                     .map(cb => parseInt(cb.dataset.planoId))
                     .filter(id => !isNaN(id));
 
-                if (!selecionados.length) {
-                    alert('Selecione pelo menos um cliente para disparar o alerta.');
+                const todosVisiveis = Array.from(document.querySelectorAll('#alertasLista .chk-alerta'))
+                    .map(cb => parseInt(cb.dataset.planoId))
+                    .filter(id => !isNaN(id));
+
+                const planosParaEnviar = selecionados.length ? selecionados : todosVisiveis;
+
+                if (!planosParaEnviar.length) {
+                    alert('Nenhum cliente encontrado para alertar.');
                     btn.disabled = false;
-                    btn.textContent = 'Disparar Alertas';
+                    btn.textContent = 'Disparar';
                     return;
                 }
                 try {
@@ -63,7 +71,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                         },
-                        body: JSON.stringify({ dias, planos: selecionados })
+                        body: JSON.stringify({ dias, planos: planosParaEnviar })
                     });
 
                     const data = await res.json();
@@ -111,7 +119,7 @@
                     alert('Erro de conexão ao disparar alertas.');
                 }
                 btn.disabled = false;
-                btn.textContent = 'Disparar Alertas';
+                btn.textContent = 'Disparar';
             });
         }
     });
