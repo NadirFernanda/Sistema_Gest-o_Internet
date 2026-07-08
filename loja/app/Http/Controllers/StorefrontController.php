@@ -75,12 +75,49 @@ class StorefrontController extends Controller
         arsort($countries);
         $topCountries = array_slice($countries, 0, 5, true);
 
+        // Totais históricos de acessos (visitor_logs)
+        try {
+            $visitorsToday = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', today()->toDateString())
+                ->sum('sessions');
+
+            $visitorsWeek = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', '>=', now()->subDays(6)->toDateString())
+                ->sum('sessions');
+
+            $visitorsMonth = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', '>=', now()->startOfMonth()->toDateString())
+                ->sum('sessions');
+
+            // Sparkline: últimos 7 dias (sessões por dia)
+            $sparkRaw = \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', '>=', now()->subDays(6)->toDateString())
+                ->selectRaw('date, SUM(sessions) as s')
+                ->groupBy('date')
+                ->pluck('s', 'date')
+                ->toArray();
+            $sparkline = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $d = now()->subDays($i)->toDateString();
+                $sparkline[] = ['d' => date('d/m', strtotime($d)), 'v' => (int) ($sparkRaw[$d] ?? 0)];
+            }
+        } catch (\Throwable) {
+            $visitorsToday = null;
+            $visitorsWeek  = null;
+            $visitorsMonth = null;
+            $sparkline     = [];
+        }
+
         return response()->json([
             'active_clients'    => $this->fetchActiveClientCount(),
             'visitors_now'      => $onlineNow,
             'top_countries'     => $topCountries,
             'vouchers_today'    => $vouchersSoldToday,
             'total_delivered'   => $totalDelivered,
+            'visitors_today'    => $visitorsToday,
+            'visitors_week'     => $visitorsWeek,
+            'visitors_month'    => $visitorsMonth,
+            'sparkline'         => $sparkline,
         ]);
     }
 

@@ -229,19 +229,46 @@
         <span class="live-stats-title">Em tempo real</span>
       </div>
 
-      <div class="visitor-card">
-        <div class="visitor-card__left">
-          <div class="visitor-card__num js-live-visitors">—</div>
-          <div class="visitor-card__lbl">Visitantes no site agora</div>
-          <div class="visitor-card__desc">Pessoas a navegar na loja neste momento</div>
-          <p class="live-stats-update js-live-updated"></p>
-        </div>
-        <div class="visitor-card__right">
-          <div class="visitor-chart__title">Por país</div>
-          <div class="visitor-chart js-visitor-chart">
-            <div class="visitor-chart__empty">A carregar...</div>
+      <div class="visitor-wrap">
+
+        {{-- Card tempo real --}}
+        <div class="visitor-card">
+          <div class="visitor-card__left">
+            <div class="visitor-card__num js-live-visitors">—</div>
+            <div class="visitor-card__lbl">Visitantes agora</div>
+            <div class="visitor-card__desc">Pessoas na loja neste momento</div>
+            <p class="live-stats-update js-live-updated"></p>
+          </div>
+          <div class="visitor-card__right">
+            <div class="visitor-chart__title">Por país</div>
+            <div class="visitor-chart js-visitor-chart">
+              <div class="visitor-chart__empty">A carregar...</div>
+            </div>
           </div>
         </div>
+
+        {{-- Totais históricos --}}
+        <div class="visitor-history">
+          <div class="vhist-totals">
+            <div class="vhist-item">
+              <span class="vhist-num js-hist-today">—</span>
+              <span class="vhist-lbl">Hoje</span>
+            </div>
+            <div class="vhist-item">
+              <span class="vhist-num js-hist-week">—</span>
+              <span class="vhist-lbl">Últimos 7 dias</span>
+            </div>
+            <div class="vhist-item">
+              <span class="vhist-num js-hist-month">—</span>
+              <span class="vhist-lbl">Este mês</span>
+            </div>
+          </div>
+          <div class="vhist-spark-wrap">
+            <div class="vhist-spark-title">Acessos — últimos 7 dias</div>
+            <div class="vhist-spark js-sparkline"></div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -500,16 +527,34 @@
     el.innerHTML = html;
   }
 
+  function renderSparkline(data) {
+    var el = document.querySelector('.js-sparkline');
+    if (!el || !data || !data.length) return;
+    var max = Math.max.apply(null, data.map(function(d){ return d.v; })) || 1;
+    var html = data.map(function(d) {
+      var h = max > 0 ? Math.round((d.v / max) * 100) : 0;
+      return '<div class="spark-col">'
+        + '<div class="spark-bar" style="height:' + h + '%"></div>'
+        + '<span class="spark-lbl">' + d.d + '</span>'
+        + '</div>';
+    }).join('');
+    el.innerHTML = html;
+  }
+
   function fetchStats() {
     fetch('/store/live-stats')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(data){
         if (!data) return;
-        setNum('.js-live-visitors', data.visitors_now,    '');
-        setNum('.js-live-active',   data.active_clients,  '');
-        setNum('.js-live-today',    data.vouchers_today,  '');
-        setNum('.js-live-total',    data.total_delivered, '+');
+        setNum('.js-live-visitors',  data.visitors_now,    '');
+        setNum('.js-live-active',    data.active_clients,  '');
+        setNum('.js-live-today',     data.vouchers_today,  '');
+        setNum('.js-live-total',     data.total_delivered, '+');
+        setNum('.js-hist-today',     data.visitors_today,  '');
+        setNum('.js-hist-week',      data.visitors_week,   '');
+        setNum('.js-hist-month',     data.visitors_month,  '');
         renderChart(data.top_countries);
+        renderSparkline(data.sparkline);
         setUpdated();
       })
       .catch(function(){});
