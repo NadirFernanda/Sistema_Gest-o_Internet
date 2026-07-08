@@ -274,40 +274,6 @@
     </div>
   </section>
 
-  {{-- ══ Estatísticas do Site ══ --}}
-  <section class="site-stats-section" id="estatisticas-site">
-    <div class="container">
-      <div class="site-stats-heading">
-        <h2 class="site-stats-title">ESTATÍSTICAS DO SITE</h2>
-        <div class="site-stats-rule"></div>
-      </div>
-      <div class="site-stats-grid">
-
-        {{-- Card total acessos --}}
-        <div class="site-stats-card site-stats-card--total">
-          <div class="site-stats-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M1.458 12C2.732 7.943 7.026 5 12 5c4.973 0 9.268 2.943 10.542 7-1.274 4.057-5.569 7-10.542 7-4.974 0-9.268-2.943-10.542-7z"/>
-              <circle cx="12" cy="12" r="3" stroke-width="2"/>
-            </svg>
-          </div>
-          <div class="site-stats-card__label">TOTAL DE ACESSOS</div>
-          <div class="site-stats-card__num js-stat-total-visits">—</div>
-          <div class="site-stats-card__sub">visitas registadas</div>
-        </div>
-
-        {{-- Card visitas por país --}}
-        <div class="site-stats-card site-stats-card--countries">
-          <div class="site-stats-card__ctitle">VISITAS POR PAÍS</div>
-          <div class="site-stats-country-list js-country-list">
-            <div class="site-stats-country-loading">A carregar...</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
   <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
@@ -575,42 +541,20 @@
     el.innerHTML = html;
   }
 
-  function renderCountryList(countryTotals) {
-    var el = document.querySelector('.js-country-list');
-    if (!el || !countryTotals) return;
-    var entries = Object.entries(countryTotals);
-    if (!entries.length) {
-      el.innerHTML = '<div class="site-stats-country-loading">Sem dados ainda</div>';
-      return;
-    }
-    var max = Math.max.apply(null, entries.map(function(e){ return e[1]; })) || 1;
-    var html = entries.map(function(e) {
-      var pct = Math.round((e[1] / max) * 100);
-      return '<div class="ssc-row">'
-        + '<span class="ssc-name">' + e[0] + '</span>'
-        + '<span class="ssc-count">' + fmt.format(e[1]) + '</span>'
-        + '<div class="ssc-bar-wrap"><div class="ssc-bar" style="width:' + pct + '%"></div></div>'
-        + '</div>';
-    }).join('');
-    el.innerHTML = html;
-  }
-
   function fetchStats() {
     fetch('/store/live-stats')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(data){
         if (!data) return;
-        setNum('.js-live-visitors',      data.visitors_now,    '');
-        setNum('.js-live-active',        data.active_clients,  '');
-        setNum('.js-live-today',         data.vouchers_today,  '');
-        setNum('.js-live-total',         data.total_delivered, '+');
-        setNum('.js-hist-today',         data.visitors_today,  '');
-        setNum('.js-hist-week',          data.visitors_week,   '');
-        setNum('.js-hist-month',         data.visitors_month,  '');
-        setNum('.js-stat-total-visits',  data.visitors_total,  '');
+        setNum('.js-live-visitors', data.visitors_now,    '');
+        setNum('.js-live-active',   data.active_clients,  '');
+        setNum('.js-live-today',    data.vouchers_today,  '');
+        setNum('.js-live-total',    data.total_delivered, '+');
+        setNum('.js-hist-today',    data.visitors_today,  '');
+        setNum('.js-hist-week',     data.visitors_week,   '');
+        setNum('.js-hist-month',    data.visitors_month,  '');
         renderChart(data.top_countries);
         renderSparkline(data.sparkline);
-        renderCountryList(data.country_totals);
         setUpdated();
       })
       .catch(function(){});
