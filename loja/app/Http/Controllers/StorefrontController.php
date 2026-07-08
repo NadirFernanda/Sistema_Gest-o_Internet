@@ -89,6 +89,9 @@ class StorefrontController extends Controller
                 ->where('date', '>=', now()->startOfMonth()->toDateString())
                 ->sum('sessions');
 
+            $visitorsTotal = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->sum('sessions');
+
             // Sparkline: últimos 7 dias (sessões por dia)
             $sparkRaw = \Illuminate\Support\Facades\DB::table('visitor_logs')
                 ->where('date', '>=', now()->subDays(6)->toDateString())
@@ -101,11 +104,22 @@ class StorefrontController extends Controller
                 $d = now()->subDays($i)->toDateString();
                 $sparkline[] = ['d' => date('d/m', strtotime($d)), 'v' => (int) ($sparkRaw[$d] ?? 0)];
             }
+
+            // Visitas por país (histórico completo)
+            $countryStats = \Illuminate\Support\Facades\DB::table('visitor_country_logs')
+                ->selectRaw('country, SUM(sessions) as total')
+                ->groupBy('country')
+                ->orderByDesc('total')
+                ->limit(20)
+                ->pluck('total', 'country')
+                ->toArray();
         } catch (\Throwable) {
             $visitorsToday = null;
             $visitorsWeek  = null;
             $visitorsMonth = null;
+            $visitorsTotal = null;
             $sparkline     = [];
+            $countryStats  = [];
         }
 
         return response()->json([
@@ -117,7 +131,9 @@ class StorefrontController extends Controller
             'visitors_today'    => $visitorsToday,
             'visitors_week'     => $visitorsWeek,
             'visitors_month'    => $visitorsMonth,
+            'visitors_total'    => $visitorsTotal,
             'sparkline'         => $sparkline,
+            'country_totals'    => $countryStats,
         ]);
     }
 

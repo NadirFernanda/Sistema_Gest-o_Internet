@@ -54,6 +54,15 @@ class TrackOnlineVisitors
                         'hits'     => DB::raw('visitor_logs.hits + 1'),
                     ]
                 );
+
+                // Log por país (uma entrada por sessão por dia por país)
+                if ($isNewHit && $country !== 'Local') {
+                    DB::table('visitor_country_logs')->upsert(
+                        [['date' => $date, 'country' => $country, 'sessions' => 1]],
+                        ['date', 'country'],
+                        ['sessions' => DB::raw('visitor_country_logs.sessions + 1')]
+                    );
+                }
             } catch (\Throwable) {
                 // Falha silenciosa — não interrompe o request por causa de analytics
             }
