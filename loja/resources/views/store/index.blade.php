@@ -155,13 +155,13 @@
   <div class="stat-bar">
     <div class="stat-bar__grid">
 
-      {{-- Indicador "Ao vivo" --}}
-      <div class="stat-bar__live">
+      {{-- Indicador "Ao vivo" — oculto em mobile --}}
+      <div class="stat-bar__live stat-bar__aux">
         <span class="live-dot"></span>
         <span class="live-label">Ao vivo</span>
       </div>
 
-      {{-- Online agora (SG API) --}}
+      {{-- Online agora --}}
       <div class="stat-bar__item">
         @php $ac = $activeClientCount ?? null; @endphp
         <span class="stat-bar__num js-live-active"
@@ -191,10 +191,10 @@
         <span class="stat-bar__lbl">Vouchers entregues</span>
       </div>
 
-      {{-- Stats configuráveis via DB (SiteStat), excluindo "Clientes activos" que já está acima) --}}
+      {{-- Stats configuráveis via DB — ocultas em mobile --}}
       @foreach($siteStats ?? [] as $stat)
         @if(mb_strtolower(trim($stat->legenda)) === 'clientes activos') @continue @endif
-        <div class="stat-bar__item">
+        <div class="stat-bar__item stat-bar__item--extra">
           <span class="stat-bar__num"
             @if($stat->count_to !== null)
               data-count-to="{{ $stat->count_to }}"
@@ -208,14 +208,14 @@
         </div>
       @endforeach
 
-      {{-- Fallback se SiteStat vazio: uptime + suporte --}}
+      {{-- Fallback se SiteStat vazio — oculto em mobile --}}
       @if(($siteStats ?? collect())->isEmpty())
-        <div class="stat-bar__item"><span class="stat-bar__num" data-count-to="99.8" data-count-decimals="1" data-count-suffix="%">99.8%</span><span class="stat-bar__lbl">Uptime garantido</span></div>
-        <div class="stat-bar__item"><span class="stat-bar__num" data-count-static="1">24/7</span><span class="stat-bar__lbl">Suporte técnico</span></div>
+        <div class="stat-bar__item stat-bar__item--extra"><span class="stat-bar__num" data-count-to="99.8" data-count-decimals="1" data-count-suffix="%">99.8%</span><span class="stat-bar__lbl">Uptime garantido</span></div>
+        <div class="stat-bar__item stat-bar__item--extra"><span class="stat-bar__num" data-count-static="1">24/7</span><span class="stat-bar__lbl">Suporte técnico</span></div>
       @endif
 
-      {{-- Timestamp de última actualização --}}
-      <div class="stat-bar__live stat-bar__live--right">
+      {{-- Timestamp — oculto em mobile --}}
+      <div class="stat-bar__live stat-bar__live--right stat-bar__aux">
         <span class="live-updated js-live-updated"></span>
       </div>
     </div>

@@ -2292,29 +2292,43 @@ main .container {
   }
   .hero__arrow { display: none; }
 
-  /* ── 5. Stat bar: compact, forçar 4 itens em linha ── */
+  /* ── 5. Stat bar: mobile — 3 itens em linha, resto oculto ── */
   .stat-bar {
-    padding: .75rem 0;
+    padding: .6rem .75rem;
   }
   .stat-bar__grid {
     gap: 0;
     justify-content: center;
     flex-wrap: nowrap;
   }
-  .stat-bar__item {
-    padding: .4rem .4rem;
-    min-width: 0;
-    flex: 1 1 25%;
-    border-right: 1px solid rgba(255,255,255,.07);
+  .stat-bar__aux,
+  .stat-bar__item--extra {
+    display: none !important;
   }
-  .stat-bar__item:last-child { border-right: none; }
+  .stat-bar__item {
+    padding: .4rem .5rem;
+    min-width: 0;
+    flex: 1 1 33.333%;
+    max-width: 33.333%;
+    border-right: 1px solid rgba(255,255,255,.07);
+    overflow: hidden;
+  }
+  .stat-bar__item:last-of-type { border-right: none; }
   .stat-bar__num {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     letter-spacing: -.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 100%;
   }
   .stat-bar__lbl {
-    font-size: .5rem;
-    letter-spacing: .05em;
+    font-size: .48rem;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── 6. Section header ── */
@@ -2645,13 +2659,13 @@ main .container {
 /* Extra-small screens: 360px and below */
 @media (max-width: 400px) {
   .stat-bar__item {
-    padding: .3rem .25rem;
+    padding: .3rem .2rem;
   }
   .stat-bar__num {
-    font-size: 1rem;
+    font-size: .95rem;
   }
   .stat-bar__lbl {
-    font-size: .46rem;
+    font-size: .44rem;
   }
   .equipment-grid {
     grid-template-columns: 1fr;
