@@ -547,7 +547,7 @@
     el.innerHTML = html;
   }
 
-  function renderCountryTotals(totals, grandTotal) {
+  function renderCountryTotals(totals) {
     var el = document.querySelector('.js-country-totals');
     if (!el || !totals) return;
     var entries = Object.entries(totals);
@@ -555,9 +555,9 @@
       el.innerHTML = '<div class="vhist-country-loading">Sem dados ainda</div>';
       return;
     }
-    var base = grandTotal > 0 ? grandTotal : Math.max.apply(null, entries.map(function(e){ return e[1]; })) || 1;
+    var countrySum = entries.reduce(function(s, e){ return s + e[1]; }, 0) || 1;
     el.innerHTML = entries.map(function(e) {
-      var pct  = Math.min(100, Math.round((e[1] / base) * 100));
+      var pct = Math.max(1, Math.round((e[1] / countrySum) * 100));
       return '<div class="vhist-crow">'
         + '<span class="vhist-cname">' + e[0] + '</span>'
         + '<span class="vhist-ccount">' + fmt.format(e[1]) + ' <span style="opacity:.6;font-size:.72rem;">(' + pct + '%)</span></span>'
@@ -580,7 +580,7 @@
         setNum('.js-hist-month',    data.visitors_month,  '');
         setNum('.js-hist-total',    data.visitors_total,  '');
         renderChart(data.top_countries);
-        renderCountryTotals(data.country_totals, data.visitors_total);
+        renderCountryTotals(data.country_totals);
         setUpdated();
       })
       .catch(function(){});
