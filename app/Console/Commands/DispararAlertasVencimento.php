@@ -12,13 +12,16 @@ use Illuminate\Mail\Events\MessageSent;
 
 class DispararAlertasVencimento extends Command
 {
-    protected $signature = 'alertas:disparar {--dias=5 : Dias para vencimento} {--apenas-suspensos : Enviar apenas para planos Suspensos com pagamento em atraso}';
+    protected $signature = 'alertas:disparar {--dias=5 : Dias para vencimento} {--apenas-suspensos : Enviar apenas para planos Suspensos com pagamento em atraso} {--planos= : IDs de planos específicos separados por vírgula}';
     protected $description = 'Dispara alertas de vencimento por e-mail e WhatsApp para planos próximos do vencimento';
 
     public function handle()
     {
-        $dias          = (int) $this->option('dias');
+        $dias           = (int) $this->option('dias');
         $apenaSuspensos = $this->option('apenas-suspensos');
+        $planosIds      = $this->option('planos')
+            ? array_filter(array_map('intval', explode(',', $this->option('planos'))))
+            : [];
         $hoje = Carbon::today(); // apenas a data, sem hora
         // Warn if mailer is set to 'log' (common in dev) to avoid silent non-delivery
         try {
@@ -39,8 +42,11 @@ class DispararAlertasVencimento extends Command
         if ($apenaSuspensos) {
             $query->where('estado', 'Suspenso');
         }
+        if (!empty($planosIds)) {
+            $query->whereIn('id', $planosIds);
+        }
         $planosRaw = $query->get();
-        $planos = $planosRaw->filter(function($plano) use ($dias, $hoje, $apenaSuspensos) {
+        $planos = $planosRaw->filter(function($plano) use ($dias, $hoje, $apenaSuspensos, $planosIds) {
             // Determine data de término: preferir proxima_renovacao quando presente
             try {
                 if (!empty($plano->proxima_renovacao)) {
@@ -61,6 +67,10 @@ class DispararAlertasVencimento extends Command
                 return false;
             }
             $this->info('Plano: ' . ($plano->cliente ? $plano->cliente->nome : '-') . ' | Ativação: ' . $plano->data_ativacao . ' | Ciclo: ' . $plano->ciclo . ' | Término: ' . $dataTermino->toDateString() . ' | DiasRestantes: ' . $diasRestantes . ' | Estado: ' . $plano->estado);
+            // Selecção manual pelo admin: envia sempre, independentemente dos dias
+            if (!empty($planosIds)) {
+                return true;
+            }
             // Modo suspensos: todos os vencidos (diasRestantes < 0), sem limite superior
             if ($apenaSuspensos) {
                 return $diasRestantes < 0;

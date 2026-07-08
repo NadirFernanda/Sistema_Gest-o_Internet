@@ -327,9 +327,13 @@ class ClienteController extends Controller
     public function dispararAlertas(Request $request)
     {
         try {
-            $dias = (int) $request->input('dias', 5);
-            // Execute the same logic as the scheduled command
-            Artisan::call('alertas:disparar', ['--dias' => $dias]);
+            $dias    = (int) $request->input('dias', 5);
+            $planos  = $request->input('planos', []);
+            $args    = ['--dias' => $dias];
+            if (!empty($planos) && is_array($planos)) {
+                $args['--planos'] = implode(',', array_filter(array_map('intval', $planos)));
+            }
+            Artisan::call('alertas:disparar', $args);
             $output = Artisan::output();
             \Log::info('API dispararAlertas called', ['dias' => $dias, 'output' => substr($output,0,1000)]);
 
