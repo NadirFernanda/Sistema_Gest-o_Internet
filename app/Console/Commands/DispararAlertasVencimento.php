@@ -32,12 +32,10 @@ class DispararAlertasVencimento extends Command
             // ignore config read errors
         }
         // Be tolerant to casing/spacing of 'estado' and accept empty/null as active
+        // Incluir Ativo, Em aviso e Suspenso (clientes vencidos também devem receber aviso)
+        // Excluir apenas Cancelado
         $planosRaw = Plano::with('cliente')
-            ->where(function($q){
-                $q->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%ativ%'])
-                  ->orWhereRaw("LOWER(TRIM(COALESCE(estado, ''))) LIKE ?", ['%activ%'])
-                  ->orWhereRaw("COALESCE(estado, '') = ''");
-            })
+            ->whereNotIn('estado', ['Cancelado'])
             ->get();
         $planos = $planosRaw->filter(function($plano) use ($dias, $hoje) {
             // Determine data de término: preferir proxima_renovacao quando presente
