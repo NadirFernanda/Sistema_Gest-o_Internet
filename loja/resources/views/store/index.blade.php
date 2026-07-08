@@ -251,21 +251,33 @@
         <div class="visitor-history">
           <div class="vhist-totals">
             <div class="vhist-item">
-              <span class="vhist-num js-hist-today">—</span>
+              <span class="vhist-num js-hist-today"
+                @if(($visitorsToday ?? null) !== null) data-count-to="{{ $visitorsToday }}" data-count-decimals="0" data-count-suffix="" @endif>
+                {{ ($visitorsToday ?? null) !== null ? number_format($visitorsToday, 0, ',', '.') : '—' }}
+              </span>
               <span class="vhist-lbl">Hoje</span>
             </div>
             <div class="vhist-item">
-              <span class="vhist-num js-hist-week">—</span>
+              <span class="vhist-num js-hist-week"
+                @if(($visitorsWeek ?? null) !== null) data-count-to="{{ $visitorsWeek }}" data-count-decimals="0" data-count-suffix="" @endif>
+                {{ ($visitorsWeek ?? null) !== null ? number_format($visitorsWeek, 0, ',', '.') : '—' }}
+              </span>
               <span class="vhist-lbl">Últimos 7 dias</span>
             </div>
             <div class="vhist-item">
-              <span class="vhist-num js-hist-month">—</span>
+              <span class="vhist-num js-hist-month"
+                @if(($visitorsMonth ?? null) !== null) data-count-to="{{ $visitorsMonth }}" data-count-decimals="0" data-count-suffix="" @endif>
+                {{ ($visitorsMonth ?? null) !== null ? number_format($visitorsMonth, 0, ',', '.') : '—' }}
+              </span>
               <span class="vhist-lbl">Este mês</span>
             </div>
           </div>
           <div class="vhist-spark-wrap">
             <div class="vhist-spark-title">Total de acessos</div>
-            <div class="vhist-total js-hist-total">—</div>
+            <div class="vhist-total js-hist-total"
+              @if(($visitorsTotal ?? null) !== null) data-count-to="{{ $visitorsTotal }}" data-count-decimals="0" data-count-suffix="" @endif>
+              {{ ($visitorsTotal ?? null) !== null ? number_format($visitorsTotal, 0, ',', '.') : '—' }}
+            </div>
             <div class="vhist-total-sub">visitas registadas</div>
           </div>
 

@@ -42,12 +42,32 @@ class StorefrontController extends Controller
             $totalDelivered    = null;
         }
 
+        // Estatísticas de visitantes — pré-populadas para aparecerem imediatamente no HTML
+        try {
+            $visitorsToday = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', today()->toDateString())->sum('sessions');
+            $visitorsWeek  = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', '>=', now()->subDays(6)->toDateString())->sum('sessions');
+            $visitorsMonth = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')
+                ->where('date', '>=', now()->startOfMonth()->toDateString())->sum('sessions');
+            $visitorsTotal = (int) \Illuminate\Support\Facades\DB::table('visitor_logs')->sum('sessions');
+        } catch (\Throwable) {
+            $visitorsToday = null;
+            $visitorsWeek  = null;
+            $visitorsMonth = null;
+            $visitorsTotal = null;
+        }
+
         return view('store.index', [
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
             'activeClientCount' => $this->fetchActiveClientCount(),
             'vouchersSoldToday' => $vouchersSoldToday,
             'totalDelivered'    => $totalDelivered,
+            'visitorsToday'     => $visitorsToday,
+            'visitorsWeek'      => $visitorsWeek,
+            'visitorsMonth'     => $visitorsMonth,
+            'visitorsTotal'     => $visitorsTotal,
         ]);
     }
 
