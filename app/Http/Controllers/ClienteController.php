@@ -332,7 +332,25 @@ class ClienteController extends Controller
             Artisan::call('alertas:disparar', ['--dias' => $dias]);
             $output = Artisan::output();
             \Log::info('API dispararAlertas called', ['dias' => $dias, 'output' => substr($output,0,1000)]);
-            return response()->json(['success' => true, 'message' => 'Dispatch iniciado', 'output' => $output]);
+
+            // Extrair contagem real de envios do output do comando
+            $sent  = 0;
+            $failed = 0;
+            if (preg_match('/sucesso=(\d+)/', $output, $m))  { $sent   = (int) $m[1]; }
+            if (preg_match('/falhas=(\d+)/',  $output, $m))  { $failed = (int) $m[1]; }
+            $nenhum = str_contains($output, 'Nenhum plano');
+
+            $message = $nenhum
+                ? 'Nenhum plano encontrado para alertar neste período.'
+                : "Enviados: {$sent} | Falhas: {$failed}";
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'sent'    => $sent,
+                'failed'  => $failed,
+                'output'  => $output,
+            ]);
         } catch (\Throwable $e) {
             \Log::error('API dispararAlertas error', ['err' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $detail = app()->isProduction() ? null : $e->getMessage();

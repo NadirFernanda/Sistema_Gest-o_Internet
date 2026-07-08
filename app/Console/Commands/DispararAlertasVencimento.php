@@ -60,7 +60,7 @@ class DispararAlertasVencimento extends Command
                 return false;
             }
             $this->info('Plano: ' . ($plano->cliente ? $plano->cliente->nome : '-') . ' | Ativação: ' . $plano->data_ativacao . ' | Ciclo: ' . $plano->ciclo . ' | Término: ' . $dataTermino->toDateString() . ' | DiasRestantes: ' . $diasRestantes . ' | Estado: ' . $plano->estado);
-            return $diasRestantes >= 0 && $diasRestantes <= $dias;
+            return $diasRestantes <= $dias;
         });
         if ($planos->isEmpty()) {
             $this->info('Nenhum plano a vencer nos próximos ' . $dias . ' dias.');
