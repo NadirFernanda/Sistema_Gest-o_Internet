@@ -595,7 +595,47 @@
       </div>
     </div>
 
-    {{-- ⑧ FERRAMENTAS --}}
+    {{-- ⑧ ESTATÍSTICAS DO SITE --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('estatisticas')">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">📈</span>
+          <span class="adm-menu-label">Estatísticas do Site</span>
+          <span class="adm-menu-badge" style="background:#dbeafe;color:#1d4ed8;" id="adm-stat-badge">A carregar…</span>
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-estatisticas">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-estatisticas" style="display:none;">
+
+        {{-- Totais --}}
+        <div class="adm-panel">
+          <div class="adm-panel-title">🕐 Acessos</div>
+          <div class="adm-stats-row">
+            <div class="adm-stat-pill">Agora: <strong id="as-now">—</strong></div>
+            <div class="adm-stat-pill">Hoje: <strong id="as-today">—</strong></div>
+            <div class="adm-stat-pill">7 dias: <strong id="as-week">—</strong></div>
+            <div class="adm-stat-pill">Mês: <strong id="as-month">—</strong></div>
+            <div class="adm-stat-pill" style="border-color:#f7b500;">Total: <strong id="as-total" style="color:#92400e;">—</strong></div>
+          </div>
+          <p style="font-size:.75rem;color:#9aa5b4;margin:.5rem 0 0;" id="as-updated"></p>
+        </div>
+
+        {{-- Países em tempo real --}}
+        <div class="adm-panel">
+          <div class="adm-panel-title">🌍 Agora — por país</div>
+          <div id="as-live-countries" style="font-size:.85rem;color:#9aa5b4;">A carregar…</div>
+        </div>
+
+        {{-- Países histórico --}}
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">🗺️ Histórico — por país</div>
+          <div id="as-hist-countries" style="font-size:.85rem;color:#9aa5b4;">A carregar…</div>
+        </div>
+
+      </div>
+    </div>
+
+    {{-- ⑨ FERRAMENTAS --}}
     <div class="adm-menu-item">
       <button class="adm-menu-btn" onclick="admToggle('ferramentas')">
         <span class="adm-menu-btn-left">
@@ -635,5 +675,70 @@ function admToggle(id) {
   if (chev) chev.classList.toggle('open', !open);
   if (btn)  btn.classList.toggle('open', !open);
 }
+
+// ── Estatísticas do site (polling /store/live-stats) ──────────────────────
+(function () {
+  var fmt = new Intl.NumberFormat('pt-PT');
+
+  function el(id) { return document.getElementById(id); }
+  function set(id, val) { var e = el(id); if (e && val !== null && val !== undefined) e.textContent = fmt.format(val); }
+
+  function renderLiveCountries(countries) {
+    var wrap = el('as-live-countries');
+    if (!wrap) return;
+    var entries = Object.entries(countries || {});
+    if (!entries.length) { wrap.textContent = 'Sem visitantes activos agora.'; return; }
+    wrap.innerHTML = entries.map(function(e) {
+      return '<div style="display:flex;justify-content:space-between;padding:.25rem 0;border-bottom:1px solid #f1f5f9;">'
+        + '<span style="font-weight:600;color:#0f172a;">' + e[0] + '</span>'
+        + '<span style="font-weight:700;color:#f7b500;">' + e[1] + '</span>'
+        + '</div>';
+    }).join('');
+  }
+
+  function renderHistCountries(totals) {
+    var wrap = el('as-hist-countries');
+    if (!wrap) return;
+    var entries = Object.entries(totals || {});
+    if (!entries.length) { wrap.textContent = 'Sem dados registados.'; return; }
+    var sum = entries.reduce(function(s, e) { return s + e[1]; }, 0) || 1;
+    wrap.innerHTML = entries.map(function(e) {
+      var pct = Math.max(1, Math.round(e[1] / sum * 100));
+      return '<div style="margin-bottom:.55rem;">'
+        + '<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;">'
+        +   '<span style="font-size:.85rem;font-weight:600;color:#0f172a;">' + e[0] + '</span>'
+        +   '<span style="font-size:.82rem;font-weight:700;color:#92400e;">' + fmt.format(e[1]) + ' <span style="opacity:.6;">(' + pct + '%)</span></span>'
+        + '</div>'
+        + '<div style="background:#e2e8f0;border-radius:3px;height:5px;overflow:hidden;">'
+        +   '<div style="width:' + pct + '%;height:5px;background:#f7b500;border-radius:3px;transition:width .4s;"></div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function fetchSiteStats() {
+    fetch('/store/live-stats')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d) return;
+        set('as-now',   d.visitors_now);
+        set('as-today', d.visitors_today);
+        set('as-week',  d.visitors_week);
+        set('as-month', d.visitors_month);
+        set('as-total', d.visitors_total);
+        // Badge no header do accordion
+        var badge = el('adm-stat-badge');
+        if (badge && d.visitors_total !== null) badge.textContent = fmt.format(d.visitors_total) + ' visitas';
+        renderLiveCountries(d.top_countries);
+        renderHistCountries(d.country_totals);
+        var upd = el('as-updated');
+        if (upd) upd.textContent = 'Actualizado às ' + new Date().toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      })
+      .catch(function() {});
+  }
+
+  fetchSiteStats();
+  setInterval(fetchSiteStats, 60000);
+})();
 </script>
 @endpush
