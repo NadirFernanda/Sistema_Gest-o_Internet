@@ -228,36 +228,22 @@
         <span class="live-dot"></span>
         <span class="live-stats-title">Em tempo real</span>
       </div>
-      <div class="live-stats-grid">
 
-        {{-- Visitantes no site agora --}}
-        <div class="live-stat-card live-stat-card--accent">
-          <div class="live-stat-num js-live-visitors">—</div>
-          <div class="live-stat-lbl">Visitantes no site agora</div>
-          <div class="live-stat-desc">Pessoas a navegar na loja neste momento</div>
-          <div class="live-countries js-live-countries"></div>
+      <div class="visitor-card">
+        <div class="visitor-card__left">
+          <div class="visitor-card__num js-live-visitors">—</div>
+          <div class="visitor-card__lbl">Visitantes no site agora</div>
+          <div class="visitor-card__desc">Pessoas a navegar na loja neste momento</div>
+          <p class="live-stats-update js-live-updated"></p>
         </div>
-
-        {{-- Vouchers hoje --}}
-        <div class="live-stat-card">
-          <div class="live-stat-num js-live-today">
-            {{ ($vouchersSoldToday ?? null) !== null ? number_format($vouchersSoldToday, 0, ',', '.') : '—' }}
+        <div class="visitor-card__right">
+          <div class="visitor-chart__title">Por país</div>
+          <div class="visitor-chart js-visitor-chart">
+            <div class="visitor-chart__empty">A carregar...</div>
           </div>
-          <div class="live-stat-lbl">Vouchers entregues hoje</div>
-          <div class="live-stat-desc">Clientes que compraram e se ligaram hoje</div>
         </div>
-
-        {{-- Online na rede --}}
-        <div class="live-stat-card">
-          <div class="live-stat-num js-live-active">
-            {{ ($activeClientCount ?? null) !== null ? number_format($activeClientCount, 0, ',', '.') : '—' }}
-          </div>
-          <div class="live-stat-lbl">Online na rede agora</div>
-          <div class="live-stat-desc">Clientes activos neste momento na rede AngolaWiFi</div>
-        </div>
-
       </div>
-      <p class="live-stats-update js-live-updated"></p>
+
     </div>
   </section>
 
@@ -492,11 +478,24 @@
     document.querySelectorAll('.js-live-updated').forEach(function(el) { el.textContent = time; });
   }
 
-  function renderCountries(countries) {
-    var el = document.querySelector('.js-live-countries');
+  function renderChart(countries) {
+    var el = document.querySelector('.js-visitor-chart');
     if (!el || !countries) return;
-    var html = Object.entries(countries).slice(0, 3).map(function(e) {
-      return '<span class="live-country-tag">' + e[0] + ' <strong>' + e[1] + '</strong></span>';
+    var entries = Object.entries(countries);
+    if (!entries.length) {
+      el.innerHTML = '<div class="visitor-chart__empty">Sem dados ainda</div>';
+      return;
+    }
+    var max = Math.max.apply(null, entries.map(function(e){ return e[1]; }));
+    var html = entries.map(function(e) {
+      var pct = max > 0 ? Math.round((e[1] / max) * 100) : 0;
+      return '<div class="vchart-row">'
+        + '<span class="vchart-lbl">' + e[0] + '</span>'
+        + '<div class="vchart-bar-wrap">'
+        +   '<div class="vchart-bar" style="width:' + pct + '%"></div>'
+        + '</div>'
+        + '<span class="vchart-val">' + e[1] + '</span>'
+        + '</div>';
     }).join('');
     el.innerHTML = html;
   }
@@ -506,11 +505,11 @@
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(data){
         if (!data) return;
-        setNum('.js-live-visitors', data.visitors_now,     '');
-        setNum('.js-live-active',   data.active_clients,   '');
-        setNum('.js-live-today',    data.vouchers_today,   '');
-        setNum('.js-live-total',    data.total_delivered,  '+');
-        renderCountries(data.top_countries);
+        setNum('.js-live-visitors', data.visitors_now,    '');
+        setNum('.js-live-active',   data.active_clients,  '');
+        setNum('.js-live-today',    data.vouchers_today,  '');
+        setNum('.js-live-total',    data.total_delivered, '+');
+        renderChart(data.top_countries);
         setUpdated();
       })
       .catch(function(){});
