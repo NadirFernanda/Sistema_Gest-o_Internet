@@ -1019,6 +1019,55 @@ main .container {
   font-size: .78rem;
   color: #9ca3af;
 }
+.vhist-country-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  padding-right: .15rem;
+  margin-top: .5rem;
+}
+.vhist-country-list::-webkit-scrollbar { width: 3px; }
+.vhist-country-list::-webkit-scrollbar-track { background: rgba(255,255,255,.05); border-radius: 2px; }
+.vhist-country-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
+.vhist-country-loading {
+  font-size: .8rem;
+  color: #9ca3af;
+}
+.vhist-crow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: .15rem .5rem;
+  align-items: center;
+}
+.vhist-cname {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  grid-column: 1; grid-row: 1;
+}
+.vhist-ccount {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #f7b500;
+  grid-column: 2; grid-row: 1;
+  white-space: nowrap;
+}
+.vhist-cbar-wrap {
+  grid-column: 1 / span 2; grid-row: 2;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  height: 4px;
+  overflow: hidden;
+}
+.vhist-cbar {
+  height: 100%;
+  background: #f7b500;
+  border-radius: 2px;
+  transition: width .4s ease;
+}
 .vhist-spark {
   flex: 1;
   display: flex;

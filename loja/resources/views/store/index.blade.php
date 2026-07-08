@@ -268,6 +268,13 @@
             <div class="vhist-total js-hist-total">—</div>
             <div class="vhist-total-sub">visitas registadas</div>
           </div>
+
+          <div class="vhist-countries-wrap">
+            <div class="vhist-spark-title" style="margin-top:1rem;">Por país (histórico)</div>
+            <div class="vhist-country-list js-country-totals">
+              <div class="vhist-country-loading">A carregar...</div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -528,6 +535,25 @@
     el.innerHTML = html;
   }
 
+  function renderCountryTotals(totals) {
+    var el = document.querySelector('.js-country-totals');
+    if (!el || !totals) return;
+    var entries = Object.entries(totals);
+    if (!entries.length) {
+      el.innerHTML = '<div class="vhist-country-loading">Sem dados ainda</div>';
+      return;
+    }
+    var max = Math.max.apply(null, entries.map(function(e){ return e[1]; })) || 1;
+    el.innerHTML = entries.map(function(e) {
+      var pct = Math.round((e[1] / max) * 100);
+      return '<div class="vhist-crow">'
+        + '<span class="vhist-cname">' + e[0] + '</span>'
+        + '<span class="vhist-ccount">' + fmt.format(e[1]) + '</span>'
+        + '<div class="vhist-cbar-wrap"><div class="vhist-cbar" style="width:' + pct + '%"></div></div>'
+        + '</div>';
+    }).join('');
+  }
+
   function fetchStats() {
     fetch('/store/live-stats')
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -542,6 +568,7 @@
         setNum('.js-hist-month',    data.visitors_month,  '');
         setNum('.js-hist-total',    data.visitors_total,  '');
         renderChart(data.top_countries);
+        renderCountryTotals(data.country_totals);
         setUpdated();
       })
       .catch(function(){});
