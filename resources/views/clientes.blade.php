@@ -55,6 +55,17 @@
             </a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
+        {{-- Segunda linha da toolbar: acções da ficha do cliente (alinhada à direita sob PDF e Painel) --}}
+        @if(isset($cliente))
+        <div style="max-width:1100px;margin:-4px auto 10px;display:flex;justify-content:flex-end;gap:8px;">
+            @can('planos.edit')
+            <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="white-space:nowrap;">Editar</a>
+            @endcan
+            @role('Administrador')
+            <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Plano</a>
+            @endrole
+        </div>
+        @endif
         @if(isset($clientes))
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
@@ -104,17 +115,8 @@
             {{-- Modernized ficha (card + actions) --}}
             <div class="ficha-cliente" style="margin-top:12px;">
                 <div class="ficha-card" style="max-width:980px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#fff9eb, #fffbe7);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                         <h2 style="margin:0;font-size:1.45rem;">Ficha do Cliente: {{ $cliente->nome }}</h2>
-                        @php
-                            $user = auth()->user();
-                        @endphp
-                                        @can('planos.edit')
-                        <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="font-size:.88rem;">Editar</a>
-                        @endcan
-                        @role('Administrador')
-                        <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="font-size:.88rem;">+ Novo Plano</a>
-                        @endrole
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
