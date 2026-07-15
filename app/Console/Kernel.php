@@ -82,6 +82,13 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->runInBackground();
 
+        // MikroTik: detecta clientes com quedas em horário fixo (possível Scheduler no router)
+        $schedule->command('mikrotik:detect-scheduled-drops')
+            ->weeklyOn(1, '09:00')
+            ->timezone(config('app.timezone'))
+            ->withoutOverlapping()
+            ->runInBackground();
+
         // MikroTik: suspende utilizadores com plano vencido à meia-noite (00:01 para não colidir com relatórios)
         $schedule->command('mikrotik:expire-plans')
             ->dailyAt('00:01')
