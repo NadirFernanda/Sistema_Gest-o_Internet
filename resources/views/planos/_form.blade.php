@@ -230,10 +230,11 @@
                 Cliente <span style="color:#e05a4f">*</span>
                 <button type="button" id="reloadClientesBtn" class="reload-btn" title="Recarregar lista">↺</button>
             </label>
+            @php $clientePreSel = old('cliente_id', $preClienteId ?? null); @endphp
             <select id="clientePlano" name="cliente_id" class="pf-select" required>
                 <option value="">Selecionar cliente…</option>
-                @if(old('cliente_id'))
-                    @php $oldCliente = \App\Models\Cliente::find(old('cliente_id')); @endphp
+                @if($clientePreSel)
+                    @php $oldCliente = \App\Models\Cliente::find($clientePreSel); @endphp
                     @if($oldCliente)
                         <option value="{{ $oldCliente->id }}" selected>
                             {{ $oldCliente->nome }}{{ $oldCliente->bi ? ' — '.$oldCliente->bi : '' }}
@@ -345,7 +346,7 @@
     var clienteSel  = document.getElementById('clientePlano');
     var clienteSts  = document.getElementById('clientesLoadStatus');
     var reloadBtn   = document.getElementById('reloadClientesBtn');
-    var preSelId    = clienteSel ? clienteSel.value : '';
+    var preSelId    = '{{ $clientePreSel ?? '' }}';
 
     function loadClientes() {
         if (clienteSts) { clienteSts.textContent = 'A carregar…'; clienteSts.style.display = 'block'; }

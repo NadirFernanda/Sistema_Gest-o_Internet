@@ -881,6 +881,23 @@ class ClienteController extends Controller
                 'mikrotik_site_id' => $validated['mikrotik_site_id'] ?? null,
             ];
 
+            // Detect existing client by BI before attempting INSERT
+            $existente = Cliente::where('bi', $biValue)->first();
+            if ($existente) {
+                $msg = 'Este cliente já está registado: ' . $existente->nome . '.';
+                if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success'          => false,
+                        'message'          => $msg,
+                        'cliente_existente' => ['id' => $existente->id, 'nome' => $existente->nome],
+                    ], 422);
+                }
+                return redirect()->back()->withInput()
+                    ->with('error_cliente_existente_id',   $existente->id)
+                    ->with('error_cliente_existente_nome', $existente->nome)
+                    ->with('error', $msg);
+            }
+
             // Use transaction to ensure atomicity
             $cliente = null;
             \DB::beginTransaction();

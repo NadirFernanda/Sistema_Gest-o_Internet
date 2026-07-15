@@ -302,10 +302,10 @@ class PlanoController extends Controller
     /**
      * Show the standalone create page for planos.
      */
-    public function createWeb()
+    public function createWeb(Request $request)
     {
-        $clientes = \App\Models\Cliente::orderBy('nome')->get();
-        return view('planos.create', compact('clientes'));
+        $preClienteId = $request->query('cliente_id');
+        return view('planos.create', compact('preClienteId'));
     }
 
     public function show($id)

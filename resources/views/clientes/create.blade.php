@@ -53,9 +53,28 @@
         @if(session('success'))
             <div class="pf-alert pf-alert--success">{{ session('success') }}</div>
         @endif
-        @if(session('error'))
+
+        @if(session('error_cliente_existente_id'))
+            <div class="pf-alert pf-alert--warn" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <div style="flex:1;">
+                    <strong>Cliente já registado:</strong> {{ session('error_cliente_existente_nome') }}<br>
+                    <span style="font-size:.85rem;">Este BI já pertence a um cliente existente. Pode adicionar um novo plano directamente.</span>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <a href="{{ route('planos.create', ['cliente_id' => session('error_cliente_existente_id')]) }}"
+                       style="background:#f5a623;color:#fff;padding:8px 18px;border-radius:8px;font-weight:700;text-decoration:none;white-space:nowrap;">
+                        + Adicionar plano
+                    </a>
+                    <a href="{{ route('clientes.show', session('error_cliente_existente_id')) }}"
+                       style="background:#eee;color:#333;padding:8px 18px;border-radius:8px;font-weight:600;text-decoration:none;white-space:nowrap;">
+                        Ver cliente
+                    </a>
+                </div>
+            </div>
+        @elseif(session('error'))
             <div class="pf-alert pf-alert--error">{{ session('error') }}</div>
         @endif
+
         @if($errors->any())
             <div class="pf-alert pf-alert--warn">
                 <ul>@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul>
