@@ -54,18 +54,15 @@
                 PDF
             </a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
+            @if(isset($cliente))
+                @can('planos.edit')
+                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="white-space:nowrap;">Editar</a>
+                @endcan
+                @role('Administrador')
+                <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Plano</a>
+                @endrole
+            @endif
         </div>
-        {{-- Segunda linha da toolbar: acções da ficha do cliente (alinhada à direita sob PDF e Painel) --}}
-        @if(isset($cliente))
-        <div style="max-width:1100px;margin:-4px auto 10px;display:flex;justify-content:flex-end;gap:8px;">
-            @can('planos.edit')
-            <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn" style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap;background:#f7b500;color:#fff;border:none;">Editar</a>
-            @endcan
-            @role('Administrador')
-            <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-ghost" style="white-space:nowrap;">+ Novo Plano</a>
-            @endrole
-        </div>
-        @endif
         @if(isset($clientes))
             <div class="clientes-lista" id="clientesLista">
                 @if(count($clientes) > 0)
