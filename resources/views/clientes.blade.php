@@ -59,10 +59,10 @@
         @if(isset($cliente))
         <div style="max-width:1100px;margin:-4px auto 10px;display:flex;justify-content:flex-end;gap:8px;">
             @can('planos.edit')
-            <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="white-space:nowrap;">Editar</a>
+            <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="white-space:nowrap;height:40px;padding:0 18px;font-size:0.9rem;display:inline-flex;align-items:center;">Editar</a>
             @endcan
             @role('Administrador')
-            <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Plano</a>
+            <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="white-space:nowrap;height:40px;padding:0 18px;font-size:0.9rem;display:inline-flex;align-items:center;">+ Novo Plano</a>
             @endrole
         </div>
         @endif
