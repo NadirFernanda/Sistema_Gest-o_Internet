@@ -9,18 +9,17 @@ use Illuminate\Support\Facades\Log;
 
 class MikroTikDetectScheduledDrops extends Command
 {
-    protected $signature   = 'mikrotik:detect-scheduled-drops {--dias=14 : Dias de histórico a analisar} {--min-ocorrencias=3 : Mínimo de quedas no mesmo horário para alertar}';
+    protected $signature   = 'mikrotik:detect-scheduled-drops {--dias=14 : Dias de histórico a analisar} {--min-dias=5 : Mínimo de dias distintos com queda na mesma janela horária}';
     protected $description = 'Detecta clientes com quedas que ocorrem sempre no mesmo horário (possível tarefa agendada no router)';
 
     public function handle(): int
     {
-        $dias          = (int) $this->option('dias');
-        $minOcorrencias = (int) $this->option('min-ocorrencias');
-        $desde         = now()->subDays($dias);
+        $dias    = (int) $this->option('dias');
+        $minDias = (int) $this->option('min-dias');
+        $desde   = now()->subDays($dias);
 
-        $this->info("Analisando quedas dos últimos {$dias} dias...");
+        $this->info("Analisando quedas dos últimos {$dias} dias (mínimo {$minDias} dias distintos por janela)...");
 
-        // Buscar todos os eventos de queda com hora registada
         $eventos = MikroTikOnlineStatusEvent::with('plano.cliente')
             ->where('event_type', 'offline')
             ->where('occurred_at', '>=', $desde)
@@ -32,48 +31,60 @@ class MikroTikDetectScheduledDrops extends Command
             return 0;
         }
 
-        // Agrupar por plano e depois por hora (janela de 30 minutos)
         $porPlano = $eventos->groupBy('plano_id');
         $alertas  = [];
 
         foreach ($porPlano as $planoId => $queda) {
-            if ($queda->count() < $minOcorrencias) {
-                continue;
-            }
-
-            // Contar ocorrências por janela de 30 minutos (ex: 23:00-23:30)
-            $porHorario = [];
+            // Agrupar por janela de 30 min e contar DIAS DISTINTOS com queda.
+            // Contar ocorrências totais gera falsos positivos: um cliente instável
+            // com 4 quedas/dia acumula 3+ quedas em quase todas as janelas por acaso.
+            $diasPorJanela = [];
             foreach ($queda as $evento) {
                 $hora   = (int) $evento->occurred_at->format('H');
                 $minuto = (int) $evento->occurred_at->format('i');
-                // Arredondar para janela de 30 min
                 $janela = $hora . ':' . ($minuto < 30 ? '00' : '30');
-                $porHorario[$janela] = ($porHorario[$janela] ?? 0) + 1;
+                $dia    = $evento->occurred_at->format('Y-m-d');
+                $diasPorJanela[$janela][$dia] = true;
             }
 
-            // Verificar se algum horário tem quedas repetidas suficientes
-            foreach ($porHorario as $horario => $contagem) {
-                if ($contagem >= $minOcorrencias) {
-                    $plano   = $queda->first()?->plano;
-                    $cliente = $plano?->cliente;
-                    $alertas[] = [
-                        'plano_id'   => $planoId,
-                        'cliente'    => $cliente?->nome ?? "Plano #{$planoId}",
-                        'username'   => $plano?->mikrotik_username ?? '-',
-                        'horario'    => $horario,
-                        'ocorrencias'=> $contagem,
-                        'total_quedas' => $queda->count(),
-                    ];
+            // Média de dias por janela para este cliente
+            $totalJanelas       = count($diasPorJanela);
+            $totalDiasAcumulado = array_sum(array_map('count', $diasPorJanela));
+            $mediaDias          = $totalJanelas > 0 ? $totalDiasAcumulado / $totalJanelas : 0;
 
-                    Log::warning('MikroTik: padrão de queda em horário fixo detectado', [
-                        'plano_id'    => $planoId,
-                        'cliente'     => $cliente?->nome,
-                        'username'    => $plano?->mikrotik_username,
-                        'horario'     => $horario,
-                        'ocorrencias' => $contagem,
-                        'dias'        => $dias,
-                    ]);
-                }
+            foreach ($diasPorJanela as $horario => $diasComQueda) {
+                $numDias = count($diasComQueda);
+
+                // Critério 1: pelo menos N dias distintos com queda nessa janela
+                if ($numDias < $minDias) continue;
+
+                // Critério 2: a janela deve ter pelo menos 2× a média do próprio cliente.
+                // Filtra instabilidade geral (onde todas as janelas têm muitos dias).
+                if ($mediaDias > 0 && $numDias < $mediaDias * 2.0) continue;
+
+                $percentagem = round($numDias / $dias * 100);
+                $plano       = $queda->first()?->plano;
+                $cliente     = $plano?->cliente;
+
+                $alertas[] = [
+                    'plano_id'    => $planoId,
+                    'cliente'     => $cliente?->nome ?? "Plano #{$planoId}",
+                    'username'    => $plano?->mikrotik_username ?? '-',
+                    'horario'     => $horario,
+                    'dias'        => $numDias,
+                    'percentagem' => $percentagem,
+                    'total_quedas'=> $queda->count(),
+                ];
+
+                Log::warning('MikroTik: padrão de queda em horário fixo detectado', [
+                    'plano_id'       => $planoId,
+                    'cliente'        => $cliente?->nome,
+                    'username'       => $plano?->mikrotik_username,
+                    'horario'        => $horario,
+                    'dias_distintos' => $numDias,
+                    'percentagem'    => $percentagem . '%',
+                    'dias_analisados'=> $dias,
+                ]);
             }
         }
 
@@ -82,18 +93,20 @@ class MikroTikDetectScheduledDrops extends Command
             return 0;
         }
 
+        usort($alertas, fn($a, $b) => $b['percentagem'] <=> $a['percentagem']);
+
         $this->newLine();
-        $this->warn("⚠  " . count($alertas) . " cliente(s) com padrão de queda em horário fixo:");
+        $this->warn("⚠  " . count($alertas) . " padrão(ões) de queda em horário fixo:");
         $this->newLine();
 
         $this->table(
-            ['Cliente', 'Username', 'Horário', 'Ocorrências', 'Total Quedas'],
+            ['Cliente', 'Username', 'Horário', 'Dias com queda', '% dos dias'],
             array_map(fn($a) => [
                 $a['cliente'],
                 $a['username'],
                 $a['horario'],
-                $a['ocorrencias'] . 'x',
-                $a['total_quedas'],
+                $a['dias'] . 'x',
+                $a['percentagem'] . '%',
             ], $alertas)
         );
 
