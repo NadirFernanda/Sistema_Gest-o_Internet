@@ -11,6 +11,7 @@ class Cobranca extends Model
 
     protected $fillable = [
         'cliente_id',
+        'plano_id',
         'descricao',
         'valor',
         'data_vencimento',
@@ -27,6 +28,11 @@ class Cobranca extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function plano()
+    {
+        return $this->belongsTo(Plano::class);
     }
 
     public function pagamentos()

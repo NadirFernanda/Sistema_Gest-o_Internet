@@ -94,12 +94,13 @@ class CobrancaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'descricao' => 'required|string|max:255',
-            'valor' => 'required|numeric|min:0',
-            'data_vencimento' => 'required|date',
+            'cliente_id'     => 'required|exists:clientes,id',
+            'plano_id'       => 'nullable|exists:planos,id',
+            'descricao'      => 'required|string|max:255',
+            'valor'          => 'required|numeric|min:0',
+            'data_vencimento'=> 'required|date',
             'data_pagamento' => 'nullable|date',
-            'status' => 'required|in:pendente,pago,atrasado',
+            'status'         => 'required|in:pendente,pago,atrasado',
         ]);
         $cobranca = Cobranca::create($validated);
 

@@ -72,6 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/planos/create', [\App\Http\Controllers\PlanoController::class, 'createWeb'])->name('planos.create')->middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador');
     // JSON endpoint used by the plan form to load/search clients dynamically (always fresh)
     Route::get('/clientes-search-json', [\App\Http\Controllers\ClienteController::class, 'searchJson'])->name('clientes.search.json');
+    // JSON endpoint: list active plans for a specific client (used by cobrança form)
+    Route::get('/clientes/{cliente}/planos-json', [\App\Http\Controllers\ClienteController::class, 'planosJson'])->name('clientes.planos.json');
     // Web routes for individual planos (prevent 404s from card actions)
     Route::get('/planos/{plano}', [\App\Http\Controllers\PlanoController::class, 'webShow'])->name('planos.show')->whereNumber('plano');
     Route::get('/planos/{plano}/edit', [\App\Http\Controllers\PlanoController::class, 'editWeb'])->name('planos.edit')->whereNumber('plano');

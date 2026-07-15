@@ -79,6 +79,15 @@
                     </select>
                     @error('cliente_id') <div class="field-err">{{ $message }}</div> @enderror
                 </div>
+
+                <div class="pf-field" id="plano_id_wrap" style="display:none;">
+                    <label class="pf-label" for="plano_id">Plano a renovar</label>
+                    <select name="plano_id" id="plano_id" class="pf-select">
+                        <option value="">— Selecionar plano (opcional) —</option>
+                    </select>
+                    <div class="field-hint">Se o cliente tiver mais de um plano, seleccione qual deve ser renovado com este pagamento.</div>
+                    @error('plano_id') <div class="field-err">{{ $message }}</div> @enderror
+                </div>
             </div>
 
             {{-- ── Card 2: Cobrança ── --}}
@@ -161,6 +170,36 @@ document.querySelectorAll('.status-pill').forEach(function (pill) {
         pill.classList.add('selected');
     });
 });
+
+// Carregar planos do cliente seleccionado
+var clienteSel  = document.getElementById('cliente_id');
+var planoSel    = document.getElementById('plano_id');
+var planoWrap   = document.getElementById('plano_id_wrap');
+var prePlanoId  = '{{ old('plano_id', $cobranca->plano_id ?? '') }}';
+
+function carregarPlanos(clienteId) {
+    if (!clienteId) { planoWrap.style.display = 'none'; return; }
+    fetch('/clientes/' + clienteId + '/planos-json', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function(r) { return r.json(); })
+        .then(function(planos) {
+            planoSel.innerHTML = '<option value="">— Selecionar plano (opcional) —</option>';
+            planos.forEach(function(p) {
+                var opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.nome + ' — ' + p.estado + ' (vence ' + (p.proxima_renovacao || '?') + ')';
+                if (String(p.id) === String(prePlanoId)) opt.selected = true;
+                planoSel.appendChild(opt);
+            });
+            planoWrap.style.display = planos.length > 1 ? 'block' : 'none';
+            if (planos.length === 1 && !prePlanoId) {
+                planoSel.value = planos[0].id;
+            }
+        })
+        .catch(function() { planoWrap.style.display = 'none'; });
+}
+
+clienteSel.addEventListener('change', function() { carregarPlanos(this.value); });
+if (clienteSel.value) carregarPlanos(clienteSel.value);
 </script>
 @endpush
 @endsection

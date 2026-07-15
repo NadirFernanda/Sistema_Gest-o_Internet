@@ -393,6 +393,16 @@ class ClienteController extends Controller
         );
     }
 
+    public function planosJson(Cliente $cliente)
+    {
+        $planos = $cliente->planos()
+            ->whereNotIn('estado', ['Cancelado'])
+            ->orderBy('proxima_renovacao', 'asc')
+            ->get(['id', 'nome', 'estado', 'proxima_renovacao']);
+
+        return response()->json($planos);
+    }
+
     public function index()
     {
         $query = Cliente::query();

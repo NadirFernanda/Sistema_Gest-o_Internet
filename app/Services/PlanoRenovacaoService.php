@@ -20,32 +20,46 @@ class PlanoRenovacaoService
         $cliente = $cobranca->cliente()->with('mikrotikSite')->first();
         if (! $cliente) return;
 
-        $planos = Plano::where('cliente_id', $cliente->id)
-            ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
-            ->whereNotNull('proxima_renovacao')
-            ->whereNotNull('ciclo')
-            ->orderBy('proxima_renovacao', 'asc')
-            ->get();
-
-        if ($planos->isEmpty()) {
-            Log::warning('PlanoRenovacaoService: nenhum plano activo encontrado', [
-                'cliente_id'  => $cliente->id,
-                'cobranca_id' => $cobranca->id,
-            ]);
-            return;
-        }
-
-        // Match pelo data_vencimento da cobrança (janela de ±5 dias)
+        // Se a cobrança tem plano_id directo, usa-o sem ambiguidade
         $plano = null;
-        if ($cobranca->data_vencimento) {
-            $vencimento = Carbon::parse($cobranca->data_vencimento);
-            $plano = $planos->first(fn($p) =>
-                Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) >= -5
-                && Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) <= 5
-            );
+        if ($cobranca->plano_id) {
+            $plano = Plano::find($cobranca->plano_id);
+            if (! $plano || $plano->cliente_id !== $cliente->id) {
+                Log::warning('PlanoRenovacaoService: plano_id da cobrança inválido ou de outro cliente', [
+                    'cobranca_id' => $cobranca->id,
+                    'plano_id'    => $cobranca->plano_id,
+                ]);
+                $plano = null;
+            }
         }
 
-        $plano = $plano ?? $planos->first();
+        // Fallback: procurar por proximidade de data (clientes com plano único)
+        if (! $plano) {
+            $planos = Plano::where('cliente_id', $cliente->id)
+                ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
+                ->whereNotNull('proxima_renovacao')
+                ->whereNotNull('ciclo')
+                ->orderBy('proxima_renovacao', 'asc')
+                ->get();
+
+            if ($planos->isEmpty()) {
+                Log::warning('PlanoRenovacaoService: nenhum plano activo encontrado', [
+                    'cliente_id'  => $cliente->id,
+                    'cobranca_id' => $cobranca->id,
+                ]);
+                return;
+            }
+
+            if ($cobranca->data_vencimento) {
+                $vencimento = Carbon::parse($cobranca->data_vencimento);
+                $plano = $planos->first(fn($p) =>
+                    Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) >= -5
+                    && Carbon::parse($p->proxima_renovacao)->diffInDays($vencimento, false) <= 5
+                );
+            }
+
+            $plano = $plano ?? $planos->first();
+        }
 
         $ciclo = (int) $plano->ciclo;
         if ($ciclo <= 0) return;
