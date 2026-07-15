@@ -53,15 +53,12 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 PDF
             </a>
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
             @if(isset($cliente))
-                @can('planos.edit')
-                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="white-space:nowrap;">Editar</a>
-                @endcan
                 @role('Administrador')
                 <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Plano</a>
                 @endrole
             @endif
+            <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
         @if(isset($clientes))
             <div class="clientes-lista" id="clientesLista">
