@@ -112,6 +112,9 @@
                                         @can('planos.edit')
                         <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-ghost" style="font-size:.88rem;">Editar</a>
                         @endcan
+                        @role('Administrador')
+                        <a href="{{ route('planos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-cta" style="font-size:.88rem;">+ Novo Plano</a>
+                        @endrole
                     </div>
 
                     <div class="cliente-dados-moderna" style="background:transparent;border-radius:10px;padding:18px 8px 6px 8px;margin-top:16px;">
