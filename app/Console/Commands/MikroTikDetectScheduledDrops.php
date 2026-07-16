@@ -27,7 +27,7 @@ class MikroTikDetectScheduledDrops extends Command
 
         $desde = now()->subDays($dias);
 
-        $eventos = MikroTikOnlineStatusEvent::with('plano')
+        $eventos = MikroTikOnlineStatusEvent::with('plano.cliente')
             ->whereIn('plano_id', $planoIds)
             ->where('event_type', 'offline')
             ->where('occurred_at', '>=', $desde)
@@ -62,6 +62,7 @@ class MikroTikDetectScheduledDrops extends Command
 
                 $alertas[] = [
                     'plano_id'    => $planoId,
+                    'cliente'     => $queda->first()?->plano?->cliente?->nome ?? "Plano #{$planoId}",
                     'username'    => $queda->first()?->plano?->mikrotik_username ?? '-',
                     'horario'     => $horario,
                     'dias'        => $numDias,
