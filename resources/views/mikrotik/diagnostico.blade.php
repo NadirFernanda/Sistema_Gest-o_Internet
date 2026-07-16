@@ -320,6 +320,97 @@ code.uname.orphan  { background:#fff8e1; color:#7a5c00; }
 
     </div>{{-- .site-block --}}
     @endforeach
+
+    {{-- ── Quedas Simultâneas (problema no router do ISP) ── --}}
+    @if(!empty($simultaneos) || !empty($scheduledDropsGlobal))
+    <div style="margin-top:32px;">
+        <h2 style="font-size:1.1rem;font-weight:800;color:#1a1a2e;margin-bottom:16px;">
+            Análise de Padrões de Queda — Últimos 30 dias
+        </h2>
+
+        @if(!empty($simultaneos))
+        <div style="background:#fdecea;border:1.5px solid #e05a4f;border-radius:12px;padding:16px 20px;margin-bottom:16px;">
+            <div style="font-weight:800;font-size:.97rem;color:#922b21;margin-bottom:10px;">
+                🔴 Quedas simultâneas detectadas — causa no router do ISP
+            </div>
+            <p style="font-size:.88rem;color:#7a1c1c;margin:0 0 12px;">
+                Múltiplos clientes a cair ao mesmo tempo indica problema no próprio router (Scheduler, reinício de serviço PPP, corte de energia).
+                Verificar <strong>System → Scheduler</strong> e <strong>Log</strong> nestes horários.
+            </p>
+            <table style="width:100%;border-collapse:collapse;font-size:.86rem;background:#fff;border-radius:8px;overflow:hidden;">
+                <thead>
+                    <tr style="background:#fdecea;">
+                        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #f5bab5;">Horário</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #f5bab5;">Ocorrências</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #f5bab5;">Máx. clientes</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #f5bab5;">Média</th>
+                        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #f5bab5;">Clientes afectados (ex.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($simultaneos as $s)
+                    <tr style="border-bottom:1px solid #fdecea;">
+                        <td style="padding:8px 12px;font-weight:700;font-size:.95rem;">{{ $s['horario'] }}h</td>
+                        <td style="padding:8px 12px;text-align:center;font-weight:700;color:#c0392b;">{{ $s['ocorrencias'] }}×</td>
+                        <td style="padding:8px 12px;text-align:center;">{{ $s['max_clientes'] }}</td>
+                        <td style="padding:8px 12px;text-align:center;">{{ $s['avg_clientes'] }}</td>
+                        <td style="padding:8px 12px;color:#555;">
+                            {{ implode(', ', $s['planos_exemplo']) }}
+                            @if($s['total_planos'] > 5)
+                                <span style="color:#aaa;">+{{ $s['total_planos'] - 5 }} mais</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+
+        @if(!empty($scheduledDropsGlobal))
+        @php
+            // Separar os que provavelmente são simultâneos dos individuais
+            $horariosSimultaneos = collect($simultaneos)->pluck('horario')->flip()->all();
+            $dropsIndividuais = array_filter($scheduledDropsGlobal, fn($d) => !isset($horariosSimultaneos[$d['horario']]));
+            $dropsISP         = array_filter($scheduledDropsGlobal, fn($d) =>  isset($horariosSimultaneos[$d['horario']]));
+        @endphp
+        @if(!empty($dropsIndividuais))
+        <div style="background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;padding:16px 20px;">
+            <div style="font-weight:800;font-size:.97rem;color:#b36b00;margin-bottom:10px;">
+                ⚠️ Quedas individuais em horário fixo — possível Scheduler no router do cliente
+            </div>
+            <p style="font-size:.88rem;color:#7a5200;margin:0 0 12px;">
+                Estes clientes têm quedas recorrentes no mesmo horário mas NÃO em simultâneo com outros.
+                Pode ser uma regra no router do próprio cliente ou instabilidade recorrente.
+            </p>
+            <table style="width:100%;border-collapse:collapse;font-size:.86rem;background:#fff;border-radius:8px;overflow:hidden;">
+                <thead>
+                    <tr style="background:#fff8ec;">
+                        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #ffe6a0;">Cliente</th>
+                        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #ffe6a0;">Username</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #ffe6a0;">Horário</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #ffe6a0;">Dias</th>
+                        <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #ffe6a0;">%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($dropsIndividuais as $d)
+                    <tr style="border-bottom:1px solid #fff8ec;">
+                        <td style="padding:7px 12px;">{{ $d['cliente'] }}</td>
+                        <td style="padding:7px 12px;font-family:monospace;font-size:.83rem;">{{ $d['username'] }}</td>
+                        <td style="padding:7px 12px;text-align:center;font-weight:700;">{{ $d['horario'] }}h</td>
+                        <td style="padding:7px 12px;text-align:center;">{{ $d['dias'] }}×</td>
+                        <td style="padding:7px 12px;text-align:center;">{{ $d['percentagem'] }}%</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+        @endif
+    </div>
+    @endif
+
 </div>
 @endsection
 

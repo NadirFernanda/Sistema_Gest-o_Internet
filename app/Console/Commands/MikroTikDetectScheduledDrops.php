@@ -74,6 +74,74 @@ class MikroTikDetectScheduledDrops extends Command
         return $alertas;
     }
 
+    /**
+     * Detecta quedas simultâneas: várias ligações PPPoE que caem ao mesmo tempo.
+     * Quando N clientes caem na mesma janela de 5 minutos em múltiplos dias,
+     * o problema é no router do ISP (Scheduler, reinício de serviço, energia), não nos clientes.
+     *
+     * @return array [ ['horario', 'ocorrencias', 'max_clientes', 'avg_clientes', 'planos_exemplo'], ... ]
+     */
+    public static function analisarSimultaneos(int $dias = 30, int $minClientes = 3, int $minOcorrencias = 3): array
+    {
+        $desde = now()->subDays($dias);
+
+        $eventos = MikroTikOnlineStatusEvent::with('plano.cliente')
+            ->where('event_type', 'offline')
+            ->where('occurred_at', '>=', $desde)
+            ->whereNotNull('occurred_at')
+            ->get();
+
+        if ($eventos->isEmpty()) {
+            return [];
+        }
+
+        // Agrupar por janela de 5 minutos (dia + horário)
+        $byJanelaDia = []; // [horario => [dia => [plano_id => cliente_nome]]]
+        foreach ($eventos as $evento) {
+            $h = (int) $evento->occurred_at->format('H');
+            $m = (int) $evento->occurred_at->format('i');
+            $mRound = (int) (floor($m / 5) * 5);
+            $janela = sprintf('%02d:%02d', $h, $mRound);
+            $dia    = $evento->occurred_at->format('Y-m-d');
+            $byJanelaDia[$janela][$dia][$evento->plano_id] = $evento->plano?->cliente?->nome ?? "Plano #{$evento->plano_id}";
+        }
+
+        $alertas = [];
+        foreach ($byJanelaDia as $horario => $diasData) {
+            // Contar dias onde >= $minClientes clientes caíram ao mesmo tempo
+            $diasSimultaneos = array_filter(
+                $diasData,
+                fn($planos) => count($planos) >= $minClientes
+            );
+
+            if (count($diasSimultaneos) < $minOcorrencias) {
+                continue;
+            }
+
+            $numClientes = array_map('count', $diasSimultaneos);
+            // Recolher todos os planos únicos afectados para exemplo
+            $todosPlanos = [];
+            foreach ($diasSimultaneos as $planos) {
+                foreach ($planos as $planoId => $nome) {
+                    $todosPlanos[$planoId] = $nome;
+                }
+            }
+
+            $alertas[] = [
+                'horario'       => $horario,
+                'ocorrencias'   => count($diasSimultaneos),
+                'max_clientes'  => max($numClientes),
+                'avg_clientes'  => round(array_sum($numClientes) / count($numClientes), 1),
+                'planos_exemplo'=> array_slice(array_values($todosPlanos), 0, 5),
+                'total_planos'  => count($todosPlanos),
+            ];
+        }
+
+        usort($alertas, fn($a, $b) => $b['ocorrencias'] <=> $a['ocorrencias']);
+
+        return $alertas;
+    }
+
     public function handle(): int
     {
         $dias    = (int) $this->option('dias');
@@ -175,6 +243,32 @@ class MikroTikDetectScheduledDrops extends Command
         $this->newLine();
         $this->warn("Causa provável: tarefa agendada (Scheduler) no router MikroTik.");
         $this->warn("Solução: verificar System → Scheduler no WinBox e remover regras no horário indicado.");
+
+        // ── Análise de quedas simultâneas ──────────────────────────────────────
+        $this->newLine();
+        $this->info("Analisando quedas simultâneas (problema no router do ISP)...");
+        $simultaneos = self::analisarSimultaneos(dias: $dias, minClientes: 3, minOcorrencias: 2);
+
+        if (empty($simultaneos)) {
+            $this->info("Nenhuma queda simultânea relevante detectada.");
+        } else {
+            $this->newLine();
+            $this->error("🔴  " . count($simultaneos) . " horário(s) com quedas simultâneas de múltiplos clientes (causa no ROUTER DO ISP):");
+            $this->newLine();
+            $this->table(
+                ['Horário', 'Ocorrências (dias)', 'Máx. clientes', 'Média clientes', 'Clientes afectados (ex.)'],
+                array_map(fn($a) => [
+                    $a['horario'],
+                    $a['ocorrencias'] . 'x',
+                    $a['max_clientes'],
+                    $a['avg_clientes'],
+                    implode(', ', $a['planos_exemplo']) . ($a['total_planos'] > 5 ? ' (+' . ($a['total_planos'] - 5) . ')' : ''),
+                ], $simultaneos)
+            );
+            $this->newLine();
+            $this->error("ATENÇÃO: Múltiplos clientes a cair ao mesmo tempo = problema no router do ISP.");
+            $this->warn("Verificar: Scheduler, reinícios de serviço PPP, problemas de energia no local do router.");
+        }
 
         return 0;
     }

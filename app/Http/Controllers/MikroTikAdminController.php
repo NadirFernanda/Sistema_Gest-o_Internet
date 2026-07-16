@@ -671,7 +671,16 @@ class MikroTikAdminController extends Controller
             ];
         }
 
-        return view('mikrotik.diagnostico', compact('dadosPorSite'));
+        $simultaneos = \App\Console\Commands\MikroTikDetectScheduledDrops::analisarSimultaneos(
+            dias: 30, minClientes: 3, minOcorrencias: 2
+        );
+
+        $scheduledDropsGlobal = \App\Console\Commands\MikroTikDetectScheduledDrops::analisarPlanos(
+            Plano::whereNotNull('mikrotik_username')->pluck('id')->all(),
+            dias: 30, minDias: 3
+        );
+
+        return view('mikrotik.diagnostico', compact('dadosPorSite', 'simultaneos', 'scheduledDropsGlobal'));
     }
 
     /** Corrigir múltiplos usernames de uma só vez (bulk). */
