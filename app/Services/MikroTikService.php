@@ -522,19 +522,30 @@ class MikroTikService
 
     private function disconnectActivePpp(string $username): void
     {
-        $sessions = $this->api->command('/ppp/active/print', [], ['name' => $username]);
-        foreach ($sessions as $s) {
-            if (($s['type'] ?? '') === '!re' && isset($s['.id'])) {
-                $result = $this->api->command('/ppp/active/remove', ['.id' => $s['.id']]);
-                foreach ($result as $r) {
-                    if (($r['type'] ?? '') === '!trap') {
-                        Log::warning('MikroTik PPPoE: falha ao terminar sessão activa', [
-                            'username' => $username,
-                            'session'  => $s['.id'],
-                            'error'    => $r['=message'] ?? $r['message'] ?? 'erro desconhecido',
-                            'host'     => $this->host,
-                        ]);
-                    }
+        // Obter TODAS as sessões sem filtro (o filtro ?name= da API RouterOS
+        // pode não funcionar em algumas versões) e filtrar por nome em PHP.
+        $all = $this->api->command('/ppp/active/print');
+        foreach ($all as $s) {
+            if (($s['type'] ?? '') !== '!re') continue;
+            $sessionName = $s['name'] ?? $s['=name'] ?? '';
+            if (strtolower($sessionName) !== strtolower($username)) continue;
+            if (! isset($s['.id'])) continue;
+
+            $result = $this->api->command('/ppp/active/remove', ['.id' => $s['.id']]);
+            foreach ($result as $r) {
+                if (($r['type'] ?? '') === '!trap') {
+                    Log::warning('MikroTik PPPoE: falha ao terminar sessão activa', [
+                        'username' => $username,
+                        'session'  => $s['.id'],
+                        'error'    => $r['=message'] ?? $r['message'] ?? 'erro desconhecido',
+                        'host'     => $this->host,
+                    ]);
+                } else {
+                    Log::info('MikroTik PPPoE: sessão activa terminada', [
+                        'username' => $username,
+                        'session'  => $s['.id'],
+                        'host'     => $this->host,
+                    ]);
                 }
             }
         }
