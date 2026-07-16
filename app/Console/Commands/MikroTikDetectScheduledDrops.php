@@ -12,6 +12,68 @@ class MikroTikDetectScheduledDrops extends Command
     protected $signature   = 'mikrotik:detect-scheduled-drops {--dias=14 : Dias de histórico a analisar} {--min-dias=5 : Mínimo de dias distintos com queda na mesma janela horária}';
     protected $description = 'Detecta clientes com quedas que ocorrem sempre no mesmo horário (possível tarefa agendada no router)';
 
+    /**
+     * Analisa eventos de queda para um conjunto de plano_ids e retorna padrões detectados.
+     * Usado tanto pelo comando CLI como pela UI (página do cliente).
+     *
+     * @param  int[]  $planoIds
+     * @return array  [ ['plano_id', 'username', 'horario', 'dias', 'percentagem', 'total_quedas'], ... ]
+     */
+    public static function analisarPlanos(array $planoIds, int $dias = 14, int $minDias = 5): array
+    {
+        if (empty($planoIds)) {
+            return [];
+        }
+
+        $desde = now()->subDays($dias);
+
+        $eventos = MikroTikOnlineStatusEvent::with('plano')
+            ->whereIn('plano_id', $planoIds)
+            ->where('event_type', 'offline')
+            ->where('occurred_at', '>=', $desde)
+            ->whereNotNull('occurred_at')
+            ->get();
+
+        if ($eventos->isEmpty()) {
+            return [];
+        }
+
+        $porPlano = $eventos->groupBy('plano_id');
+        $alertas  = [];
+
+        foreach ($porPlano as $planoId => $queda) {
+            $diasPorJanela = [];
+            foreach ($queda as $evento) {
+                $hora   = (int) $evento->occurred_at->format('H');
+                $minuto = (int) $evento->occurred_at->format('i');
+                $janela = $hora . ':' . ($minuto < 30 ? '00' : '30');
+                $dia    = $evento->occurred_at->format('Y-m-d');
+                $diasPorJanela[$janela][$dia] = true;
+            }
+
+            $totalJanelas       = count($diasPorJanela);
+            $totalDiasAcumulado = array_sum(array_map('count', $diasPorJanela));
+            $mediaDias          = $totalJanelas > 0 ? $totalDiasAcumulado / $totalJanelas : 0;
+
+            foreach ($diasPorJanela as $horario => $diasComQueda) {
+                $numDias = count($diasComQueda);
+                if ($numDias < $minDias) continue;
+                if ($mediaDias > 0 && $numDias < $mediaDias * 2.0) continue;
+
+                $alertas[] = [
+                    'plano_id'    => $planoId,
+                    'username'    => $queda->first()?->plano?->mikrotik_username ?? '-',
+                    'horario'     => $horario,
+                    'dias'        => $numDias,
+                    'percentagem' => round($numDias / $dias * 100),
+                    'total_quedas'=> $queda->count(),
+                ];
+            }
+        }
+
+        return $alertas;
+    }
+
     public function handle(): int
     {
         $dias    = (int) $this->option('dias');

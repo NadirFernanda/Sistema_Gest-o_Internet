@@ -126,6 +126,25 @@
                     <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
+                @if(!empty($scheduledDrops))
+                <div style="max-width:980px;margin:14px auto 0;padding:14px 18px;background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;display:flex;gap:14px;align-items:flex-start;">
+                    <span style="font-size:1.5rem;flex-shrink:0;">⚠️</span>
+                    <div style="font-size:.92rem;color:#7a5200;">
+                        <strong style="font-size:.97rem;color:#b36b00;">Possível tarefa agendada no router do cliente</strong><br>
+                        O sistema detectou quedas recorrentes sempre no mesmo horário nos últimos 30 dias.
+                        Causa provável: <em>System → Scheduler</em> no WinBox do router do cliente a desactivar a ligação.<br>
+                        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+                        @foreach($scheduledDrops as $drop)
+                            <span style="background:#fff;border:1px solid #f5a623;border-radius:8px;padding:4px 12px;font-weight:600;">
+                                {{ $drop['username'] }} — {{ $drop['horario'] }}h
+                                <span style="color:#aaa;font-weight:400;">({{ $drop['dias'] }} dias / {{ $drop['percentagem'] }}%)</span>
+                            </span>
+                        @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                     <form id="formEditarCliente" method="POST" action="{{ isset($cliente) ? route('clientes.update', $cliente->id) : '#' }}" class="form-editar-cliente-moderna" style="display:none;"
                         data-id="{{ $cliente->id ?? '' }}"
                         data-bi="{{ $cliente->bi ?? '' }}"

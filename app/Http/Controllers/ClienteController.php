@@ -486,7 +486,17 @@ class ClienteController extends Controller
             'clienteEquipamentos.equipamento',
             'planos.template',
         ])->findOrFail($id);
-        return view('clientes', compact('cliente'));
+
+        $planoIds = $cliente->planos
+            ->filter(fn($p) => $p->mikrotik_username)
+            ->pluck('id')
+            ->all();
+
+        $scheduledDrops = \App\Console\Commands\MikroTikDetectScheduledDrops::analisarPlanos(
+            $planoIds, dias: 30, minDias: 4
+        );
+
+        return view('clientes', compact('cliente', 'scheduledDrops'));
     }
 
     /**
