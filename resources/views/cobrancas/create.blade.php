@@ -186,7 +186,8 @@ function carregarPlanos(clienteId) {
             planos.forEach(function(p) {
                 var opt = document.createElement('option');
                 opt.value = p.id;
-                opt.textContent = p.nome + ' — ' + p.estado + ' (vence ' + (p.proxima_renovacao || '?') + ')';
+                var label = p.localizacao ? p.nome + ' · ' + p.localizacao : p.nome;
+                opt.textContent = label + ' — ' + p.estado + ' (vence ' + (p.proxima_renovacao || '?') + ')';
                 if (String(p.id) === String(prePlanoId)) opt.selected = true;
                 planoSel.appendChild(opt);
             });

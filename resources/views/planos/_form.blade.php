@@ -245,6 +245,32 @@
             <div id="clientesLoadStatus" style="font-size:11px;color:#aaa;margin-top:4px;display:none;"></div>
         </div>
 
+        {{-- Aviso de planos existentes + campo de username PPPoE --}}
+        <div id="planosExistentesWrap" style="display:none;">
+            <div id="planosExistentesAlerta" class="pf-alert pf-alert--warn" style="margin-bottom:12px;"></div>
+        </div>
+
+        <div class="pf-field">
+            <label class="pf-label" for="localizacaoPlano">Localização / Identificação</label>
+            <input type="text" id="localizacaoPlano" name="localizacao" class="pf-input"
+                   placeholder="Ex: Casa principal, Casa do Zango, Escritório…"
+                   value="{{ old('localizacao') }}">
+            <div style="font-size:.78rem;color:#aaa;margin-top:5px;">Distingue este plano quando o cliente tem ligações em vários locais.</div>
+        </div>
+
+        <div class="pf-field" id="usernameWrap" style="display:none;">
+            <label class="pf-label" for="mikrotikUsername">Username PPPoE</label>
+            <input type="text" id="mikrotikUsername" name="mikrotik_username" class="pf-input"
+                   placeholder="Ex: 924123456_2"
+                   value="{{ old('mikrotik_username') }}">
+            <div id="usernameHint" style="font-size:.78rem;color:#aaa;margin-top:5px;">
+                Este cliente já tem plano(s) activo(s). Introduz um username diferente para esta ligação.
+            </div>
+            <div id="usernameConflito" style="font-size:.78rem;color:#c0392b;margin-top:5px;display:none;">
+                Atenção: este username já está a ser usado por outro plano activo deste cliente.
+            </div>
+        </div>
+
         <div class="pf-grid-2">
             <div class="pf-field">
                 <label class="pf-label" for="dataAtivacaoPlano">Data de activação <span style="color:#e05a4f">*</span></label>
@@ -382,6 +408,69 @@
 
     if (reloadBtn) reloadBtn.addEventListener('click', loadClientes);
     loadClientes();
+
+    /* ── Planos existentes do cliente ───────────────────────── */
+    var planosWrap     = document.getElementById('planosExistentesWrap');
+    var planosAlerta   = document.getElementById('planosExistentesAlerta');
+    var usernameWrap   = document.getElementById('usernameWrap');
+    var usernameInput  = document.getElementById('mikrotikUsername');
+    var usernameConf   = document.getElementById('usernameConflito');
+    var planosActivos  = []; // cache dos planos carregados
+
+    function verificarUsernameConflito() {
+        var val = (usernameInput.value || '').trim().toLowerCase();
+        if (!val || planosActivos.length === 0) { usernameConf.style.display = 'none'; return; }
+        var conflito = planosActivos.some(function (p) {
+            return (p.mikrotik_username || '').toLowerCase() === val;
+        });
+        usernameConf.style.display = conflito ? 'block' : 'none';
+    }
+
+    usernameInput.addEventListener('input', verificarUsernameConflito);
+
+    function carregarPlanosDoCliente(clienteId) {
+        if (!clienteId) {
+            planosWrap.style.display = 'none';
+            usernameWrap.style.display = 'none';
+            planosActivos = [];
+            return;
+        }
+        fetch('/clientes/' + clienteId + '/planos-json', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json(); })
+            .then(function (planos) {
+                var ativos = planos.filter(function (p) { return p.estado !== 'Cancelado'; });
+                planosActivos = ativos;
+
+                if (ativos.length === 0) {
+                    planosWrap.style.display = 'none';
+                    usernameWrap.style.display = 'none';
+                    return;
+                }
+
+                // Mostrar aviso com lista de planos existentes
+                var linhas = ativos.map(function (p) {
+                    var label = p.localizacao ? p.nome + ' — ' + p.localizacao : p.nome;
+                    var user  = p.mikrotik_username ? ' <code style="background:#f0d9a8;padding:1px 6px;border-radius:4px;font-size:.82em;">' + p.mikrotik_username + '</code>' : '';
+                    var estado = '<span style="color:' + (p.estado === 'Ativo' ? '#1a6b3d' : '#922b21') + '">' + p.estado + '</span>';
+                    return '<li>' + label + ' · ' + estado + user + '</li>';
+                });
+                planosAlerta.innerHTML = '<strong>Este cliente já tem ' + ativos.length + ' plano(s):</strong><ul style="margin:6px 0 0;padding-left:18px;">' + linhas.join('') + '</ul><div style="margin-top:8px;font-size:.82rem;">Certifica-te de preencher a Localização e um Username PPPoE diferente para este novo plano.</div>';
+                planosWrap.style.display = 'block';
+                usernameWrap.style.display = 'block';
+                verificarUsernameConflito();
+            })
+            .catch(function () {
+                planosWrap.style.display = 'none';
+                usernameWrap.style.display = 'none';
+            });
+    }
+
+    clienteSel.addEventListener('change', function () {
+        carregarPlanosDoCliente(this.value);
+    });
+
+    // Carregar logo se cliente pré-seleccionado
+    if (preSelId) carregarPlanosDoCliente(preSelId);
 
 })();
 </script>

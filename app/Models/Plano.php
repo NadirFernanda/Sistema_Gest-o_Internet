@@ -10,6 +10,7 @@ class Plano extends Model
     use HasFactory;
     protected $fillable = [
         'nome',
+        'localizacao',
         'descricao',
         'tipo',
         'preco',

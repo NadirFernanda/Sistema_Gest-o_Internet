@@ -17,11 +17,13 @@ class PlanoController extends Controller
         try {
             // Require a template_id for creating planos. Template values are enforced server-side.
             $validated = $request->validate([
-                'template_id' => 'required|exists:plan_templates,id',
-                'cliente_id' => 'required|exists:clientes,id',
-                'estado' => 'required|string',
-                'data_ativacao' => 'required|date',
-                'tipo' => 'required|in:familiar,institucional,empresarial,site',
+                'template_id'      => 'required|exists:plan_templates,id',
+                'cliente_id'       => 'required|exists:clientes,id',
+                'estado'           => 'required|string',
+                'data_ativacao'    => 'required|date',
+                'tipo'             => 'required|in:familiar,institucional,empresarial,site',
+                'localizacao'      => 'nullable|string|max:255',
+                'mikrotik_username'=> 'nullable|string|max:100',
             ]);
 
             $template = PlanTemplate::find($validated['template_id']);
@@ -331,14 +333,16 @@ class PlanoController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'nome' => 'sometimes|required|string|max:255',
-            'descricao' => 'sometimes|required|string',
-            'preco' => 'sometimes|required|numeric|min:0',
-            'ciclo' => 'sometimes|required|integer|min:1',
-            'cliente_id' => 'sometimes|required|exists:clientes,id',
-            'estado' => 'sometimes|required|string',
-            'data_ativacao' => 'sometimes|required|date',
-            'tipo' => 'sometimes|required|in:familiar,institucional,empresarial,site',
+            'nome'             => 'sometimes|required|string|max:255',
+            'localizacao'      => 'nullable|string|max:255',
+            'descricao'        => 'sometimes|required|string',
+            'preco'            => 'sometimes|required|numeric|min:0',
+            'ciclo'            => 'sometimes|required|integer|min:1',
+            'cliente_id'       => 'sometimes|required|exists:clientes,id',
+            'estado'           => 'sometimes|required|string',
+            'data_ativacao'    => 'sometimes|required|date',
+            'tipo'             => 'sometimes|required|in:familiar,institucional,empresarial,site',
+            'mikrotik_username'=> 'nullable|string|max:100',
         ]);
         $plano = Plano::findOrFail($id);
         $plano->update($validated);
@@ -361,11 +365,13 @@ class PlanoController extends Controller
         try {
             // Require a template_id for web form creation. Populate plan fields from template.
             $validated = $request->validate([
-                'template_id'  => 'required|exists:plan_templates,id',
-                'cliente_id'   => 'required|exists:clientes,id',
-                'estado'       => 'required|string',
-                'data_ativacao'=> 'required|date',
-                'tipo'         => 'nullable|in:familiar,institucional,empresarial,site',
+                'template_id'      => 'required|exists:plan_templates,id',
+                'cliente_id'       => 'required|exists:clientes,id',
+                'estado'           => 'required|string',
+                'data_ativacao'    => 'required|date',
+                'tipo'             => 'nullable|in:familiar,institucional,empresarial,site',
+                'localizacao'      => 'nullable|string|max:255',
+                'mikrotik_username'=> 'nullable|string|max:100',
             ]);
 
             $template = PlanTemplate::find($validated['template_id']);

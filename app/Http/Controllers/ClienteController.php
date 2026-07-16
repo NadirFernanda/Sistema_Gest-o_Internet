@@ -398,7 +398,7 @@ class ClienteController extends Controller
         $planos = $cliente->planos()
             ->whereNotIn('estado', ['Cancelado'])
             ->orderBy('proxima_renovacao', 'asc')
-            ->get(['id', 'nome', 'estado', 'proxima_renovacao']);
+            ->get(['id', 'nome', 'localizacao', 'estado', 'proxima_renovacao', 'mikrotik_username']);
 
         return response()->json($planos);
     }
