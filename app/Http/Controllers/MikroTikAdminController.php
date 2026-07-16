@@ -787,4 +787,31 @@ class MikroTikAdminController extends Controller
             'secretsOrfaos'        => $secretsOrfaos,
         ]);
     }
+
+    public function listSchedulerRules(\App\Models\MikroTikSite $site)
+    {
+        $rules = \App\Services\MikroTikService::forSite($site)->listSchedulerRules();
+
+        $formatted = array_map(fn($r) => [
+            'id'         => $r['.id'] ?? '',
+            'name'       => $r['name'] ?? '',
+            'start_time' => $r['start-time'] ?? '',
+            'interval'   => $r['interval'] ?? '',
+            'on_event'   => $r['on-event'] ?? '',
+            'disabled'   => ($r['disabled'] ?? 'false') === 'true',
+        ], $rules);
+
+        return response()->json(['ok' => true, 'rules' => $formatted]);
+    }
+
+    public function removeSchedulerRule(\App\Models\MikroTikSite $site, \Illuminate\Http\Request $request)
+    {
+        $ruleId = $request->input('rule_id');
+        if (! $ruleId) {
+            return response()->json(['ok' => false, 'error' => 'rule_id em falta'], 422);
+        }
+
+        $ok = \App\Services\MikroTikService::forSite($site)->removeSchedulerRule($ruleId);
+        return response()->json(['ok' => $ok]);
+    }
 }

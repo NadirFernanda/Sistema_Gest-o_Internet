@@ -200,6 +200,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/diagnostico',                        [\App\Http\Controllers\MikroTikAdminController::class, 'diagnostico'])->name('diagnostico');
             Route::get('/sites/{site}/diagnostico-router',   [\App\Http\Controllers\MikroTikAdminController::class, 'siteDiagnosticoRouter'])->name('sites.diagnostico-router');
             Route::post('/diagnostico/bulk-fix',             [\App\Http\Controllers\MikroTikAdminController::class, 'bulkUpdateUsernames'])->name('diagnostico.bulk-fix');
+            Route::get('/sites/{site}/scheduler',            [\App\Http\Controllers\MikroTikAdminController::class, 'listSchedulerRules'])->name('sites.scheduler');
+            Route::post('/sites/{site}/scheduler/remove',    [\App\Http\Controllers\MikroTikAdminController::class, 'removeSchedulerRule'])->name('sites.scheduler.remove');
         });
 
     // Export routes removed per request

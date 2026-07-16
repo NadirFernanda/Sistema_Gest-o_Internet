@@ -127,22 +127,138 @@
                 </div>
 
                 @if(!empty($scheduledDrops))
-                <div style="max-width:980px;margin:14px auto 0;padding:14px 18px;background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;display:flex;gap:14px;align-items:flex-start;">
-                    <span style="font-size:1.5rem;flex-shrink:0;">⚠️</span>
-                    <div style="font-size:.92rem;color:#7a5200;">
-                        <strong style="font-size:.97rem;color:#b36b00;">Possível tarefa agendada no router do cliente</strong><br>
-                        O sistema detectou quedas recorrentes sempre no mesmo horário nos últimos 30 dias.
-                        Causa provável: <em>System → Scheduler</em> no WinBox do router do cliente a desactivar a ligação.<br>
-                        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
-                        @foreach($scheduledDrops as $drop)
-                            <span style="background:#fff;border:1px solid #f5a623;border-radius:8px;padding:4px 12px;font-weight:600;">
-                                {{ $drop['username'] }} — {{ $drop['horario'] }}h
-                                <span style="color:#aaa;font-weight:400;">({{ $drop['dias'] }} dias / {{ $drop['percentagem'] }}%)</span>
-                            </span>
-                        @endforeach
+                @php $siteId = $cliente->mikrotikSite?->id; @endphp
+                <div id="scheduledDropBanner" style="max-width:980px;margin:14px auto 0;padding:14px 18px;background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;">
+                    <div style="display:flex;gap:14px;align-items:flex-start;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">⚠️</span>
+                        <div style="font-size:.92rem;color:#7a5200;flex:1;">
+                            <strong style="font-size:.97rem;color:#b36b00;">Possível tarefa agendada no router do ISP</strong><br>
+                            O sistema detectou quedas recorrentes sempre no mesmo horário nos últimos 30 dias.
+                            Causa provável: regra no <em>System → Scheduler</em> do router MikroTik a desactivar o PPPoE neste horário.<br>
+                            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                                @foreach($scheduledDrops as $drop)
+                                    <span style="background:#fff;border:1px solid #f5a623;border-radius:8px;padding:4px 12px;font-weight:600;">
+                                        {{ $drop['username'] }} — {{ $drop['horario'] }}h
+                                        <span style="color:#aaa;font-weight:400;">({{ $drop['dias'] }} dias / {{ $drop['percentagem'] }}%)</span>
+                                    </span>
+                                @endforeach
+                                @if($siteId)
+                                <button onclick="verScheduler({{ $siteId }}, '{{ implode(',', array_column($scheduledDrops, 'horario')) }}')"
+                                    style="background:#f5a623;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:.88rem;font-weight:700;cursor:pointer;margin-left:4px;">
+                                    Gerir Scheduler
+                                </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
+
+                    {{-- Painel de regras do Scheduler (carregado via AJAX) --}}
+                    <div id="schedulerPanel" style="display:none;margin-top:14px;border-top:1px solid #f5dba0;padding-top:12px;">
+                        <div id="schedulerLoading" style="color:#b36b00;font-size:.88rem;">A carregar regras...</div>
+                        <div id="schedulerRules"></div>
+                    </div>
                 </div>
+
+                <script>
+                var _schedulerOpen = false;
+                function verScheduler(siteId, horarios) {
+                    var panel = document.getElementById('schedulerPanel');
+                    var loading = document.getElementById('schedulerLoading');
+                    var rulesDiv = document.getElementById('schedulerRules');
+                    if (_schedulerOpen) { panel.style.display = 'none'; _schedulerOpen = false; return; }
+                    _schedulerOpen = true;
+                    panel.style.display = 'block';
+                    loading.style.display = 'block';
+                    rulesDiv.innerHTML = '';
+
+                    fetch('/mikrotik/sites/' + siteId + '/scheduler', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        loading.style.display = 'none';
+                        if (!data.ok || !data.rules || data.rules.length === 0) {
+                            rulesDiv.innerHTML = '<em style="color:#aaa;font-size:.88rem;">Nenhuma regra de Scheduler encontrada no router.</em>';
+                            return;
+                        }
+                        // Filtrar regras cujo horário coincide com as janelas detectadas
+                        var janelas = horarios.split(',').map(function(h) { return h.trim(); });
+                        var relevantes = data.rules.filter(function(r) {
+                            if (!r.start_time) return false;
+                            var parts = r.start_time.split(':');
+                            var h = parts[0] || '00';
+                            var m = parseInt(parts[1] || '0', 10);
+                            var janela = h + ':' + (m < 30 ? '00' : '30');
+                            return janelas.indexOf(janela) !== -1;
+                        });
+                        var toShow = relevantes.length > 0 ? relevantes : data.rules;
+                        var html = '<table style="width:100%;border-collapse:collapse;font-size:.87rem;">';
+                        html += '<thead><tr style="background:#fff8ec;">'
+                             + '<th style="padding:6px 10px;text-align:left;border-bottom:1px solid #ffe6a0;">Nome</th>'
+                             + '<th style="padding:6px 10px;text-align:left;border-bottom:1px solid #ffe6a0;">Horário</th>'
+                             + '<th style="padding:6px 10px;text-align:left;border-bottom:1px solid #ffe6a0;">Intervalo</th>'
+                             + '<th style="padding:6px 10px;text-align:left;border-bottom:1px solid #ffe6a0;">Script</th>'
+                             + '<th style="padding:6px 10px;border-bottom:1px solid #ffe6a0;"></th>'
+                             + '</tr></thead><tbody>';
+                        toShow.forEach(function(r) {
+                            var rowStyle = relevantes.length > 0 && relevantes.indexOf(r) !== -1
+                                ? 'background:#fff3d4;' : '';
+                            html += '<tr style="' + rowStyle + '">'
+                                + '<td style="padding:6px 10px;">' + esc(r.name) + '</td>'
+                                + '<td style="padding:6px 10px;font-weight:600;">' + esc(r.start_time) + '</td>'
+                                + '<td style="padding:6px 10px;">' + esc(r.interval || '—') + '</td>'
+                                + '<td style="padding:6px 10px;font-family:monospace;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(r.on_event) + '">' + esc(r.on_event) + '</td>'
+                                + '<td style="padding:6px 10px;">'
+                                + '<button onclick="removerRegra(' + siteId + ',\'' + esc(r.id) + '\',this)" '
+                                + 'style="background:#e05a4f;color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:.82rem;font-weight:700;cursor:pointer;">Remover</button>'
+                                + '</td></tr>';
+                        });
+                        html += '</tbody></table>';
+                        if (relevantes.length === 0 && data.rules.length > 0) {
+                            html = '<div style="color:#aaa;font-size:.83rem;margin-bottom:8px;">Nenhuma regra exactamente neste horário. A mostrar todas as regras do router:</div>' + html;
+                        }
+                        rulesDiv.innerHTML = html;
+                    })
+                    .catch(function() {
+                        loading.style.display = 'none';
+                        rulesDiv.innerHTML = '<em style="color:#c0392b;font-size:.88rem;">Erro ao conectar ao router.</em>';
+                    });
+                }
+
+                function removerRegra(siteId, ruleId, btn) {
+                    if (!confirm('Remover esta regra do Scheduler do router?')) return;
+                    btn.disabled = true;
+                    btn.textContent = '...';
+                    fetch('/mikrotik/sites/' + siteId + '/scheduler/remove', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        },
+                        body: JSON.stringify({ rule_id: ruleId })
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.ok) {
+                            btn.closest('tr').remove();
+                        } else {
+                            btn.disabled = false;
+                            btn.textContent = 'Remover';
+                            alert('Falha ao remover regra. Verifique os logs.');
+                        }
+                    })
+                    .catch(function() {
+                        btn.disabled = false;
+                        btn.textContent = 'Remover';
+                        alert('Erro de rede.');
+                    });
+                }
+
+                function esc(s) {
+                    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                }
+                </script>
                 @endif
 
                     <form id="formEditarCliente" method="POST" action="{{ isset($cliente) ? route('clientes.update', $cliente->id) : '#' }}" class="form-editar-cliente-moderna" style="display:none;"

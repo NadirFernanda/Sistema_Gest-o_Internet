@@ -511,6 +511,58 @@ class MikroTikService
         }
     }
 
+    /**
+     * List all System Scheduler rules on the router.
+     * Each entry has: .id, name, start-time, interval, on-event, disabled, etc.
+     */
+    public function listSchedulerRules(): array
+    {
+        if (! $this->isConfigured()) return [];
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/system/scheduler/print');
+            return array_values(array_filter($result, fn($r) => ($r['type'] ?? '') === '!re'));
+        } catch (\Throwable $e) {
+            Log::error('MikroTik Scheduler: listSchedulerRules falhado', [
+                'host' => $this->host, 'error' => $e->getMessage(),
+            ]);
+            return [];
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
+    /**
+     * Remove a System Scheduler rule by its RouterOS .id (e.g. "*1").
+     */
+    public function removeSchedulerRule(string $ruleId): bool
+    {
+        if (! $this->isConfigured()) return false;
+
+        try {
+            $this->connect();
+            $result = $this->api->command('/system/scheduler/remove', ['.id' => $ruleId]);
+            foreach ($result as $r) {
+                if (($r['type'] ?? '') === '!trap') {
+                    Log::warning('MikroTik Scheduler: falha ao remover regra', [
+                        'host' => $this->host, 'rule_id' => $ruleId, 'msg' => $r['message'] ?? '',
+                    ]);
+                    return false;
+                }
+            }
+            Log::info('MikroTik Scheduler: regra removida', ['host' => $this->host, 'rule_id' => $ruleId]);
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('MikroTik Scheduler: removeSchedulerRule falhado', [
+                'host' => $this->host, 'rule_id' => $ruleId, 'error' => $e->getMessage(),
+            ]);
+            return false;
+        } finally {
+            $this->safeDisconnect();
+        }
+    }
+
     private function findUser(string $username): ?array
     {
         $result = $this->api->command('/ppp/secret/print', [], ['name' => $username]);
