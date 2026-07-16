@@ -367,6 +367,51 @@ code.uname.orphan  { background:#fff8e1; color:#7a5c00; }
         </div>
         @endif
 
+        {{-- Motivos de desconexão do cluster --}}
+        @if(!empty($motivosCluster))
+        <div style="background:#f0f4f9;border:1px solid #d0d8e8;border-radius:12px;padding:16px 20px;margin-bottom:16px;">
+            <div style="font-weight:800;font-size:.97rem;color:#1a1a2e;margin-bottom:10px;">
+                🔍 Motivos de desconexão — clientes do cluster (últimos 30 dias)
+            </div>
+            <p style="font-size:.85rem;color:#666;margin:0 0 12px;">
+                <strong>lcp-echo-timeout</strong> = sinal fraco, cabo ou equipamento intermédio a perder sinal.<br>
+                <strong>Falha de ligação física</strong> = link down — cabo desligado, antena desalinhada, ONU sem sinal.<br>
+                <strong>Desconectado pelo administrador</strong> = alguém no WinBox desconectou manualmente (ou Scheduler).
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+                @foreach($motivosCluster as $m)
+                @php
+                    $cor = match(true) {
+                        str_contains($m['motivo'], 'lcp') || str_contains($m['motivo'], 'físic') => '#c0392b',
+                        str_contains($m['motivo'], 'autenticaç') => '#e67e22',
+                        str_contains($m['motivo'], 'administrador') || str_contains($m['motivo'], 'Desconectado pelo') => '#8e44ad',
+                        str_contains($m['motivo'], 'utilizador') => '#27ae60',
+                        default => '#555',
+                    };
+                    $bg = match(true) {
+                        str_contains($m['motivo'], 'lcp') || str_contains($m['motivo'], 'físic') => '#fdecea',
+                        str_contains($m['motivo'], 'autenticaç') => '#fef9ec',
+                        str_contains($m['motivo'], 'administrador') || str_contains($m['motivo'], 'Desconectado pelo') => '#f5f0fb',
+                        str_contains($m['motivo'], 'utilizador') => '#eafaf1',
+                        default => '#f0f4f9',
+                    };
+                @endphp
+                <div style="background:{{ $bg }};border:1px solid {{ $cor }}33;border-radius:10px;padding:10px 16px;min-width:160px;">
+                    <div style="font-size:1.3rem;font-weight:800;color:{{ $cor }};">{{ $m['contagem'] }}
+                        <span style="font-size:.85rem;font-weight:400;color:#aaa;">{{ $m['percentagem'] }}%</span>
+                    </div>
+                    <div style="font-size:.8rem;color:#555;margin-top:2px;">{{ $m['motivo'] }}</div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @elseif(!empty($clusterPlanoIds))
+        <div style="background:#f7f8fa;border:1px solid #e0e4ea;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.87rem;color:#888;">
+            Nenhum motivo de desconexão registado para os clientes do cluster.
+            Corre <code>php artisan mikrotik:backfill-disconnect-reasons</code> para tentar preencher a partir dos logs do router.
+        </div>
+        @endif
+
         @if(!empty($scheduledDropsGlobal))
         @php
             // Separar os que provavelmente são simultâneos dos individuais

@@ -680,7 +680,17 @@ class MikroTikAdminController extends Controller
             dias: 30, minDias: 3
         );
 
-        return view('mikrotik.diagnostico', compact('dadosPorSite', 'simultaneos', 'scheduledDropsGlobal'));
+        // Motivos de desconexão do cluster (planos que aparecem em quedas simultâneas)
+        $clusterPlanoIds = array_unique(array_merge(
+            ...array_map(fn($s) => $s['plano_ids'] ?? [], $simultaneos)
+        ));
+        $motivosCluster = \App\Console\Commands\MikroTikDetectScheduledDrops::analisarMotivosByPlanos(
+            $clusterPlanoIds, dias: 30
+        );
+
+        return view('mikrotik.diagnostico', compact(
+            'dadosPorSite', 'simultaneos', 'scheduledDropsGlobal', 'motivosCluster', 'clusterPlanoIds'
+        ));
     }
 
     /** Corrigir múltiplos usernames de uma só vez (bulk). */

@@ -134,12 +134,42 @@ class MikroTikDetectScheduledDrops extends Command
                 'avg_clientes'  => round(array_sum($numClientes) / count($numClientes), 1),
                 'planos_exemplo'=> array_slice(array_values($todosPlanos), 0, 5),
                 'total_planos'  => count($todosPlanos),
+                'plano_ids'     => array_keys($todosPlanos),
             ];
         }
 
         usort($alertas, fn($a, $b) => $b['ocorrencias'] <=> $a['ocorrencias']);
 
         return $alertas;
+    }
+
+    /**
+     * Analisa motivos de desconexão para um grupo de planos (cluster).
+     * Retorna contagem por motivo, ordenada do mais frequente para o menos.
+     *
+     * @param  int[]  $planoIds
+     * @return array  [ ['motivo' => string, 'contagem' => int, 'percentagem' => int], ... ]
+     */
+    public static function analisarMotivosByPlanos(array $planoIds, int $dias = 30): array
+    {
+        if (empty($planoIds)) return [];
+
+        $eventos = MikroTikOnlineStatusEvent::whereIn('plano_id', $planoIds)
+            ->where('event_type', 'offline')
+            ->where('occurred_at', '>=', now()->subDays($dias))
+            ->whereNotNull('disconnect_reason')
+            ->pluck('disconnect_reason');
+
+        if ($eventos->isEmpty()) return [];
+
+        $total = $eventos->count();
+        $grouped = $eventos->countBy()->sortDesc();
+
+        return $grouped->map(fn($count, $motivo) => [
+            'motivo'      => $motivo,
+            'contagem'    => $count,
+            'percentagem' => round($count / $total * 100),
+        ])->values()->all();
     }
 
     public function handle(): int
