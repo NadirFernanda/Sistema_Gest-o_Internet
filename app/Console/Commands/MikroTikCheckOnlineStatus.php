@@ -226,8 +226,10 @@ class MikroTikCheckOnlineStatus extends Command
             }
 
             // Plano normal (Ativo/Em aviso) ou Suspenso já offline
-            $siteLogs = $logsBySite[$siteId] ?? [];
-            $reason   = $isOnline ? null : $this->findDisconnectReason($username, $siteLogs);
+            // Pesquisar logs em TODOS os sites acessíveis: o cliente pode estar
+            // ligado a um router diferente do seu site atribuído.
+            $allLogs  = array_merge(...array_values($logsBySite));
+            $reason   = $isOnline ? null : $this->findDisconnectReason($username, $allLogs);
             $this->updateStatus($plano, $site, $isOnline, $reason);
         }
 
@@ -240,33 +242,62 @@ class MikroTikCheckOnlineStatus extends Command
 
     private function findDisconnectReason(string $username, array $logs): string
     {
+        // Passo 1: correspondência directa — algumas versões do RouterOS incluem
+        // o username directamente na entrada de desconexão.
         foreach ($logs as $entry) {
-            $message = $entry['message'] ?? '';
+            $msg = $entry['message'] ?? '';
+            if (! str_contains($msg, $username)) continue;
 
-            if (! str_contains($message, $username)) continue;
+            $r = $this->classifyPppLogMessage($msg);
+            if ($r !== null) return $r;
+        }
 
-            // Padrões mais específicos primeiro
-            if (str_contains($message, 'lcp-echo-timeout'))       return 'lcp-echo-timeout (sinal fraco ou cabo)';
-            if (str_contains($message, 'authentication failed'))   return 'Falha de autenticação (senha errada)';
-            if (str_contains($message, 'user request'))            return 'Desligado pelo utilizador';
-            if (str_contains($message, 'link failure'))            return 'Falha de ligação física';
-            if (str_contains($message, 'session timeout'))         return 'Timeout de sessão';
-            if (str_contains($message, 'idle timeout'))            return 'Timeout por inactividade';
-            if (str_contains($message, 'admin'))                   return 'Desconectado pelo administrador';
-            if (str_contains($message, 'terminated'))              return 'Sessão terminada';
-            if (str_contains($message, 'auth'))                    return 'Falha de autenticação';
-
-            // Tentar extrair razão do padrão "logged out: <razão>"
-            if (preg_match('/logged\s+out[:\s]+(.+)/i', $message, $m)) {
-                return trim($m[1]);
+        // Passo 2: correlação por session ID — RouterOS usa "<pppoe-NNN>" ou "<b466>".
+        // Encontrar o(s) session ID(s) que autenticaram este username, depois procurar
+        // a razão de desconexão nessa sessão (mesmo sem o username na entrada).
+        $sessionIds = [];
+        foreach ($logs as $entry) {
+            $msg = $entry['message'] ?? '';
+            if (! str_contains($msg, $username)) continue;
+            // Extrair o prefixo de sessão: "<pppoe-12>", "<b12c>", etc.
+            if (preg_match('/^(<[^>]+>)/', $msg, $m)) {
+                $sessionIds[$m[1]] = true;
             }
-            // Qualquer entrada que mencione o username já é relevante
-            if (str_contains($message, 'disconnected') || str_contains($message, 'logged')) {
-                return 'Desconectado';
+        }
+
+        foreach ($sessionIds as $sid => $_) {
+            foreach ($logs as $entry) {
+                $msg = $entry['message'] ?? '';
+                if (! str_starts_with($msg, $sid)) continue;
+                // Não queremos a entrada de autenticação/login — queremos a de saída
+                if (str_contains($msg, $username)) continue;
+
+                $r = $this->classifyPppLogMessage($msg);
+                if ($r !== null) return $r;
             }
         }
 
         return 'Queda detectada';
+    }
+
+    private function classifyPppLogMessage(string $msg): ?string
+    {
+        if (str_contains($msg, 'lcp-echo-timeout'))      return 'lcp-echo-timeout (sinal fraco ou cabo)';
+        if (str_contains($msg, 'authentication failed')) return 'Falha de autenticação (senha errada)';
+        if (str_contains($msg, 'user request'))          return 'Desligado pelo utilizador';
+        if (str_contains($msg, 'link failure'))          return 'Falha de ligação física';
+        if (str_contains($msg, 'link down'))             return 'Falha de ligação física';
+        if (str_contains($msg, 'session timeout'))       return 'Timeout de sessão';
+        if (str_contains($msg, 'idle timeout'))          return 'Timeout por inactividade';
+        if (str_contains($msg, 'terminated by admin'))   return 'Desconectado pelo administrador';
+        if (str_contains($msg, 'admin'))                 return 'Desconectado pelo administrador';
+        if (str_contains($msg, 'terminated'))            return 'Sessão terminada';
+        if (str_contains($msg, 'auth'))                  return 'Falha de autenticação';
+
+        if (preg_match('/logged\s+out[:\s]+(.+)/i', $msg, $m)) return trim($m[1]);
+        if (str_contains($msg, 'disconnected') || str_contains($msg, 'logged out')) return 'Desconectado';
+
+        return null;
     }
 
     private function updateStatus(Plano $plano, MikroTikSite $site, bool $isOnline, ?string $disconnectReason = null): void
@@ -328,17 +359,28 @@ class MikroTikCheckOnlineStatus extends Command
 
             if ($minsSinceOnline < 7) {
                 // Primeira detecção offline — aguardar confirmação no próximo ciclo.
-                // Não alterar is_online nem criar evento ainda.
+                // Guardar a razão agora (logs ainda frescos) para usar no próximo ciclo.
+                if ($disconnectReason && $disconnectReason !== 'Queda detectada') {
+                    $status->disconnect_reason = $disconnectReason;
+                    $status->save();
+                }
                 Log::debug('MikroTik: cliente aparece offline mas aguarda confirmação (debounce)', [
                     'plano_id' => $plano->id,
                     'username' => $plano->mikrotik_username,
                     'mins_since_online' => $minsSinceOnline,
+                    'reason_cached' => $disconnectReason,
                 ]);
                 return;
             }
 
-            // Transição confirmada: online → offline (dois ciclos consecutivos offline)
-            $reason = $disconnectReason ?? 'Queda detectada';
+            // Transição confirmada: online → offline (dois ciclos consecutivos offline).
+            // Preferir razão guardada no ciclo anterior (logs mais frescos) se a actual
+            // for genérica.
+            $reason = ($disconnectReason && $disconnectReason !== 'Queda detectada')
+                ? $disconnectReason
+                : ($status->disconnect_reason && $status->disconnect_reason !== 'Queda detectada'
+                    ? $status->disconnect_reason
+                    : ($disconnectReason ?? 'Queda detectada'));
             $status->is_online = false;
             $status->last_seen_offline_at = now();
             $status->disconnect_reason = $reason;
