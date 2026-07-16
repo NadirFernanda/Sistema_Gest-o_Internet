@@ -627,6 +627,11 @@ class MikroTikAdminController extends Controller
         $filterDateFrom = $dateFrom?->format('Y-m-d');
         $filterDateTo   = $dateTo?->format('Y-m-d');
 
+        // Detecção de quedas em horário fixo (Scheduler no router)
+        $scheduledDrops = \App\Console\Commands\MikroTikDetectScheduledDrops::analisarPlanos(
+            [$plano->id], dias: 30, minDias: 4
+        );
+
         return view('mikrotik.detalhes-plano', compact(
             'plano', 'cliente', 'statusOnline',
             'eventos', 'totalOfflineEvents', 'totalOnlineEvents',
@@ -636,7 +641,8 @@ class MikroTikAdminController extends Controller
             'monthDownloadBytes', 'monthUploadBytes',
             'peakRxRate', 'peakTxRate',
             'stabilityPct', 'dropsChart', 'dailyUsage',
-            'filterDateFrom', 'filterDateTo'
+            'filterDateFrom', 'filterDateTo',
+            'scheduledDrops'
         ));
     }
 
