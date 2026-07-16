@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\MikroTikOnlineStatus;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
 use App\Services\MikroTikService;
@@ -65,6 +66,10 @@ class PlanoMikroTikObserver
                         'ok'       => $ok,
                     ]);
                 }
+                // Independentemente do resultado da API, marcar offline na BD.
+                // Um plano Suspenso DEVE estar offline — não esperar confirmação do router.
+                MikroTikOnlineStatus::where('plano_id', $plano->id)
+                    ->update(['is_online' => false, 'last_seen_offline_at' => now()]);
             } elseif ($novo === 'Cancelado') {
                 // Remover do router atribuído
                 MikroTikService::forSite($site)->removeUser($plano->fresh());

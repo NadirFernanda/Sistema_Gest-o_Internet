@@ -47,6 +47,17 @@ class MikroTikCheckOnlineStatus extends Command
                     Log::warning('MikroTik: check-online-status ignorado — router inacessível', [
                         'site_id' => $site->id, 'site' => $site->nome, 'error' => $test['error'] ?? '',
                     ]);
+                    // Router inacessível: planos Suspensos devem ficar offline na BD
+                    // (um cliente suspenso DEVE estar offline, mesmo sem confirmar com o router).
+                    $suspensosIds = \App\Models\Plano::whereHas('cliente', fn($q) => $q->where('mikrotik_site_id', $site->id))
+                        ->where('estado', 'Suspenso')
+                        ->pluck('id');
+                    if ($suspensosIds->isNotEmpty()) {
+                        \App\Models\MikroTikOnlineStatus::whereIn('plano_id', $suspensosIds)
+                            ->where('is_online', true)
+                            ->update(['is_online' => false, 'last_seen_offline_at' => now()]);
+                        $this->line("  [{$site->nome}] {$suspensosIds->count()} plano(s) Suspenso(s) marcado(s) offline (router inacessível).");
+                    }
                     continue;
                 }
 
