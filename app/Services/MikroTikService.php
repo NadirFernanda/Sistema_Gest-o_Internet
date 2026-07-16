@@ -205,10 +205,16 @@ class MikroTikService
             $existing = $this->findUser($username);
 
             if (! $existing) {
-                Log::warning('MikroTik PPPoE: suspendUser — secret não encontrado no router', [
+                // Secret não existe no router — pode ter sido removido manualmente.
+                // A sessão PPPoE pode estar activa na mesma (sessão iniciada antes da remoção).
+                // Terminar a sessão activa garante que o cliente fica offline.
+                $this->disconnectActivePpp($username);
+                Log::warning('MikroTik PPPoE: suspendUser — secret não encontrado; sessão activa terminada (se existia)', [
                     'username' => $username, 'plano_id' => $plano->id, 'host' => $this->host,
                 ]);
-                return false;
+                $plano->mikrotik_synced_at = now();
+                $plano->saveQuietly();
+                return true;
             }
 
             $this->api->command('/ppp/secret/set', [
@@ -519,7 +525,17 @@ class MikroTikService
         $sessions = $this->api->command('/ppp/active/print', [], ['name' => $username]);
         foreach ($sessions as $s) {
             if (($s['type'] ?? '') === '!re' && isset($s['.id'])) {
-                $this->api->command('/ppp/active/remove', ['.id' => $s['.id']]);
+                $result = $this->api->command('/ppp/active/remove', ['.id' => $s['.id']]);
+                foreach ($result as $r) {
+                    if (($r['type'] ?? '') === '!trap') {
+                        Log::warning('MikroTik PPPoE: falha ao terminar sessão activa', [
+                            'username' => $username,
+                            'session'  => $s['.id'],
+                            'error'    => $r['=message'] ?? $r['message'] ?? 'erro desconhecido',
+                            'host'     => $this->host,
+                        ]);
+                    }
+                }
             }
         }
     }
