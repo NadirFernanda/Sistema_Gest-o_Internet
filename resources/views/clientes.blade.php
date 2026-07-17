@@ -126,29 +126,50 @@
                     <!-- cliente-dados-moderna already contains the display block above; duplicate removed -->
                 </div>
 
-                @if(!empty($scheduledDrops))
-                @php $siteId = $cliente->mikrotikSite?->id; @endphp
+                @php
+                    $siteId        = $cliente->mikrotikSite?->id;
+                    $dropsFixos    = collect($scheduledDrops ?? [])->where('tipo', 'fixo')->values()->all();
+                    $dropNocturno  = collect($scheduledDrops ?? [])->where('tipo', 'nocturno')->first();
+                @endphp
+                @if(!empty($dropsFixos) || $dropNocturno)
                 <div id="scheduledDropBanner" style="max-width:980px;margin:14px auto 0;padding:14px 18px;background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;">
                     <div style="display:flex;gap:14px;align-items:flex-start;">
                         <span style="font-size:1.5rem;flex-shrink:0;">⚠️</span>
                         <div style="font-size:.92rem;color:#7a5200;flex:1;">
+                            @if(!empty($dropsFixos))
                             <strong style="font-size:.97rem;color:#b36b00;">Possível tarefa agendada no router do ISP</strong><br>
                             O sistema detectou quedas recorrentes sempre no mesmo horário nos últimos 30 dias.
                             Causa provável: regra no <em>System → Scheduler</em> do router MikroTik a desactivar o PPPoE neste horário.<br>
                             <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-                                @foreach($scheduledDrops as $drop)
+                                @foreach($dropsFixos as $drop)
                                     <span style="background:#fff;border:1px solid #f5a623;border-radius:8px;padding:4px 12px;font-weight:600;">
                                         {{ $drop['username'] }} — {{ $drop['horario'] }}h
                                         <span style="color:#aaa;font-weight:400;">({{ $drop['dias'] }} dias / {{ $drop['percentagem'] }}%)</span>
                                     </span>
                                 @endforeach
                                 @if($siteId)
-                                <button onclick="verScheduler({{ $siteId }}, '{{ implode(',', array_column($scheduledDrops, 'horario')) }}')"
+                                <button onclick="verScheduler({{ $siteId }}, '{{ implode(',', array_column($dropsFixos, 'horario')) }}')"
                                     style="background:#f5a623;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:.88rem;font-weight:700;cursor:pointer;margin-left:4px;">
                                     Gerir Scheduler
                                 </button>
                                 @endif
                             </div>
+                            @else
+                            <strong style="font-size:.97rem;color:#7a3c00;">Quedas concentradas no período nocturno</strong><br>
+                            {{ $dropNocturno['percentagem'] }}% das quedas ocorrem entre as 20h e as 07h
+                            ({{ $dropNocturno['dias'] }} noites distintas nos últimos 30 dias).<br>
+                            <span style="font-size:.83rem;color:#8a5500;margin-top:4px;display:inline-block;">
+                                Causa provável: corte de energia (ENDE) sem UPS no router. Recomendar UPS ao cliente.
+                            </span>
+                            @if($siteId)
+                            <div style="margin-top:8px;">
+                                <button onclick="verScheduler({{ $siteId }}, '')"
+                                    style="background:#e8eaf0;color:#555;border:none;border-radius:8px;padding:5px 14px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                                    Ver regras do Scheduler
+                                </button>
+                            </div>
+                            @endif
+                            @endif
                         </div>
                     </div>
 

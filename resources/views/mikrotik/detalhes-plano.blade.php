@@ -323,27 +323,46 @@
         </div>
 
         {{-- ── Aviso de Scheduler ── --}}
-        @php $siteId = $cliente->mikrotikSite?->id; @endphp
+        @php
+            $siteId       = $cliente->mikrotikSite?->id;
+            $dropsFixos   = collect($scheduledDrops)->where('tipo', 'fixo')->values()->all();
+            $dropsNocturno= collect($scheduledDrops)->where('tipo', 'nocturno')->first();
+        @endphp
         <div id="schedulerBanner" style="margin-bottom:14px;padding:13px 16px;background:#fff8ec;border:1.5px solid #f5a623;border-radius:12px;display:flex;gap:12px;align-items:flex-start;">
             <span style="font-size:1.3rem;flex-shrink:0;">🕐</span>
             <div style="flex:1;font-size:.9rem;color:#7a5200;">
-                @if(!empty($scheduledDrops))
+                @if(!empty($dropsFixos))
                     <strong style="color:#b36b00;">Padrão de queda em horário fixo detectado</strong><br>
                     O sistema detectou quedas recorrentes sempre no mesmo intervalo nos últimos 30 dias.
                     Causa provável: regra no <em>System → Scheduler</em> do router MikroTik.<br>
                     <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-                        @foreach($scheduledDrops as $drop)
+                        @foreach($dropsFixos as $drop)
                             <span style="background:#fff;border:1px solid #f5a623;border-radius:6px;padding:3px 10px;font-weight:600;font-size:.85rem;">
                                 {{ $drop['horario'] }}h — {{ $drop['dias'] }} dias ({{ $drop['percentagem'] }}%)
                             </span>
                         @endforeach
                         @if($siteId)
-                        <button onclick="verScheduler({{ $siteId }}, '{{ implode(',', array_column($scheduledDrops, 'horario')) }}')"
+                        <button onclick="verScheduler({{ $siteId }}, '{{ implode(',', array_column($dropsFixos, 'horario')) }}')"
                             style="background:#f5a623;color:#fff;border:none;border-radius:6px;padding:4px 14px;font-size:.85rem;font-weight:700;cursor:pointer;">
                             Gerir Scheduler
                         </button>
                         @endif
                     </div>
+                @elseif($dropsNocturno)
+                    <strong style="color:#7a3c00;">Quedas concentradas no período nocturno</strong><br>
+                    {{ $dropsNocturno['percentagem'] }}% das quedas ocorrem entre as 20h e as 07h
+                    ({{ $dropsNocturno['dias'] }} noites distintas nos últimos 30 dias).<br>
+                    <span style="font-size:.83rem;color:#8a5500;margin-top:4px;display:inline-block;">
+                        Causa provável: corte de energia (ENDE) — o router apaga sem UPS. Solução: instalar uma UPS no router do cliente.
+                    </span>
+                    @if($siteId)
+                    <div style="margin-top:6px;">
+                        <button onclick="verScheduler({{ $siteId }}, '')"
+                            style="background:#e8eaf0;color:#555;border:none;border-radius:6px;padding:4px 14px;font-size:.83rem;font-weight:600;cursor:pointer;">
+                            Ver regras do Scheduler
+                        </button>
+                    </div>
+                    @endif
                 @else
                     <strong style="color:#b36b00;">Scheduler do Router</strong>
                     <span style="color:#aaa;margin-left:6px;font-size:.85rem;">Nenhum padrão de queda agendada detectado nos últimos 30 dias.</span>

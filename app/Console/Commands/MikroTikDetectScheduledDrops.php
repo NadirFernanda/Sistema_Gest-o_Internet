@@ -55,20 +55,48 @@ class MikroTikDetectScheduledDrops extends Command
             $totalDiasAcumulado = array_sum(array_map('count', $diasPorJanela));
             $mediaDias          = $totalJanelas > 0 ? $totalDiasAcumulado / $totalJanelas : 0;
 
+            $temFixo = false;
             foreach ($diasPorJanela as $horario => $diasComQueda) {
                 $numDias = count($diasComQueda);
                 if ($numDias < $minDias) continue;
                 if ($mediaDias > 0 && $numDias < $mediaDias * 2.0) continue;
 
+                $temFixo = true;
                 $alertas[] = [
                     'plano_id'    => $planoId,
                     'cliente'     => $queda->first()?->plano?->cliente?->nome ?? "Plano #{$planoId}",
                     'username'    => $queda->first()?->plano?->mikrotik_username ?? '-',
                     'horario'     => $horario,
+                    'tipo'        => 'fixo',
                     'dias'        => $numDias,
                     'percentagem' => round($numDias / $dias * 100),
                     'total_quedas'=> $queda->count(),
                 ];
+            }
+
+            // Padrão nocturno: 65%+ das quedas entre as 20h e as 07h, em ≥3 dias distintos
+            if (! $temFixo) {
+                $nocturnas = $queda->filter(function ($e) {
+                    $h = (int) $e->occurred_at->format('H');
+                    return $h >= 20 || $h < 7;
+                });
+                $total        = $queda->count();
+                $nCount       = $nocturnas->count();
+                $percentNot   = $total > 0 ? $nCount / $total : 0;
+                $diasNocturna = $nocturnas->groupBy(fn($e) => $e->occurred_at->format('Y-m-d'))->count();
+
+                if ($percentNot >= 0.65 && $nCount >= 4 && $diasNocturna >= 3) {
+                    $alertas[] = [
+                        'plano_id'    => $planoId,
+                        'cliente'     => $queda->first()?->plano?->cliente?->nome ?? "Plano #{$planoId}",
+                        'username'    => $queda->first()?->plano?->mikrotik_username ?? '-',
+                        'horario'     => '20:00-07:00',
+                        'tipo'        => 'nocturno',
+                        'dias'        => $diasNocturna,
+                        'percentagem' => round($percentNot * 100),
+                        'total_quedas'=> $total,
+                    ];
+                }
             }
         }
 
