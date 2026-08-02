@@ -230,14 +230,27 @@ class ResellerPanelController extends Controller
         $data  = $request->validate(['email' => ['required', 'email', 'max:254']]);
         $email = strtolower(trim($data['email']));
 
-        $application = ResellerApplication::where('email', $email)
-            ->where('status', ResellerApplication::STATUS_APPROVED)
-            ->first();
+        // Check any registration under this email to give actionable feedback
+        $anyApplication = ResellerApplication::where('email', $email)->first();
+
+        if ($anyApplication && $anyApplication->status === ResellerApplication::STATUS_PENDING) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'A sua conta de agente revendedor está pendente de aprovação. Será notificado por email quando a conta for activada.');
+        }
+
+        if ($anyApplication && $anyApplication->status === ResellerApplication::STATUS_REJECTED) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'A sua candidatura de agente revendedor foi recusada. Contacte o suporte para mais informações.');
+        }
+
+        $application = ($anyApplication && $anyApplication->status === ResellerApplication::STATUS_APPROVED)
+            ? $anyApplication
+            : null;
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $request->session()->put('reseller_otp_email',      $email);
-        $request->session()->put('reseller_otp_code',       hash('sha256', $otp)); // stored as hash — never plaintext
+        $request->session()->put('reseller_otp_code',       hash('sha256', $otp));
         $request->session()->put('reseller_otp_expires_at', now()->addMinutes(self::OTP_TTL)->toIso8601String());
         $request->session()->put('reseller_otp_attempts',   0);
         $request->session()->forget('reseller_id');
