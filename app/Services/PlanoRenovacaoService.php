@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Cobranca;
 use App\Models\MikroTikSite;
 use App\Models\Plano;
+use App\Notifications\ComprovantePagamentoEmail;
+use App\Notifications\ComprovantePagamentoWhatsApp;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -83,6 +85,22 @@ class PlanoRenovacaoService
             'estado_anterior' => $estadoAnterior,
             'nova_renovacao'  => $novaRenovacao->toDateString(),
         ]);
+
+        // Notificar cliente da confirmação de pagamento
+        try {
+            $cobranca->setRelation('cliente', $cliente);
+            if (filter_var($cliente->email ?? '', FILTER_VALIDATE_EMAIL)) {
+                $cliente->notify(new ComprovantePagamentoEmail($cobranca));
+            }
+            if (env('ENABLE_WHATSAPP', false) && ! empty($cliente->contato)) {
+                $cliente->notify(new ComprovantePagamentoWhatsApp($cobranca, $cliente, $plano));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('PlanoRenovacaoService: falha ao enviar notificação de pagamento', [
+                'cobranca_id' => $cobranca->id,
+                'error'       => $e->getMessage(),
+            ]);
+        }
 
         if (in_array($estadoAnterior, ['Suspenso', 'Em aviso'])) {
             $sites = MikroTikSite::where('active', true)->get();
