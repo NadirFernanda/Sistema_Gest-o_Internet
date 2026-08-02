@@ -304,6 +304,18 @@
 /* ── Equipment table ─────────────────────────────────────────── */
 .ficha-equip-wrap { overflow-x: auto; }
 
+/* ── Back link ───────────────────────────────────────────────── */
+.ficha-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #888;
+    font-size: .88rem;
+    text-decoration: none;
+    margin-bottom: 14px;
+}
+.ficha-back:hover { color: #f7b500; }
+
 /* ── Modal ───────────────────────────────────────────────────── */
 .ficha-modal-overlay {
     position: fixed; inset: 0;
@@ -336,6 +348,8 @@
 
 @section('content')
 <div class="ficha-wrap">
+
+    <a href="{{ route('clientes.show', $cliente->id) }}" class="ficha-back">← Voltar ao Cliente</a>
 
     {{-- Flash messages --}}
     @if(session('success'))
