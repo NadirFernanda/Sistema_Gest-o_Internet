@@ -152,6 +152,7 @@
                 <h5 style="margin-bottom:18px;">Compensar Dias ao Plano</h5>
                 <form id="form-compensar-dias" method="POST" action="{{ route('clientes.compensar_dias', $plano->cliente_id) }}">
                     @csrf
+                    <input type="hidden" name="plano_id" value="{{ $plano->id }}">
                     <label for="dias_compensados" style="font-weight:600;">Dias a compensar:</label>
                     <input type="number" min="1" max="90" name="dias_compensados" id="dias_compensados" class="form-control" style="margin:10px 0 18px 0;width:120px;text-align:center;" required>
                     <button type="submit" class="btn btn-primary" style="min-width:120px;">Salvar</button>

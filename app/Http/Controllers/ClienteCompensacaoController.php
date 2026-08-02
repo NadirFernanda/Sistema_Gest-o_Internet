@@ -83,11 +83,9 @@ class ClienteCompensacaoController extends Controller
             $plano = $cliente->planos()->where('id', $request->input('plano_id'))->first();
         }
         if (! $plano) {
+            // Aceitar planos activos, em aviso ou suspensos — compensação pode reactivá-los
             $plano = $cliente->planos()
-                ->whereRaw("LOWER(TRIM(COALESCE(estado, ''))) = ?", ['ativo'])
-                ->where(function ($q) {
-                    $q->where('ativo', true)->orWhereNull('ativo');
-                })
+                ->whereIn('estado', ['Ativo', 'Em aviso', 'Suspenso'])
                 ->orderByDesc('data_ativacao')
                 ->first();
         }
