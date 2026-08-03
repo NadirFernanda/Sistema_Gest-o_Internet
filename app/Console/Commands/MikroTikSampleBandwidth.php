@@ -27,7 +27,8 @@ class MikroTikSampleBandwidth extends Command
                 if (! $service->testConnection()['ok']) continue;
 
                 // Sessões activas: username -> {address, caller-id, uptime}
-                $sessions = $service->listActiveSessions();
+                // listActiveSessions() devolve null quando o router falha — usar [] para não abortar o site
+                $sessions   = $service->listActiveSessions() ?? [];
                 $sessionMap = [];
                 foreach ($sessions as $s) {
                     $name = $s['name'] ?? $s['=name'] ?? '';

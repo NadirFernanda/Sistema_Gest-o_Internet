@@ -314,8 +314,16 @@ class MikroTikService
 
         try {
             $this->connect();
-            // =stats= inclui bytes-in / bytes-out na resposta (necessário para tráfego)
-            $result = $this->api->command('/ppp/active/print', ['stats' => '']);
+            // =stats= inclui bytes-in / bytes-out na resposta (RouterOS 6.45+)
+            // Routers com firmware mais antigo ignoram ou rejeitam o flag — fallback sem stats
+            try {
+                $result = $this->api->command('/ppp/active/print', ['stats' => '']);
+            } catch (\Throwable $e) {
+                Log::warning('MikroTik: /ppp/active/print stats falhou, a tentar sem stats', [
+                    'host' => $this->host, 'error' => $e->getMessage(),
+                ]);
+                $result = $this->api->command('/ppp/active/print');
+            }
 
             // Confirm the command completed. Without !done, the response is
             // incomplete (timeout / connection reset) — treat as API failure.
