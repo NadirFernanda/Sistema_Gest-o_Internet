@@ -78,8 +78,15 @@ class MikroTikSampleBandwidth extends Command
                     $q = $queueMap[$u] ?? null;
                     $s = $sessionMap[$u] ?? null;
 
-                    // Bytes cumulativos da queue (session PPPoE não expõe bytes via API RouterOS)
-                    [$rxBytes, $txBytes] = $q ? $this->parseBytes($q) : [0, 0];
+                    // Bytes cumulativos: preferir queue (mais preciso); fallback para sessão PPPoE
+                    // (RouterOS expõe bytes-in/bytes-out em /ppp/active/print stats)
+                    if ($q) {
+                        [$rxBytes, $txBytes] = $this->parseBytes($q);
+                    } elseif ($s) {
+                        [$rxBytes, $txBytes] = $this->parseBytesFromSession($s);
+                    } else {
+                        [$rxBytes, $txBytes] = [0, 0];
+                    }
 
                     // Taxa calculada contra amostra anterior
                     $prev   = MikroTikBandwidthSample::where('plano_id', $plano->id)
@@ -154,6 +161,14 @@ class MikroTikSampleBandwidth extends Command
         }
         $in  = (int) ($q['bytes-in']  ?? $q['=bytes-in']  ?? 0);
         $out = (int) ($q['bytes-out'] ?? $q['=bytes-out'] ?? 0);
+        return [$in, $out];
+    }
+
+    private function parseBytesFromSession(array $s): array
+    {
+        // RouterOS /ppp/active/print stats devolve bytes-in (cliente→router) e bytes-out (router→cliente)
+        $in  = (int) ($s['bytes-in']  ?? $s['=bytes-in']  ?? 0);
+        $out = (int) ($s['bytes-out'] ?? $s['=bytes-out'] ?? 0);
         return [$in, $out];
     }
 

@@ -314,7 +314,8 @@ class MikroTikService
 
         try {
             $this->connect();
-            $result = $this->api->command('/ppp/active/print');
+            // =stats= inclui bytes-in / bytes-out na resposta (necessário para tráfego)
+            $result = $this->api->command('/ppp/active/print', ['stats' => '']);
 
             // Confirm the command completed. Without !done, the response is
             // incomplete (timeout / connection reset) — treat as API failure.
