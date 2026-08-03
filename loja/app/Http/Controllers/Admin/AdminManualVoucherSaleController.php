@@ -153,11 +153,13 @@ class AdminManualVoucherSaleController extends Controller
                         ],
                     ]);
 
-                    // Marcar códigos como usados e associados a esta compra
+                    // Marcar códigos como distribuídos pelo AR ao cliente final
+                    // (venda avulsa = registo retroactivo de venda já efectuada)
                     WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                        'status'               => 'used',
-                        'used_at'              => now(),
-                        'reseller_purchase_id' => $purchase->id,
+                        'status'                  => 'used',
+                        'used_at'                 => now(),
+                        'reseller_purchase_id'    => $purchase->id,
+                        'reseller_distributed_at' => now(),
                     ]);
 
                     $purchaseIds[] = $purchase->id;
