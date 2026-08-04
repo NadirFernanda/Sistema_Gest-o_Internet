@@ -88,12 +88,14 @@ class StoreProxyController extends Controller
         }
     }
 
+    // Chave fixa do cache de planos — permite limpeza directa pelo endpoint de bust
+    private const PLAN_CACHE_KEY = 'sg_plan_templates';
+
     public function planTemplates(Request $request)
     {
         // Proxy para o catálogo público de templates de planos (familiares/empresariais)
-        // Cache de 10 minutos para evitar chamadas repetidas ao SG
-        $cacheKey = 'sg_plan_templates_' . md5(serialize($request->query()));
-        $cached = Cache::get($cacheKey);
+        // Chave fixa (sem MD5 de params) para que o SG consiga invalidar via bustPlanCache()
+        $cached = Cache::get(self::PLAN_CACHE_KEY);
         if ($cached !== null) {
             return response($cached, 200)->header('Content-Type', 'application/json');
         }
@@ -111,7 +113,7 @@ class StoreProxyController extends Controller
             $clean = ltrim(str_replace("\xEF\xBB\xBF", '', (string) $res->getBody()));
 
             if ($res->getStatusCode() === 200) {
-                Cache::put($cacheKey, $clean, now()->addMinutes(10));
+                Cache::put(self::PLAN_CACHE_KEY, $clean, now()->addMinutes(10));
             }
 
             return response($clean, $res->getStatusCode())
@@ -123,6 +125,22 @@ class StoreProxyController extends Controller
                 'message' => $e->getMessage(),
             ], 502);
         }
+    }
+
+    /**
+     * Endpoint interno chamado pelo SG após criar/editar/apagar um plano.
+     * Limpa o cache local para forçar nova busca ao SG na próxima visita.
+     */
+    public function bustPlanCache(Request $request)
+    {
+        $secret = env('LOJA_INTERNAL_SECRET', '');
+        if (empty($secret) || $request->header('X-Internal-Secret') !== $secret) {
+            return response()->json(['ok' => false, 'error' => 'unauthorized'], 401);
+        }
+
+        Cache::forget(self::PLAN_CACHE_KEY);
+
+        return response()->json(['ok' => true]);
     }
 
     public function equipmentCatalog(Request $request)

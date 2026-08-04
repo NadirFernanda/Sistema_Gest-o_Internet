@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PlanTemplate;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PlanTemplateController extends Controller
 {
@@ -46,6 +48,7 @@ class PlanTemplateController extends Controller
         PlanTemplate::create($data);
         Cache::forget('plan_templates:list_json');
         Cache::forget('plan_templates_catalog:all');
+        $this->bustLojaCache();
         return redirect()->route('plan-templates.index')->with('success', 'Plano criado com sucesso');
     }
 
@@ -68,6 +71,7 @@ class PlanTemplateController extends Controller
         $plan_template->update($data);
         Cache::forget('plan_templates:list_json');
         Cache::forget('plan_templates_catalog:all');
+        $this->bustLojaCache();
         return redirect()->route('plan-templates.index')->with('success', 'Plano atualizado com sucesso');
     }
 
@@ -76,7 +80,27 @@ class PlanTemplateController extends Controller
         $plan_template->delete();
         Cache::forget('plan_templates:list_json');
         Cache::forget('plan_templates_catalog:all');
+        $this->bustLojaCache();
         return redirect()->route('plan-templates.index')->with('success', 'Plano removido com sucesso');
+    }
+
+    /** Notifica a loja para limpar o cache de planos. Falha silenciosa — não bloqueia o utilizador. */
+    private function bustLojaCache(): void
+    {
+        $url    = rtrim(env('LOJA_URL', ''), '/') . '/api/internal/bust-plan-cache';
+        $secret = env('LOJA_INTERNAL_SECRET', '');
+
+        if (empty($url) || empty($secret)) return;
+
+        try {
+            Http::timeout(3)
+                ->withHeaders(['X-Internal-Secret' => $secret])
+                ->post($url);
+        } catch (\Throwable $e) {
+            Log::warning('PlanTemplateController: falha ao notificar loja para bust cache', [
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     // JSON endpoint for frontend prefilling

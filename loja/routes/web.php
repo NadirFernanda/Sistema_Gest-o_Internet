@@ -39,6 +39,7 @@ Route::get('/', function () {
 // Proxy endpoints — loja → SG (necessários em todos os ambientes)
 Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
 Route::get('/sg/plan-templates', [\App\Http\Controllers\StoreProxyController::class, 'planTemplates']);
+Route::post('/api/internal/bust-plan-cache', [\App\Http\Controllers\StoreProxyController::class, 'bustPlanCache'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController::class, 'equipmentCatalog']);
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder'])->middleware('throttle:10,1');
 Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
