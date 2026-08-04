@@ -107,6 +107,8 @@ Route::post('/painel-revendedor/vender/carrinho/adicionar', [ResellerPanelContro
 Route::post('/painel-revendedor/vender/carrinho/adicionar-todos', [ResellerPanelController::class, 'sellCartAddAll'])->name('reseller.sell.cart.add.all');
 Route::post('/painel-revendedor/vender/carrinho/remover', [ResellerPanelController::class, 'sellCartRemove'])->name('reseller.sell.cart.remove');
 Route::post('/painel-revendedor/vender/carrinho/limpar', [ResellerPanelController::class, 'sellCartClear'])->name('reseller.sell.cart.clear');
+Route::get('/painel-revendedor/historico-vendas', [ResellerPanelController::class, 'salesHistory'])->name('reseller.sales.history');
+Route::get('/painel-revendedor/historico-vendas/{saleGroup}/pdf', [ResellerPanelController::class, 'downloadSalePdf'])->name('reseller.sales.pdf');
 
 // Pagamento do carrinho do revendedor
 Route::get('/painel-revendedor/pagamento', [ResellerPanelController::class, 'showPayment'])->name('reseller.panel.payment');

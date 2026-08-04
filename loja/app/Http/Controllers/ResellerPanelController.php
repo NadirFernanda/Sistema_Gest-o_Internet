@@ -1514,9 +1514,10 @@ class ResellerPanelController extends Controller
         $now         = now();
         $customerRef = $data['customer_ref'] ?? null;
         $allCodes    = collect();
+        $saleGroup   = (string) \Illuminate\Support\Str::uuid();
 
         try {
-            DB::transaction(function () use ($sellCart, $purchaseIds, $customerRef, $now, &$allCodes) {
+            DB::transaction(function () use ($sellCart, $purchaseIds, $customerRef, $now, $saleGroup, &$allCodes) {
                 foreach ($sellCart as $slug => $qty) {
                     $qty = (int) $qty;
 
@@ -1534,6 +1535,7 @@ class ResellerPanelController extends Controller
                     WifiCode::whereIn('id', $codes->pluck('id'))->update([
                         'reseller_distributed_at' => $now,
                         'reseller_customer_ref'   => $customerRef,
+                        'reseller_sale_group'     => $saleGroup,
                     ]);
 
                     $allCodes = $allCodes->concat($codes->pluck('id'));
@@ -1550,14 +1552,113 @@ class ResellerPanelController extends Controller
         $codes       = WifiCode::whereIn('id', $allCodes)->get();
         $codesByPlan = $codes->groupBy('plan_id');
 
-        // Generate PDF
+        // Generate PDF — se falhar, redireciona para histórico com os códigos visíveis
+        try {
+            $html = view('pdf.venda-revendedor', [
+                'application'  => $application,
+                'codesByPlan'  => $codesByPlan,
+                'voucherPlans' => $voucherPlans,
+                'customerRef'  => $customerRef,
+                'totalCodes'   => $codes->count(),
+                'saleDate'     => $now,
+            ])->render();
+
+            $options = new Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', false);
+            $options->set('defaultFont', 'DejaVu Sans');
+
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            $filename = 'venda_' . $codes->count() . 'vouchers_' . $now->format('Ymd_His') . '.pdf';
+
+            return response($dompdf->output())
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        } catch (\Throwable $e) {
+            // PDF falhou mas a venda foi registada — redirecionar para histórico com aviso
+            \Log::error('processSale: falha ao gerar PDF', [
+                'sale_group' => $saleGroup, 'error' => $e->getMessage(),
+            ]);
+            return redirect()->route('reseller.sales.history')
+                ->with('warning', 'A venda foi registada com sucesso, mas ocorreu um erro ao gerar o PDF. Os seus códigos estão disponíveis abaixo — clique em "Download PDF" para obter o comprovativo.');
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Histórico de vendas ao cliente final
+    // ─────────────────────────────────────────────────────────────
+    public function salesHistory(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'completed')
+            ->pluck('id');
+
+        // Agrupar vendas por reseller_sale_group (vendas via processSale)
+        // e por data+customer_ref para vendas antigas sem sale_group
+        $distributedCodes = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->whereNotNull('reseller_distributed_at')
+            ->orderByDesc('reseller_distributed_at')
+            ->get();
+
+        // Agrupar por sale_group (novas) ou por data+ref (antigas sem UUID)
+        $sales = $distributedCodes->groupBy(function ($code) {
+            return $code->reseller_sale_group
+                ?? ('legacy_' . $code->reseller_distributed_at?->format('YmdHi') . '_' . ($code->reseller_customer_ref ?? 'sem-ref'));
+        })->map(function ($codes, $groupKey) {
+            $first = $codes->first();
+            return [
+                'sale_group'   => $first->reseller_sale_group,
+                'date'         => $first->reseller_distributed_at,
+                'customer_ref' => $first->reseller_customer_ref,
+                'codes'        => $codes,
+                'total'        => $codes->count(),
+                'is_legacy'    => str_starts_with($groupKey, 'legacy_'),
+            ];
+        })->values()->sortByDesc(fn($s) => $s['date'])->values();
+
+        return view('reseller.sales-history', compact('application', 'sales'));
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Re-download PDF de uma venda pelo sale_group UUID
+    // ─────────────────────────────────────────────────────────────
+    public function downloadSalePdf(Request $request, string $saleGroup)
+    {
+        $resellerId = $request->session()->get('reseller_id');
+        if (!$resellerId) return redirect()->route('reseller.panel');
+
+        $application = ResellerApplication::findOrFail($resellerId);
+
+        $purchaseIds = ResellerPurchase::where('reseller_application_id', $resellerId)
+            ->where('status', 'completed')
+            ->pluck('id');
+
+        $codes = WifiCode::whereIn('reseller_purchase_id', $purchaseIds)
+            ->where('reseller_sale_group', $saleGroup)
+            ->get();
+
+        if ($codes->isEmpty()) abort(404);
+
+        $voucherPlans = VoucherPlan::all()->keyBy('slug');
+        $codesByPlan  = $codes->groupBy('plan_id');
+        $first        = $codes->first();
+
         $html = view('pdf.venda-revendedor', [
             'application'  => $application,
             'codesByPlan'  => $codesByPlan,
             'voucherPlans' => $voucherPlans,
-            'customerRef'  => $customerRef,
+            'customerRef'  => $first->reseller_customer_ref,
             'totalCodes'   => $codes->count(),
-            'saleDate'     => $now,
+            'saleDate'     => $first->reseller_distributed_at,
         ])->render();
 
         $options = new Options();
@@ -1570,7 +1671,7 @@ class ResellerPanelController extends Controller
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        $filename = 'venda_' . $codes->count() . 'vouchers_' . $now->format('Ymd_His') . '.pdf';
+        $filename = 'venda_' . $codes->count() . 'vouchers_' . $first->reseller_distributed_at?->format('Ymd_His') . '.pdf';
 
         return response($dompdf->output())
             ->header('Content-Type', 'application/pdf')
