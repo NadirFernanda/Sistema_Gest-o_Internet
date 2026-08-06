@@ -85,7 +85,7 @@ class TrackOnlineVisitors
         return Cache::remember($cacheKey, 3600, function () use ($ip) {
             try {
                 $res = (new Client(['timeout' => 2]))->get(
-                    "http://ip-api.com/json/{$ip}?fields=country,countryCode&lang=pt"
+                    "https://ip-api.com/json/{$ip}?fields=country,countryCode&lang=pt"
                 );
                 if ($res->getStatusCode() === 200) {
                     $data = json_decode((string) $res->getBody(), true);
