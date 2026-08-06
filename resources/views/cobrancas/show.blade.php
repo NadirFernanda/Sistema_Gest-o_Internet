@@ -29,5 +29,8 @@
             💳 Pagar via Multicaixa Express
         </a>
     @endif
+
+    {{-- Downloads adicionais (se existirem anexos) --}}
+    @include('partials.downloads', ['files' => $cobranca->files ?? $cobranca->attachments ?? []])
 </div>
 @endsection

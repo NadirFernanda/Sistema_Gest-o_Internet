@@ -211,6 +211,10 @@ Route::middleware('auth')->group(function () {
 Route::post('/webhooks/pay4all', [\App\Http\Controllers\PagamentoController::class, 'webhook'])
     ->name('webhooks.pay4all');
 
+// Public download proxy for files stored on the public disk. Encoded path is URL-safe base64 without padding.
+Route::get('/files/download/{encoded}', [\App\Http\Controllers\FileDownloadController::class, 'download'])
+    ->name('files.download');
+
 // Rotas de Estoque de Equipamentos
 Route::middleware('auth')->group(function () {
     Route::get('/estoque-equipamentos', [\App\Http\Controllers\EstoqueEquipamentoController::class, 'index'])->name('estoque_equipamentos.index');

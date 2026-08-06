@@ -146,6 +146,9 @@
         </div>
     </div>
 
+    {{-- Downloads relacionados ao plano (se existirem) --}}
+    @include('partials.downloads', ['files' => $plano->files ?? $plano->attachments ?? []])
+
         <!-- Modal para compensar dias -->
         <div id="modal-compensar-dias" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);align-items:center;justify-content:center;">
             <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:14px;max-width:380px;width:96vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;">
