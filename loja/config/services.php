@@ -58,6 +58,11 @@ return [
         'frame_token'     => env('GPO_FRAME_TOKEN', ''),
         'frame_token_url' => env('GPO_FRAME_TOKEN_URL', 'https://pagamentonline.emis.co.ao/online-payment-gateway/webframe/v1/frameToken'),
         'webframe_url'    => env('GPO_WEBFRAME_URL', 'https://pagamentonline.emis.co.ao/online-payment-gateway/webframe'),
+        // IPs autorizados para callbacks server-to-server do EMIS GPO (separados por vírgula).
+        // Quando definido, callbacks de outros IPs são rejeitados com 403.
+        // Confirmar os IPs reais com o suporte EMIS antes de activar.
+        // Exemplo: GPO_CALLBACK_IPS=197.218.10.1,197.218.10.2
+        'callback_ips'    => env('GPO_CALLBACK_IPS', ''),
     ],
 
 

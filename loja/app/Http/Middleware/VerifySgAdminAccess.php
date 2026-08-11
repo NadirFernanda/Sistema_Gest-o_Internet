@@ -25,7 +25,9 @@ class VerifySgAdminAccess
 
         // Bypass SSO via URL: aceite em qualquer ambiente (HTTPS em produção).
         // Redireciona para o mesmo caminho SEM query string para não poluir logs/histórico.
-        $incomingToken = $request->query('token', $request->query('sg_sso', ''));
+        // Nota: o alias genérico ?token= foi removido — apenas ?sg_sso= é aceite,
+        // para reduzir o risco de fuga do token em headers Referer ou logs de proxy.
+        $incomingToken = (string) $request->query('sg_sso', '');
         if ($incomingToken !== '' && hash_equals($expected, (string) $incomingToken)) {
             $request->session()->put('sg_admin_authenticated', true);
             return redirect($request->url()); // url() exclui query string

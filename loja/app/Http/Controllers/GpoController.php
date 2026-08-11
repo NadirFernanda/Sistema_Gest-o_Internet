@@ -79,6 +79,11 @@ class GpoController extends Controller
             'status'            => AutovendaOrder::STATUS_AWAITING_PAYMENT,
         ]);
 
+        // Regista o ID da ordem na sessão para que apenas esta sessão possa
+        // fazer polling do estado e receber o código WiFi (protege contra IDOR).
+        $allowed = array_unique(array_merge(session('gpo_order_ids', []), [$order->id]));
+        session(['gpo_order_ids' => $allowed]);
+
         return view('store.pagamento-gpo', compact('order', 'iframeUrl'));
     }
 
@@ -88,6 +93,8 @@ class GpoController extends Controller
      */
     public function callback(Request $request)
     {
+        $this->verifyCallbackSource($request, 'GPO');
+
         $data = $request->all();
 
         Log::info('GPO: callback recebido', [
@@ -112,6 +119,18 @@ class GpoController extends Controller
         // Idempotência — se já foi processado, ignora
         if ($order->isPaid()) {
             return response()->json(['status' => 'already_processed']);
+        }
+
+        // Verificar montante para mitigar ataques de callback forjado.
+        // Desvia-se de callbacks que declarem um montante diferente do valor real da ordem.
+        $callbackAmount = (float) ($parsed['amount'] ?? 0);
+        if ($callbackAmount > 0 && abs($callbackAmount - (float) $order->amount_aoa) > 0.01) {
+            Log::error('GPO: discrepância de montante — possível callback forjado', [
+                'ref'      => $merchantRef,
+                'expected' => (float) $order->amount_aoa,
+                'received' => $callbackAmount,
+            ]);
+            return response()->json(['error' => 'amount_mismatch'], 400);
         }
 
         if ($parsed['successful']) {
@@ -140,6 +159,8 @@ class GpoController extends Controller
      */
     public function resellerCallback(Request $request)
     {
+        $this->verifyCallbackSource($request, 'GPO Revendedor');
+
         $data = $request->all();
 
         Log::info('GPO Revendedor: callback recebido', [
@@ -240,6 +261,8 @@ class GpoController extends Controller
      */
     public function maintenanceCallback(Request $request)
     {
+        $this->verifyCallbackSource($request, 'GPO Manutenção');
+
         $data = $request->all();
 
         Log::info('GPO Manutenção: callback recebido', [
@@ -321,10 +344,34 @@ class GpoController extends Controller
 
 
     /**
+     * Verifica a origem de callbacks GPO.
+     *
+     * Camada 1 — IP allowlist (quando GPO_CALLBACK_IPS está definido em .env).
+     *   Configurar com os IPs reais do EMIS após confirmação com o suporte EMIS.
+     *   Exemplo: GPO_CALLBACK_IPS=197.218.x.x,197.218.y.y
+     *
+     * Nota: o EMIS GPO não fornece assinatura HMAC por omissão.
+     * Quando disponível, implementar verificação de assinatura em GpoService::parseCallback().
+     */
+    private function verifyCallbackSource(Request $request, string $context): void
+    {
+        $allowed = array_filter(array_map('trim', explode(',', config('services.gpo.callback_ips', ''))));
+        if (! empty($allowed) && ! in_array($request->ip(), $allowed, true)) {
+            Log::warning("{$context}: callback rejeitado — IP não autorizado", ['ip' => $request->ip()]);
+            abort(403);
+        }
+    }
+
+    /**
      * Endpoint JSON para polling do estado da ordem (usado pelo JavaScript da view).
+     * Apenas a sessão que iniciou o pagamento pode consultar o estado — previne IDOR.
      */
     public function status(AutovendaOrder $order)
     {
+        if (! in_array($order->id, session('gpo_order_ids', []), true)) {
+            return response()->json(['error' => 'acesso negado'], 403);
+        }
+
         $order->refresh();
 
         $statusPt = match (strtolower($order->status ?? '')) {

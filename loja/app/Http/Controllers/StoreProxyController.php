@@ -60,6 +60,9 @@ class StoreProxyController extends Controller
         }
     }
 
+    /** Parâmetros de filtragem permitidos no endpoint de planos. */
+    private const PLANS_ALLOWED_PARAMS = ['page', 'per_page', 'search', 'categoria', 'velocidade', 'activo', 'tipo'];
+
     public function plans(Request $request)
     {
         // Comunicação real com o sistema de gestão (API principal em PROJECTO)
@@ -71,7 +74,7 @@ class StoreProxyController extends Controller
 
         try {
             $res = $http->get('/api/planos', [
-                'query' => $request->query(),
+                'query' => $request->only(self::PLANS_ALLOWED_PARAMS),
                 'http_errors' => false,
                 'timeout' => 4,
             ]);
@@ -105,7 +108,7 @@ class StoreProxyController extends Controller
 
         try {
             $res = $http->get('/api/plan-templates', [
-                'query' => $request->query(),
+                // plan-templates é um catálogo estático — sem parâmetros do utilizador
                 'http_errors' => false,
                 'timeout' => 4,
             ]);
@@ -158,7 +161,7 @@ class StoreProxyController extends Controller
 
         try {
             $res = $http->get('/api/equipment-catalog', [
-                'query' => $request->query(),
+                'query' => $request->only(['page', 'per_page', 'search', 'categoria', 'marca']),
                 'http_errors' => false,
                 'timeout' => 4,
             ]);
@@ -180,12 +183,18 @@ class StoreProxyController extends Controller
         }
     }
 
+    /** Campos permitidos no payload de sincronização de ordens com o SG. */
+    private const ORDER_SYNC_ALLOWED = [
+        'nome', 'email', 'contato', 'nif', 'template_id',
+        'loja_request_id', 'appointment_id', 'notas', 'morada',
+    ];
+
     public function sendOrder(Request $request)
     {
         $token = $this->getToken();
         if (! $token) return response()->json(['error' => 'no_token'], 500);
 
-        $payload = $request->all();
+        $payload = $request->only(self::ORDER_SYNC_ALLOWED);
         $sg = rtrim(config('services.sg.url', env('SG_URL', '')) , '/');
         $http = new Client(['base_uri' => $sg, 'verify' => $this->tlsVerify()]);
         $res = $http->post('/api/orders/sync', [
