@@ -5,7 +5,6 @@ Disallow: /checkout/
 Disallow: /autovenda/
 Disallow: /sg/
 Disallow: /pagar-plano/
-Disallow: /dev-autologin/
 Disallow: /payment/
 Allow: /
 

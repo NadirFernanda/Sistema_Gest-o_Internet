@@ -40,9 +40,11 @@ class FamilyPlanPaymentController extends Controller
         // Se PAYMENT_WEBHOOK_SECRET estiver definido no .env, exige que a chamada
         // inclua o header correcto; caso contrário rejeita com 401.
         $webhookSecret = config('services.payment.webhook_secret');
-        if (!$webhookSecret && app()->isProduction()) {
-            Log::error('Payment webhook: secret ausente em produção', [
-                'ip' => $request->ip(),
+        // Exige secret em todos os ambientes excepto local — evita bypass em staging
+        if (!$webhookSecret && !app()->isLocal()) {
+            Log::error('Payment webhook: PAYMENT_WEBHOOK_SECRET ausente fora de ambiente local', [
+                'ip'  => $request->ip(),
+                'env' => app()->environment(),
             ]);
             return response()->json(['error' => 'webhook_unconfigured'], 503);
         }
@@ -144,6 +146,11 @@ class FamilyPlanPaymentController extends Controller
             return view('pages.pagar-plano', compact('familyRequest'));
         }
 
+        // Regista o ID do pedido na sessão para que apenas esta sessão possa
+        // fazer polling e cancelar — previne IDOR em gpoStatus e gpoCancel.
+        $allowed = array_unique(array_merge(session('family_gpo_ids', []), [$id]));
+        session(['family_gpo_ids' => $allowed]);
+
         // Gerar ou reutilizar referência GPO (FAM{id}{4random}, max 15 chars)
         $reference = $familyRequest->gpo_reference;
         if (! $reference) {
@@ -169,9 +176,14 @@ class FamilyPlanPaymentController extends Controller
 
     /**
      * Polling JSON do estado do pagamento GPO (para o JS da view).
+     * Apenas a sessão que iniciou o pagamento pode consultar o estado — previne IDOR.
      */
     public function gpoStatus(int $id)
     {
+        if (! in_array($id, session('family_gpo_ids', []), true)) {
+            return response()->json(['error' => 'acesso negado'], 403);
+        }
+
         $familyRequest = FamilyPlanRequest::findOrFail($id);
         $familyRequest->refresh();
 
@@ -197,9 +209,15 @@ class FamilyPlanPaymentController extends Controller
 
     /**
      * Cancelar pagamento GPO — volta ao formulário para escolher outro método.
+     * Verifica que o pedido pertence à sessão actual — previne cancelamento de
+     * pedidos de outros clientes (Broken Object Level Authorization).
      */
     public function gpoCancel(int $id)
     {
+        if (! in_array($id, session('family_gpo_ids', []), true)) {
+            abort(403, 'Não tem permissão para cancelar este pedido.');
+        }
+
         $familyRequest = FamilyPlanRequest::findOrFail($id);
         $familyRequest->update(['status' => FamilyPlanRequest::STATUS_CANCELLED]);
 
@@ -217,6 +235,13 @@ class FamilyPlanPaymentController extends Controller
      */
     public function gpoCallback(Request $request)
     {
+        // Verificar origem do callback (IP allowlist quando GPO_CALLBACK_IPS configurado)
+        $allowedIps = array_filter(array_map('trim', explode(',', config('services.gpo.callback_ips', ''))));
+        if (! empty($allowedIps) && ! in_array($request->ip(), $allowedIps, true)) {
+            Log::warning('GPO Família: callback rejeitado — IP não autorizado', ['ip' => $request->ip()]);
+            abort(403);
+        }
+
         $data = $request->all();
 
         Log::info('GPO Família: callback recebido', [
@@ -241,6 +266,19 @@ class FamilyPlanPaymentController extends Controller
         // Idempotência
         if ($familyRequest->status === FamilyPlanRequest::STATUS_ACTIVATED) {
             return response()->json(['status' => 'already_processed']);
+        }
+
+        // Verificar montante para mitigar callbacks forjados
+        $callbackAmount = (float) ($parsed['amount'] ?? 0);
+        if ($callbackAmount > 0 && $familyRequest->plan_preco !== null) {
+            if (abs($callbackAmount - (float) $familyRequest->plan_preco) > 0.01) {
+                Log::error('GPO Família: discrepância de montante — possível callback forjado', [
+                    'ref'      => $gpoRef,
+                    'expected' => (float) $familyRequest->plan_preco,
+                    'received' => $callbackAmount,
+                ]);
+                return response()->json(['error' => 'amount_mismatch'], 400);
+            }
         }
 
         if ($parsed['successful']) {

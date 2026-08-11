@@ -195,6 +195,16 @@
 </div>
 
 <script>
+// Dados dos planos em JSON seguro (sem concatenação de strings — previne XSS por backtick injection)
+const PLAN_DATA = {!! json_encode($voucherPlans->map(fn($vp) => [
+    'slug'           => $vp->slug,
+    'name'           => $vp->name,
+    'price_reseller' => (int) $vp->price_reseller_aoa,
+    'price_public'   => (int) $vp->price_public_aoa,
+    'price_public_fmt' => number_format($vp->price_public_aoa, 0, ',', '.'),
+    'stock'          => (int) $vp->availableStock(),
+])->values()->toArray()) !!};
+
 let itemIndex = {{ count(old('items', [['plan' => '', 'qty' => 1]])) }};
 
 function addItem() {
@@ -203,7 +213,17 @@ function addItem() {
   div.className = 'ms-item';
   div.id = 'item_' + itemIndex;
 
-  const planOptions = `{!! implode('', $voucherPlans->map(fn($vp) => '<option value="' . e($vp->slug) . '" data-price="' . (int)$vp->price_reseller_aoa . '" data-public="' . (int)$vp->price_public_aoa . '" data-stock="' . (int)$vp->availableStock() . '" data-name="' . e($vp->name) . '">' . e($vp->name) . ' — ' . number_format($vp->price_public_aoa, 0, ',', '.') . ' Kz (stock: ' . (int)$vp->availableStock() . ')</option>')->toArray()) !!}`;
+  // Construir options via DOM (seguro contra XSS por backtick injection)
+  const planOptions = PLAN_DATA.map(p => {
+    const opt = document.createElement('option');
+    opt.value = p.slug;
+    opt.dataset.price  = p.price_reseller;
+    opt.dataset.public = p.price_public;
+    opt.dataset.stock  = p.stock;
+    opt.dataset.name   = p.name;
+    opt.textContent    = p.name + ' — ' + p.price_public_fmt + ' Kz (stock: ' + p.stock + ')';
+    return opt.outerHTML;
+  }).join('');
 
   div.innerHTML = `
     <div>
