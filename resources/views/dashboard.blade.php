@@ -34,7 +34,7 @@
                 $lojaAdminToken = config('services.sg.admin_token');
                 $lojaBaseUrl = rtrim(config('services.sg.loja_url', env('LOJA_URL', 'http://127.0.0.1:8001')), '/');
                 $lojaAdminUrl = $lojaAdminToken
-                    ? $lojaBaseUrl.'/admin?token='.urlencode($lojaAdminToken)
+                    ? $lojaBaseUrl.'/admin?sg_sso='.urlencode($lojaAdminToken)
                     : $lojaBaseUrl.'/admin';
             @endphp
             <a href="{{ $lojaAdminUrl }}" class="btn" target="_blank" rel="noopener">Loja</a>
