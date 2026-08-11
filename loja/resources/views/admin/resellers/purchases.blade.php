@@ -3,6 +3,20 @@
 @section('content')
 <style>
 :root{--a-bg:#f4f6f9;--a-surf:#fff;--a-border:#dde2ea;--a-text:#1a202c;--a-muted:#64748b;--a-faint:#9aa5b4;--a-brand:#f7b500;--a-green:#16a34a;--a-amber:#d97706;--a-red:#dc2626;}
+.ap-alert-pending{background:#fffbeb;border:1.5px solid #fde68a;border-left:4px solid var(--a-brand);color:#78350f;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;}
+.ap-alert-pending strong{font-size:1.1rem;}
+.ap-flash-ok{background:#f0fdf4;border:1.5px solid #86efac;border-left:4px solid var(--a-green);color:#14532d;padding:.65rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;}
+.ap-flash-err{background:#fef2f2;border:1.5px solid #fecaca;border-left:4px solid var(--a-red);color:#7f1d1d;padding:.65rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;}
+tr.pending-row{background:#fffbeb;}
+tr.pending-row td{border-bottom:1px solid #fde68a;}
+.ap-badge{display:inline-block;padding:.15rem .5rem;border-radius:.3rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.ap-badge-pending{background:#fef3c7;color:#92400e;}
+.ap-badge-completed{background:#dcfce7;color:#166534;}
+.ap-badge-cancelled{background:#fee2e2;color:#991b1b;}
+.ap-badge-other{background:#f3f4f6;color:#374151;}
+.ap-action-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .7rem;border-radius:.4rem;font-size:.76rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;text-decoration:none;}
+.ap-btn-approve{background:#dcfce7;color:#166534;border:1px solid #86efac;}.ap-btn-approve:hover{background:#bbf7d0;}
+.ap-btn-reject{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}.ap-btn-reject:hover{background:#fecaca;}
 .ap{font-family:Inter,system-ui,sans-serif;background:var(--a-bg);min-height:60vh;padding:2rem 0 4rem;color:var(--a-text);}
 .ap-wrap{max-width:1140px;margin:0 auto;padding:0 1.5rem;}
 .ap-topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:1.75rem;}
@@ -117,6 +131,23 @@
   </div>
   @endif
 
+  @if(session('status'))
+    <div class="ap-flash-ok">{{ session('status') }}</div>
+  @endif
+  @if(session('error'))
+    <div class="ap-flash-err"><strong>Erro:</strong> {{ session('error') }}</div>
+  @endif
+
+  @if($pendingCount > 0)
+  <div class="ap-alert-pending">
+    <span style="font-size:1.4rem;">⏳</span>
+    <div>
+      <strong>{{ $pendingCount }}</strong> compra{{ $pendingCount > 1 ? 's' : '' }} aguarda{{ $pendingCount > 1 ? 'm' : '' }} confirmação de pagamento.
+      <a href="{{ route('admin.resellers.purchases.index', ['status' => 'pending_confirmation']) }}" style="margin-left:.5rem;font-weight:700;color:#92400e;text-decoration:underline;">Ver pendentes →</a>
+    </div>
+  </div>
+  @endif
+
   <div class="ap-note">
     <strong>O que é esta página?</strong> Registo consolidado de todas as compras em bloco feitas por todos os revendedores aprovados.<br><br>
 
@@ -147,6 +178,16 @@
       <input name="q" value="{{ request('q') }}" class="ap-ctrl" placeholder="Nome, telefone ou e-mail do revendedor">
     </div>
     <div class="ap-fg">
+      <label class="ap-label">Estado</label>
+      <select name="status" class="ap-ctrl" style="min-width:160px;">
+        <option value="">Todos</option>
+        <option value="pending_confirmation" @selected(request('status') === 'pending_confirmation')>⏳ A aguardar</option>
+        <option value="completed" @selected(request('status') === 'completed')>✓ Concluídas</option>
+        <option value="cancelled" @selected(request('status') === 'cancelled')>✗ Canceladas</option>
+        <option value="pending" @selected(request('status') === 'pending')>Pendentes (sem ref.)</option>
+      </select>
+    </div>
+    <div class="ap-fg">
       <label class="ap-label">De</label>
       <input type="date" name="date_from" value="{{ request('date_from') }}" class="ap-ctrl" style="min-width:140px;">
     </div>
@@ -155,7 +196,7 @@
       <input type="date" name="date_to" value="{{ request('date_to') }}" class="ap-ctrl" style="min-width:140px;">
     </div>
     <button type="submit" class="ap-btn ap-btn-primary">Filtrar</button>
-    @if(request()->hasAny(['q','date_from','date_to','reseller_id']))
+    @if(request()->hasAny(['q','date_from','date_to','reseller_id','status']))
       <a href="{{ route('admin.resellers.purchases.index') }}" class="ap-btn ap-btn-outline ap-btn-sm">Limpar</a>
     @endif
   </form>
@@ -164,38 +205,79 @@
     <table class="ap-table">
       <thead>
         <tr>
-          <th>Nome do Revendedor</th>
-          <th>N.&ordm; Telem&oacute;vel</th>
-          <th>Valor bruto</th>
-          <th>Desconto</th>
+          <th style="width:36px;">ID</th>
+          <th>Revendedor</th>
+          <th>Plano / Qtd.</th>
           <th>Valor l&iacute;quido</th>
-          <th>Data da &uacute;ltima compra</th>
+          <th>M&eacute;todo</th>
+          <th>Refer&ecirc;ncia</th>
+          <th>Estado</th>
+          <th>Data</th>
+          <th>A&ccedil;&otilde;es</th>
         </tr>
       </thead>
       <tbody>
         @forelse($purchases as $purchase)
-          <tr>
+          @php
+            $isPending = $purchase->status === 'pending_confirmation';
+            $methodMap = ['multicaixa' => 'Multicaixa', 'transferencia' => 'Transferência', 'multicaixa_express' => 'MCX Express', 'gpo' => 'GPO', 'bonus_manutencao' => 'Bónus'];
+          @endphp
+          <tr @if($isPending) class="pending-row" @elseif($purchase->status === 'cancelled') style="opacity:.55;" @endif>
+            <td class="dim" style="font-size:.78rem;font-weight:600;">#{{ $purchase->id }}</td>
             <td>
               @if($purchase->application)
                 <a href="{{ route('admin.resellers.show', $purchase->application) }}" style="color:var(--a-text);font-weight:600;text-decoration:none;">
                   {{ $purchase->application->full_name }}
                 </a>
+                <br><span class="dim" style="font-size:.78rem;">{{ $purchase->application->phone }}</span>
               @else
                 <span class="dim">ID {{ $purchase->reseller_application_id }}</span>
               @endif
             </td>
-            <td>{{ $purchase->application->phone ?? '—' }}</td>
-            <td class="dim">{{ number_format($purchase->gross_amount_aoa, 0, ',', '.') }} AOA</td>
-            <td style="color:var(--a-green);font-weight:600;">{{ $purchase->discount_percent }}%</td>
+            <td>
+              <span style="font-weight:600;font-size:.85rem;">{{ $purchase->plan_name ?? '—' }}</span>
+              @if($purchase->quantity)
+                <br><span class="dim" style="font-size:.78rem;">{{ number_format($purchase->quantity) }} vouchers</span>
+              @endif
+            </td>
             <td style="font-weight:700;">{{ number_format($purchase->net_amount_aoa, 0, ',', '.') }} AOA</td>
-            <td class="dim">{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
+            <td class="dim" style="font-size:.82rem;">{{ $methodMap[$purchase->payment_method] ?? ($purchase->payment_method ?? '—') }}</td>
+            <td style="font-size:.78rem;font-family:monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;" title="{{ $purchase->payment_reference }}">
+              {{ $purchase->payment_reference ?? '—' }}
+            </td>
+            <td>
+              @if($isPending)
+                <span class="ap-badge ap-badge-pending">⏳ A aguardar</span>
+              @elseif($purchase->status === 'completed')
+                <span class="ap-badge ap-badge-completed">✓ Concluída</span>
+              @elseif($purchase->status === 'cancelled')
+                <span class="ap-badge ap-badge-cancelled">✗ Cancelada</span>
+              @else
+                <span class="ap-badge ap-badge-other">{{ $purchase->status }}</span>
+              @endif
+            </td>
+            <td class="dim" style="font-size:.8rem;white-space:nowrap;">{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
+            <td style="white-space:nowrap;">
+              @if($isPending)
+                <form action="{{ route('admin.resellers.purchases.approve', $purchase) }}" method="POST" style="display:inline;" onsubmit="return confirm('Aprovar esta compra e entregar os vouchers ao revendedor?')">
+                  @csrf
+                  <button type="submit" class="ap-action-btn ap-btn-approve">✓ Aprovar</button>
+                </form>
+                <form action="{{ route('admin.resellers.purchases.reject', $purchase) }}" method="POST" style="display:inline;" onsubmit="return confirm('Rejeitar e cancelar esta compra?')">
+                  @csrf
+                  <button type="submit" class="ap-action-btn ap-btn-reject">✗ Rejeitar</button>
+                </form>
+              @else
+                <span class="dim" style="font-size:.78rem;">—</span>
+              @endif
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="6">
+            <td colspan="9">
               <div class="ap-empty">
-                <p class="ap-empty-t">Nenhuma compra registada</p>
-                <p class="ap-empty-s">Ainda n&atilde;o existem compras em bloco de revendedores.</p>
+                <p class="ap-empty-t">Nenhuma compra encontrada</p>
+                <p class="ap-empty-s">Ajuste os filtros ou aguarde novas compras.</p>
               </div>
             </td>
           </tr>

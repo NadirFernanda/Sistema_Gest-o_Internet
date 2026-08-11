@@ -574,65 +574,23 @@ class ResellerPanelController extends Controller
         ]);
 
         $method    = $data['payment_method'];
-        $reference = trim($data['payment_reference'] ?? '')
-            ?: ('SIM-' . now()->format('YmdHis') . '-' . $application->id);
+        $reference = trim($data['payment_reference'] ?? '') ?: null;
 
-        // Load plan validity labels for the CSV
-        $planSlugs = ResellerPurchase::whereIn('id', $purchaseIds)->pluck('plan_slug')->toArray();
-        $planMap   = VoucherPlan::whereIn('slug', $planSlugs)->get()->keyBy('slug');
+        // Registar intenção de pagamento — vouchers são entregues após aprovação pelo admin
+        ResellerPurchase::whereIn('id', $purchaseIds)
+            ->where('reseller_application_id', $application->id)
+            ->where('status', 'pending')
+            ->update([
+                'status'            => 'pending_confirmation',
+                'payment_method'    => $method,
+                'payment_reference' => $reference,
+                'paid_at'           => now(),
+            ]);
 
-        try {
-            DB::transaction(function () use ($purchaseIds, $application, $method, $reference, $planMap) {
-                $purchases = ResellerPurchase::whereIn('id', $purchaseIds)
-                    ->where('reseller_application_id', $application->id)
-                    ->where('status', 'pending')
-                    ->lockForUpdate()
-                    ->get();
-
-                foreach ($purchases as $purchase) {
-                    // Atribuir códigos disponíveis agora que o pagamento foi confirmado
-                    $codes = WifiCode::where('plan_id', $purchase->plan_slug)
-                        ->where('status', WifiCode::STATUS_AVAILABLE)
-                        ->lockForUpdate()
-                        ->limit($purchase->quantity)
-                        ->get();
-
-                    if ($codes->count() < $purchase->quantity) {
-                        throw new \RuntimeException("Stock insuficiente para \"{$purchase->plan_name}\": necessário {$purchase->quantity}, disponível {$codes->count()}.");
-                    }
-
-                    $validityLabel = optional($planMap->get($purchase->plan_slug))->validity_label
-                        ?? $purchase->plan_slug;
-
-                    $codeLines = ['plano,codigo,validade'];
-                    foreach ($codes as $wc) {
-                        $codeLines[] = "{$purchase->plan_name},{$wc->code},{$validityLabel}";
-                    }
-                    Storage::disk('local')->put($purchase->csv_path, implode("\n", $codeLines) . "\n");
-
-                    WifiCode::whereIn('id', $codes->pluck('id'))->update([
-                        'status'               => WifiCode::STATUS_USED,
-                        'used_at'              => now(),
-                        'reseller_purchase_id' => $purchase->id,
-                    ]);
-
-                    $purchase->update([
-                        'status'            => 'completed',
-                        'payment_method'    => $method,
-                        'payment_reference' => $reference,
-                        'paid_at'           => now(),
-                    ]);
-                }
-            });
-        } catch (\Throwable $e) {
-            return redirect()->route('reseller.panel.payment')->with('error', $e->getMessage());
-        }
-
-        $totalVouchers = ResellerPurchase::whereIn('id', $purchaseIds)->sum('codes_count');
         $request->session()->forget(['reseller_pending_order']);
 
         return redirect()->route('reseller.panel')
-            ->with('status', "✅ Pagamento confirmado! {$totalVouchers} voucher(s) transferidos para a sua conta. Faça download na tabela abaixo.");
+            ->with('status', '⏳ Comprovativo registado! O seu pagamento está a ser verificado pelo admin. Os vouchers serão disponibilizados assim que o pagamento for confirmado.');
     }
 
     // ─────────────────────────────────────────────────────────────

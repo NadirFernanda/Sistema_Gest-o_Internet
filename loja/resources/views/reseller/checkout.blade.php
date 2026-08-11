@@ -269,9 +269,9 @@
       </div>
     @endif
 
-    {{-- Prototype / simulation notice --}}
+    {{-- Payment process notice --}}
     <div class="rv-sim-notice">
-      ⚠️ <strong>Modo Protótipo:</strong> O botão "Confirmar Pagamento" simula a confirmação de pagamento e transfere imediatamente os vouchers para a sua conta. Num ambiente de produção, os vouchers são transferidos apenas após o pagamento ser validado pelo sistema.
+      ℹ️ Após clicar em <strong>"Confirmar Pagamento"</strong>, o seu pedido fica em espera de verificação. Os vouchers são entregues assim que o pagamento for confirmado pelo admin — normalmente em menos de 24 horas úteis.
     </div>
 
     {{-- Total bar --}}

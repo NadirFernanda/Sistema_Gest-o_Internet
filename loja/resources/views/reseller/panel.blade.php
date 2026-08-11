@@ -1139,12 +1139,14 @@
                     </thead>
                     <tbody>
                       @foreach($purchases as $purchase)
-                        <tr @if($purchase->status === 'cancelled') style="opacity:.5;" @endif>
+                        <tr @if($purchase->status === 'cancelled') style="opacity:.5;" @elseif($purchase->status === 'pending_confirmation') style="background:#fffbeb;" @endif>
                           <td class="muted">#{{ $purchase->id }}</td>
                           <td>{{ optional($purchase->created_at)->format('d/m/Y H:i') }}</td>
                           <td>{{ $purchase->plan_name ?? '—' }}
                             @if($purchase->status === 'cancelled')
                               <span style="display:inline-block;margin-left:.35rem;font-size:.7rem;font-weight:700;background:#fee2e2;color:#b91c1c;border-radius:.25rem;padding:.1rem .4rem;">ANULADA</span>
+                            @elseif($purchase->status === 'pending_confirmation')
+                              <span style="display:inline-block;margin-left:.35rem;font-size:.7rem;font-weight:700;background:#fef3c7;color:#92400e;border-radius:.25rem;padding:.1rem .4rem;">A VERIFICAR</span>
                             @endif
                           </td>
                           <td class="r">{{ $purchase->codes_count }}</td>
@@ -1162,6 +1164,8 @@
                               <a href="{{ route('reseller.sell') }}" class="rv-csv-btn" style="border-color:#86efac;color:#16a34a;background:#f0fdf4;">🏷 Vender</a>
                               <a href="{{ route('reseller.panel.purchase.pdf', $purchase) }}" class="rv-csv-btn" style="border-color:#fecaca;color:#b91c1c;">📄 PDF</a>
                               <a href="{{ route('reseller.panel.purchase.vouchers', ['purchase' => $purchase->id]) }}" class="rv-csv-btn">⬇ CSV</a>
+                            @elseif($purchase->status === 'pending_confirmation')
+                              <span style="color:#92400e;font-size:.8rem;font-weight:600;">⏳ A aguardar confirmação</span>
                             @elseif($purchase->status === 'pending')
                               <a href="{{ route('reseller.panel.resume.payment', $purchase) }}" class="rv-csv-btn" style="border-color:#fde68a;color:#92400e;background:#fffbeb;">💳 Retomar</a>
                             @else
