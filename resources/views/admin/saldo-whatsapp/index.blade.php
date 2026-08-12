@@ -3,9 +3,16 @@
 @section('content')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
+    <style>
+        /* Alinhar o logo (e o bloco de título) à esquerda só nesta página —
+           o clientes.css centra o logo (margin:auto) para todas as outras. */
+        .saldo-whatsapp-page .clientes-hero .hero-left { justify-content: flex-start; }
+        .saldo-whatsapp-page .clientes-hero .logo { margin: 12px 0 !important; }
+        .saldo-whatsapp-page .clientes-hero .hero-titles { align-items: flex-start !important; text-align: left; }
+    </style>
 @endpush
 
-<div class="estoque-container-moderna">
+<div class="estoque-container-moderna saldo-whatsapp-page">
     @include('layouts.partials.clientes-hero', [
         'title' => 'Saldo de Mensagens WhatsApp',
         'subtitle' => 'Cada mensagem enviada custa ' . number_format(\App\Models\WhatsappLedger::CUSTO_POR_MENSAGEM, 2, ',', '.') . ' Kz. Pré-pago — sem saldo, os alertas automáticos param de sair.',
