@@ -60,6 +60,9 @@ class EnviarNotificacaoDevolucao extends Command
                 $cliente->notify(new ClienteDevolucaoEquipamentoEmail($cliente));
                 $cliente->notify(new ClienteDevolucaoEquipamentoWhatsApp($cliente));
                 Log::info("Notificações de devolução enviadas e equipamentos marcados para cliente {$cliente->id}");
+                // Pausa aleatória entre envios de WhatsApp — evita padrão de rajada que
+                // o WhatsApp pode sinalizar como spam e desligar a sessão.
+                sleep(random_int(8, 20));
             } catch (\Exception $e) {
                 Log::error("Erro ao enviar notificações para cliente {$cliente->id}: " . $e->getMessage());
             }

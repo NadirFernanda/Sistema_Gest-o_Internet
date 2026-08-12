@@ -34,7 +34,7 @@ class TestWhatsAppSend extends Command
         try {
             $service = new WhatsAppService();
             $this->info("A enviar para: {$numero}");
-            $result = $service->enviarMensagem($numero, $mensagem);
+            $result = $service->enviarMensagem($numero, $mensagem, 'teste');
             $this->info('Enviado com sucesso: ' . json_encode($result));
             return 0;
         } catch (\Throwable $e) {

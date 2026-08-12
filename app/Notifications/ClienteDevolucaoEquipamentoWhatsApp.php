@@ -36,6 +36,6 @@ class ClienteDevolucaoEquipamentoWhatsApp extends Notification implements Should
             "Angola_WiFi – Conectando você sempre!";
 
         $service = new WhatsAppService();
-        return $service->enviarMensagem($numero, $mensagem);
+        return $service->enviarMensagem($numero, $mensagem, 'devolucao');
     }
 }

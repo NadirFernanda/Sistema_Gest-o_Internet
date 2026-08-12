@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\SaldoWhatsAppInsuficienteException;
+use App\Models\WhatsappLedger;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
@@ -33,16 +35,38 @@ class WhatsAppService
      * Envia mensagem de WhatsApp.
      * @param string $numero Número no formato internacional sem '+', ex: 244XXXXXXXXX
      * @param string $mensagem Texto da mensagem
+     * @param string $tipo Categoria da mensagem para o extrato (ex.: 'vencimento', 'devolucao', 'comprovante', 'teste')
+     *
+     * @throws SaldoWhatsAppInsuficienteException Sem saldo — a mensagem nem chega a ser enviada.
      */
-    public function enviarMensagem(string $numero, string $mensagem): array
+    public function enviarMensagem(string $numero, string $mensagem, string $tipo = 'outro'): array
     {
         $numero = $this->normalizarNumero($numero);
 
-        return match ($this->driver) {
-            'evolution' => $this->enviarEvolution($numero, $mensagem),
-            'http'      => $this->enviarHttp($numero, $mensagem),
-            default     => throw new InvalidArgumentException("Driver WhatsApp desconhecido: {$this->driver}"),
-        };
+        // Pré-pago: sem saldo, nem tenta enviar. O débito só acontece depois
+        // de o envio ser confirmado com sucesso — uma falha da API não cobra.
+        if (! WhatsappLedger::debitarMensagem($numero, $tipo)) {
+            Log::warning('WhatsApp: envio bloqueado por saldo insuficiente', ['to' => $numero, 'tipo' => $tipo]);
+            throw new SaldoWhatsAppInsuficienteException(
+                'Saldo insuficiente para enviar mensagem de WhatsApp. Carregue saldo antes de continuar.'
+            );
+        }
+
+        try {
+            return match ($this->driver) {
+                'evolution' => $this->enviarEvolution($numero, $mensagem),
+                'http'      => $this->enviarHttp($numero, $mensagem),
+                default     => throw new InvalidArgumentException("Driver WhatsApp desconhecido: {$this->driver}"),
+            };
+        } catch (\Throwable $e) {
+            // O envio falhou depois de já termos debitado — estornar o custo,
+            // já que só se cobra por mensagens efectivamente entregues ao Evolution API.
+            WhatsappLedger::carregar(
+                WhatsappLedger::CUSTO_POR_MENSAGEM,
+                'Estorno — falha no envio para ' . $numero . ' (' . $tipo . ')'
+            );
+            throw $e;
+        }
     }
 
     private function enviarEvolution(string $numero, string $mensagem): array

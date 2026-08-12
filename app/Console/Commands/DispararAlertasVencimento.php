@@ -242,6 +242,9 @@ class DispararAlertasVencimento extends Command
                             $sent++;
                             $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
                             Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                            // Pausa aleatória entre envios reais — evita padrão de rajada que o
+                            // WhatsApp pode sinalizar como spam e desligar a sessão (já aconteceu antes).
+                            sleep(random_int(8, 20));
                         }
                     } catch (\Throwable $e) {
                         // Detect unsupported driver error and treat it as non-fatal
