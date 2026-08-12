@@ -12,6 +12,10 @@
         'stackLeft' => true,
     ])
 
+    <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;justify-content:flex-end;padding:0 8px;">
+        <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Painel</a>
+    </div>
+
     @if (session('success'))
         <div style="max-width:1100px;margin:12px auto;padding:12px 16px;background:#e6f9ec;border:1px solid #34c759;border-radius:8px;color:#136c34;font-weight:600;">
             {{ session('success') }}
