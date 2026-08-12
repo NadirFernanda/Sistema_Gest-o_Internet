@@ -25,6 +25,14 @@ return [
         'instance' => env('EVOLUTION_API_INSTANCE', ''),
     ],
 
+    // Emails autorizados a carregar saldo de WhatsApp (separados por vírgula em
+    // SUPER_ADMIN_EMAILS no .env). Clientes com role Administrador continuam a
+    // ver o extrato, mas só estes emails conseguem registar um carregamento.
+    'super_admin_emails' => array_filter(array_map(
+        'trim',
+        explode(',', env('SUPER_ADMIN_EMAILS', ''))
+    )),
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

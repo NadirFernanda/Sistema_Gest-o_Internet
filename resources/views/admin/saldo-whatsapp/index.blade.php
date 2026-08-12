@@ -42,24 +42,30 @@
             @endif
         </div>
 
-        <div style="flex:2 1 380px;background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:24px;">
-            <div style="font-weight:700;margin-bottom:12px;color:#333;">Carregar saldo</div>
-            <form method="POST" action="{{ route('saldo-whatsapp.carregar') }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                @csrf
-                <div>
-                    <label style="display:block;font-size:0.85em;color:#666;margin-bottom:4px;">Valor (Kz)</label>
-                    <input type="number" name="valor" min="1" step="0.01" required class="search-input" style="width:160px;">
-                </div>
-                <div style="flex:1;min-width:180px;">
-                    <label style="display:block;font-size:0.85em;color:#666;margin-bottom:4px;">Descrição (opcional)</label>
-                    <input type="text" name="descricao" maxlength="255" placeholder="Ex.: Pagamento via Multicaixa" class="search-input" style="width:100%;">
-                </div>
-                <button type="submit" class="btn btn-search">Carregar</button>
-            </form>
-            @error('valor')
-                <div style="color:#e74c3c;margin-top:8px;font-size:0.9em;">{{ $message }}</div>
-            @enderror
-        </div>
+        @if ($podeCarregar)
+            <div style="flex:2 1 380px;background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:24px;">
+                <div style="font-weight:700;margin-bottom:12px;color:#333;">Carregar saldo</div>
+                <form method="POST" action="{{ route('saldo-whatsapp.carregar') }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                    @csrf
+                    <div>
+                        <label style="display:block;font-size:0.85em;color:#666;margin-bottom:4px;">Valor (Kz)</label>
+                        <input type="number" name="valor" min="1" step="0.01" required class="search-input" style="width:160px;">
+                    </div>
+                    <div style="flex:1;min-width:180px;">
+                        <label style="display:block;font-size:0.85em;color:#666;margin-bottom:4px;">Descrição (opcional)</label>
+                        <input type="text" name="descricao" maxlength="255" placeholder="Ex.: Pagamento via Multicaixa" class="search-input" style="width:100%;">
+                    </div>
+                    <button type="submit" class="btn btn-search">Carregar</button>
+                </form>
+                @error('valor')
+                    <div style="color:#e74c3c;margin-top:8px;font-size:0.9em;">{{ $message }}</div>
+                @enderror
+            </div>
+        @else
+            <div style="flex:2 1 380px;background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:24px;display:flex;align-items:center;color:#888;">
+                Para carregar saldo, contacte o administrador do sistema.
+            </div>
+        @endif
     </div>
 
     <div class="estoque-tabela-moderna" style="max-width:1100px;margin:18px auto;">
