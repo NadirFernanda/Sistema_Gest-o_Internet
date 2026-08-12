@@ -233,31 +233,51 @@ class DispararAlertasVencimento extends Command
 
                 // WhatsApp: only attempt if explicitly enabled via env ENABLE_WHATSAPP=true
                 if (env('ENABLE_WHATSAPP', false)) {
-                    try {
-                        if (AlertLog::jaEnviado($plano->id, 'whatsapp')) {
-                            $this->info('Alerta WhatsApp já enviado hoje para plano ID ' . $plano->id . ' — a saltar.');
-                        } else {
-                            $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes));
-                            AlertLog::registar($plano->id, 'whatsapp', $diasRestantes);
+                    // Ciclo de vencimento tem 4 estágios automáticos, cada um enviado uma
+                    // única vez na vida da subscrição (a 5ª mensagem, de renovação, é
+                    // disparada à parte quando o pagamento é confirmado). Verificados do
+                    // mais avançado para o menos avançado: se o cron ficou para trás vários
+                    // dias, envia-se só o estágio actual em vez de rebentar com os 4 de uma vez.
+                    $estagiosVencimento = [
+                        ['tipo' => 'whatsapp_venc_followup', 'estagio' => 'followup', 'threshold' => -3],
+                        ['tipo' => 'whatsapp_venc_0d',       'estagio' => '0d',       'threshold' => 0],
+                        ['tipo' => 'whatsapp_venc_3d',       'estagio' => '3d',       'threshold' => 3],
+                        ['tipo' => 'whatsapp_venc_5d',       'estagio' => '5d',       'threshold' => 5],
+                    ];
+
+                    $estagioParaEnviar = null;
+                    foreach ($estagiosVencimento as $e) {
+                        if ($diasRestantes <= $e['threshold'] && ! AlertLog::jaEnviadoAlgumaVez($plano->id, $e['tipo'])) {
+                            $estagioParaEnviar = $e;
+                            break;
+                        }
+                    }
+
+                    if (! $estagioParaEnviar) {
+                        $this->info('Nenhum estágio de WhatsApp pendente para plano ID ' . $plano->id . ' (diasRestantes: ' . $diasRestantes . ')');
+                    } else {
+                        try {
+                            $cliente->notify(new \App\Notifications\ClienteVencimentoWhatsApp($cliente, $plano, $diasRestantes, $estagioParaEnviar['estagio']));
+                            AlertLog::registar($plano->id, $estagioParaEnviar['tipo'], $diasRestantes);
                             $sent++;
-                            $this->info('WhatsApp enviado para: ' . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                            Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
+                            $this->info("WhatsApp [{$estagioParaEnviar['estagio']}] enviado para: " . ($cliente->contato ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                            Log::info('alertas:disparar - whatsapp enviado', ['plano_id' => $plano->id, 'estagio' => $estagioParaEnviar['estagio'], 'cliente_id' => $cliente->id ?? null, 'contato' => $cliente->contato ?? null, 'diasRestantes' => $diasRestantes]);
                             // Pausa aleatória entre envios reais — evita padrão de rajada que o
                             // WhatsApp pode sinalizar como spam e desligar a sessão (já aconteceu antes).
                             sleep(random_int(8, 20));
-                        }
-                    } catch (\Throwable $e) {
-                        // Detect unsupported driver error and treat it as non-fatal
-                        $msg = $e->getMessage();
-                        if ($e instanceof \InvalidArgumentException || stripos($msg, 'Driver [whatsapp]') !== false || (stripos($msg, 'whatsapp') !== false && stripos($msg, 'not supported') !== false)) {
-                            $this->warn('Canal WhatsApp não suportado no ambiente - pulando envio WhatsApp para plano ID ' . $plano->id);
-                            Log::warning('alertas:disparar - whatsapp driver ausente', ['plano_id' => $plano->id, 'err' => $msg]);
-                            try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp ausente plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
-                        } else {
-                            $failed++;
-                            $this->error('Falha ao enviar WhatsApp para plano ID ' . $plano->id . ': ' . $msg);
-                            Log::error('alertas:disparar - falha whatsapp', ['plano_id' => $plano->id, 'err' => $msg, 'trace' => $e->getTraceAsString()]);
-                            try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha whatsapp plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                        } catch (\Throwable $e) {
+                            // Detect unsupported driver error and treat it as non-fatal
+                            $msg = $e->getMessage();
+                            if ($e instanceof \InvalidArgumentException || stripos($msg, 'Driver [whatsapp]') !== false || (stripos($msg, 'whatsapp') !== false && stripos($msg, 'not supported') !== false)) {
+                                $this->warn('Canal WhatsApp não suportado no ambiente - pulando envio WhatsApp para plano ID ' . $plano->id);
+                                Log::warning('alertas:disparar - whatsapp driver ausente', ['plano_id' => $plano->id, 'err' => $msg]);
+                                try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Whatsapp ausente plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                            } else {
+                                $failed++;
+                                $this->error('Falha ao enviar WhatsApp para plano ID ' . $plano->id . ': ' . $msg);
+                                Log::error('alertas:disparar - falha whatsapp', ['plano_id' => $plano->id, 'estagio' => $estagioParaEnviar['estagio'], 'err' => $msg, 'trace' => $e->getTraceAsString()]);
+                                try { @file_put_contents(storage_path('logs/alerts-dispatch.log'), '[' . now()->toDateTimeString() . '] Falha whatsapp plano ' . $plano->id . ' - ' . $msg . "\n", FILE_APPEND | LOCK_EX); } catch (\Throwable $_) {}
+                            }
                         }
                     }
                 } else {

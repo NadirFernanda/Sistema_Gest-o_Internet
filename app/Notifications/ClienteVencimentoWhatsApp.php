@@ -14,12 +14,18 @@ class ClienteVencimentoWhatsApp extends Notification
     public $cliente;
     public $plano;
     public $diasRestantes;
+    public string $estagio;
 
-    public function __construct($cliente, $plano, $diasRestantes)
+    /**
+     * @param string $estagio Um de: '5d', '3d', '0d', 'followup' — controla qual das
+     *                        4 mensagens do ciclo de vencimento é enviada.
+     */
+    public function __construct($cliente, $plano, $diasRestantes, string $estagio = '5d')
     {
         $this->cliente = $cliente;
         $this->plano = $plano;
         $this->diasRestantes = $diasRestantes;
+        $this->estagio = $estagio;
     }
 
     public function via($notifiable)
@@ -47,11 +53,13 @@ class ClienteVencimentoWhatsApp extends Notification
 
         $dataTerminoStr = $dataTermino ? $dataTermino->format('d/m/Y') : '';
 
-        $vencido = $this->diasRestantes <= 0;
-
-        $linhaInfo = $vencido
-            ? "Informamos que a sua subscrição de internet encontra-se vencida desde o dia *{$dataTerminoStr}*. "
-            : "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. ";
+        $linhaInfo = match ($this->estagio) {
+            '5d' => "A sua subscrição de internet termina dentro de *5 dias*, no dia *{$dataTerminoStr}*. ",
+            '3d' => "A sua subscrição de internet termina dentro de *3 dias*, no dia *{$dataTerminoStr}*. ",
+            '0d' => "A sua subscrição de internet *terminou hoje*, dia *{$dataTerminoStr}*. ",
+            'followup' => "A sua subscrição de internet *terminou no dia {$dataTerminoStr}* e ainda não identificámos o pagamento da renovação. ",
+            default => "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. ",
+        };
 
         $mensagem = "*Prezado(a) Cliente AngolaWiFi – {$this->cliente->nome},*\n\n" .
             "Cordiais saudações.\n\n" .
@@ -68,6 +76,6 @@ class ClienteVencimentoWhatsApp extends Notification
             "Atenciosamente,\n" .
             "*AngolaWiFi – Conectando você sempre!*";
         $service = new WhatsAppService();
-        return $service->enviarMensagem($numero, $mensagem, 'vencimento');
+        return $service->enviarMensagem($numero, $mensagem, 'vencimento_' . $this->estagio);
     }
 }

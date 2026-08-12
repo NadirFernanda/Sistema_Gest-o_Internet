@@ -18,6 +18,19 @@ class AlertLog extends Model
             ->exists();
     }
 
+    /**
+     * Já foi enviado alguma vez (não só hoje) — usado para os estágios de
+     * vencimento, que devem disparar uma única vez na vida da subscrição,
+     * independentemente de quantos dias o comando correr sem apanhar o cliente
+     * exactamente no dia certo.
+     */
+    public static function jaEnviadoAlgumaVez(int $planId, string $type): bool
+    {
+        return static::where('plan_id', $planId)
+            ->where('type', $type)
+            ->exists();
+    }
+
     public static function registar(int $planId, string $type, int $diasRestantes): void
     {
         static::create([
