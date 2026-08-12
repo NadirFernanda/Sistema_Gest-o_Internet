@@ -63,7 +63,7 @@
             </div>
         @else
             <div style="flex:2 1 380px;background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:24px;display:flex;align-items:center;color:#888;">
-                Para carregar saldo, contacte o administrador do sistema.
+                Para carregar saldo, contacte o Desenvolvedor do sistema.
             </div>
         @endif
     </div>
