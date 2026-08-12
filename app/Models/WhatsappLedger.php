@@ -47,8 +47,11 @@ class WhatsappLedger extends Model
         return DB::transaction(function () use ($destinatario, $mensagemTipo, $descricao) {
             // lockForUpdate evita corrida entre dois envios em simultâneo lerem
             // o mesmo saldo "quase a zero" e ambos passarem a validação.
-            $creditos = static::where('tipo', 'credito')->lockForUpdate()->sum('valor');
-            $debitos  = static::where('tipo', 'debito')->lockForUpdate()->sum('valor');
+            // O PostgreSQL não permite FOR UPDATE junto de uma função de
+            // agregação (SUM) na mesma query — por isso bloqueamos as linhas
+            // (pluck) e somamos em PHP, em vez de agregar directamente na BD.
+            $creditos = static::where('tipo', 'credito')->lockForUpdate()->pluck('valor')->sum();
+            $debitos  = static::where('tipo', 'debito')->lockForUpdate()->pluck('valor')->sum();
             $saldo    = (float) $creditos - (float) $debitos;
 
             if ($saldo < self::CUSTO_POR_MENSAGEM) {
