@@ -81,6 +81,12 @@ return [
         'test_mode'           => env('PAY4ALL_TEST_MODE', true),
     ],
 
+    // Token secreto para o endpoint de auto-actualização de IP das routers MikroTik.
+    // Definir MIKROTIK_IP_UPDATE_SECRET no .env. Usar: openssl rand -hex 24
+    'mikrotik_ip_update' => [
+        'secret' => env('MIKROTIK_IP_UPDATE_SECRET', ''),
+    ],
+
     // Integração MikroTik (RouterOS API)
     'mikrotik' => [
         'host'            => env('MIKROTIK_HOST', ''),

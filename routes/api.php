@@ -5,6 +5,11 @@ use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 
+// MikroTik auto-IP-update — chamado pelo script RouterOS quando o IP WAN muda.
+// Autenticado por token estático (MIKROTIK_IP_UPDATE_SECRET no .env).
+Route::get('/mikrotik-ip-update', [\App\Http\Controllers\MikroTikIpUpdateController::class, 'update'])
+    ->middleware('throttle:10,1');
+
 // Public catalog of plan templates (used by the loja to show family/business plans)
 Route::get('/plan-templates', [\App\Http\Controllers\PlanTemplateCatalogController::class, 'index']);
 
