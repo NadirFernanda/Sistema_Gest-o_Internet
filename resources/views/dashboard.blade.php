@@ -58,9 +58,15 @@
             @endcan
 
             <!-- Button to change password -->
-            <a href="{{ route('password.change') }}" class="btn btn-primary" style="width:100%;">Alterar senha</a>
+            <a href="{{ route('password.change') }}" class="btn btn-primary">Alterar senha</a>
 
-            <form action="{{ route('logout') }}" method="POST" style="width:100%;margin:0;padding:0;grid-column:1/-1;">
+            @php
+                {{-- 10 botões fixos + 1 se Usuários estiver visível; Sair ocupa linha inteira só quando o total é par --}}
+                $totalBotoes = 10 + (auth()->user()->can('users.view') ? 1 : 0);
+                $sairFullWidth = ($totalBotoes % 2 === 0);
+            @endphp
+            <form action="{{ route('logout') }}" method="POST"
+                  style="margin:0;padding:0;{{ $sairFullWidth ? 'grid-column:1/-1;' : '' }}width:100%;">
                 @csrf
                 <button type="submit" class="btn btn-logout" style="width:100%;">Sair</button>
             </form>
