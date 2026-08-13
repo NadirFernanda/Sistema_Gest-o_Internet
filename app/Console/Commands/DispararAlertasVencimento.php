@@ -244,9 +244,13 @@ class DispararAlertasVencimento extends Command
                         ['tipo' => 'whatsapp_venc_5d',       'estagio' => '5d',       'threshold' => 5],
                     ];
 
+                    // Início do ciclo actual = data de término menos o ciclo (em dias)
+                    $cicloAtual = intval(preg_replace('/[^0-9]/', '', (string) $plano->ciclo)) ?: (int) $plano->ciclo;
+                    $inicioCiclo = $dataTermino->copy()->subDays($cicloAtual);
+
                     $estagioParaEnviar = null;
                     foreach ($estagiosVencimento as $e) {
-                        if ($diasRestantes <= $e['threshold'] && ! AlertLog::jaEnviadoAlgumaVez($plano->id, $e['tipo'])) {
+                        if ($diasRestantes <= $e['threshold'] && ! AlertLog::jaEnviadoAlgumaVez($plano->id, $e['tipo'], $inicioCiclo)) {
                             $estagioParaEnviar = $e;
                             break;
                         }

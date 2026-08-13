@@ -19,16 +19,17 @@ class AlertLog extends Model
     }
 
     /**
-     * Já foi enviado alguma vez (não só hoje) — usado para os estágios de
-     * vencimento, que devem disparar uma única vez na vida da subscrição,
-     * independentemente de quantos dias o comando correr sem apanhar o cliente
-     * exactamente no dia certo.
+     * Já foi enviado no ciclo actual (desde $since).
+     * Garante que cada estágio de vencimento dispara uma vez por ciclo de renovação,
+     * não uma vez na vida do plano — clientes recorrentes voltam a receber os alertas.
      */
-    public static function jaEnviadoAlgumaVez(int $planId, string $type): bool
+    public static function jaEnviadoAlgumaVez(int $planId, string $type, ?\Carbon\Carbon $since = null): bool
     {
-        return static::where('plan_id', $planId)
-            ->where('type', $type)
-            ->exists();
+        $query = static::where('plan_id', $planId)->where('type', $type);
+        if ($since) {
+            $query->where('sent_date', '>=', $since->toDateString());
+        }
+        return $query->exists();
     }
 
     public static function registar(int $planId, string $type, int $diasRestantes): void
