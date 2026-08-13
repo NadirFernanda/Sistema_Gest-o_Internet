@@ -36,6 +36,11 @@ class MikroTikIpUpdateController extends Controller
         $nome   = trim((string) $request->query('nome', ''));
         $novoIp = trim((string) $request->query('ip', ''));
 
+        // RouterOS envia o IP com máscara (ex: "1.2.3.4/24") — remover o prefixo
+        if (str_contains($novoIp, '/')) {
+            $novoIp = explode('/', $novoIp)[0];
+        }
+
         if (! $nome || ! filter_var($novoIp, FILTER_VALIDATE_IP)) {
             return response('Bad Request: nome e ip são obrigatórios', 400);
         }
