@@ -137,6 +137,11 @@ class WhatsAppService
     // Remove '+', espaços e traços; garante formato 244XXXXXXXXX
     private function normalizarNumero(string $numero): string
     {
-        return preg_replace('/\D/', '', $numero);
+        $n = preg_replace('/\D/', '', $numero);
+        // Adiciona indicativo de Angola se o número tiver 9 dígitos (formato local)
+        if (strlen($n) === 9 && str_starts_with($n, '9')) {
+            $n = '244' . $n;
+        }
+        return $n;
     }
 }
