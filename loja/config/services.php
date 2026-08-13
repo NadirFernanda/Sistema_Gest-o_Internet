@@ -53,6 +53,14 @@ return [
         'webhook_secret' => env('PAYMENT_WEBHOOK_SECRET'),
     ],
 
+    // Evolution API (WhatsApp) — mesmas variáveis do SG principal
+    'evolution' => [
+        'enabled'  => env('ENABLE_WHATSAPP', false),
+        'url'      => env('EVOLUTION_API_URL', ''),
+        'key'      => env('EVOLUTION_API_KEY', ''),
+        'instance' => env('EVOLUTION_API_INSTANCE', ''),
+    ],
+
     // EMIS GPO — Gateway de Pagamentos Online (cartão + Multicaixa Express via webframe)
     'gpo' => [
         'frame_token'     => env('GPO_FRAME_TOKEN', ''),

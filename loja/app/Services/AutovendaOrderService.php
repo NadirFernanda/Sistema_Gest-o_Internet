@@ -6,6 +6,7 @@ use App\Mail\AutovendaWifiCodeMail;
 use App\Models\AutovendaOrder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -109,12 +110,81 @@ class AutovendaOrderService
             }
         }
 
+        // Envia WhatsApp com o código WiFi se o cliente forneceu telefone.
+        if (!empty($order->customer_phone)) {
+            try {
+                $this->enviarWhatsAppCodigo($order);
+            } catch (\Throwable $e) {
+                Log::warning('Falha ao enviar WhatsApp de código WiFi para ordem ' . $order->id . ': ' . $e->getMessage());
+            }
+        }
+
         Log::info('Ordem de autovenda ' . $order->id . ' paga e código WiFi entregue.', [
             'order_id'  => $order->id,
             'wifi_code' => $order->wifi_code,
         ]);
 
         return $order;
+    }
+
+    private function enviarWhatsAppCodigo(AutovendaOrder $order): void
+    {
+        if (! config('services.evolution.enabled')) {
+            return;
+        }
+
+        $url      = rtrim((string) config('services.evolution.url'), '/');
+        $key      = (string) config('services.evolution.key');
+        $instance = (string) config('services.evolution.instance');
+
+        if (! $url || ! $key || ! $instance) {
+            Log::warning('WhatsApp autovenda: Evolution API não configurada — variáveis em falta.');
+            return;
+        }
+
+        // Normaliza o número: remove não-dígitos; adiciona 244 se for número local de 9 dígitos
+        $numero = preg_replace('/\D/', '', $order->customer_phone ?? '');
+        if (strlen($numero) === 9 && str_starts_with($numero, '9')) {
+            $numero = '244' . $numero;
+        }
+
+        if (empty($numero)) {
+            return;
+        }
+
+        $nome     = $order->customer_name ? "Prezado(a) *{$order->customer_name}*,\n\n" : '';
+        $plano    = $order->plan_name ?? 'Plano Individual';
+        $codigo   = $order->wifi_code;
+        $ref      = $order->payment_reference ?? "#{$order->id}";
+
+        $mensagem =
+            "✅ *Pagamento Confirmado — AngolaWiFi*\n\n" .
+            $nome .
+            "O seu pagamento foi processado com sucesso.\n\n" .
+            "📋 *Detalhes:*\n" .
+            "• Plano: *{$plano}*\n" .
+            "• Referência: {$ref}\n\n" .
+            "📶 *O seu código WiFi é:*\n\n" .
+            "```{$codigo}```\n\n" .
+            "⚠️ *Guarde este código* — a AngolaWiFi não armazena dados pessoais para planos individuais.\n\n" .
+            "Em caso de dúvidas: 📞 (+244) 949 364 505\n\n" .
+            "*AngolaWiFi – Conectando você sempre!*";
+
+        $response = Http::withHeaders([
+            'apikey'       => $key,
+            'Content-Type' => 'application/json',
+        ])->post("{$url}/message/sendText/{$instance}", [
+            'number' => $numero,
+            'text'   => $mensagem,
+        ]);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException(
+                'Evolution API retornou ' . $response->status() . ': ' . substr($response->body(), 0, 300)
+            );
+        }
+
+        Log::info('WhatsApp autovenda: código WiFi enviado', ['to' => $numero, 'order' => $order->id]);
     }
 }
 
