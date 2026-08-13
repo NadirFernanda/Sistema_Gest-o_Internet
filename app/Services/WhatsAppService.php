@@ -63,7 +63,9 @@ class WhatsAppService
             // já que só se cobra por mensagens efectivamente entregues ao Evolution API.
             WhatsappLedger::carregar(
                 WhatsappLedger::CUSTO_POR_MENSAGEM,
-                'Estorno — falha no envio para ' . $numero . ' (' . $tipo . ')'
+                'Estorno — falha no envio para ' . $numero . ' (' . $tipo . ')',
+                null,
+                substr($e->getMessage(), 0, 2000)
             );
             throw $e;
         }

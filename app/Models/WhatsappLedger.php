@@ -10,7 +10,7 @@ class WhatsappLedger extends Model
     protected $table = 'whatsapp_ledger';
 
     protected $fillable = [
-        'tipo', 'valor', 'descricao', 'destinatario', 'mensagem_tipo', 'registado_por',
+        'tipo', 'valor', 'descricao', 'destinatario', 'mensagem_tipo', 'registado_por', 'erro_detalhes',
     ];
 
     protected $casts = [
@@ -70,13 +70,14 @@ class WhatsappLedger extends Model
         });
     }
 
-    public static function carregar(float $valor, string $descricao, ?int $registadoPor = null): self
+    public static function carregar(float $valor, string $descricao, ?int $registadoPor = null, ?string $errDetalhes = null): self
     {
         return static::create([
             'tipo'          => 'credito',
             'valor'         => $valor,
             'descricao'     => $descricao,
             'registado_por' => $registadoPor,
+            'erro_detalhes' => $errDetalhes,
         ]);
     }
 }

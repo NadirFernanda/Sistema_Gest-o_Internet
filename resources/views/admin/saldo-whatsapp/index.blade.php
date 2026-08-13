@@ -82,10 +82,13 @@
             </thead>
             <tbody>
                 @forelse ($movimentos as $m)
+                    @php $eEstorno = $m->tipo === 'credito' && str_starts_with($m->descricao, 'Estorno'); @endphp
                     <tr>
                         <td style="text-align:center;">{{ $m->created_at->format('d/m/Y H:i') }}</td>
                         <td style="text-align:center;">
-                            @if ($m->tipo === 'credito')
+                            @if ($eEstorno)
+                                <span style="color:#e67e22;font-weight:700;">Estorno</span>
+                            @elseif ($m->tipo === 'credito')
                                 <span style="color:#1c8a3c;font-weight:700;">Carregamento</span>
                             @else
                                 <span style="color:#e74c3c;font-weight:700;">Mensagem{{ $m->mensagem_tipo ? ' (' . $m->mensagem_tipo . ')' : '' }}</span>
@@ -96,9 +99,17 @@
                             @if ($m->registadoPor)
                                 <div style="font-size:0.82em;color:#999;">por {{ $m->registadoPor->name }}</div>
                             @endif
+                            @if ($eEstorno && $m->erro_detalhes)
+                                <button type="button"
+                                        onclick="verFalha(this)"
+                                        data-erro="{{ e($m->erro_detalhes) }}"
+                                        style="margin-top:4px;display:inline-block;padding:2px 10px;font-size:0.8em;font-weight:600;color:#fff;background:#e74c3c;border:none;border-radius:6px;cursor:pointer;">
+                                    Ver falha
+                                </button>
+                            @endif
                         </td>
                         <td style="text-align:center;">{{ $m->destinatario ?? '—' }}</td>
-                        <td style="text-align:center;font-weight:700;color:{{ $m->tipo === 'credito' ? '#1c8a3c' : '#e74c3c' }};">
+                        <td style="text-align:center;font-weight:700;color:{{ $m->tipo === 'credito' ? ($eEstorno ? '#e67e22' : '#1c8a3c') : '#e74c3c' }};">
                             {{ $m->tipo === 'credito' ? '+' : '-' }}{{ number_format($m->valor, 2, ',', '.') }} Kz
                         </td>
                         <td style="text-align:center;">{{ number_format($m->saldo_apos, 2, ',', '.') }} Kz</td>
@@ -114,4 +125,38 @@
 
     {{ $movimentos->links() }}
 </div>
+
+{{-- Modal: detalhe da falha de envio --}}
+<div id="modal-falha"
+     style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;"
+     onclick="if(event.target===this)fecharModal()">
+    <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;max-width:620px;width:92%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.22);">
+        <button type="button" onclick="fecharModal()"
+                style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.6em;line-height:1;cursor:pointer;color:#999;"
+                aria-label="Fechar">×</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <span style="font-size:1.5em;">⚠️</span>
+            <span style="font-weight:700;font-size:1.1em;color:#c0392b;">Detalhe da falha</span>
+        </div>
+        <pre id="modal-falha-texto"
+             style="white-space:pre-wrap;word-break:break-all;background:#fdf2f2;border:1px solid #f5c6c6;border-radius:8px;padding:14px;font-size:0.88em;color:#5a1a1a;margin:0;"></pre>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function verFalha(btn) {
+    document.getElementById('modal-falha-texto').textContent = btn.dataset.erro;
+    document.getElementById('modal-falha').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function fecharModal() {
+    document.getElementById('modal-falha').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') fecharModal();
+});
+</script>
+@endpush
 @endsection
