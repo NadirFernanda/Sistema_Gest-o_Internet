@@ -71,7 +71,7 @@ class WhatsappLedger extends Model
         });
     }
 
-    public static function carregar(float $valor, string $descricao, ?int $registadoPor = null, ?string $errDetalhes = null, ?string $nomeDestinatario = null): self
+    public static function carregar(float $valor, string $descricao, ?int $registadoPor = null, ?string $errDetalhes = null, ?string $nomeDestinatario = null, ?string $destinatario = null): self
     {
         return static::create([
             'tipo'              => 'credito',
@@ -80,6 +80,7 @@ class WhatsappLedger extends Model
             'registado_por'     => $registadoPor,
             'erro_detalhes'     => $errDetalhes,
             'destinatario_nome' => $nomeDestinatario,
+            'destinatario'      => $destinatario,
         ]);
     }
 }

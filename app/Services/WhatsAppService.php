@@ -66,7 +66,8 @@ class WhatsAppService
                 'Estorno — falha no envio para ' . $numero . ' (' . $tipo . ')',
                 null,
                 substr($e->getMessage(), 0, 2000),
-                $nomeDestinatario
+                $nomeDestinatario,
+                $numero
             );
             throw $e;
         }
