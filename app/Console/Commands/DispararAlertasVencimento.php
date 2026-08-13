@@ -231,8 +231,8 @@ class DispararAlertasVencimento extends Command
                     } catch (\Throwable $_) {}
                 }
 
-                // WhatsApp: only attempt if explicitly enabled via env ENABLE_WHATSAPP=true
-                if (env('ENABLE_WHATSAPP', false)) {
+                // WhatsApp: only attempt if explicitly enabled via ENABLE_WHATSAPP=true
+                if (config('services.whatsapp.enabled', false)) {
                     // Ciclo de vencimento tem 4 estágios automáticos, cada um enviado uma
                     // única vez na vida da subscrição (a 5ª mensagem, de renovação, é
                     // disparada à parte quando o pagamento é confirmado). Verificados do

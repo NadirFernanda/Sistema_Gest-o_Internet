@@ -14,6 +14,7 @@ return [
     |
     */
     'whatsapp' => [
+        'enabled' => env('ENABLE_WHATSAPP', false),
         'driver'  => env('WHATSAPP_DRIVER', 'evolution'),
         'api_url' => env('WHATSAPP_API_URL', ''),
         'token'   => env('WHATSAPP_API_TOKEN', ''),
