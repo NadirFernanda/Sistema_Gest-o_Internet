@@ -61,7 +61,7 @@
             <a href="{{ route('password.change') }}" class="btn btn-primary">Alterar senha</a>
 
             @php
-                {{-- 10 botões fixos + 1 se Usuários estiver visível; Sair ocupa linha inteira só quando o total é par --}}
+                // 10 botões fixos + 1 se Usuários estiver visível; Sair span só quando total é par
                 $totalBotoes = 10 + (auth()->user()->can('users.view') ? 1 : 0);
                 $sairFullWidth = ($totalBotoes % 2 === 0);
             @endphp
