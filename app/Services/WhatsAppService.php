@@ -39,13 +39,13 @@ class WhatsAppService
      *
      * @throws SaldoWhatsAppInsuficienteException Sem saldo — a mensagem nem chega a ser enviada.
      */
-    public function enviarMensagem(string $numero, string $mensagem, string $tipo = 'outro'): array
+    public function enviarMensagem(string $numero, string $mensagem, string $tipo = 'outro', ?string $nomeDestinatario = null): array
     {
         $numero = $this->normalizarNumero($numero);
 
         // Pré-pago: sem saldo, nem tenta enviar. O débito só acontece depois
         // de o envio ser confirmado com sucesso — uma falha da API não cobra.
-        if (! WhatsappLedger::debitarMensagem($numero, $tipo)) {
+        if (! WhatsappLedger::debitarMensagem($numero, $tipo, null, $nomeDestinatario)) {
             Log::warning('WhatsApp: envio bloqueado por saldo insuficiente', ['to' => $numero, 'tipo' => $tipo]);
             throw new SaldoWhatsAppInsuficienteException(
                 'Saldo insuficiente para enviar mensagem de WhatsApp. Carregue saldo antes de continuar.'
@@ -65,7 +65,8 @@ class WhatsAppService
                 WhatsappLedger::CUSTO_POR_MENSAGEM,
                 'Estorno — falha no envio para ' . $numero . ' (' . $tipo . ')',
                 null,
-                substr($e->getMessage(), 0, 2000)
+                substr($e->getMessage(), 0, 2000),
+                $nomeDestinatario
             );
             throw $e;
         }

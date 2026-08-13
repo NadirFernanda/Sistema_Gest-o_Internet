@@ -75,7 +75,8 @@
                     <th style="text-align:center;">Quando</th>
                     <th style="text-align:center;">Tipo</th>
                     <th style="text-align:center;">Descrição</th>
-                    <th style="text-align:center;">Destinatário</th>
+                    <th style="text-align:center;">Número</th>
+                    <th style="text-align:center;">Nome</th>
                     <th style="text-align:center;">Valor</th>
                     <th style="text-align:center;">Saldo após</th>
                 </tr>
@@ -109,6 +110,7 @@
                             @endif
                         </td>
                         <td style="text-align:center;">{{ $m->destinatario ?? '—' }}</td>
+                        <td style="text-align:center;">{{ $m->destinatario_nome ?? '—' }}</td>
                         <td style="text-align:center;font-weight:700;color:{{ $m->tipo === 'credito' ? ($eEstorno ? '#e67e22' : '#1c8a3c') : '#e74c3c' }};">
                             {{ $m->tipo === 'credito' ? '+' : '-' }}{{ number_format($m->valor, 2, ',', '.') }} Kz
                         </td>
@@ -116,7 +118,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align:center;color:#999;padding:24px;">Ainda não há movimentos.</td>
+                        <td colspan="7" style="text-align:center;color:#999;padding:24px;">Ainda não há movimentos.</td>
                     </tr>
                 @endforelse
             </tbody>

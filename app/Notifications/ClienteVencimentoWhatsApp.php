@@ -76,6 +76,6 @@ class ClienteVencimentoWhatsApp extends Notification
             "Atenciosamente,\n" .
             "*AngolaWiFi – Conectando você sempre!*";
         $service = new WhatsAppService();
-        return $service->enviarMensagem($numero, $mensagem, 'vencimento_' . $this->estagio);
+        return $service->enviarMensagem($numero, $mensagem, 'vencimento_' . $this->estagio, $this->cliente->nome ?? null);
     }
 }

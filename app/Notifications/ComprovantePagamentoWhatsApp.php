@@ -44,6 +44,6 @@ class ComprovantePagamentoWhatsApp extends Notification implements ShouldQueue
             "Obrigado pela sua confiança.\n" .
             "*AngolaWiFi – Conectando você sempre!*";
 
-        return (new WhatsAppService())->enviarMensagem($numero, $mensagem, 'comprovante');
+        return (new WhatsAppService())->enviarMensagem($numero, $mensagem, 'comprovante', $this->cliente->nome ?? null);
     }
 }
