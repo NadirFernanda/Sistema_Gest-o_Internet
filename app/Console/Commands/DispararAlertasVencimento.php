@@ -163,25 +163,24 @@ class DispararAlertasVencimento extends Command
                 try {
                     if (AlertLog::jaEnviado($plano->id, 'email')) {
                         $this->info('Alerta email já enviado hoje para plano ID ' . $plano->id . ' — a saltar.');
-                        continue;
-                    }
-                    $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
-                    $sent++;
-                    // Try to attach provider metadata from the MessageSent listener
-                    $providerMeta = null;
-                    try {
-                        if (!empty($sentMailInfo)) {
-                            // find last entry or the one matching recipient
-                            $last = end($sentMailInfo);
-                            $providerMeta = $last;
-                        }
-                    } catch (\Throwable $_) { $providerMeta = null; }
+                    } else {
+                        $cliente->notify(new \App\Notifications\ClienteVencimentoAlert($cliente, $plano, $diasRestantes));
+                        $sent++;
+                        // Try to attach provider metadata from the MessageSent listener
+                        $providerMeta = null;
+                        try {
+                            if (!empty($sentMailInfo)) {
+                                $last = end($sentMailInfo);
+                                $providerMeta = $last;
+                            }
+                        } catch (\Throwable $_) { $providerMeta = null; }
 
-                    AlertLog::registar($plano->id, 'email', $diasRestantes);
-                    $this->info('E-mail enviado para: ' . ($cliente->email ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
-                    $logContext = ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes];
-                    if ($providerMeta) { $logContext['provider_meta'] = $providerMeta; }
-                    Log::info('alertas:disparar - mail enviado', $logContext);
+                        AlertLog::registar($plano->id, 'email', $diasRestantes);
+                        $this->info('E-mail enviado para: ' . ($cliente->email ?? '-') . ' (diasRestantes: ' . $diasRestantes . ')');
+                        $logContext = ['plano_id' => $plano->id, 'cliente_id' => $cliente->id ?? null, 'email' => $cliente->email ?? null, 'diasRestantes' => $diasRestantes];
+                        if ($providerMeta) { $logContext['provider_meta'] = $providerMeta; }
+                        Log::info('alertas:disparar - mail enviado', $logContext);
+                    }
                 } catch (\Throwable $e) {
                     $failed++;
                     $this->error('Falha ao enviar e-mail para plano ID ' . $plano->id . ': ' . $e->getMessage());
