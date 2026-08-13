@@ -92,7 +92,7 @@ class PlanoRenovacaoService
             if (filter_var($cliente->email ?? '', FILTER_VALIDATE_EMAIL)) {
                 $cliente->notify(new ComprovantePagamentoEmail($cobranca));
             }
-            if (env('ENABLE_WHATSAPP', false) && ! empty($cliente->contato)) {
+            if (config('services.whatsapp.enabled', false) && ! empty($cliente->contato)) {
                 $cliente->notify(new ComprovantePagamentoWhatsApp($cobranca, $cliente, $plano));
             }
         } catch (\Throwable $e) {
