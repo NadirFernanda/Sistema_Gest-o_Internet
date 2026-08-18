@@ -548,25 +548,26 @@ class MikroTikAdminController extends Controller
             ->first();
 
         // ── Consumo de dados (PostgreSQL: ::bigint evita overflow de integer) ──
+        // tx_rate = router→cliente = download do cliente; rx_rate = cliente→router = upload do cliente
         $todayDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfDay())
-            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
+            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
 
         $todayUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfDay())
-            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
+            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
 
         $monthDownloadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfMonth())
-            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
+            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
 
         $monthUploadBytes = (int) DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', now()->startOfMonth())
-            ->sum(DB::raw('tx_rate::bigint * 60 / 8'));
+            ->sum(DB::raw('rx_rate::bigint * 60 / 8'));
 
         // ── Velocidade de pico ──
         $peakRxRate = (int) (MikroTikBandwidthSample::where('plano_id', $plano->id)->max('rx_rate') ?? 0);
@@ -605,7 +606,7 @@ class MikroTikAdminController extends Controller
         $dailyBandwidthRaw = DB::table('mikrotik_bandwidth_samples')
             ->where('plano_id', $plano->id)
             ->where('sampled_at', '>=', $sevenDaysAgo)
-            ->selectRaw("sampled_at::date as date, SUM(rx_rate::bigint * 60 / 8) as dl, SUM(tx_rate::bigint * 60 / 8) as ul")
+            ->selectRaw("sampled_at::date as date, SUM(tx_rate::bigint * 60 / 8) as dl, SUM(rx_rate::bigint * 60 / 8) as ul")
             ->groupByRaw("sampled_at::date")
             ->get()
             ->keyBy('date');
