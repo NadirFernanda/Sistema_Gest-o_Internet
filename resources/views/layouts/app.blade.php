@@ -24,24 +24,26 @@
     @if (!request()->is('login'))
     <style>
         /* ── Layout shell ── */
-        html, body { margin: 0; padding: 0; }
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #f0f2f5;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
+            overflow: hidden;
         }
 
         /* ── Sidebar ── */
         .sg-sidebar {
             width: 230px;
-            min-height: 100vh;
+            height: 100vh;
             background: #1a1e3a;
             display: flex;
             flex-direction: column;
             position: fixed;
             left: 0; top: 0; bottom: 0;
             z-index: 200;
+            overflow: hidden;
         }
         .sg-sb-logo {
             padding: 20px 18px 16px;
@@ -84,7 +86,9 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            min-width: 0;
         }
 
         /* ── Topbar ── */
@@ -140,8 +144,8 @@
         .sg-user-menu .sg-sair { color: #e74c3c; }
         .sg-user-menu hr { border: none; border-top: 1px solid #f0f0f0; margin: 2px 0; }
 
-        /* ── Page body ── */
-        .sg-page-body { flex: 1; }
+        /* ── Page body — única área com scroll ── */
+        .sg-page-body { flex: 1; overflow-y: auto; min-height: 0; }
 
         /* ── Responsive ── */
         @media (max-width: 700px) {

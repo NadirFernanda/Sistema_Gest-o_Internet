@@ -6,10 +6,11 @@
     <title>SGAW — Painel Principal</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;}
+        html,body{height:100%;overflow:hidden;}
+        body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f0f2f5;height:100vh;display:flex;overflow:hidden;}
 
         /* ── Sidebar ── */
-        .sidebar{width:230px;min-height:100vh;background:#1a1e3a;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+        .sidebar{width:230px;height:100vh;background:#1a1e3a;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow:hidden;}
         .sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;}
         .sb-logo img{width:40px;height:40px;border-radius:8px;object-fit:cover;}
         .sb-logo-text .name{color:#F5A800;font-size:1.15em;font-weight:800;letter-spacing:-.3px;line-height:1.1;}
@@ -24,7 +25,7 @@
         .sb-bottom-tag{padding:0 20px 10px;color:rgba(255,255,255,.35);font-size:.7em;}
 
         /* ── Main ── */
-        .main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+        .main{margin-left:230px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;}
 
         /* ── Topbar ── */
         .topbar{background:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.06);gap:16px;}
@@ -43,8 +44,8 @@
         .user-menu .sair{color:#e74c3c;}
         .user-menu hr{border:none;border-top:1px solid #f0f0f0;margin:2px 0;}
 
-        /* ── Content ── */
-        .content{padding:22px 28px;flex:1;}
+        /* ── Content — única área com scroll ── */
+        .content{padding:22px 28px;flex:1;overflow-y:auto;min-height:0;}
         .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 
         /* ── Cards ── */
