@@ -30,6 +30,7 @@
             <a href="{{ route('estoque_equipamentos.index') }}" class="btn">Estoque de Equipamentos</a>
             <a href="{{ route('mikrotik.index') }}" class="btn">MikroTik</a>
             <a href="{{ route('saldo-whatsapp.index') }}" class="btn">Saldo WhatsApp</a>
+            <a href="{{ route('whatsapp-comunicado.index') }}" class="btn">Comunicados WhatsApp</a>
             <a href="{{ route('email-settings.index') }}" class="btn">Configurar Email</a>
 
             @php

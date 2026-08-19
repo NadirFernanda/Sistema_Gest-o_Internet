@@ -221,6 +221,13 @@ Route::middleware('auth')->group(function () {
             Route::post('/pairing-code', [\App\Http\Controllers\SaldoWhatsAppController::class, 'pairingCode'])->name('pairing-code');
         });
 
+    // Comunicados WhatsApp — envio de mensagens livres — Administrador only
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador')
+        ->prefix('whatsapp-comunicado')->name('whatsapp-comunicado.')->group(function () {
+            Route::get('/',      [\App\Http\Controllers\WhatsAppComunicadoController::class, 'index'])->name('index');
+            Route::post('/enviar', [\App\Http\Controllers\WhatsAppComunicadoController::class, 'enviar'])->name('enviar');
+        });
+
     // Export routes removed per request
 
 });
