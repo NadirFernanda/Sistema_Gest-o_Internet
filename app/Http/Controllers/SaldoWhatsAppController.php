@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\WhatsappLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class SaldoWhatsAppController extends Controller
 {
@@ -40,6 +41,65 @@ class SaldoWhatsAppController extends Controller
         );
 
         return back()->with('success', 'Saldo carregado com sucesso.');
+    }
+
+    /**
+     * Estado da ligação WhatsApp (JSON) — consumido pelo polling JS da view.
+     * Devolve: { connected: bool, qrcode: string|null, status: string }
+     */
+    public function estadoWhatsApp()
+    {
+        $ev = $this->evolutionConfig();
+        if (! $ev) {
+            return response()->json(['connected' => false, 'qrcode' => null, 'status' => 'não configurado']);
+        }
+
+        try {
+            // Estado da ligação
+            $stateRes = Http::withHeaders(['apikey' => $ev['key']])
+                ->timeout(8)
+                ->get("{$ev['url']}/instance/connectionState/{$ev['instance']}");
+
+            $state = $stateRes->json('instance.state') ?? $stateRes->json('state') ?? 'unknown';
+            $connected = strtolower($state) === 'open';
+
+            $qrcode = null;
+            if (! $connected) {
+                // Pedir QR code
+                $qrRes = Http::withHeaders(['apikey' => $ev['key']])
+                    ->timeout(8)
+                    ->get("{$ev['url']}/instance/connect/{$ev['instance']}");
+
+                $qrcode = $qrRes->json('base64')
+                    ?? $qrRes->json('qrcode.base64')
+                    ?? $qrRes->json('data.qrcode.base64')
+                    ?? null;
+
+                // Remove prefixo data URI se vier incluído
+                if ($qrcode && str_contains($qrcode, ',')) {
+                    $qrcode = explode(',', $qrcode, 2)[1];
+                }
+            }
+
+            return response()->json([
+                'connected' => $connected,
+                'status'    => $state,
+                'qrcode'    => $qrcode,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['connected' => false, 'qrcode' => null, 'status' => 'erro: ' . $e->getMessage()]);
+        }
+    }
+
+    private function evolutionConfig(): ?array
+    {
+        $url      = rtrim((string) config('services.evolution.url'), '/');
+        $key      = (string) config('services.evolution.key');
+        $instance = (string) config('services.evolution.instance');
+
+        if (! $url || ! $key || ! $instance) return null;
+
+        return compact('url', 'key', 'instance');
     }
 
     /**

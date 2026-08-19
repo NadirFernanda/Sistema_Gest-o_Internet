@@ -19,8 +19,29 @@
         'stackLeft' => true,
     ])
 
-    <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;justify-content:flex-end;padding:0 8px;">
+    <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;justify-content:space-between;align-items:center;padding:0 8px;">
         <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Painel</a>
+        <button type="button" onclick="toggleEstado()" class="btn btn-search" id="btn-estado">
+            📶 Estado da ligação WhatsApp
+        </button>
+    </div>
+
+    {{-- Painel de estado / QR code --}}
+    <div id="painel-estado" style="display:none;max-width:1100px;margin:0 auto 18px;background:#fff;border-radius:16px;box-shadow:0 2px 8px #0001;padding:28px;text-align:center;">
+        <div id="estado-loading" style="color:#888;font-size:1.05em;">A verificar ligação...</div>
+        <div id="estado-ok" style="display:none;">
+            <div style="font-size:3em;">✅</div>
+            <div style="font-weight:700;font-size:1.2em;color:#1c8a3c;margin-top:8px;">WhatsApp ligado</div>
+            <div id="estado-texto" style="color:#888;margin-top:4px;font-size:0.9em;"></div>
+        </div>
+        <div id="estado-qr" style="display:none;">
+            <div style="font-size:2em;">📵</div>
+            <div style="font-weight:700;font-size:1.1em;color:#e74c3c;margin-top:8px;">WhatsApp desligado</div>
+            <div style="color:#888;margin:8px 0 16px;font-size:0.9em;">Leia o QR code com o WhatsApp no telemóvel para reconectar</div>
+            <img id="qr-img" src="" alt="QR Code" style="width:220px;height:220px;border:2px solid #eee;border-radius:12px;display:block;margin:0 auto;">
+            <div style="margin-top:12px;color:#aaa;font-size:0.82em;">A actualizar automaticamente...</div>
+        </div>
+        <div id="estado-erro" style="display:none;color:#e74c3c;font-size:0.95em;"></div>
     </div>
 
     @if (session('success'))
@@ -159,6 +180,51 @@ function fecharModal() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') fecharModal();
 });
+
+// ── Estado da ligação WhatsApp ──
+let estadoAberto = false;
+let estadoTimer  = null;
+
+function toggleEstado() {
+    estadoAberto = !estadoAberto;
+    document.getElementById('painel-estado').style.display = estadoAberto ? 'block' : 'none';
+    if (estadoAberto) {
+        verificarEstado();
+    } else {
+        clearTimeout(estadoTimer);
+    }
+}
+
+function verificarEstado() {
+    fetch('{{ route('saldo-whatsapp.estado') }}')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('estado-loading').style.display = 'none';
+            document.getElementById('estado-ok').style.display    = 'none';
+            document.getElementById('estado-qr').style.display    = 'none';
+            document.getElementById('estado-erro').style.display  = 'none';
+
+            if (data.connected) {
+                document.getElementById('estado-ok').style.display = 'block';
+                document.getElementById('estado-texto').textContent = 'Estado: ' + data.status;
+                estadoTimer = setTimeout(verificarEstado, 10000);
+            } else if (data.qrcode) {
+                document.getElementById('estado-qr').style.display = 'block';
+                document.getElementById('qr-img').src = 'data:image/png;base64,' + data.qrcode;
+                estadoTimer = setTimeout(verificarEstado, 5000);
+            } else {
+                document.getElementById('estado-erro').style.display = 'block';
+                document.getElementById('estado-erro').textContent = 'Estado: ' + (data.status || 'desconhecido');
+                estadoTimer = setTimeout(verificarEstado, 8000);
+            }
+        })
+        .catch(() => {
+            document.getElementById('estado-loading').style.display = 'none';
+            document.getElementById('estado-erro').style.display = 'block';
+            document.getElementById('estado-erro').textContent = 'Erro ao contactar o servidor.';
+            estadoTimer = setTimeout(verificarEstado, 8000);
+        });
+}
 </script>
 @endpush
 @endsection
