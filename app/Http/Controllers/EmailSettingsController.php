@@ -70,9 +70,9 @@ class EmailSettingsController extends Controller
                     ->from($cfg['from_email'], $cfg['from_name']);
             });
 
-            return response()->json(['success' => 'Email enviado com sucesso para ' . $validated['email_teste']]);
+            return back()->with('teste_ok', 'Email enviado com sucesso para ' . $validated['email_teste']);
         } catch (\Throwable $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return back()->with('teste_erro', $e->getMessage())->withInput();
         }
     }
 

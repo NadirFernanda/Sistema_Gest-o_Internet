@@ -101,47 +101,33 @@
         {{-- Testar envio --}}
         <div style="margin-top:28px;padding-top:20px;border-top:1px solid #eee;">
             <div style="font-weight:700;font-size:1em;color:#333;margin-bottom:12px;">Testar envio</div>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <input type="email" id="email-teste" placeholder="email@destino.com"
-                       class="search-input" style="width:260px;">
-                <button type="button" onclick="testarEmail()" class="btn btn-search" style="white-space:nowrap;">
-                    Enviar email de teste
-                </button>
-            </div>
-            <div id="teste-resultado" style="margin-top:10px;font-size:0.9em;display:none;"></div>
+
+            @if (session('teste_ok'))
+                <div style="margin-bottom:12px;padding:10px 14px;background:#e6f9ec;border:1px solid #34c759;border-radius:8px;color:#136c34;font-size:0.9em;">
+                    ✅ {{ session('teste_ok') }}
+                </div>
+            @endif
+            @if (session('teste_erro'))
+                <div style="margin-bottom:12px;padding:10px 14px;background:#fff0f0;border:1px solid #e74c3c;border-radius:8px;color:#c0392b;font-size:0.9em;">
+                    ❌ {{ session('teste_erro') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('email-settings.testar') }}">
+                @csrf
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <input type="email" name="email_teste" placeholder="email@destino.com"
+                           value="{{ old('email_teste') }}"
+                           class="search-input" style="width:260px;" required>
+                    <button type="submit" class="btn btn-search" style="white-space:nowrap;">
+                        Enviar email de teste
+                    </button>
+                </div>
+                @error('email_teste')
+                    <div style="color:#e74c3c;font-size:0.82em;margin-top:4px;">{{ $message }}</div>
+                @enderror
+            </form>
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-function testarEmail() {
-    const email = document.getElementById('email-teste').value.trim();
-    const resultado = document.getElementById('teste-resultado');
-    resultado.style.display = 'none';
-
-    fetch('{{ route('email-settings.testar') }}', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: JSON.stringify({ email_teste: email }),
-    })
-    .then(r => r.json())
-    .then(data => {
-        resultado.style.display = 'block';
-        if (data.success) {
-            resultado.style.color = '#1c8a3c';
-            resultado.textContent = '✅ ' + data.success;
-        } else {
-            resultado.style.color = '#e74c3c';
-            resultado.textContent = '❌ ' + (data.error || 'Erro desconhecido.');
-        }
-    })
-    .catch(() => {
-        resultado.style.display = 'block';
-        resultado.style.color = '#e74c3c';
-        resultado.textContent = '❌ Erro ao contactar o servidor.';
-    });
-}
-</script>
-@endpush
 @endsection
