@@ -21,8 +21,8 @@
 
     <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;justify-content:space-between;align-items:center;padding:0 8px;">
         <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Painel</a>
-        <button type="button" onclick="toggleEstado()" class="btn btn-search" id="btn-estado">
-            📶 Estado da ligação WhatsApp
+        <button type="button" onclick="toggleEstado()" class="btn btn-search" id="btn-estado" style="white-space:nowrap;">
+            Estado WhatsApp
         </button>
     </div>
 
