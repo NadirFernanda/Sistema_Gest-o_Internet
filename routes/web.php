@@ -204,6 +204,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/sites/{site}/scheduler/remove',    [\App\Http\Controllers\MikroTikAdminController::class, 'removeSchedulerRule'])->name('sites.scheduler.remove');
         });
 
+    // Configurações de email SMTP — super-admin only
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador')
+        ->prefix('email-settings')->name('email-settings.')->group(function () {
+            Route::get('/',      [\App\Http\Controllers\EmailSettingsController::class, 'index'])->name('index');
+            Route::put('/',      [\App\Http\Controllers\EmailSettingsController::class, 'update'])->name('update');
+            Route::post('/test', [\App\Http\Controllers\EmailSettingsController::class, 'testar'])->name('testar');
+        });
+
     // Saldo de mensagens WhatsApp (extrato + carregamento) — Administrador only
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':Administrador')
         ->prefix('saldo-whatsapp')->name('saldo-whatsapp.')->group(function () {
