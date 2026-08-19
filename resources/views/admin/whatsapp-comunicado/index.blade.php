@@ -32,9 +32,9 @@
         'stackLeft' => true,
     ])
 
-    <div style="max-width:1100px;margin:18px auto;padding:0 8px;">
-        <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Painel</a>
-        <a href="{{ route('saldo-whatsapp.index') }}" class="btn btn-ghost" style="margin-left:8px;">Ver saldo WhatsApp</a>
+    <div style="max-width:1100px;margin:18px auto;padding:0 8px;display:flex;gap:8px;">
+        <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="width:auto;display:inline-block;">← Painel</a>
+        <a href="{{ route('saldo-whatsapp.index') }}" class="btn btn-ghost" style="width:auto;display:inline-block;">Ver saldo WhatsApp</a>
     </div>
 
     {{-- Resultado do envio --}}
