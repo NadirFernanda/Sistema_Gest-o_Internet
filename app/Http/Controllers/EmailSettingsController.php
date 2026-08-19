@@ -60,6 +60,7 @@ class EmailSettingsController extends Controller
                 'mail.mailers.smtp.username'   => $cfg['username'],
                 'mail.mailers.smtp.password'   => $cfg['password'],
                 'mail.mailers.smtp.encryption' => $cfg['encryption'] === 'none' ? null : $cfg['encryption'],
+                'mail.mailers.smtp.timeout'    => 10,
                 'mail.from.address'            => $cfg['from_email'],
                 'mail.from.name'               => $cfg['from_name'],
             ]);
