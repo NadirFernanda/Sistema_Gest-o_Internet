@@ -4,21 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class EmailSettingsController extends Controller
 {
     public function index()
     {
-        abort_unless($this->podeAceder(), 403);
         $cfg = SystemSetting::mailConfig();
         return view('admin.email-settings.index', compact('cfg'));
     }
 
     public function update(Request $request)
     {
-        abort_unless($this->podeAceder(), 403);
 
         $validated = $request->validate([
             'mail_host'       => ['required', 'string', 'max:255'],
@@ -44,7 +41,6 @@ class EmailSettingsController extends Controller
 
     public function testar(Request $request)
     {
-        abort_unless($this->podeAceder(), 403);
 
         $validated = $request->validate([
             'email_teste' => ['required', 'email'],
@@ -80,9 +76,4 @@ class EmailSettingsController extends Controller
         }
     }
 
-    private function podeAceder(): bool
-    {
-        $email = Auth::user()?->email;
-        return $email && in_array($email, config('services.super_admin_emails', []), true);
-    }
 }
