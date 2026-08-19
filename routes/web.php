@@ -209,7 +209,8 @@ Route::middleware('auth')->group(function () {
         ->prefix('saldo-whatsapp')->name('saldo-whatsapp.')->group(function () {
             Route::get('/',          [\App\Http\Controllers\SaldoWhatsAppController::class, 'index'])->name('index');
             Route::post('/carregar', [\App\Http\Controllers\SaldoWhatsAppController::class, 'carregar'])->name('carregar');
-            Route::get('/estado',    [\App\Http\Controllers\SaldoWhatsAppController::class, 'estadoWhatsApp'])->name('estado');
+            Route::get('/estado',       [\App\Http\Controllers\SaldoWhatsAppController::class, 'estadoWhatsApp'])->name('estado');
+            Route::post('/pairing-code', [\App\Http\Controllers\SaldoWhatsAppController::class, 'pairingCode'])->name('pairing-code');
         });
 
     // Export routes removed per request

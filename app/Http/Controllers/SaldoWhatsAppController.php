@@ -91,6 +91,41 @@ class SaldoWhatsAppController extends Controller
         }
     }
 
+    /**
+     * Solicita código de emparelhamento por número de telefone.
+     * POST { phone: "244XXXXXXXXX" }
+     */
+    public function pairingCode(Request $request)
+    {
+        $ev = $this->evolutionConfig();
+        if (! $ev) {
+            return response()->json(['error' => 'Evolution API não configurada.'], 503);
+        }
+
+        $phone = preg_replace('/\D/', '', $request->input('phone', ''));
+        if (strlen($phone) < 9) {
+            return response()->json(['error' => 'Número de telefone inválido.'], 422);
+        }
+
+        try {
+            $res = Http::withHeaders(['apikey' => $ev['key']])
+                ->timeout(15)
+                ->post("{$ev['url']}/instance/pairingCode/{$ev['instance']}", [
+                    'phoneNumber' => $phone,
+                ]);
+
+            $code = $res->json('pairingCode') ?? $res->json('code') ?? null;
+
+            if ($code) {
+                return response()->json(['code' => $code]);
+            }
+
+            return response()->json(['error' => 'Não foi possível obter o código. Resposta: ' . substr($res->body(), 0, 200)], 500);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     private function evolutionConfig(): ?array
     {
         $url      = rtrim((string) config('services.evolution.url'), '/');

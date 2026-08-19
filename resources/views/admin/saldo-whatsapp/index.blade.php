@@ -39,6 +39,22 @@
             <div style="font-weight:700;font-size:1.1em;color:#e74c3c;margin-top:8px;">WhatsApp desligado</div>
             <div style="color:#888;margin:8px 0 16px;font-size:0.9em;">Leia o QR code com o WhatsApp no telemóvel para reconectar</div>
             <img id="qr-img" src="" alt="QR Code" style="width:220px;height:220px;border:2px solid #eee;border-radius:12px;display:block;margin:0 auto;">
+            <div style="margin-top:20px;border-top:1px solid #eee;padding-top:18px;">
+                <div style="font-size:0.9em;color:#666;margin-bottom:10px;">Ou ligue por número de telefone:</div>
+                <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+                    <input type="tel" id="pairing-phone" placeholder="244XXXXXXXXX"
+                           style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:1em;width:200px;">
+                    <button type="button" onclick="pedirCodigo()" class="btn btn-search" style="white-space:nowrap;">
+                        Obter código
+                    </button>
+                </div>
+                <div id="pairing-resultado" style="margin-top:14px;display:none;">
+                    <div style="font-size:0.85em;color:#666;margin-bottom:6px;">Digite este código no WhatsApp → Dispositivos ligados → Ligar com número de telefone:</div>
+                    <div id="pairing-code-display"
+                         style="font-size:2.2em;font-weight:800;letter-spacing:0.18em;color:#1c8a3c;font-family:monospace;"></div>
+                </div>
+                <div id="pairing-erro" style="margin-top:10px;color:#e74c3c;font-size:0.9em;display:none;"></div>
+            </div>
             <div style="margin-top:12px;color:#aaa;font-size:0.82em;">A actualizar automaticamente...</div>
         </div>
         <div id="estado-erro" style="display:none;color:#e74c3c;font-size:0.95em;"></div>
@@ -180,6 +196,33 @@ function fecharModal() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') fecharModal();
 });
+
+// ── Código de emparelhamento por número ──
+function pedirCodigo() {
+    const phone = document.getElementById('pairing-phone').value.trim();
+    document.getElementById('pairing-resultado').style.display = 'none';
+    document.getElementById('pairing-erro').style.display = 'none';
+
+    fetch('{{ route('saldo-whatsapp.pairing-code') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ phone }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.code) {
+            document.getElementById('pairing-code-display').textContent = data.code;
+            document.getElementById('pairing-resultado').style.display = 'block';
+        } else {
+            document.getElementById('pairing-erro').textContent = data.error || 'Erro desconhecido.';
+            document.getElementById('pairing-erro').style.display = 'block';
+        }
+    })
+    .catch(() => {
+        document.getElementById('pairing-erro').textContent = 'Erro ao contactar o servidor.';
+        document.getElementById('pairing-erro').style.display = 'block';
+    });
+}
 
 // ── Estado da ligação WhatsApp ──
 let estadoAberto = false;
