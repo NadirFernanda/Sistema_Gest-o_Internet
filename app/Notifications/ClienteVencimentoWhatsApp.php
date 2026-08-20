@@ -52,14 +52,21 @@ class ClienteVencimentoWhatsApp extends Notification
         }
 
         $dataTerminoStr = $dataTermino ? $dataTermino->format('d/m/Y') : '';
+        $hoje = \Carbon\Carbon::today();
 
-        $linhaInfo = match ($this->estagio) {
-            '5d' => "A sua subscrição de internet termina dentro de *5 dias*, no dia *{$dataTerminoStr}*. ",
-            '3d' => "A sua subscrição de internet termina dentro de *3 dias*, no dia *{$dataTerminoStr}*. ",
-            '0d' => "A sua subscrição de internet *terminou hoje*, dia *{$dataTerminoStr}*. ",
-            'followup' => "A sua subscrição de internet *terminou no dia {$dataTerminoStr}* e ainda não identificámos o pagamento da renovação. ",
-            default => "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia *{$dataTerminoStr}*. ",
-        };
+        if ($dataTermino === null) {
+            $linhaInfo = "A sua subscrição de internet encontra-se próxima da data de vencimento. ";
+        } elseif ($dataTermino->isToday()) {
+            $linhaInfo = "A sua subscrição de internet *terminou hoje*, dia *{$dataTerminoStr}*. ";
+        } elseif ($dataTermino->lt($hoje)) {
+            $diasAtraso = $hoje->diffInDays($dataTermino);
+            $linhaInfo = "A sua subscrição de internet *terminou no dia {$dataTerminoStr}*" .
+                ($diasAtraso > 0 ? " (há {$diasAtraso} dia(s))" : '') .
+                " e ainda não identificámos o pagamento da renovação. ";
+        } else {
+            $diasRestantes = $hoje->diffInDays($dataTermino);
+            $linhaInfo = "A sua subscrição de internet termina *dentro de {$diasRestantes} dia(s)*, no dia *{$dataTerminoStr}*. ";
+        }
 
         $mensagem = "*Prezado(a) Cliente AngolaWiFi – {$this->cliente->nome},*\n\n" .
             "Cordiais saudações.\n\n" .

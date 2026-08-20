@@ -28,16 +28,27 @@ class ClienteVencimentoEmail extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        $dataTermino = $this->formatDataTermino();
-        $vencido     = $this->diasRestantes <= 0;
+        $dataTerminoStr = $this->formatDataTermino();
+        $dataTermino    = $this->parseDateTermino();
+        $hoje           = \Carbon\Carbon::today();
 
-        $linhaInfo = $vencido
-            ? "Informamos que a sua subscrição de internet encontra-se vencida desde o dia {$dataTermino}. Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online."
-            : "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento, prevista para o dia {$dataTermino}. Para garantir a continuidade do serviço sem interrupções, os pagamentos das subscrições mensais deverão ser efectuados exclusivamente através da nossa loja online.";
-
-        $assunto = $vencido
-            ? 'Subscrição Vencida – AngolaWiFi'
-            : 'Aviso de Vencimento – AngolaWiFi';
+        if ($dataTermino === null) {
+            $linhaInfo = "Informamos que a sua subscrição de internet encontra-se próxima da data de vencimento. Para garantir a continuidade do serviço sem interrupções, os pagamentos deverão ser efectuados exclusivamente através da nossa loja online.";
+            $assunto   = 'Aviso de Vencimento – AngolaWiFi';
+        } elseif ($dataTermino->isToday()) {
+            $linhaInfo = "Informamos que a sua subscrição de internet *terminou hoje*, dia {$dataTerminoStr}. Para garantir a continuidade do serviço sem interrupções, os pagamentos deverão ser efectuados exclusivamente através da nossa loja online.";
+            $assunto   = 'Subscrição Vencida Hoje – AngolaWiFi';
+        } elseif ($dataTermino->lt($hoje)) {
+            $diasAtraso = $hoje->diffInDays($dataTermino);
+            $linhaInfo  = "Informamos que a sua subscrição de internet terminou no dia {$dataTerminoStr}" .
+                ($diasAtraso > 0 ? " (há {$diasAtraso} dia(s))" : '') .
+                " e ainda não identificámos o pagamento da renovação. Para garantir a continuidade do serviço, os pagamentos deverão ser efectuados exclusivamente através da nossa loja online.";
+            $assunto   = 'Subscrição Vencida – AngolaWiFi';
+        } else {
+            $diasRestantes = $hoje->diffInDays($dataTermino);
+            $linhaInfo  = "Informamos que a sua subscrição de internet termina dentro de {$diasRestantes} dia(s), no dia {$dataTerminoStr}. Para garantir a continuidade do serviço sem interrupções, os pagamentos deverão ser efectuados exclusivamente através da nossa loja online.";
+            $assunto   = 'Aviso de Vencimento – AngolaWiFi';
+        }
 
         return (new MailMessage)
             ->subject($assunto)
@@ -54,21 +65,24 @@ class ClienteVencimentoEmail extends Notification implements ShouldQueue
             ->salutation('Atenciosamente, AngolaWiFi – Conectando você sempre!');
     }
 
-    protected function formatDataTermino()
+    protected function parseDateTermino(): ?\Carbon\Carbon
     {
         try {
             if (!empty($this->plano->proxima_renovacao)) {
-                $dt = Carbon::parse($this->plano->proxima_renovacao)->startOfDay();
-            } elseif (!empty($this->plano->data_ativacao) && $this->plano->ciclo) {
+                return Carbon::parse($this->plano->proxima_renovacao)->startOfDay();
+            }
+            if (!empty($this->plano->data_ativacao) && $this->plano->ciclo) {
                 $cicloInt = intval(preg_replace('/[^0-9]/', '', (string)$this->plano->ciclo));
                 if ($cicloInt <= 0) { $cicloInt = (int)$this->plano->ciclo; }
-                $dt = Carbon::parse($this->plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
-            } else {
-                return '-';
+                return Carbon::parse($this->plano->data_ativacao)->addDays($cicloInt - 1)->startOfDay();
             }
-            return $dt->format('d/m/Y');
-        } catch (\Exception $e) {
-            return '-';
-        }
+        } catch (\Exception $e) {}
+        return null;
+    }
+
+    protected function formatDataTermino(): string
+    {
+        $dt = $this->parseDateTermino();
+        return $dt ? $dt->format('d/m/Y') : '-';
     }
 }
