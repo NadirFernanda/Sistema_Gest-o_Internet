@@ -29,7 +29,6 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #f0f2f5;
             height: 100vh;
-            display: flex;
             overflow: hidden;
         }
 
