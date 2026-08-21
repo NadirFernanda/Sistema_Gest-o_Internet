@@ -16,21 +16,6 @@
 @endif
     <div class="clientes-container">
 
-        <header class="clientes-hero modern-hero">
-            <div class="hero-inner">
-                <div class="hero-left">
-                    <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-                    <div class="hero-titles">
-                        <h1>Gestão de Clientes</h1>
-                        <p class="hero-sub">Lista, gestão e ações rápidas</p>
-                    </div>
-                </div>
-                <div class="hero-right">
-                    <!-- space reserved for header right (visual only) -->
-                </div>
-            </div>
-        </header>
-
         {{-- Barra de ações e busca (padronizada com Planos: pesquisa à esquerda, CTAs à direita) --}}
         <div class="clientes-toolbar" style="max-width:1100px;margin:18px auto;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;">
             <form method="GET" action="{{ url('/clientes') }}" id="formBuscaCliente" style="display:contents;">

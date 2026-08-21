@@ -4,26 +4,25 @@
     $heroCtAs = $heroCtAs ?? null;
     $heroSearch = $heroSearch ?? null;
 @endphp
-<header class="clientes-hero modern-hero {{ isset($stackLeft) && $stackLeft ? 'stack-left' : ''}}">
-    <div class="hero-inner">
-        <div class="hero-left">
-            <img src="{{ asset('img/logo2.jpeg') }}" alt="LuandaWiFi Logo" class="logo">
-            <div class="hero-titles">
-                <h1>{{ $title }}</h1>
-                @if($subtitle)
-                    <p class="hero-sub">{{ $subtitle }}</p>
-                @endif
-            </div>
-        </div>
-        <div class="hero-right">
-            <div class="hero-ctas">
-                @if($heroCtAs)
-                    {!! $heroCtAs !!}
-                @endif
-            </div>
-            @if($heroSearch)
-                {!! $heroSearch !!}
-            @endif
-        </div>
+@if($title || $heroCtAs || $heroSearch)
+<div class="sg-page-hero" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:20px 24px 0;margin-bottom:4px;">
+    <div>
+        @if($title)
+            <h1 style="margin:0;font-size:1.25rem;font-weight:800;color:#1a1e3a;line-height:1.2;">{{ $title }}</h1>
+        @endif
+        @if($subtitle)
+            <p style="margin:4px 0 0;font-size:0.82rem;color:#999;">{{ $subtitle }}</p>
+        @endif
     </div>
-</header>
+    @if($heroCtAs || $heroSearch)
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        @if($heroCtAs)
+            {!! $heroCtAs !!}
+        @endif
+        @if($heroSearch)
+            {!! $heroSearch !!}
+        @endif
+    </div>
+    @endif
+</div>
+@endif

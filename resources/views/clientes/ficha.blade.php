@@ -361,7 +361,6 @@
 
     {{-- ── Hero ── --}}
     <div class="ficha-hero">
-        <img src="{{ asset('img/logo2.jpeg') }}" alt="Logo" class="ficha-hero__logo">
         <div class="ficha-hero__text">
             <h1 class="ficha-hero__title">{{ $cliente->nome }}</h1>
             <p class="ficha-hero__sub">Ficha do Cliente · {{ $cliente->mikrotikSite?->nome ?? '—' }}</p>

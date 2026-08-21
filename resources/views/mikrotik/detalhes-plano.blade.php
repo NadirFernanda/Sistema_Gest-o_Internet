@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('page-title', 'Detalhes do Cliente')
+
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <style>
