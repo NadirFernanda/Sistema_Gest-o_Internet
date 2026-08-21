@@ -5,7 +5,7 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <style>
-        .det-container { max-width:1100px; margin:0 auto; padding:0 16px 48px; }
+        .det-container { width:100%; padding:0 0 48px; box-sizing:border-box; }
 
         /* Back */
         .det-back { display:inline-flex; align-items:center; gap:6px; color:#888; font-size:0.88rem; text-decoration:none; margin-bottom:18px; }
@@ -115,8 +115,7 @@
 @endpush
 
 @section('content')
-<div style="display:flex;justify-content:center;width:100%;padding:0 16px;box-sizing:border-box;">
-<div class="det-container" style="width:100%;max-width:1100px;margin:0;">
+<div class="det-container">
 
         <a href="{{ route('mikrotik.index') }}" class="det-back">← Voltar à lista MikroTik</a>
 
@@ -556,7 +555,6 @@
         </div>
 
 </div>{{-- det-container --}}
-</div>{{-- flex centering wrapper --}}
 
 @php
     $jsBwData = [
