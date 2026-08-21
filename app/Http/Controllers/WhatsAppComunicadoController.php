@@ -64,7 +64,7 @@ class WhatsAppComunicadoController extends Controller
         }
 
         // Evitar detecção de spam pela Meta: intervalo entre mensagens
-        $delaySegundos = 4;
+        $delaySegundos = 10;
 
         // Garantir que o PHP não corta a execução em envios grandes
         set_time_limit(max(ini_get('max_execution_time'), $destinatarios->count() * ($delaySegundos + 5)));
