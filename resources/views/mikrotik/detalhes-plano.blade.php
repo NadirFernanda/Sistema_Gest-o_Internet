@@ -117,11 +117,6 @@
 @section('content')
 <div class="estoque-container-moderna">
 
-    @include('layouts.partials.clientes-hero', [
-        'title'    => 'Detalhes do Cliente',
-        'subtitle' => 'Monitorização em tempo real — largura de banda, estabilidade e histórico',
-    ])
-
     <div class="det-container">
 
         <a href="{{ route('mikrotik.index') }}" class="det-back">← Voltar à lista MikroTik</a>
