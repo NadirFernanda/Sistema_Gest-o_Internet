@@ -115,6 +115,7 @@
 @endpush
 
 @section('content')
+<p style="background:red;color:white;padding:10px;font-size:2rem;">TESTE - SE VÊS ISTO O CÓDIGO ESTÁ A CHEGAR</p>
 <div class="estoque-container-moderna" style="max-width:1200px;padding:28px 32px;">
 <div class="det-container">
 
