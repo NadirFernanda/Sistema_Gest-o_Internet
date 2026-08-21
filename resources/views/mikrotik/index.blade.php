@@ -162,52 +162,51 @@
 
     </div>
 
-    {{-- ── Toolbar: site picker + botões de acção ── --}}
-    <div class="alertas-toolbar" style="flex-wrap:nowrap; gap:8px; max-width:1100px;">
-        <div class="alertas-toolbar-left" style="flex:1; display:flex; flex-wrap:nowrap; gap:8px; align-items:center; min-width:0;">
+    {{-- ── Linha 2: site picker ── --}}
+    <div style="max-width:1100px; margin:0 auto 8px; display:flex; gap:8px; align-items:center;">
 
-            {{-- Dropdown pesquisável de sites --}}
-            <div class="site-picker" id="sitePicker">
-                <input type="text" class="site-picker__input" id="sitePickerInput" readonly
-                    placeholder="— Todos os sites —"
-                    value="{{ $selectedSite ? $selectedSite->nome : '' }}"
-                    autocomplete="off">
-                <div class="site-picker__dropdown" id="siteDropdown">
-                    <input type="text" class="site-picker__search" id="siteSearch" placeholder="Pesquisar site…">
-                    <div class="site-picker__list" id="siteList">
-                        <div class="site-picker__item {{ !$selectedSiteId ? 'active' : '' }}" data-id="" data-name="Todos os sites">
-                            <span class="dot dot-on" style="background:#aaa;"></span>
-                            <span class="s-name">Todos os sites</span>
-                        </div>
-                        @foreach($sites as $site)
-                        <div class="site-picker__item {{ $selectedSiteId == $site->id ? 'active' : '' }}"
-                            data-id="{{ $site->id }}"
-                            data-name="{{ $site->nome }}"
-                            data-loc="{{ $site->localizacao }}"
-                            data-host="{{ $site->host }}"
-                            data-port="{{ $site->port }}"
-                            data-clients="{{ $site->clientes_count }}"
-                            data-active="{{ $site->active ? '1' : '0' }}">
-                            <span class="dot {{ $site->active ? 'dot-on' : 'dot-off' }}"></span>
-                            <span class="s-name">{{ $site->nome }}</span>
-                            <span class="s-count">{{ $site->clientes_count }} cliente(s)</span>
-                        </div>
-                        @endforeach
+        {{-- Dropdown pesquisável de sites --}}
+        <div class="site-picker" id="sitePicker">
+            <input type="text" class="site-picker__input" id="sitePickerInput" readonly
+                placeholder="— Todos os sites —"
+                value="{{ $selectedSite ? $selectedSite->nome : '' }}"
+                autocomplete="off">
+            <div class="site-picker__dropdown" id="siteDropdown">
+                <input type="text" class="site-picker__search" id="siteSearch" placeholder="Pesquisar site…">
+                <div class="site-picker__list" id="siteList">
+                    <div class="site-picker__item {{ !$selectedSiteId ? 'active' : '' }}" data-id="" data-name="Todos os sites">
+                        <span class="dot dot-on" style="background:#aaa;"></span>
+                        <span class="s-name">Todos os sites</span>
                     </div>
+                    @foreach($sites as $site)
+                    <div class="site-picker__item {{ $selectedSiteId == $site->id ? 'active' : '' }}"
+                        data-id="{{ $site->id }}"
+                        data-name="{{ $site->nome }}"
+                        data-loc="{{ $site->localizacao }}"
+                        data-host="{{ $site->host }}"
+                        data-port="{{ $site->port }}"
+                        data-clients="{{ $site->clientes_count }}"
+                        data-active="{{ $site->active ? '1' : '0' }}">
+                        <span class="dot {{ $site->active ? 'dot-on' : 'dot-off' }}"></span>
+                        <span class="s-name">{{ $site->nome }}</span>
+                        <span class="s-count">{{ $site->clientes_count }} cliente(s)</span>
+                    </div>
+                    @endforeach
                 </div>
             </div>
-
-            <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
         </div>
 
-        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
-            <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
-            <a href="{{ route('mikrotik.export-pdf', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
-            <a href="{{ route('mikrotik.export-excel', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
-            <a href="{{ route('mikrotik.diagnostico') }}" class="btn btn-ghost" style="white-space:nowrap;color:#e05a4f;" title="Clientes com problemas de username PPPoE">&#9888; Diagnóstico</a>
-            <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
-        </div>
+        <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
+    </div>
+
+    {{-- ── Linha 3: botões de acção ── --}}
+    <div class="alertas-toolbar-actions" style="max-width:1100px; margin:0 auto 8px; display:flex; gap:8px; align-items:center; flex-wrap:nowrap;">
+        <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
+        <a href="{{ route('mikrotik.export-pdf', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
+        <a href="{{ route('mikrotik.export-excel', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
+        <a href="{{ route('mikrotik.diagnostico') }}" class="btn btn-ghost" style="white-space:nowrap;color:#e05a4f;" title="Clientes com problemas de username PPPoE">&#9888; Diagnóstico</a>
+        <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
+        <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
     </div>
 
     <div id="syncResult" style="max-width:1100px; margin:6px auto 0; font-size:0.85rem; color:#555; white-space:pre-line;"></div>
