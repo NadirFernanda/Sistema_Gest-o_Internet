@@ -163,7 +163,7 @@
     </div>
 
     {{-- ── Toolbar: site picker + botões de acção ── --}}
-    <div class="alertas-toolbar" style="flex-wrap:wrap; gap:8px; max-width:1100px;">
+    <div class="alertas-toolbar" style="flex-wrap:nowrap; gap:8px; max-width:1100px;">
         <div class="alertas-toolbar-left" style="flex:1; display:flex; flex-wrap:nowrap; gap:8px; align-items:center; min-width:0;">
 
             {{-- Dropdown pesquisável de sites --}}
@@ -200,7 +200,7 @@
             <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
         </div>
 
-        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
             <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
             <a href="{{ route('mikrotik.export-pdf', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
             <a href="{{ route('mikrotik.export-excel', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
