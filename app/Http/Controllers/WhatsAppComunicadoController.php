@@ -63,12 +63,25 @@ class WhatsAppComunicadoController extends Controller
             return back()->withErrors(['mensagem' => 'Nenhum destinatário seleccionado.'])->withInput();
         }
 
+        // Evitar detecção de spam pela Meta: intervalo entre mensagens
+        $delaySegundos = 4;
+
+        // Garantir que o PHP não corta a execução em envios grandes
+        set_time_limit(max(ini_get('max_execution_time'), $destinatarios->count() * ($delaySegundos + 5)));
+
         $enviados  = 0;
         $falhados  = 0;
         $erros     = [];
         $semSaldo  = false;
+        $primeiro  = true;
 
         foreach ($destinatarios as $d) {
+            // Pausa entre mensagens (excepto antes da primeira)
+            if (!$primeiro) {
+                sleep($delaySegundos);
+            }
+            $primeiro = false;
+
             try {
                 $service->enviarMensagem($d['numero'], $mensagem, 'comunicado', $d['nome']);
                 $enviados++;
