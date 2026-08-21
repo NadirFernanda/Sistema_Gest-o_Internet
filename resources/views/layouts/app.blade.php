@@ -145,7 +145,7 @@
         .sg-user-menu hr { border: none; border-top: 1px solid #f0f0f0; margin: 2px 0; }
 
         /* ── Page body — única área com scroll ── */
-        .sg-page-body { flex: 1; overflow-y: auto; min-height: 0; }
+        .sg-page-body { flex: 1; overflow-y: scroll; min-height: 0; padding: 24px 28px; box-sizing: border-box; }
 
         /* ── Responsive ── */
         @media (max-width: 700px) {

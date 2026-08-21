@@ -115,9 +115,7 @@
 @endpush
 
 @section('content')
-<div class="estoque-container-moderna">
-
-    <div class="det-container">
+<div class="det-container" style="max-width:1100px;margin:0 auto;">
 
         <a href="{{ route('mikrotik.index') }}" class="det-back">← Voltar à lista MikroTik</a>
 
@@ -556,7 +554,6 @@
             @endif
         </div>
 
-    </div>
 </div>
 
 @php
