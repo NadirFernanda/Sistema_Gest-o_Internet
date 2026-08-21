@@ -151,10 +151,13 @@
             .sg-sidebar { display: none; }
             .sg-main { margin-left: 0; }
         }
+        /* ── Sem sidebar ── */
+        body.sg-no-sidebar .sg-sidebar { display: none; }
+        body.sg-no-sidebar .sg-main { margin-left: 0; }
     </style>
     @endif
 </head>
-<body>
+<body class="{{ $hideSidebar ?? false ? 'sg-no-sidebar' : '' }}">
 
 @if (!request()->is('login'))
 @auth

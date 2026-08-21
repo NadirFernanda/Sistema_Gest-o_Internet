@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@php($hideSidebar = true)
 
 @section('page-title', 'Detalhes do Cliente')
 
