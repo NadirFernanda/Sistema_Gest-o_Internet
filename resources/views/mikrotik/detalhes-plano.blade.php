@@ -5,7 +5,7 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/clientes.css') }}?v={{ filemtime(public_path('css/clientes.css')) }}">
     <style>
-        .det-container { width:100%; padding:0 0 48px; box-sizing:border-box; }
+        .det-container { padding:0 0 48px; }
 
         /* Back */
         .det-back { display:inline-flex; align-items:center; gap:6px; color:#888; font-size:0.88rem; text-decoration:none; margin-bottom:18px; }
@@ -115,6 +115,7 @@
 @endpush
 
 @section('content')
+<div class="estoque-container-moderna" style="max-width:1200px;padding:28px 32px;">
 <div class="det-container">
 
         <a href="{{ route('mikrotik.index') }}" class="det-back">← Voltar à lista MikroTik</a>
@@ -555,6 +556,7 @@
         </div>
 
 </div>{{-- det-container --}}
+</div>{{-- estoque-container-moderna --}}
 
 @php
     $jsBwData = [
