@@ -112,6 +112,23 @@
 
         .empty-state { text-align:center; padding:40px; color:#bbb; font-size:0.9rem; }
         .no-data-msg  { text-align:center; padding:30px; color:#ccc; font-size:0.85rem; }
+
+        /* Diagnostic traffic card */
+        .det-diag { display:flex; align-items:flex-start; gap:16px; border-radius:14px; padding:18px 22px; margin-bottom:20px; }
+        .det-diag--critico { background:#fdf2f2; border:1.5px solid #f5c6cb; }
+        .det-diag--aviso   { background:#fff8ec; border:1.5px solid #f5a62355; }
+        .det-diag--info    { background:#eff6ff; border:1.5px solid #bfdbfe; }
+        .det-diag__icon { font-size:1.5rem; line-height:1; flex-shrink:0; padding-top:2px; }
+        .det-diag__body { flex:1; }
+        .det-diag__title { font-weight:800; font-size:1rem; margin-bottom:6px; }
+        .det-diag--critico .det-diag__title { color:#c0392b; }
+        .det-diag--aviso   .det-diag__title { color:#7a5200; }
+        .det-diag--info    .det-diag__title { color:#1d4ed8; }
+        .det-diag__motivo  { font-size:0.88rem; line-height:1.55; }
+        .det-diag--critico .det-diag__motivo { color:#721c24; }
+        .det-diag--aviso   .det-diag__motivo { color:#7a5200; }
+        .det-diag--info    .det-diag__motivo { color:#1e40af; }
+        .det-diag__detalhe { font-size:0.8rem; margin-top:6px; opacity:.7; }
     </style>
 @endpush
 
@@ -191,6 +208,99 @@
             </div>
             <div id="usernameMsg" style="margin-top:8px;font-size:0.82rem;"></div>
         </div>
+
+        {{-- ── Diagnóstico de Tráfego ── --}}
+        @php
+            $disconnectReasonMap = [
+                'session-timeout'  => 'Tempo limite de sessão atingido',
+                'user-request'     => 'O cliente desconectou voluntariamente',
+                'admin-reset'      => 'Reiniciado pelo administrador do router',
+                'idle-timeout'     => 'Desligado por inactividade prolongada (sem tráfego)',
+                'lost-carrier'     => 'Perda de sinal físico — cabo ou ONU desligado',
+                'auth-failure'     => 'Falha de autenticação — senha incorrecta ou conta inexistente no router',
+                'link-error'       => 'Erro de ligação física',
+                'no-activity'      => 'Sem actividade de rede',
+                'ppp-timeout'      => 'Timeout do protocolo PPP',
+                'radius'           => 'Bloqueado pelo servidor RADIUS',
+                'terminated'       => 'Sessão encerrada pelo servidor',
+                'system-down'      => 'Router reiniciado ou serviço PPP parado',
+                'ip-pool-empty'    => 'Sem IPs disponíveis no pool do router',
+            ];
+
+            $estadoPlano  = $plano->estado ?? '';
+            $planoBloqueado = in_array($estadoPlano, ['Suspenso', 'Cancelado']);
+
+            $diagProblema = false;
+            $diagTipo     = 'info';
+            $diagTitulo   = '';
+            $diagMotivo   = '';
+            $diagDetalhe  = '';
+
+            if ($statusOnline && !$statusOnline->is_online) {
+                $diagProblema = true;
+                $rawReason    = $statusOnline->disconnect_reason ?? '';
+                $motivoTrad   = $disconnectReasonMap[$rawReason]
+                    ?? ($rawReason ? ucfirst(str_replace('-', ' ', $rawReason)) : 'Motivo não registado');
+
+                if ($planoBloqueado) {
+                    $diagTipo   = 'aviso';
+                    $diagTitulo = "Plano {$estadoPlano} — acesso bloqueado intencionalmente";
+                    $diagMotivo = "O plano está " . strtolower($estadoPlano) . ", por isso não há sessão PPPoE activa — o bloqueio é intencional.";
+                    $diagDetalhe = $rawReason ? "Último motivo de desconexão registado: {$motivoTrad}." : '';
+                } else {
+                    $diagTipo   = 'critico';
+                    $diagTitulo = 'Cliente offline — sem tráfego';
+                    $diagMotivo = "Motivo da desconexão: {$motivoTrad}.";
+                    $partes = [];
+                    if ($statusOnline->last_seen_offline_at) {
+                        $partes[] = 'Offline desde ' . $statusOnline->last_seen_offline_at->diffForHumans() . '.';
+                    }
+                    if ($statusOnline->last_seen_online_at) {
+                        $partes[] = 'Última vez online: ' . $statusOnline->last_seen_online_at->diffForHumans() . '.';
+                    }
+                    $diagDetalhe = implode(' ', $partes);
+                }
+            } elseif ($statusOnline && $statusOnline->is_online) {
+                $recentSample = $latestSample
+                    && $latestSample->sampled_at
+                    && $latestSample->sampled_at->gte(now()->subMinutes(10));
+
+                if ($recentSample) {
+                    $totalBps = ($latestSample->rx_rate ?? 0) + ($latestSample->tx_rate ?? 0);
+                    if ($totalBps < 500) {
+                        $diagProblema = true;
+                        $diagTipo     = 'aviso';
+                        $diagTitulo   = 'Sessão activa mas sem tráfego';
+                        $diagMotivo   = 'O cliente tem sessão PPPoE activa mas não está a trafegar dados neste momento.';
+                        $diagDetalhe  = 'Causas prováveis: dispositivo do cliente desligado ou em standby, sem actividade de navegação, ou roteador/ONU do cliente em modo inactivo.';
+                    }
+                } else {
+                    $diagProblema = true;
+                    $diagTipo     = 'info';
+                    $diagTitulo   = 'Online — sem amostras de tráfego recentes';
+                    $diagMotivo   = 'O cliente está online mas não há dados de largura de banda nos últimos 10 minutos.';
+                    $diagDetalhe  = 'O sistema recolherá amostras na próxima execução do job agendado.';
+                }
+            }
+        @endphp
+
+        @if($diagProblema)
+        <div class="det-diag det-diag--{{ $diagTipo }}">
+            <div class="det-diag__icon">
+                @if($diagTipo === 'critico') ⛔
+                @elseif($diagTipo === 'aviso') ⚠
+                @else ℹ
+                @endif
+            </div>
+            <div class="det-diag__body">
+                <div class="det-diag__title">{{ $diagTitulo }}</div>
+                <div class="det-diag__motivo">{{ $diagMotivo }}</div>
+                @if($diagDetalhe)
+                <div class="det-diag__detalhe">{{ $diagDetalhe }}</div>
+                @endif
+            </div>
+        </div>
+        @endif
 
         {{-- ── Sessão Actual ── --}}
         @if($latestSample && $latestSample->sampled_at && $latestSample->sampled_at->gte(now()->subMinutes(10)))
