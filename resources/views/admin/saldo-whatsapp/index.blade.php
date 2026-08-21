@@ -105,6 +105,51 @@
         @endif
     </div>
 
+    {{-- ── Resumo de Gastos ── --}}
+    <div style="max-width:1100px;margin:8px auto 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+        <div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px #0001;padding:18px 20px;border-left:4px solid #1c8a3c;">
+            <div style="font-size:0.75rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Total carregado</div>
+            <div style="font-size:1.45rem;font-weight:800;color:#1c8a3c;">{{ number_format($totalCarregado, 2, ',', '.') }} Kz</div>
+        </div>
+        <div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px #0001;padding:18px 20px;border-left:4px solid #e74c3c;">
+            <div style="font-size:0.75rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Gasto efectivo</div>
+            <div style="font-size:1.45rem;font-weight:800;color:#e74c3c;">{{ number_format($gastoReal, 2, ',', '.') }} Kz</div>
+            <div style="font-size:0.75rem;color:#bbb;margin-top:3px;">Débitos − estornos</div>
+        </div>
+        <div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px #0001;padding:18px 20px;border-left:4px solid #2563eb;">
+            <div style="font-size:0.75rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Mensagens enviadas</div>
+            <div style="font-size:1.45rem;font-weight:800;color:#2563eb;">{{ number_format($mensagensEnv) }}</div>
+            <div style="font-size:0.75rem;color:#bbb;margin-top:3px;">Com entrega confirmada</div>
+        </div>
+        <div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px #0001;padding:18px 20px;border-left:4px solid #f59e0b;">
+            <div style="font-size:0.75rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Estornos (falhas)</div>
+            <div style="font-size:1.45rem;font-weight:800;color:#f59e0b;">{{ number_format($totalEstornado, 2, ',', '.') }} Kz</div>
+            <div style="font-size:0.75rem;color:#bbb;margin-top:3px;">Devolvidos por erro</div>
+        </div>
+    </div>
+
+    {{-- ── Filtro de período ── --}}
+    <form method="GET" action="{{ request()->url() }}"
+          style="max-width:1100px;margin:0 auto 12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;padding:14px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+        <div>
+            <label style="font-size:0.75rem;font-weight:700;color:#999;display:block;margin-bottom:4px;text-transform:uppercase;">Data início</label>
+            <input type="date" name="data_inicio" value="{{ $dataInicio ?? '' }}"
+                   style="border:1.5px solid #e0e6f0;border-radius:8px;padding:6px 10px;font-size:0.88rem;color:#333;">
+        </div>
+        <div>
+            <label style="font-size:0.75rem;font-weight:700;color:#999;display:block;margin-bottom:4px;text-transform:uppercase;">Data fim</label>
+            <input type="date" name="data_fim" value="{{ $dataFim ?? '' }}"
+                   style="border:1.5px solid #e0e6f0;border-radius:8px;padding:6px 10px;font-size:0.88rem;color:#333;">
+        </div>
+        <button type="submit" style="height:36px;padding:0 18px;background:#f5a623;color:#fff;border:none;border-radius:8px;font-size:0.88rem;font-weight:700;cursor:pointer;">Filtrar</button>
+        @if($dataInicio || $dataFim)
+            <a href="{{ request()->url() }}" style="height:36px;line-height:36px;padding:0 14px;background:#f0f2f5;color:#555;border-radius:8px;font-size:0.88rem;font-weight:600;text-decoration:none;">Limpar</a>
+            <span style="font-size:0.82rem;color:#888;align-self:center;">
+                Extrato filtrado — {{ $movimentos->total() }} movimento(s)
+            </span>
+        @endif
+    </form>
+
     <div class="estoque-tabela-moderna" style="max-width:1100px;margin:18px auto;">
         <table class="tabela-estoque-moderna" style="width:100%;border-collapse:separate;">
             <thead>

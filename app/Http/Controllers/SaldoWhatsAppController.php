@@ -11,18 +11,40 @@ class SaldoWhatsAppController extends Controller
 {
     public function index(Request $request)
     {
-        $saldo = WhatsappLedger::saldoAtual();
+        $saldo        = WhatsappLedger::saldoAtual();
         $podeCarregar = $this->podeCarregar();
 
-        $movimentos = WhatsappLedger::query()
-            ->selectRaw("whatsapp_ledger.*, SUM(CASE WHEN tipo = 'credito' THEN valor ELSE -valor END) OVER (ORDER BY created_at ASC, id ASC) as saldo_apos")
-            ->with('registadoPor')
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->paginate(30)
-            ->withQueryString();
+        // ── Filtros de data ──────────────────────────────────────────────────
+        $dataInicio = $request->input('data_inicio');
+        $dataFim    = $request->input('data_fim');
 
-        return view('admin.saldo-whatsapp.index', compact('saldo', 'movimentos', 'podeCarregar'));
+        // ── Estatísticas de gastos (sem filtro — totais históricos) ──────────
+        $totalCarregado  = WhatsappLedger::where('tipo', 'credito')
+            ->where('descricao', 'not like', 'Estorno%')->sum('valor');
+        $totalEstornado  = WhatsappLedger::where('tipo', 'credito')
+            ->where('descricao', 'like', 'Estorno%')->sum('valor');
+        $totalDebitado   = WhatsappLedger::where('tipo', 'debito')->sum('valor');
+        $gastoReal       = $totalDebitado - $totalEstornado; // Kz efectivamente cobrados
+        $mensagensEnv    = WhatsappLedger::where('tipo', 'debito')->count()
+                         - WhatsappLedger::where('tipo', 'credito')
+                             ->where('descricao', 'like', 'Estorno%')->count();
+
+        // ── Extrato paginado com running balance ─────────────────────────────
+        $query = WhatsappLedger::query()
+            ->selectRaw("whatsapp_ledger.*, SUM(CASE WHEN tipo = 'credito' THEN valor ELSE -valor END) OVER (ORDER BY created_at ASC, id ASC) as saldo_apos")
+            ->with('registadoPor');
+
+        if ($dataInicio) $query->whereDate('created_at', '>=', $dataInicio);
+        if ($dataFim)    $query->whereDate('created_at', '<=', $dataFim);
+
+        $movimentos = $query->orderByDesc('created_at')->orderByDesc('id')
+            ->paginate(30)->withQueryString();
+
+        return view('admin.saldo-whatsapp.index', compact(
+            'saldo', 'movimentos', 'podeCarregar',
+            'totalCarregado', 'totalEstornado', 'gastoReal', 'mensagensEnv',
+            'dataInicio', 'dataFim'
+        ));
     }
 
     public function carregar(Request $request)
