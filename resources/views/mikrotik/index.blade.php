@@ -128,8 +128,42 @@
         'subtitle' => 'Gestão de sites e utilizadores PPPoE',
     ])
 
-    {{-- ── Toolbar ── --}}
-    <div class="alertas-toolbar" style="flex-wrap:nowrap; gap:8px; max-width:1100px;">
+    {{-- ── Barra de pesquisa e filtros (acima dos botões) ── --}}
+    <div style="max-width:1100px; margin:0 auto 8px; display:flex; gap:8px; align-items:center;">
+
+        {{-- Pesquisa por nome / username --}}
+        <div style="position:relative; flex:1;">
+            <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"
+                 xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="clienteSearch"
+                placeholder="Pesquisar cliente ou username MikroTik…"
+                value="{{ $search }}"
+                autocomplete="off"
+                style="width:100%; height:40px; padding:0 40px 0 38px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; color:#333; outline:none; box-sizing:border-box;">
+            @if($search)
+            <button onclick="limparPesquisa()" title="Limpar pesquisa"
+                style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:#aaa; line-height:1; padding:0;">✕</button>
+            @endif
+        </div>
+
+        {{-- Filtro por estado --}}
+        <select id="estadoFiltro" onchange="aplicarFiltroEstado(this.value)"
+            style="height:40px; padding:0 12px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; background:#fff; color:#333; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+            <option value=""           {{ $estadoFiltro === ''               ? 'selected' : '' }}>Todos os estados</option>
+            <option value="Ativo"      {{ $estadoFiltro === 'Ativo'          ? 'selected' : '' }}>Activo</option>
+            <option value="Em aviso"   {{ $estadoFiltro === 'Em aviso'       ? 'selected' : '' }}>Em aviso</option>
+            <option value="Suspenso"   {{ $estadoFiltro === 'Suspenso'       ? 'selected' : '' }}>Suspenso</option>
+            <option value="Cancelado"  {{ $estadoFiltro === 'Cancelado'      ? 'selected' : '' }}>Cancelado</option>
+            <option value="nao_sincronizado" {{ $estadoFiltro === 'nao_sincronizado' ? 'selected' : '' }}>Não sincronizado</option>
+        </select>
+
+    </div>
+
+    {{-- ── Toolbar: site picker + botões de acção ── --}}
+    <div class="alertas-toolbar" style="flex-wrap:wrap; gap:8px; max-width:1100px;">
         <div class="alertas-toolbar-left" style="flex:1; display:flex; flex-wrap:nowrap; gap:8px; align-items:center; min-width:0;">
 
             {{-- Dropdown pesquisável de sites --}}
@@ -166,7 +200,7 @@
             <span style="font-size:0.86rem; color:#999; white-space:nowrap;">{{ $planosPending }} por sincronizar</span>
         </div>
 
-        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center;">
+        <div class="alertas-toolbar-actions" style="flex-shrink:0; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button onclick="runSync(this)" class="btn btn-ghost" style="white-space:nowrap;">▶ Sync agora</button>
             <a href="{{ route('mikrotik.export-pdf', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ PDF</a>
             <a href="{{ route('mikrotik.export-excel', request()->only(['site_id','search','estado'])) }}" class="btn btn-ghost" style="white-space:nowrap;">⬇ Excel</a>
@@ -174,39 +208,6 @@
             <a href="{{ route('mikrotik.sites.create') }}" class="btn btn-cta" style="white-space:nowrap;">+ Novo Site</a>
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="white-space:nowrap;">Painel</a>
         </div>
-    </div>
-    {{-- ── Barra de pesquisa e filtros ── --}}
-    <div style="max-width:1100px; margin:8px auto 0; display:flex; gap:8px; align-items:center;">
-
-        {{-- Pesquisa por nome / username --}}
-        <div style="position:relative; flex:1;">
-            <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"
-                 xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                 fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" id="clienteSearch"
-                placeholder="Pesquisar cliente ou username MikroTik…"
-                value="{{ $search }}"
-                autocomplete="off"
-                style="width:100%; height:40px; padding:0 40px 0 38px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; color:#333; outline:none; box-sizing:border-box;">
-            @if($search)
-            <button onclick="limparPesquisa()" title="Limpar pesquisa"
-                style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:#aaa; line-height:1; padding:0;">✕</button>
-            @endif
-        </div>
-
-        {{-- Filtro por estado --}}
-        <select id="estadoFiltro" onchange="aplicarFiltroEstado(this.value)"
-            style="height:40px; padding:0 12px; border:1px solid #dde3ec; border-radius:8px; font-size:0.9rem; background:#fff; color:#333; cursor:pointer; white-space:nowrap; flex-shrink:0;">
-            <option value=""           {{ $estadoFiltro === ''               ? 'selected' : '' }}>Todos os estados</option>
-            <option value="Ativo"      {{ $estadoFiltro === 'Ativo'          ? 'selected' : '' }}>Activo</option>
-            <option value="Em aviso"   {{ $estadoFiltro === 'Em aviso'       ? 'selected' : '' }}>Em aviso</option>
-            <option value="Suspenso"   {{ $estadoFiltro === 'Suspenso'       ? 'selected' : '' }}>Suspenso</option>
-            <option value="Cancelado"  {{ $estadoFiltro === 'Cancelado'      ? 'selected' : '' }}>Cancelado</option>
-            <option value="nao_sincronizado" {{ $estadoFiltro === 'nao_sincronizado' ? 'selected' : '' }}>Não sincronizado</option>
-        </select>
-
     </div>
 
     <div id="syncResult" style="max-width:1100px; margin:6px auto 0; font-size:0.85rem; color:#555; white-space:pre-line;"></div>
