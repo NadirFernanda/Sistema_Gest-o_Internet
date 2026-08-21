@@ -433,7 +433,17 @@ class MikroTikService
 
     private function connect(): void
     {
-        $this->api->connect($this->username, $this->password);
+        try {
+            $this->api->connect($this->username, $this->password);
+            if ($this->site) {
+                $this->site->updateApiStatus('ok');
+            }
+        } catch (\Throwable $e) {
+            if ($this->site) {
+                $this->site->updateApiStatus('erro', $e->getMessage());
+            }
+            throw $e;
+        }
     }
 
     private function safeDisconnect(): void

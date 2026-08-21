@@ -71,6 +71,37 @@
 
         @media(max-width:900px){.grid2{grid-template-columns:1fr;}}
         @media(max-width:680px){.sidebar{display:none;}.main{margin-left:0;}.tb-date{display:none;}}
+
+        /* ── Alerta de IP MikroTik ── */
+        @keyframes sg-blink {
+            0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(220,53,69,.45);}
+            50%{opacity:.92;box-shadow:0 0 0 8px rgba(220,53,69,0);}
+        }
+        .sg-ip-alert {
+            margin:0 28px 18px;
+            background:#fff0f0;
+            border:1.5px solid #e74c3c;
+            border-radius:12px;
+            padding:14px 18px;
+            display:flex;
+            align-items:flex-start;
+            gap:14px;
+            animation:sg-blink 1.6s ease-in-out infinite;
+            cursor:pointer;
+        }
+        .sg-ip-alert__icon {
+            width:36px;height:36px;background:#e74c3c;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            flex-shrink:0;color:#fff;font-size:1.2rem;font-weight:800;
+        }
+        .sg-ip-alert__body {flex:1;min-width:0;}
+        .sg-ip-alert__title {font-size:.95em;font-weight:700;color:#c0392b;margin-bottom:6px;}
+        .sg-ip-alert__list {list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px;}
+        .sg-ip-alert__item {font-size:.82em;color:#555;display:flex;align-items:baseline;gap:6px;}
+        .sg-ip-alert__site {font-weight:700;color:#c0392b;white-space:nowrap;}
+        .sg-ip-alert__err {color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;}
+        .sg-ip-alert__link {margin-left:auto;font-size:.82em;font-weight:700;color:#e74c3c;text-decoration:none;white-space:nowrap;padding:6px 14px;border:1.5px solid #e74c3c;border-radius:8px;flex-shrink:0;align-self:center;}
+        .sg-ip-alert__link:hover{background:#e74c3c;color:#fff;}
     </style>
 </head>
 <body>
@@ -161,6 +192,33 @@
             </div>
         </div>
     </header>
+
+    <!-- Alerta de sites MikroTik com erro de ligação -->
+    @if(isset($sitesComErro) && $sitesComErro->count() > 0)
+    <div class="sg-ip-alert" onclick="window.location='{{ route('mikrotik.index') }}'">
+        <div class="sg-ip-alert__icon">⚠</div>
+        <div class="sg-ip-alert__body">
+            <div class="sg-ip-alert__title">
+                {{ $sitesComErro->count() }} site(s) MikroTik com erro de ligação — IP incorreto ou inacessível
+            </div>
+            <ul class="sg-ip-alert__list">
+                @foreach($sitesComErro->take(4) as $siteErro)
+                <li class="sg-ip-alert__item">
+                    <span class="sg-ip-alert__site">{{ $siteErro->nome }}</span>
+                    <span style="color:#ccc;">·</span>
+                    <span class="sg-ip-alert__err" title="{{ $siteErro->api_last_error }}">{{ Str::limit($siteErro->api_last_error, 80) }}</span>
+                </li>
+                @endforeach
+                @if($sitesComErro->count() > 4)
+                <li class="sg-ip-alert__item" style="color:#aaa;font-style:italic;">
+                    + {{ $sitesComErro->count() - 4 }} mais…
+                </li>
+                @endif
+            </ul>
+        </div>
+        <a href="{{ route('mikrotik.index') }}" class="sg-ip-alert__link" onclick="event.stopPropagation()">Ver sites</a>
+    </div>
+    @endif
 
     <!-- Grid -->
     <main class="content">

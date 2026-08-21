@@ -153,6 +153,10 @@
         /* ── Sem sidebar ── */
         body.sg-no-sidebar .sg-sidebar { display: none; }
         body.sg-no-sidebar .sg-main { margin-left: 0; }
+        /* ── Badge piscante de erro ── */
+        @keyframes sg-badge-blink {
+            0%,100%{opacity:1;} 50%{opacity:.35;}
+        }
     </style>
     @endif
 </head>
@@ -191,9 +195,13 @@
             <svg viewBox="0 0 24 24"><path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H4V9h16v10zM12 4H4c-1.1 0-2 .9-2 2v2h2V6h8V4zm8 0h-4v2h4v2h2V6c0-1.1-.9-2-2-2z"/></svg>
             Estoque
         </a>
-        <a href="{{ route('mikrotik.index') }}" class="sg-nav-item {{ request()->routeIs('mikrotik*') ? 'active' : '' }}">
+        @php $mikrotikErros = \App\Models\MikroTikSite::where('api_status','erro')->count(); @endphp
+        <a href="{{ route('mikrotik.index') }}" class="sg-nav-item {{ request()->routeIs('mikrotik*') ? 'active' : '' }}" style="position:relative;">
             <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
             MikroTik
+            @if($mikrotikErros > 0)
+            <span style="margin-left:auto;background:#e74c3c;color:#fff;font-size:.65em;font-weight:800;border-radius:12px;padding:1px 7px;animation:sg-badge-blink 1.4s ease-in-out infinite;">{{ $mikrotikErros }}</span>
+            @endif
         </a>
         <a href="{{ route('alertas') }}" class="sg-nav-item {{ request()->routeIs('alertas*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
