@@ -558,6 +558,7 @@
 
 </div>{{-- det-container --}}
 </div>{{-- estoque-container-moderna --}}
+@endsection
 
 @php
     $jsBwData = [

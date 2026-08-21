@@ -99,8 +99,7 @@
             align-items: center;
             box-shadow: 0 1px 4px rgba(0,0,0,.06);
             gap: 16px;
-            position: sticky;
-            top: 0;
+            flex-shrink: 0;
             z-index: 100;
         }
         .sg-tb-left { display: flex; align-items: center; gap: 14px; }
