@@ -25,7 +25,7 @@ class ResellerStaff extends Model
     const STATUS_ACTIVE    = 'active';
     const STATUS_SUSPENDED = 'suspended';
 
-    const MAX_PER_RESELLER = 10;
+    const MAX_PER_RESELLER = 25;
 
     public function application()
     {

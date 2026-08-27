@@ -17,6 +17,7 @@ if (app()->environment('local')) {
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AutovendaOrderAdminController;
 use App\Http\Controllers\Admin\InstallationAppointmentAdminController;
+use App\Http\Controllers\Admin\NetworkSettingsAdminController;
 use App\Http\Controllers\Admin\ResellerAdminController;
 use App\Http\Controllers\Admin\ResellerPurchaseAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
@@ -211,6 +212,10 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::post('/revendedores/{application}/bonus', [ResellerAdminController::class, 'sendBonus'])->name('admin.resellers.bonus');
     Route::post('/revendedores/{application}/pagar-manutencao', [ResellerAdminController::class, 'payMaintenance'])->name('admin.resellers.pay-maintenance');
     Route::post('/revendedores/{application}/alterar-internet', [ResellerAdminController::class, 'changeInternetType'])->name('admin.resellers.change-internet');
+
+    // Percentagens da rede de revendedores (admin-configurable)
+    Route::get('/configuracoes/rede', [NetworkSettingsAdminController::class, 'index'])->name('admin.network-settings.index');
+    Route::put('/configuracoes/rede', [NetworkSettingsAdminController::class, 'update'])->name('admin.network-settings.update');
 
     // Gestão de produtos (equipamentos)
     Route::get('/equipamentos', [ProductAdminController::class, 'index'])->name('admin.equipment.products.index');

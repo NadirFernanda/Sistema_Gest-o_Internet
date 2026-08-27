@@ -179,13 +179,13 @@ class ResellerAdminController extends Controller
 
         // When installation fee is set, auto-compute bonus vouchers.
         if (isset($data['installation_fee_aoa']) && $data['installation_fee_aoa'] > 0) {
-            $bonusPct = (int) config('reseller.bonus_install_percent', 50);
+            $bonusPct = (int) \App\Models\ResellerNetworkSetting::get('bonus_install_percent', 50);
             $data['bonus_vouchers_aoa'] = (int) round($data['installation_fee_aoa'] * $bonusPct / 100);
 
             // Auto-set monthly target for Modo 1 if not explicitly given.
             if (($data['reseller_mode'] ?? $application->reseller_mode) === 'own'
                 && empty($data['monthly_target_aoa'])) {
-                $targetPct = (int) config('reseller.monthly_target_percent', 50);
+                $targetPct = (int) \App\Models\ResellerNetworkSetting::get('monthly_target_percent', 50);
                 $data['monthly_target_aoa'] = (int) round($data['installation_fee_aoa'] * $targetPct / 100);
             }
         }

@@ -74,14 +74,14 @@ class ResellerApplication extends Model
 
     // ─── Business logic helpers ───────────────────────────────────────────────
 
-    /** Returns the discount % for this reseller based on their mode. */
+    /** Returns the discount % for this reseller based on their mode (admin-configurable). */
     public function discountPercentFor(int $grossAoa = 0): int
     {
         if ($this->reseller_mode === self::INTERNET_OWN) {
-            return (int) config('reseller.mode_own_discount_percent', 70);
+            return (int) ResellerNetworkSetting::get('mode_own_discount_percent', 70);
         }
 
-        return (int) config('reseller.mode_angolawifi_discount_percent', 30);
+        return (int) ResellerNetworkSetting::get('mode_angolawifi_discount_percent', 30);
     }
 
     /** Total purchased this calendar month (gross). Kept for admin stats. */
@@ -148,15 +148,8 @@ class ResellerApplication extends Model
     /** True if the monthly maintenance fee has not been paid for the current month. */
     public function maintenanceDueThisMonth(): bool
     {
-        // Período de graça: no mês de aprovação a taxa não é cobrada
-        if ($this->approved_at !== null
-            && $this->approved_at->year  === now()->year
-            && $this->approved_at->month === now()->month) {
-            return false;
-        }
-
-        return !(($this->maintenance_paid_year  ?? 0) === now()->year
-              && ($this->maintenance_paid_month ?? 0) === now()->month);
+        // A taxa mensal deixou de ser obrigatória — nunca bloqueia o revendedor.
+        return false;
     }
 
     /** Maintenance fee amount for this reseller's mode. */

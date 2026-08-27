@@ -466,6 +466,7 @@
             <a href="{{ route('admin.resellers.history') }}" class="adm-btn" style="background:#f0fdf4;border-color:#86efac;color:#15803d;">📊 Compras vs Vendas</a>
             <a href="{{ route('admin.resellers.purchases.index') }}" class="adm-btn">Compras em Bloco</a>
             <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual</a>
+            <a href="{{ route('admin.network-settings.index') }}" class="adm-btn" style="background:#fff7ed;border-color:#fed7aa;color:#c2410c;">⚙️ Percentagens da Rede</a>
           </div>
         </div>
       </div>
