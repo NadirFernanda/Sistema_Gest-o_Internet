@@ -69,9 +69,10 @@
     {{-- Dados estruturados por página --}}
     @stack('seo')
 
-    {{-- CSS principal (fonte de verdade). Inter auto-hospedada via @font-face em fallback.css.
-         O Vite trata apenas do JS. Desta forma um novo build nunca destrói o CSS. --}}
-    <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
+    {{-- CSS inline: elimina pedido HTTP separado (Angola→DE ~400ms latência por cada deploy).
+         filemtime() mudava o ?v= após cada git reset --hard → browser re-descarregava 88KB.
+         Inline garante CSS sempre disponível no primeiro byte da resposta, zero FOUC. --}}
+    <style>{!! file_get_contents(public_path('css/fallback.css')) !!}</style>
     {{-- Estilos específicos de cada página — aqui no <head> para evitar FOUC --}}
     @stack('styles')
     {{-- Preload da fonte Inter (mesmo servidor, sem Google Fonts) --}}
