@@ -71,18 +71,30 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- Carregamento não-bloqueante das fontes — evita ERR_SOCKET_NOT_CONNECTED bloquear o render --}}
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
     {{-- CSS principal — sempre carregado de public/css/fallback.css (fonte de verdade).
          O Vite trata apenas do JS. Desta forma um novo build nunca destrói o CSS. --}}
     <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
+    {{-- Estilos específicos de cada página — aqui no <head> para evitar FOUC --}}
+    @stack('styles')
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/js/app.js'])
     @endif
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
+    {{-- Carrega Inter via Google Fonts de forma não-bloqueante.
+         Esconde o body até as fontes estarem prontas (ou 400ms max) para eliminar FOUC. --}}
+    <style>html:not(.fonts-ready){visibility:hidden}</style>
+    <script>
+    (function(){
+      var done=false;
+      function show(){if(!done){done=true;document.documentElement.classList.add('fonts-ready');}}
+      document.fonts.ready.then(show);
+      setTimeout(show,400);
+    })();
+    </script>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><style>html{visibility:visible}</style></noscript>
   </head>
   <body>
     @include('partials.header')
@@ -91,7 +103,6 @@
     </main>
     @include('partials.footer')
     @include('partials.cookie-consent')
-    @stack('styles')
     @stack('scripts')
   </body>
 </html>
