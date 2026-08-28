@@ -69,36 +69,19 @@
     {{-- Dados estruturados por página --}}
     @stack('seo')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- CSS principal — sempre carregado de public/css/fallback.css (fonte de verdade).
+    {{-- CSS principal (fonte de verdade). Inter auto-hospedada via @font-face em fallback.css.
          O Vite trata apenas do JS. Desta forma um novo build nunca destrói o CSS. --}}
     <link rel="stylesheet" href="{{ asset('css/fallback.css') }}?v={{ filemtime(public_path('css/fallback.css')) }}">
     {{-- Estilos específicos de cada página — aqui no <head> para evitar FOUC --}}
     @stack('styles')
+    {{-- Preload da fonte Inter (mesmo servidor, sem Google Fonts) --}}
+    <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/inter-latin-wght-normal.woff2') }}" crossorigin>
     @if (file_exists(public_path('build/manifest.json')))
       @vite(['resources/js/app.js'])
     @endif
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
-    {{-- Anti-FOUC: esconde html até Inter estar pronta (ou 500ms max).
-         O JS injeta o link do Google Fonts, espera onload, e só depois resolve
-         document.fonts.ready — que agora inclui Inter. Sem JS: noscript mostra tudo. --}}
-    <style>html:not(.fr){visibility:hidden}</style>
-    <script>
-    (function(){
-      var done=false,t=setTimeout(function(){show()},500);
-      function show(){if(done)return;done=true;clearTimeout(t);document.documentElement.classList.add('fr');}
-      var l=document.createElement('link');
-      l.rel='preload';l.as='style';l.crossOrigin='anonymous';
-      l.href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap';
-      l.onload=function(){this.onload=null;this.rel='stylesheet';document.fonts.ready.then(show).catch(show);};
-      l.onerror=show;
-      document.head.appendChild(l);
-    })();
-    </script>
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><style>html{visibility:visible}</style></noscript>
   </head>
   <body>
     @include('partials.header')
