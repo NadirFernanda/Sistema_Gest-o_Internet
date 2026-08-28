@@ -82,18 +82,22 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     {{-- Preload da primeira imagem do carrossel (LCP) --}}
     <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
-    {{-- Carrega Inter via Google Fonts de forma não-bloqueante.
-         Esconde o body até as fontes estarem prontas (ou 400ms max) para eliminar FOUC. --}}
-    <style>html:not(.fonts-ready){visibility:hidden}</style>
+    {{-- Anti-FOUC: esconde html até Inter estar pronta (ou 500ms max).
+         O JS injeta o link do Google Fonts, espera onload, e só depois resolve
+         document.fonts.ready — que agora inclui Inter. Sem JS: noscript mostra tudo. --}}
+    <style>html:not(.fr){visibility:hidden}</style>
     <script>
     (function(){
-      var done=false;
-      function show(){if(!done){done=true;document.documentElement.classList.add('fonts-ready');}}
-      document.fonts.ready.then(show);
-      setTimeout(show,400);
+      var done=false,t=setTimeout(function(){show()},500);
+      function show(){if(done)return;done=true;clearTimeout(t);document.documentElement.classList.add('fr');}
+      var l=document.createElement('link');
+      l.rel='preload';l.as='style';l.crossOrigin='anonymous';
+      l.href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap';
+      l.onload=function(){this.onload=null;this.rel='stylesheet';document.fonts.ready.then(show).catch(show);};
+      l.onerror=show;
+      document.head.appendChild(l);
     })();
     </script>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><style>html{visibility:visible}</style></noscript>
   </head>
   <body>
