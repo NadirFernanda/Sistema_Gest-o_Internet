@@ -169,8 +169,18 @@
     </div>
 @endif
 
-<form id="formPlano" method="POST" action="{{ route('planos.store') }}" data-no-ajax="1">
+@php
+    $editMode = $editMode ?? false;
+    $formPlano = $editMode
+        ? route('planos.update', $plano->id)
+        : route('planos.store');
+    $clientePreSel = old('cliente_id', $editMode ? $plano->cliente_id : ($preClienteId ?? null));
+@endphp
+<form id="formPlano" method="POST" action="{{ $formPlano }}" data-no-ajax="1">
     @csrf
+    @if($editMode)
+        @method('PUT')
+    @endif
 
     {{-- Hidden fields: populated by JS from template, used/overridden server-side --}}
     <input type="hidden" id="nomePlano"      name="nome">
@@ -203,7 +213,7 @@
         <div class="pf-field">
             <label class="pf-label" for="templateSelector">Selecionar modelo <span style="color:#e05a4f">*</span></label>
             <select id="templateSelector" name="template_id" class="pf-select" required>
-                <option value="" disabled selected>— Escolher modelo —</option>
+                <option value="" disabled {{ old('template_id', $editMode ? $plano->template_id : null) ? '' : 'selected' }}>— Escolher modelo —</option>
             </select>
         </div>
 
@@ -230,7 +240,6 @@
                 Cliente <span style="color:#e05a4f">*</span>
                 <button type="button" id="reloadClientesBtn" class="reload-btn" title="Recarregar lista">↺</button>
             </label>
-            @php $clientePreSel = old('cliente_id', $preClienteId ?? null); @endphp
             <select id="clientePlano" name="cliente_id" class="pf-select" required>
                 <option value="">Selecionar cliente…</option>
                 @if($clientePreSel)
@@ -254,7 +263,7 @@
             <label class="pf-label" for="localizacaoPlano">Localização / Identificação</label>
             <input type="text" id="localizacaoPlano" name="localizacao" class="pf-input"
                    placeholder="Ex: Casa principal, Casa do Zango, Escritório…"
-                   value="{{ old('localizacao') }}">
+                   value="{{ old('localizacao', $editMode ? $plano->localizacao : '') }}">
             <div style="font-size:.78rem;color:#aaa;margin-top:5px;">Distingue este plano quando o cliente tem ligações em vários locais.</div>
         </div>
 
@@ -262,7 +271,7 @@
             <label class="pf-label" for="mikrotikUsername">Username PPPoE</label>
             <input type="text" id="mikrotikUsername" name="mikrotik_username" class="pf-input"
                    placeholder="Ex: 924123456_2"
-                   value="{{ old('mikrotik_username') }}">
+                   value="{{ old('mikrotik_username', $editMode ? $plano->mikrotik_username : '') }}">
             <div id="usernameHint" style="font-size:.78rem;color:#aaa;margin-top:5px;">
                 Este cliente já tem plano(s) activo(s). Introduz um username diferente para esta ligação.
             </div>
@@ -275,22 +284,22 @@
             <div class="pf-field">
                 <label class="pf-label" for="dataAtivacaoPlano">Data de activação <span style="color:#e05a4f">*</span></label>
                 <input type="date" id="dataAtivacaoPlano" name="data_ativacao" class="pf-input" required
-                       value="{{ old('data_ativacao', date('Y-m-d')) }}">
+                       value="{{ old('data_ativacao', $editMode ? optional($plano->data_ativacao)->format('Y-m-d') : date('Y-m-d')) }}">
             </div>
             <div class="pf-field">
                 <label class="pf-label" for="estadoPlano">Estado <span style="color:#e05a4f">*</span></label>
                 <select id="estadoPlano" name="estado" class="pf-select" required>
                     <option value="">Escolher estado</option>
-                    <option value="Ativo"      {{ old('estado', 'Ativo') == 'Ativo'      ? 'selected' : '' }}>Ativo</option>
-                    <option value="Em aviso"   {{ old('estado') == 'Em aviso'   ? 'selected' : '' }}>Em aviso</option>
-                    <option value="Suspenso"   {{ old('estado') == 'Suspenso'   ? 'selected' : '' }}>Suspenso</option>
-                    <option value="Cancelado"  {{ old('estado') == 'Cancelado'  ? 'selected' : '' }}>Cancelado</option>
+                    <option value="Ativo"      {{ old('estado', $editMode ? $plano->estado : 'Ativo') == 'Ativo'      ? 'selected' : '' }}>Ativo</option>
+                    <option value="Em aviso"   {{ old('estado', $editMode ? $plano->estado : null) == 'Em aviso'   ? 'selected' : '' }}>Em aviso</option>
+                    <option value="Suspenso"   {{ old('estado', $editMode ? $plano->estado : null) == 'Suspenso'   ? 'selected' : '' }}>Suspenso</option>
+                    <option value="Cancelado"  {{ old('estado', $editMode ? $plano->estado : null) == 'Cancelado'  ? 'selected' : '' }}>Cancelado</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <button type="submit" class="pf-submit" id="btnSubmit">Cadastrar Plano</button>
+    <button type="submit" class="pf-submit" id="btnSubmit">{{ $editMode ? 'Guardar alterações' : 'Cadastrar Plano' }}</button>
 
 </form>
 
@@ -324,6 +333,10 @@
                     opt.textContent = t.name + (t.preco ? ' — Kz ' + Number(t.preco).toLocaleString('pt-AO', { minimumFractionDigits: 2 }) : '');
                     tplSelect.appendChild(opt);
                 });
+                @if($editMode)
+                    tplSelect.value = '{{ old('template_id', $plano->template_id) }}';
+                    tplSelect.dispatchEvent(new Event('change'));
+                @endif
             })
             .catch(function (err) { console.error('Falha ao carregar modelos', err); });
     }

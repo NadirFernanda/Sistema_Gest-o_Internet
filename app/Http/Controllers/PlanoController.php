@@ -333,6 +333,7 @@ class PlanoController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
+            'template_id'      => 'sometimes|required|exists:plan_templates,id',
             'nome'             => 'sometimes|required|string|max:255',
             'localizacao'      => 'nullable|string|max:255',
             'descricao'        => 'sometimes|required|string',
@@ -345,6 +346,20 @@ class PlanoController extends Controller
             'mikrotik_username'=> 'nullable|string|max:100',
         ]);
         $plano = Plano::findOrFail($id);
+
+        // The edit form is template-based, so keep the plan's denormalized
+        // fields aligned with the selected template.
+        if (!empty($validated['template_id'])) {
+            $template = PlanTemplate::findOrFail($validated['template_id']);
+            $validated['nome'] = $template->name;
+            $validated['descricao'] = $template->description ?? '';
+            $validated['preco'] = (string) number_format($template->preco ?? 0, 2, '.', '');
+            $validated['ciclo'] = $template->ciclo;
+            if (empty($validated['tipo']) && $template->tipo) {
+                $validated['tipo'] = $template->tipo;
+            }
+        }
+
         $plano->update($validated);
         Cache::forget('sg_active_clients_count'); // invalida cache (ativo pode ter mudado)
         Cache::forget('plan_templates_catalog:sales_counts');
