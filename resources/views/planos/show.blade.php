@@ -6,6 +6,16 @@
     @endpush
 
     <div class="estoque-container-moderna">
+        @if(session('success'))
+            <div style="margin:0 0 18px;padding:12px 18px;background:#eafaf1;border:1px solid #b7e4c7;border-radius:8px;color:#1e7e50;font-weight:600;">
+                ✓ {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div style="margin:0 0 18px;padding:12px 18px;background:#faeaea;border:1px solid #e6b8b8;border-radius:8px;color:#a93226;font-weight:600;">
+                ✗ {{ session('error') }}
+            </div>
+        @endif
         @php
             use App\Models\Cobranca;
             $cliente = $plano->cliente ?? null;
