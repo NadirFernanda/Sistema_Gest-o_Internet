@@ -222,37 +222,6 @@ a { text-decoration: none; }
   .store-cta { display:inline-flex; }
 }
 
-/* Keep the full navigation from overflowing medium-sized viewports. */
-@media (min-width:768px) and (max-width:1699px) {
-  .store-nav,
-  .store-cta { display:none; }
-  .mobile-menu-toggle { display:inline-flex; }
-  .store-header-inner { gap:8px; }
-  .store-mobile-menu {
-    position:absolute;
-    top:100%;
-    left:0;
-    right:0;
-    max-height:calc(100vh - 76px);
-    overflow-y:auto;
-    background:rgba(255,255,255,.98);
-    border-top:1px solid rgba(15,23,42,.08);
-    box-shadow:0 12px 28px rgba(2,6,23,.12);
-    display:none !important;
-  }
-  .store-mobile-menu.open { display:flex !important; }
-}
-
-/* Compact the complete desktop header before switching to the menu button. */
-@media (min-width:1700px) and (max-width:1920px) {
-  .store-header-inner { gap:8px; }
-  .store-right { gap:6px; }
-  .store-nav { gap:2px; }
-  .store-link { padding:6px 4px; font-size:.92rem; }
-  .store-actions { gap:6px; margin-left:0; }
-  .store-cta { padding:.5rem .7rem; font-size:.8rem; }
-}
-
 /* previous margin-left offsets removed; nav now follows search */
 @media (min-width:768px) {
   .store-nav { margin-left: 0; }
