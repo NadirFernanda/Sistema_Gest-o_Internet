@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\VoucherPlanAdminController;
 use App\Http\Controllers\Admin\GpoReconciliationController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\AdTrackingController;
 use App\Http\Controllers\FamilyPlanPaymentController;
 use App\Http\Controllers\FamilyPlanRequestController;
 use App\Http\Controllers\TicketController;
@@ -45,6 +46,14 @@ Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController:
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder'])->middleware('throttle:10,1');
 Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
 Route::get('/store/live-stats', [\App\Http\Controllers\StorefrontController::class, 'liveStats'])->middleware('throttle:30,1')->name('store.live-stats');
+Route::post('/ads/{campaign}/impression', [AdTrackingController::class, 'impression'])
+    ->middleware('throttle:60,1')
+    ->whereNumber('campaign')
+    ->name('ads.impression');
+Route::get('/ads/{campaign}/click', [AdTrackingController::class, 'click'])
+    ->middleware('throttle:60,1')
+    ->whereNumber('campaign')
+    ->name('ads.click');
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
@@ -195,6 +204,12 @@ Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name(
 // Todas as restantes rotas admin requerem sessão válida.
 Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/anuncios', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'index'])->name('admin.ads.index');
+    Route::get('/anuncios/criar', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'create'])->name('admin.ads.create');
+    Route::post('/anuncios', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'store'])->name('admin.ads.store');
+    Route::get('/anuncios/{campaign}/editar', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'edit'])->whereNumber('campaign')->name('admin.ads.edit');
+    Route::put('/anuncios/{campaign}', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'update'])->whereNumber('campaign')->name('admin.ads.update');
+    Route::delete('/anuncios/{campaign}', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'destroy'])->whereNumber('campaign')->name('admin.ads.destroy');
     Route::get('/recargas', [AutovendaOrderAdminController::class, 'index'])->name('admin.autovenda.index');
     Route::get('/recargas/exportar', [AutovendaOrderAdminController::class, 'export'])->name('admin.autovenda.export');
     Route::get('/reconciliacao-gpo', [GpoReconciliationController::class, 'index'])->name('admin.reconciliation.gpo');

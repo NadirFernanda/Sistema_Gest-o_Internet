@@ -75,6 +75,12 @@
       <br><small>Filtre por estado <strong>Pago</strong> e verifique as entradas com campo "Código WiFi" vazio. Entregue manualmente ou reembolse.</small>
     </div>
   @endif
+  @if(($paidWithoutBonus ?? 0) > 0)
+    <div class="ap-err" style="margin-bottom:1rem;">
+      <strong>⚠️ {{ $paidWithoutBonus }} ordem(ns) paga(s) com bónus promocional ainda sem código</strong>
+      <br><small>Verifique o stock do plano de bónus e contacte o cliente para completar a entrega.</small>
+    </div>
+  @endif
 
   <div class="ap-recon">
     <strong>Reconcilia&ccedil;&atilde;o com o extracto GPO/EMIS:</strong> Use o filtro de per&iacute;odo abaixo para seleccionar o intervalo de datas do extracto. Depois exporte o CSV &mdash; a coluna <strong>Refer&ecirc;ncia GPO</strong> corresponde ao campo <em>merchantReference</em> no extracto da EMIS.<br>
@@ -158,6 +164,7 @@
           <th>Data Pagamento</th>
           <th>Cliente</th>
           <th>C&oacute;digo WiFi</th>
+          <th>B&oacute;nus promocional</th>
         </tr>
       </thead>
       <tbody>
@@ -219,10 +226,22 @@
                 <span class="dim">&mdash;</span>
               @endif
             </td>
+            <td>
+              @if($order->bonus_plan_slug)
+                <strong>{{ $order->bonus_plan_name }} ({{ $order->bonus_plan_validity }})</strong><br>
+                @if($order->bonus_wifi_code)
+                  <span class="ap-ref">{{ $order->bonus_wifi_code }}</span>
+                @else
+                  <span class="badge bg-red">Sem c&oacute;digo</span>
+                @endif
+              @else
+                <span class="dim">&mdash;</span>
+              @endif
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="8">
+            <td colspan="9">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma recarga encontrada</p>
                 <p class="ap-empty-s">Ajuste os filtros ou aguarde novas compras.</p>

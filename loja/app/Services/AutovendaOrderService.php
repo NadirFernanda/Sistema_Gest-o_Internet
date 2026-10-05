@@ -58,6 +58,7 @@ class AutovendaOrderService
                 $wifiCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)
                     ->where('plan_id', $order->plan_id)
                     ->whereNull('reseller_purchase_id')  // apenas stock de autovenda
+                    ->whereNull('autovenda_order_id')
                     ->lockForUpdate()
                     ->first();
 
@@ -76,6 +77,31 @@ class AutovendaOrderService
                         'order_id' => $order->id,
                         'amount'   => $order->amount_aoa,
                         'customer' => $order->customer_email ?? $order->customer_phone ?? 'anónimo',
+                    ]);
+                }
+            }
+
+            if (! $stockExausted && $order->bonus_plan_slug && empty($order->bonus_wifi_code)) {
+                $bonusCode = \App\Models\WifiCode::where('status', \App\Models\WifiCode::STATUS_AVAILABLE)
+                    ->where('plan_id', $order->bonus_plan_slug)
+                    ->whereNull('reseller_purchase_id')
+                    ->whereNull('autovenda_order_id')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($bonusCode) {
+                    $bonusCode->status = \App\Models\WifiCode::STATUS_USED;
+                    $bonusCode->autovenda_order_id = $order->id;
+                    $bonusCode->used_at = $now;
+                    $bonusCode->save();
+                    $order->bonus_wifi_code = $bonusCode->code;
+                    $order->bonus_delivery_status = 'delivered';
+                } else {
+                    $order->bonus_delivery_status = 'stock_unavailable';
+                    Log::critical('BÓNUS PROMOCIONAL SEM STOCK — ordem paga sem o voucher gratuito', [
+                        'order_id' => $order->id,
+                        'campaign_id' => $order->bonus_campaign_id,
+                        'bonus_plan_slug' => $order->bonus_plan_slug,
                     ]);
                 }
             }
@@ -166,6 +192,11 @@ class AutovendaOrderService
             "• Referência: {$ref}\n\n" .
             "📶 *O seu código WiFi é:*\n\n" .
             "```{$codigo}```\n\n" .
+            ($order->bonus_wifi_code
+                ? "🎁 *Bónus promocional — {$order->bonus_plan_name} ({$order->bonus_plan_validity}):*\n\n```{$order->bonus_wifi_code}```\n\n"
+                : ($order->bonus_delivery_status === 'stock_unavailable'
+                    ? "⚠️ O bónus promocional {$order->bonus_plan_name} está a ser verificado pela equipa AngolaWiFi, que entrará em contacto para concluir a entrega.\n\n"
+                    : '')) .
             "⚠️ *Guarde este código* — a AngolaWiFi não armazena dados pessoais para planos individuais.\n\n" .
             "Em caso de dúvidas: 📞 (+244) 949 364 505\n\n" .
             "*AngolaWiFi – Conectando você sempre!*";
@@ -187,4 +218,3 @@ class AutovendaOrderService
         Log::info('WhatsApp autovenda: código WiFi enviado', ['to' => $numero, 'order' => $order->id]);
     }
 }
-

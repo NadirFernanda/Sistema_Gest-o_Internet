@@ -529,6 +529,7 @@
           <div class="adm-actions">
             <a href="{{ route('admin.equipment.orders.index') }}" class="adm-btn primary">Ver encomendas →</a>
             <a href="{{ route('admin.equipment.products.index') }}" class="adm-btn">Produtos</a>
+            <a href="{{ route('admin.ads.index') }}" class="adm-btn">Anúncios</a>
           </div>
         </div>
       </div>

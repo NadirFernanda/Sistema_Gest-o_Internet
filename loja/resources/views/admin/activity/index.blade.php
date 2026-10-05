@@ -89,6 +89,7 @@
   {{-- Nav --}}
   <nav class="ac-nav">
     <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ route('admin.ads.index') }}">An&uacute;ncios</a>
     <a href="{{ route('admin.autovenda.index') }}">Recargas</a>
     <a href="{{ route('admin.wifi_codes.index') }}">C&oacute;digos WiFi</a>
     <a href="{{ route('admin.voucher_plans.index') }}">Planos Voucher</a>

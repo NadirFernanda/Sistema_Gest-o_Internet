@@ -29,6 +29,10 @@ class AutovendaOrderAdminController extends Controller
         $paidWithoutCode = AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)
             ->whereNull('wifi_code')
             ->count();
+        $paidWithoutBonus = AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)
+            ->whereNotNull('bonus_plan_slug')
+            ->whereNull('bonus_wifi_code')
+            ->count();
 
         return view('admin.orders.index', [
             'orders'          => $orders,
@@ -37,6 +41,7 @@ class AutovendaOrderAdminController extends Controller
             'totalAoa'        => $totalAoa,
             'plans'           => $plans,
             'paidWithoutCode' => $paidWithoutCode,
+            'paidWithoutBonus' => $paidWithoutBonus,
         ]);
     }
 

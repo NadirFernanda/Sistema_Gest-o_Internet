@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('ad_campaigns', function (Blueprint $table) {
+            $table->id();
+            $table->string('advertiser_name', 120);
+            $table->string('title', 160);
+            $table->string('description', 500)->nullable();
+            $table->string('image_path', 255);
+            $table->string('destination_url', 2048);
+            $table->string('button_text', 40)->default('Saber mais');
+            $table->string('placement', 40)->index();
+            $table->boolean('active')->default(false)->index();
+            $table->timestamp('starts_at')->nullable()->index();
+            $table->timestamp('ends_at')->nullable()->index();
+            $table->unsignedBigInteger('impressions_count')->default(0);
+            $table->unsignedBigInteger('clicks_count')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('ad_campaigns');
+    }
+};

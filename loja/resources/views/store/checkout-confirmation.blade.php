@@ -294,6 +294,7 @@
     "Olá! Seja bem-vindo(a) à AngolaWiFi\n\n"
     . "O seu código de acesso é: " . ($order->wifi_code ?? '') . "\n\n"
     . "📶 Plano: " . ($order->plan_name ?? ($order->plan_id ?? '')) . "\n"
+    . ($order->bonus_wifi_code ? "🎁 Bónus " . ($order->bonus_plan_name ?? 'promocional') . " (" . ($order->bonus_plan_validity ?? '') . "): " . $order->bonus_wifi_code . "\n" : '')
     . "🧾 Referência: #" . ($order->id ?? '') . "\n\n"
     . "Para utilizar:\n\n"
     . "1. Ligue-se à rede AngolaWiFi;\n"
@@ -387,6 +388,15 @@
               <span id="ccCopyLbl">Copiar</span>
             </button>
           </div>
+
+          @if($order->bonus_wifi_code)
+            <p class="cc-code-label" style="margin-top:1.2rem;">Bónus promocional: {{ $order->bonus_plan_name }} ({{ $order->bonus_plan_validity }})</p>
+            <div class="cc-code-box">
+              <code class="cc-code-value">{{ $order->bonus_wifi_code }}</code>
+            </div>
+          @elseif($order->bonus_delivery_status === 'stock_unavailable')
+            <p style="margin:.75rem 0;color:#b45309;">O seu bónus está a ser verificado pela equipa AngolaWiFi. Contactaremos o cliente para concluir a entrega.</p>
+          @endif
 
           @if(!empty($order->customer_email))
             <p style="font-size:.8rem;color:#64748b;margin:0 0 1.1rem;display:flex;align-items:center;gap:.4rem;">

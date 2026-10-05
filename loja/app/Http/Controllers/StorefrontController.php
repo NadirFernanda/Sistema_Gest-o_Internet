@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
+use App\Models\AdCampaign;
 use App\Models\SiteStat;
 use App\Models\VoucherPlan;
 use App\Services\AutovendaOrderService;
@@ -197,9 +198,11 @@ class StorefrontController extends Controller
         $planKey = $planId ?: $request->query('plan');
 
         $plan = $planKey ? VoucherPlan::where('slug', $planKey)->where('active', true)->first() : null;
+        $bonusCampaign = $plan ? AdCampaign::bonusForPurchasePlan($plan->slug) : null;
 
         return view('store.checkout', [
             'plan' => $plan,
+            'bonusCampaign' => $bonusCampaign,
         ]);
     }
  
@@ -230,6 +233,8 @@ class StorefrontController extends Controller
             $phone = '244' . $phone;
         }
 
+        $bonusCampaign = AdCampaign::bonusForPurchasePlan($plan->slug);
+
         $order = AutovendaOrder::create([
             'plan_id'               => $plan->slug,
             'plan_name'             => $plan->name,
@@ -244,6 +249,11 @@ class StorefrontController extends Controller
             'customer_nif'          => null,
             'status'                => AutovendaOrder::STATUS_AWAITING_PAYMENT,
             'payment_method'        => $validated['payment_method'],
+            'bonus_campaign_id'     => $bonusCampaign?->id,
+            'bonus_plan_slug'       => $bonusCampaign?->bonus_plan_slug,
+            'bonus_plan_name'       => $bonusCampaign?->bonusPlan?->name,
+            'bonus_plan_validity'   => $bonusCampaign?->bonusPlan?->validity_label,
+            'bonus_delivery_status' => $bonusCampaign ? 'pending' : null,
         ]);
 
         // Se o cliente pediu conta e forneceu email, guardar para auto-login após pagamento

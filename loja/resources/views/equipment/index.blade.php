@@ -33,6 +33,8 @@
       </div>
     @endif
 
+    @include('partials.ad-slot', ['placement' => 'equipment_list'])
+
     {{-- Grid de produtos --}}
     @if ($products->isEmpty())
       <div class="equip-empty">

@@ -167,7 +167,8 @@
       <li><strong>Token CSRF</strong> — para proteger os formulários contra ataques de falsificação de pedidos entre sítios.</li>
       <li><strong>Preferências do carrinho</strong> — para manter os items seleccionados durante a navegação.</li>
     </ul>
-    <p>Não utilizamos cookies de rastreamento, publicidade ou análise de terceiros (ex: Google Analytics, Facebook Pixel). Pode configurar o seu navegador para recusar cookies, mas algumas funcionalidades do site poderão não funcionar correctamente.</p>
+    <p>As campanhas patrocinadas da loja podem contabilizar visualizações e cliques de forma agregada. Para evitar contagens repetidas, a sessão técnica do site guarda o horário da última visualização contabilizada por campanha e limita a repetição por 30 minutos. Não registamos IP, perfil, localização ou comportamento de navegação para publicidade, nem usamos pixels ou plataformas de anúncios de terceiros. Os criativos são guardados no servidor da loja.</p>
+    <p>Pode configurar o seu navegador para recusar cookies, mas algumas funcionalidades do site poderão não funcionar correctamente.</p>
   </div>
 
   {{-- 9 --}}

@@ -135,6 +135,8 @@
   color: #94a3b8;
 }
 .ck-security svg { flex-shrink: 0; color: #16a34a; }
+.ck-bonus{margin:0 0 1rem;padding:.85rem 1rem;border:1px solid #86efac;border-radius:10px;background:#f0fdf4;color:#166534;font-size:.84rem;line-height:1.5}
+.ck-bonus strong{display:block;margin-bottom:.2rem}
 
 /* ── Form card ────────────────────────────────── */
 .ck-form-body {
@@ -363,6 +365,15 @@
   </a>
 
   @if($plan)
+  @if($bonusCampaign)
+    <div class="ck-bonus">
+      <strong>{{ $bonusCampaign->title }}</strong>
+      {{ $bonusCampaign->description ?: 'Ao concluir a compra deste plano, receberá também um voucher WiFi gratuito: ' . $bonusCampaign->bonusPlan->name . ' (' . $bonusCampaign->bonusPlan->validity_label . ').' }}
+      @if($bonusCampaign->description)
+        <span>Ao concluir esta compra, recebe também o voucher gratuito {{ $bonusCampaign->bonusPlan->name }} ({{ $bonusCampaign->bonusPlan->validity_label }}).</span>
+      @endif
+    </div>
+  @endif
   <form method="POST" action="{{ route('store.checkout.process') }}" id="checkoutForm">
     @csrf
     <input type="hidden" name="plan_id" value="{{ $plan->slug }}">

@@ -221,6 +221,8 @@
     </div>
   </div>
 
+  @include('partials.ad-slot', ['placement' => 'home_banner'])
+
   <section class="planos-section planos-section--individual" id="planos">
     <div class="container">
       <div class="section-header">
@@ -462,4 +464,3 @@
 })();
 </script>
 @endpush
-
