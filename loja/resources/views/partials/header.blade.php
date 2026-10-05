@@ -110,11 +110,13 @@
     <a href="{{ route('reseller.apply') }}" class="store-mobile-link">Quero ser revendedor</a>
     <a href="{{ route('equipment.index') }}" class="store-mobile-link">Equipamentos</a>
     <a href="/minha-conta" class="store-mobile-link">A minha conta</a>
+    <a href="{{ route('tickets.create') }}" class="store-mobile-link">Suporte</a>
     @if(session('sg_admin_authenticated'))
     <a href="/admin" class="store-mobile-link">Administração</a>
     <div class="store-mobile-submenu">
       <a href="/admin/recargas" class="store-mobile-link">Gestão de recargas</a>
       <a href="/admin/relatorios" class="store-mobile-link">Relatórios</a>
+      <a href="{{ route('admin.ads.index') }}" class="store-mobile-link">Campanhas e anúncios</a>
       <a href="{{ route('admin.equipment.products.index') }}" class="store-mobile-link">Produtos</a>
       <a href="{{ route('admin.equipment.orders.index') }}" class="store-mobile-link">Encomendas</a>
       <a href="{{ route('admin.appointments.index') }}" class="store-mobile-link">Agendamentos</a>
