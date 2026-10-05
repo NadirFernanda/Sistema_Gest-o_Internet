@@ -77,7 +77,7 @@
       @keyframes ad-fade-in{from{opacity:0}to{opacity:1}}
       @keyframes ad-popup-in{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
       @keyframes ad-gold-pulse{0%,100%{border-color:#f7b500;box-shadow:0 20px 50px rgba(2,6,23,.3),0 0 8px rgba(247,181,0,.2)}50%{border-color:#fff0a6;box-shadow:0 20px 50px rgba(2,6,23,.3),0 0 34px rgba(247,181,0,.8)}}
-      @media(max-width:600px){.sponsored-ad__link{flex-direction:column}.sponsored-ad__image{flex:auto;width:100%;min-height:0;max-height:220px;aspect-ratio:16/9}.sponsored-ad__content{padding:1rem}.sponsored-ad__content .sponsored-ad__button,.sponsored-popup__content .sponsored-ad__button{align-self:center}.sponsored-popup__dialog{padding:.75rem;border-radius:14px}.sponsored-popup__image{max-height:38vh}.sponsored-popup__content{padding:1rem}}
+      @media(max-width:600px){.sponsored-ad__link{flex-direction:column}.sponsored-ad__image{flex:auto;width:100%;min-height:0;max-height:220px;aspect-ratio:16/9}.sponsored-ad__content{padding:1rem}.sponsored-ad__content .sponsored-ad__button,.sponsored-popup__content .sponsored-ad__button{align-self:stretch;box-sizing:border-box;justify-content:center;width:100%;padding:.75rem 1.15rem;border-radius:8px;font-size:.93rem;text-align:center}.sponsored-popup__dialog{padding:.75rem;border-radius:14px}.sponsored-popup__image{max-height:38vh}.sponsored-popup__content{padding:1rem}}
       @media(prefers-reduced-motion:reduce){.sponsored-ad,.sponsored-popup__backdrop,.sponsored-popup__dialog,.sponsored-ad__link{animation:none!important}.sponsored-ad__link,.sponsored-ad__button{transition:none!important}}
     </style>
   @endPushOnce
