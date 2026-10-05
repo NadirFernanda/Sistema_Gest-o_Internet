@@ -136,7 +136,7 @@
 }
 
 /* Action links */
-.adm-actions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .9rem; }
+.adm-actions { display: flex; flex-flow: row wrap; align-items: flex-start; gap: .45rem; margin-top: .9rem; min-width: 0; }
 .adm-btn {
   display: inline-flex; align-items: center; gap: .3rem;
   padding: .42rem .95rem;
@@ -149,6 +149,11 @@
   color: #374151;
   transition: border-color .15s, background .15s, color .15s;
   cursor: pointer;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .adm-btn:hover { background: #fffbeb; border-color: #f7b500; color: #92400e; }
 .adm-btn.primary { background: #f7b500; border-color: #f7b500; color: #1a202c; }
