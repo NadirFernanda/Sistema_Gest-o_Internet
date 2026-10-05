@@ -54,9 +54,9 @@
       .sponsored-ad__link{position:relative;display:flex;align-items:stretch;gap:0;overflow:hidden;border:2px solid #f7b500;border-radius:16px;background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%);text-decoration:none;color:#f1f5f9;box-shadow:0 20px 50px rgba(2,6,23,.3),0 6px 20px rgba(2,6,23,.18);animation:ad-gold-pulse 1.1s ease-in-out infinite;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
       .sponsored-ad__link:hover{transform:translateY(-4px);border-color:#f7b500;box-shadow:0 22px 54px rgba(2,6,23,.36),0 0 24px rgba(247,181,0,.22)}
       .sponsored-ad__image{display:block;flex:0 0 38%;width:38%;min-height:220px;max-height:270px;object-fit:cover;background:#1e293b}
-      .sponsored-ad__content{position:relative;display:flex;flex:1;flex-direction:column;align-items:flex-start;justify-content:center;gap:.65rem;padding:clamp(1.25rem,3vw,2.25rem)}
+      .sponsored-ad__content{position:relative;display:flex;flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:.65rem;padding:clamp(1.25rem,3vw,2.25rem)}
       .sponsored-ad__eyebrow{color:#f7b500;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-      .sponsored-ad__content strong{font-size:clamp(1.25rem,2.4vw,1.8rem);line-height:1.15}
+      .sponsored-ad__content strong{max-width:100%;font-size:clamp(1.25rem,2.4vw,1.8rem);line-height:1.15;overflow-wrap:anywhere}
       .sponsored-ad__content>span:not(.sponsored-ad__button):not(.sponsored-ad__eyebrow){color:#cbd5e1;font-size:.95rem;line-height:1.55}
       .sponsored-ad__button{display:inline-flex;align-items:center;gap:.5rem;margin-top:.2rem;padding:.7rem 1.1rem;border-radius:8px;background:#f7b500;color:#1a202c;font-size:.88rem;font-weight:800;box-shadow:0 5px 14px rgba(247,181,0,.24);transition:transform .2s ease,background .2s ease}
       .sponsored-ad__link:hover .sponsored-ad__button{transform:translateX(3px);background:#e0a800}
@@ -64,14 +64,14 @@
       .sponsored-popup[hidden]{display:none}
       .sponsored-popup{position:fixed;inset:0;z-index:13000;display:grid;place-items:center;padding:1rem}
       .sponsored-popup__backdrop{position:absolute;inset:0;background:rgba(2,6,23,.68);backdrop-filter:blur(5px);animation:ad-fade-in .25s ease both}
-      .sponsored-popup__dialog{position:relative;z-index:1;width:min(680px,100%);max-height:calc(100vh - 2rem);overflow:auto;padding:1.25rem;border:1px solid rgba(247,181,0,.72);border-radius:18px;background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%);box-shadow:0 28px 90px rgba(2,6,23,.45);animation:ad-popup-in .4s cubic-bezier(.2,.8,.2,1) both}
+      .sponsored-popup__dialog{position:relative;z-index:1;width:min(680px,100%);max-height:calc(100vh - 2rem);box-sizing:border-box;overflow:auto;padding:1.25rem;border:1px solid rgba(247,181,0,.72);border-radius:18px;background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%);box-shadow:0 28px 90px rgba(2,6,23,.45);animation:ad-popup-in .4s cubic-bezier(.2,.8,.2,1) both}
       .sponsored-popup__dialog>.sponsored-ad__label{color:#f7b500}
       .sponsored-popup__close{position:absolute;top:.65rem;right:.65rem;z-index:2;display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(15,23,42,.88);color:#f1f5f9;font-size:1.65rem;line-height:1;cursor:pointer;box-shadow:0 3px 12px rgba(2,6,23,.25)}
       .sponsored-popup__close:hover{background:#fffbeb;border-color:#f7b500}
       .sponsored-popup__link{display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%);color:#f1f5f9;text-decoration:none}
       .sponsored-popup__image{display:block;width:100%;max-height:340px;object-fit:cover;background:#1e293b}
       .sponsored-popup__content{display:flex;flex-direction:column;align-items:flex-start;gap:.65rem;padding:1.25rem}
-      .sponsored-popup__content strong{padding-right:2rem;font-size:clamp(1.3rem,4vw,1.8rem);line-height:1.15}
+      .sponsored-popup__content strong{max-width:100%;padding-right:2rem;font-size:clamp(1.3rem,4vw,1.8rem);line-height:1.15;overflow-wrap:anywhere}
       .sponsored-popup__content>span:not(.sponsored-ad__button){color:#cbd5e1;line-height:1.55}
       @keyframes ad-rise-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
       @keyframes ad-fade-in{from{opacity:0}to{opacity:1}}
