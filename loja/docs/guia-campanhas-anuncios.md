@@ -39,12 +39,14 @@ Preencha os campos apresentados:
 | Título | Mensagem principal, curta e clara. |
 | Descrição | Detalhes da oferta ou do produto, se necessário. |
 | Imagem | Ficheiro JPG, PNG ou WebP, até 5 MB. |
-| Link de destino | Página para onde o botão deve levar; pode ser um endereço HTTP ou HTTPS. |
+| Link de destino | Para anunciantes externos, indique o endereço HTTP/HTTPS da página de destino. Em campanhas próprias é opcional: se ficar vazio, campanhas com bónus levam ao checkout do primeiro plano elegível; as restantes levam à página inicial. |
 | Texto do botão | Por exemplo, “Saber mais”, “Ver oferta” ou “Comprar”. |
 | Início e fim | Datas opcionais para programar a campanha. |
 | Campanha activa | Marque apenas quando a campanha estiver revista e pronta para publicação. |
 
 Uma campanha nova começa desactivada. Enquanto estiver desactivada, fora das datas definidas ou sem uma posição elegível, não aparece aos visitantes. Para interromper temporariamente uma campanha, edite-a e desmarque **Campanha activa**.
+
+O botão de imagem usa as opções **Escolher ficheiro** e **Nenhum ficheiro seleccionado** em português. Ao seleccionar uma imagem, o nome do ficheiro aparece junto ao botão.
 
 ## 4. Criar uma oferta com voucher WiFi gratuito
 

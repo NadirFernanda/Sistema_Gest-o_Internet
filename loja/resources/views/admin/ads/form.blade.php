@@ -4,12 +4,13 @@
 
 @section('content')
 <style>
-.ads-admin{background:#f4f6f9;min-height:60vh;padding:2rem 0 4rem;color:#1a202c;font-family:Inter,system-ui,sans-serif}.ads-wrap{max-width:760px;margin:auto;padding:0 1.25rem}.ads-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}.ads-head h1{margin:0;font-size:1.4rem}.ads-sub{margin:.25rem 0 0;color:#64748b;font-size:.85rem}.ads-card{padding:1.25rem;background:white;border:1px solid #dde2ea;border-radius:10px}.ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.ads-field{min-width:0}.ads-full{grid-column:1/-1}.ads-label{display:block;margin-bottom:.3rem;font-size:.8rem;font-weight:700}.ads-control{width:100%;box-sizing:border-box;padding:.58rem .7rem;border:1px solid #cbd5e1;border-radius:7px;background:#fff;font:inherit;font-size:.86rem}.ads-check{display:flex;align-items:center;gap:.55rem;font-size:.86rem;font-weight:700}.ads-error{color:#b91c1c;font-size:.78rem;margin:.2rem 0 0}.ads-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #eef1f5}.ads-btn{display:inline-block;border:0;border-radius:7px;padding:.55rem .9rem;background:#f7b500;color:#1a202c;text-decoration:none;font-weight:700;font-size:.84rem;cursor:pointer}.ads-muted{background:#e2e8f0}.ads-help{grid-column:1/-1;margin:0;padding:.75rem;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;color:#78350f;font-size:.82rem;line-height:1.5}.ads-plan-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.5rem}.ads-plan-option{display:flex;align-items:center;gap:.5rem;padding:.55rem;border:1px solid #e2e8f0;border-radius:7px;font-size:.84rem}@media(max-width:600px){.ads-grid{grid-template-columns:1fr}.ads-full,.ads-help{grid-column:auto}}
+.ads-admin{background:#f4f6f9;min-height:60vh;padding:2rem 0 4rem;color:#1a202c;font-family:Inter,system-ui,sans-serif}.ads-wrap{max-width:760px;margin:auto;padding:0 1.25rem}.ads-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}.ads-head h1{margin:0;font-size:1.4rem}.ads-sub{margin:.25rem 0 0;color:#64748b;font-size:.85rem}.ads-card{padding:1.25rem;background:white;border:1px solid #dde2ea;border-radius:10px}.ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.ads-field{min-width:0}.ads-full{grid-column:1/-1}.ads-label{display:block;margin-bottom:.3rem;font-size:.8rem;font-weight:700}.ads-control{width:100%;box-sizing:border-box;padding:.58rem .7rem;border:1px solid #cbd5e1;border-radius:7px;background:#fff;font:inherit;font-size:.86rem}.ads-control:focus{outline:2px solid rgba(247,181,0,.3);border-color:#f7b500}.ads-control option:checked{background:#f7b500;color:#1a202c}.ads-check{display:flex;align-items:center;gap:.55rem;font-size:.86rem;font-weight:700}.ads-error{color:#b91c1c;font-size:.78rem;margin:.2rem 0 0}.ads-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #eef1f5}.ads-btn{display:inline-block;border:0;border-radius:7px;padding:.55rem .9rem;background:#f7b500;color:#1a202c;text-decoration:none;font-weight:700;font-size:.84rem;cursor:pointer}.ads-muted{background:#e2e8f0}.ads-help{grid-column:1/-1;margin:0;padding:.75rem;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;color:#78350f;font-size:.82rem;line-height:1.5}.ads-plan-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.5rem}.ads-plan-option{display:flex;align-items:center;gap:.5rem;padding:.55rem;border:1px solid #e2e8f0;border-radius:7px;font-size:.84rem}.ads-plan-list input{accent-color:#f7b500}@media(max-width:600px){.ads-grid{grid-template-columns:1fr}.ads-full,.ads-help{grid-column:auto}}
+.ads-file-picker{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}.ads-file-native{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ads-file-native:focus-visible+.ads-file-button{outline:2px solid #f7b500;outline-offset:2px}.ads-file-button{display:inline-block;padding:.55rem .85rem;border-radius:7px;background:#f7b500;color:#1a202c;font-size:.84rem;font-weight:700;cursor:pointer}.ads-file-name{color:#64748b;font-size:.82rem}.ads-field[hidden]{display:none}
 </style>
 <div class="ads-admin"><div class="ads-wrap">
   <header class="ads-head"><div><h1>{{ $campaign->exists ? 'Editar campanha' : 'Nova campanha' }}</h1><p class="ads-sub">Escolha campanha própria gratuita ou publicidade de anunciante.</p></div>
     <a class="ads-btn ads-muted" href="{{ route('admin.ads.index') }}">Voltar</a></header>
-  @if($errors->any())<div class="ads-card" style="margin-bottom:1rem;color:#991b1b"><ul style="padding-left:1.2rem">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+  @if($errors->any())<div class="ads-card" role="alert" style="margin-bottom:1rem;color:#991b1b"><strong>Verifique os seguintes campos:</strong><ul style="padding-left:1.2rem;margin:.5rem 0 0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
   <form method="POST" enctype="multipart/form-data" action="{{ $campaign->exists ? route('admin.ads.update', $campaign->id) : route('admin.ads.store') }}" class="ads-card">
     @csrf @if($campaign->exists) @method('PUT') @endif
     <div class="ads-grid">
@@ -39,8 +40,8 @@
         </select>
         <p class="ads-help" style="margin-top:.5rem">Ao confirmar o pagamento de um plano elegível, o cliente recebe também um segundo código WiFi do plano de bónus. É necessário ter códigos desse plano em stock.</p>
       </div>
-      <div class="ads-field ads-full"><label class="ads-label" for="image">Imagem {{ $campaign->exists ? '(opcional para manter a actual)' : '*' }}</label><input class="ads-control" id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" {{ $campaign->exists ? '' : 'required' }}>@if($campaign->exists)<small>Imagem actual: {{ basename($campaign->image_path) }}</small>@endif</div>
-      <div class="ads-field ads-full"><label class="ads-label" for="destination_url">Link de destino *</label><input class="ads-control" id="destination_url" name="destination_url" type="url" maxlength="2048" required value="{{ old('destination_url', $campaign->destination_url) }}"></div>
+      <div class="ads-field ads-full"><span class="ads-label">Imagem {{ $campaign->exists ? '(opcional para manter a actual)' : '*' }}</span><div class="ads-file-picker"><input class="ads-file-native" id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-describedby="image_file_name image_help"><label class="ads-file-button" for="image">Escolher ficheiro</label><span class="ads-file-name" id="image_file_name" aria-live="polite">{{ $campaign->exists ? 'Imagem actual: ' . basename($campaign->image_path) : 'Nenhum ficheiro seleccionado' }}</span></div><small class="ads-sub" id="image_help">Formatos aceites: JPG, PNG ou WebP. Tamanho máximo: 5 MB.</small></div>
+      <div class="ads-field ads-full" id="destination_field"><label class="ads-label" for="destination_url">Link de destino <span id="destination_required">*</span></label><input class="ads-control" id="destination_url" name="destination_url" type="url" maxlength="2048" value="{{ old('destination_url', $campaign->destination_url) }}"><small class="ads-sub" id="destination_help">Obrigatório para anúncios de empresas externas.</small></div>
       <div class="ads-field"><label class="ads-label" for="button_text">Texto do botão *</label><input class="ads-control" id="button_text" name="button_text" maxlength="40" required value="{{ old('button_text', $campaign->button_text ?: 'Saber mais') }}"></div>
       <div class="ads-field"><label class="ads-label" for="starts_at">Início da campanha</label><input class="ads-control" id="starts_at" name="starts_at" type="datetime-local" value="{{ old('starts_at', $campaign->starts_at?->format('Y-m-d\TH:i')) }}"></div>
       <div class="ads-field"><label class="ads-label" for="ends_at">Fim da campanha</label><input class="ads-control" id="ends_at" name="ends_at" type="datetime-local" value="{{ old('ends_at', $campaign->ends_at?->format('Y-m-d\TH:i')) }}"></div>
@@ -59,6 +60,12 @@
     var bonusFields = document.getElementById('bonus_fields');
     var bonusPlan = document.getElementById('bonus_plan_slug');
     var purchasePlans = document.querySelectorAll('input[name="purchase_plan_slugs[]"]');
+    var destination = document.getElementById('destination_url');
+    var destinationRequired = document.getElementById('destination_required');
+    var destinationHelp = document.getElementById('destination_help');
+    var imageInput = document.getElementById('image');
+    var imageName = document.getElementById('image_file_name');
+    var imageExistingName = @json($campaign->exists ? basename($campaign->image_path) : null);
     function updateTypeFields() {
       var isSponsored = type.value === 'sponsored';
       advertiser.hidden = !isSponsored;
@@ -71,9 +78,21 @@
       bonusPlan.required = showBonus;
       bonusPlan.disabled = !showBonus;
       purchasePlans.forEach(function (plan) { plan.disabled = !showBonus; });
+      destination.required = isSponsored;
+      destinationRequired.hidden = !isSponsored;
+      destinationHelp.textContent = isSponsored
+        ? 'Obrigatório para anúncios de empresas externas.'
+        : (showBonus
+          ? 'Opcional. Se ficar vazio, o botão abrirá o checkout do primeiro plano elegível.'
+          : 'Opcional. Se ficar vazio, o botão abrirá a página inicial da AngolaWiFi.');
     }
     type.addEventListener('change', updateTypeFields);
     hasBonus.addEventListener('change', updateTypeFields);
+    imageInput.addEventListener('change', function () {
+      imageName.textContent = imageInput.files.length
+        ? imageInput.files[0].name
+        : (imageExistingName ? 'Imagem actual: ' + imageExistingName : 'Nenhum ficheiro seleccionado');
+    });
     updateTypeFields();
   })();
 </script>

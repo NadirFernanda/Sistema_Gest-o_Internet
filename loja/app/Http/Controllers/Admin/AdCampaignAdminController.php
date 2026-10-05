@@ -92,7 +92,7 @@ class AdCampaignAdminController extends Controller
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string', 'max:500'],
             'image' => [$existing ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'destination_url' => ['required', 'url:http,https', 'max:2048'],
+            'destination_url' => ['nullable', 'required_if:campaign_type,sponsored', 'url:http,https', 'max:2048'],
             'button_text' => ['required', 'string', 'max:40'],
             'placement' => ['required', Rule::in(array_keys(AdCampaign::PLACEMENTS))],
             'starts_at' => ['nullable', 'date'],
@@ -101,11 +101,60 @@ class AdCampaignAdminController extends Controller
             'bonus_plan_slug' => [$hasBonus ? 'required' : 'nullable', 'exists:voucher_plans,slug'],
             'purchase_plan_slugs' => [$hasBonus ? 'required' : 'nullable', 'array', $hasBonus ? 'min:1' : 'sometimes'],
             'purchase_plan_slugs.*' => ['string', 'distinct', 'exists:voucher_plans,slug'],
+        ], [
+            'campaign_type.required' => 'Seleccione o tipo de campanha.',
+            'campaign_type.in' => 'O tipo de campanha seleccionado não é válido.',
+            'advertiser_name.required_if' => 'Indique o nome do anunciante externo.',
+            'advertiser_name.string' => 'O nome do anunciante deve ser texto.',
+            'advertiser_name.max' => 'O nome do anunciante não pode exceder 120 caracteres.',
+            'title.required' => 'Indique o título da campanha.',
+            'title.max' => 'O título não pode exceder 160 caracteres.',
+            'description.max' => 'A descrição não pode exceder 500 caracteres.',
+            'image.required' => 'Seleccione uma imagem para a campanha.',
+            'image.uploaded' => 'O envio da imagem falhou. Verifique o tamanho do ficheiro e tente novamente.',
+            'image.image' => 'O ficheiro seleccionado tem de ser uma imagem válida.',
+            'image.mimes' => 'A imagem deve estar no formato JPG, PNG ou WebP.',
+            'image.max' => 'A imagem não pode exceder 5 MB.',
+            'destination_url.required_if' => 'Indique o link de destino do anúncio patrocinado.',
+            'destination_url.url' => 'Indique um link válido que comece por http:// ou https://.',
+            'destination_url.max' => 'O link de destino é demasiado longo.',
+            'button_text.required' => 'Indique o texto do botão.',
+            'button_text.max' => 'O texto do botão não pode exceder 40 caracteres.',
+            'placement.required' => 'Seleccione onde a campanha será apresentada.',
+            'placement.in' => 'A posição seleccionada não é válida.',
+            'starts_at.date' => 'A data de início não é válida.',
+            'ends_at.date' => 'A data de fim não é válida.',
+            'ends_at.after' => 'A data de fim deve ser posterior à data de início.',
+            'bonus_plan_slug.required' => 'Seleccione o voucher WiFi que será oferecido.',
+            'bonus_plan_slug.exists' => 'O plano de voucher seleccionado não existe.',
+            'purchase_plan_slugs.required' => 'Seleccione pelo menos um plano de compra elegível.',
+            'purchase_plan_slugs.array' => 'A selecção dos planos elegíveis não é válida.',
+            'purchase_plan_slugs.min' => 'Seleccione pelo menos um plano de compra elegível.',
+            'purchase_plan_slugs.*.distinct' => 'Não repita planos de compra elegíveis.',
+            'purchase_plan_slugs.*.exists' => 'Um dos planos de compra seleccionados já não está disponível.',
+        ], [
+            'campaign_type' => 'tipo de campanha',
+            'advertiser_name' => 'nome do anunciante',
+            'title' => 'título',
+            'description' => 'descrição',
+            'image' => 'imagem',
+            'destination_url' => 'link de destino',
+            'button_text' => 'texto do botão',
+            'placement' => 'posição',
+            'starts_at' => 'data de início',
+            'ends_at' => 'data de fim',
+            'bonus_plan_slug' => 'voucher bónus',
+            'purchase_plan_slugs' => 'planos de compra elegíveis',
         ]);
 
         $data['advertiser_name'] = $data['campaign_type'] === 'own'
             ? 'AngolaWiFi'
             : $data['advertiser_name'];
+        if (empty($data['destination_url'])) {
+            $data['destination_url'] = $hasBonus && ! empty($data['purchase_plan_slugs'])
+                ? route('store.checkout', ['plan' => $data['purchase_plan_slugs'][0]])
+                : url('/');
+        }
         if (! $hasBonus) {
             $data['bonus_plan_slug'] = null;
             $data['purchase_plan_slugs'] = [];
