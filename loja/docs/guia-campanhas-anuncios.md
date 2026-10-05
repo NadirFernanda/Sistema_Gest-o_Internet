@@ -82,7 +82,7 @@ O bónus é um **voucher WiFi adicional**, não saldo monetário ou crédito num
 - **Página inicial:** abaixo do destaque principal e das estatísticas, antes dos planos individuais.
 - **Equipamentos:** antes da lista de produtos.
 
-Na página inicial, a campanha também pode surgir numa janela promocional cerca de oito segundos depois de a página abrir. A janela aparece no máximo uma vez por sessão e pode ser fechada no botão **×**, com a tecla **Esc** ou clicando fora do anúncio. O anúncio em destaque continua visível abaixo do carrossel. As imagens são servidas pela própria aplicação, sem depender do link simbólico `public/storage` do servidor.
+Na página inicial, a campanha também pode surgir numa janela promocional cerca de oito segundos depois de a página abrir. A janela aparece no máximo uma vez por sessão do navegador, mesmo que uma visita posterior escolha outro anunciante, e pode ser fechada no botão **×**, com a tecla **Esc** ou clicando fora do anúncio. O anúncio em destaque continua visível abaixo do carrossel. As imagens são servidas pela própria aplicação, sem depender do link simbólico `public/storage` do servidor.
 
 Não são apresentados anúncios no checkout, na página de pagamento, na confirmação, na conta do cliente, no suporte nem no painel do revendedor. A oferta de voucher, quando aplicável, é mostrada no checkout do plano elegível como informação da promoção, não como um espaço publicitário geral.
 

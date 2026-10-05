@@ -30,7 +30,7 @@
   </aside>
 
   @if($placement === 'home_banner')
-    <div class="sponsored-popup" id="sponsoredPopup-{{ $campaign->id }}" data-popup-key="angolawifi-ad-popup-{{ $campaign->id }}" hidden>
+    <div class="sponsored-popup" id="sponsoredPopup-{{ $campaign->id }}" data-popup-key="angolawifi-home-popup-shown" hidden>
       <div class="sponsored-popup__backdrop" data-popup-close></div>
       <section class="sponsored-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="sponsoredPopupTitle-{{ $campaign->id }}">
         <button class="sponsored-popup__close" type="button" aria-label="Fechar anúncio" data-popup-close>&times;</button>
@@ -113,12 +113,13 @@
 
         document.querySelectorAll('.sponsored-popup').forEach(function (popup) {
           var storageKey = popup.dataset.popupKey;
-          try {
-            if (window.sessionStorage.getItem(storageKey)) return;
-          } catch (error) {
-            console.warn('Não foi possível verificar se a campanha já foi apresentada nesta sessão.', error);
-            return;
-          }
+          var cookieName = encodeURIComponent(storageKey);
+          var wasShown = function () {
+            return document.cookie.split(';').some(function (cookie) {
+              return cookie.trim().indexOf(cookieName + '=') === 0;
+            });
+          };
+          if (wasShown()) return;
 
           var closeButton = popup.querySelector('.sponsored-popup__close');
           var previousFocus = document.activeElement;
@@ -145,11 +146,9 @@
           });
 
           window.setTimeout(function () {
-            try {
-              window.sessionStorage.setItem(storageKey, 'shown');
-            } catch (error) {
-              console.warn('Não foi possível guardar a apresentação da campanha nesta sessão.', error);
-            }
+            if (wasShown()) return;
+            document.cookie = cookieName + '=1; path=/; SameSite=Lax' +
+              (window.location.protocol === 'https:' ? '; Secure' : '');
             popup.hidden = false;
             document.body.style.overflow = 'hidden';
             closeButton.focus();

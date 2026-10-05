@@ -14,7 +14,7 @@ Implementar um gestor de campanhas da loja com dois usos: divulgar gratuitamente
 | Página inicial (`/`) | Abaixo do destaque principal e das estatísticas, antes dos planos individuais | Dá visibilidade a campanhas próprias e anúncios sem interromper o fluxo de compra dos planos. |
 | Catálogo de equipamentos (`/equipamentos`) | Antes da grelha de produtos | Mantém campanhas num contexto relacionado com conectividade, acessórios e equipamentos. |
 
-Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta do cliente, suporte ou painel do revendedor. Nessas páginas o utilizador está a concluir uma tarefa; publicidade pode causar distracção, reduzir confiança e prejudicar conversões. A posição da página inicial apresenta o anúncio em destaque abaixo do carrossel e pode abrir uma janela promocional após alguns segundos, no máximo uma vez por sessão, com controlos para fechar; não se usam intersticiais noutras páginas.
+Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta do cliente, suporte ou painel do revendedor. Nessas páginas o utilizador está a concluir uma tarefa; publicidade pode causar distracção, reduzir confiança e prejudicar conversões. A posição da página inicial apresenta o anúncio em destaque abaixo do carrossel e pode abrir uma janela promocional após alguns segundos, no máximo uma vez por sessão do navegador, mesmo que outro anunciante seja escolhido numa visita posterior. A janela tem controlos para fechar; não se usam intersticiais noutras páginas.
 
 ## Como funciona
 
