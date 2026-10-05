@@ -6,6 +6,7 @@
 <style>
 .ads-admin{background:#f4f6f9;min-height:60vh;padding:2rem 0 4rem;color:#1a202c;font-family:Inter,system-ui,sans-serif}.ads-wrap{max-width:760px;margin:auto;padding:0 1.25rem}.ads-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}.ads-head h1{margin:0;font-size:1.4rem}.ads-sub{margin:.25rem 0 0;color:#64748b;font-size:.85rem}.ads-card{padding:1.25rem;background:white;border:1px solid #dde2ea;border-radius:10px}.ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.ads-field{min-width:0}.ads-full{grid-column:1/-1}.ads-label{display:block;margin-bottom:.3rem;font-size:.8rem;font-weight:700}.ads-control{width:100%;box-sizing:border-box;padding:.58rem .7rem;border:1px solid #cbd5e1;border-radius:7px;background:#fff;font:inherit;font-size:.86rem}.ads-control:focus{outline:2px solid rgba(247,181,0,.3);border-color:#f7b500}.ads-control option:checked{background:#f7b500;color:#1a202c}.ads-check{display:flex;align-items:center;gap:.55rem;font-size:.86rem;font-weight:700}.ads-error{color:#b91c1c;font-size:.78rem;margin:.2rem 0 0}.ads-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #eef1f5}.ads-btn{display:inline-block;border:0;border-radius:7px;padding:.55rem .9rem;background:#f7b500;color:#1a202c;text-decoration:none;font-weight:700;font-size:.84rem;cursor:pointer}.ads-muted{background:#e2e8f0}.ads-help{grid-column:1/-1;margin:0;padding:.75rem;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;color:#78350f;font-size:.82rem;line-height:1.5}.ads-plan-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.5rem}.ads-plan-option{display:flex;align-items:center;gap:.5rem;padding:.55rem;border:1px solid #e2e8f0;border-radius:7px;font-size:.84rem}.ads-plan-list input{accent-color:#f7b500}@media(max-width:600px){.ads-grid{grid-template-columns:1fr}.ads-full,.ads-help{grid-column:auto}}
 .ads-file-picker{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}.ads-file-native{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ads-file-native:focus-visible+.ads-file-button{outline:2px solid #f7b500;outline-offset:2px}.ads-file-button{display:inline-block;padding:.55rem .85rem;border-radius:7px;background:#f7b500;color:#1a202c;font-size:.84rem;font-weight:700;cursor:pointer}.ads-file-name{color:#64748b;font-size:.82rem}.ads-field[hidden]{display:none}
+.ads-select-wrap{position:relative}.ads-select-trigger{display:none;align-items:center;justify-content:space-between;text-align:left;cursor:pointer}.ads-select-wrap.is-enhanced .ads-native-select{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ads-select-wrap.is-enhanced .ads-select-trigger{display:flex}.ads-select-trigger:after{content:"";width:.5rem;height:.5rem;margin-left:.75rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}.ads-select-menu{position:absolute;top:calc(100% + .25rem);right:0;left:0;z-index:20;max-height:220px;overflow:auto;padding:.25rem;border:1px solid #cbd5e1;border-radius:7px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.14)}.ads-select-option{padding:.55rem .7rem;border-radius:5px;cursor:pointer}.ads-select-option:hover,.ads-select-option[aria-selected=true],.ads-select-option:focus{outline:0;background:#ffefb3;color:#1a202c}.ads-select-trigger:focus-visible{outline:2px solid rgba(247,181,0,.5);outline-offset:1px}
 </style>
 <div class="ads-admin"><div class="ads-wrap">
   <header class="ads-head"><div><h1>{{ $campaign->exists ? 'Editar campanha' : 'Nova campanha' }}</h1><p class="ads-sub">Escolha campanha própria gratuita ou publicidade de anunciante.</p></div>
@@ -21,7 +22,7 @@
       <div class="ads-field ads-full"><label class="ads-label" for="title">Título *</label><input class="ads-control" id="title" name="title" maxlength="160" required value="{{ old('title', $campaign->title) }}"></div>
       <div class="ads-field ads-full"><label class="ads-label" for="description">Descrição</label><textarea class="ads-control" id="description" name="description" maxlength="500" rows="3">{{ old('description', $campaign->description) }}</textarea></div>
       <div class="ads-field ads-full" id="description_suggestion" hidden><p class="ads-help" style="margin-bottom:.5rem" id="description_suggestion_text" aria-live="polite"></p><button class="ads-btn ads-muted" type="button" id="use_description_suggestion">Usar descrição sugerida</button></div>
-      <div class="ads-field"><label class="ads-label" for="frequency_period">Limite de exibições</label><select class="ads-control" id="frequency_period" name="frequency_period"><option value="">Sem limite</option>@foreach(\App\Models\AdCampaign::FREQUENCY_PERIODS as $key => $label)<option value="{{ $key }}" @selected(old('frequency_period', $campaign->frequency_period) === $key)>Máximo por {{ strtolower($label) }}</option>@endforeach</select></div>
+      <div class="ads-field"><label class="ads-label" id="frequency_period_label" for="frequency_period">Limite de exibições</label><div class="ads-select-wrap" id="frequency_period_wrap"><select class="ads-control ads-native-select" id="frequency_period" name="frequency_period"><option value="">Sem limite</option>@foreach(\App\Models\AdCampaign::FREQUENCY_PERIODS as $key => $label)<option value="{{ $key }}" @selected(old('frequency_period', $campaign->frequency_period) === $key)>Máximo por {{ strtolower($label) }}</option>@endforeach</select><button class="ads-control ads-select-trigger" id="frequency_period_trigger" type="button" aria-labelledby="frequency_period_label frequency_period_value" aria-haspopup="listbox" aria-expanded="false"><span id="frequency_period_value"></span></button><div class="ads-select-menu" id="frequency_period_menu" role="listbox" aria-labelledby="frequency_period_label" hidden><div class="ads-select-option" role="option" tabindex="-1" data-value="">Sem limite</div>@foreach(\App\Models\AdCampaign::FREQUENCY_PERIODS as $key => $label)<div class="ads-select-option" role="option" tabindex="-1" data-value="{{ $key }}">Máximo por {{ strtolower($label) }}</div>@endforeach</div></div></div>
       <div class="ads-field" id="frequency_limit_field"><label class="ads-label" for="frequency_limit">Número máximo no período</label><input class="ads-control" id="frequency_limit" name="frequency_limit" type="number" min="1" max="1000000" step="1" value="{{ old('frequency_limit', $campaign->frequency_limit) }}" placeholder="Ex.: 1000"><small class="ads-sub">Ao atingir o limite, a campanha deixa de aparecer até ao próximo período. Conta uma impressão quando pelo menos metade do anúncio fica visível; a mesma campanha só conta uma vez por sessão a cada 30 minutos.</small></div>
       <div class="ads-field ads-full" id="bonus_toggle_field">
         <label class="ads-check"><input type="checkbox" id="has_bonus" name="has_bonus" value="1" @checked(old('has_bonus', $campaign->bonus_plan_slug ? '1' : ''))> A campanha oferece um voucher WiFi gratuito após uma compra</label>
@@ -73,8 +74,18 @@
     var destinationRequired = document.getElementById('destination_required');
     var destinationHelp = document.getElementById('destination_help');
     var frequencyPeriod = document.getElementById('frequency_period');
+    var frequencySelectWrap = document.getElementById('frequency_period_wrap');
+    var frequencyLabel = document.getElementById('frequency_period_label');
+    var frequencyTrigger = document.getElementById('frequency_period_trigger');
+    var frequencyValue = document.getElementById('frequency_period_value');
+    var frequencyMenu = document.getElementById('frequency_period_menu');
+    var frequencyOptions = Array.from(frequencyMenu.querySelectorAll('[role="option"]'));
     var frequencyLimit = document.getElementById('frequency_limit');
     var frequencyLimitField = document.getElementById('frequency_limit_field');
+    frequencySelectWrap.classList.add('is-enhanced');
+    frequencyLabel.htmlFor = frequencyTrigger.id;
+    frequencyPeriod.setAttribute('aria-hidden', 'true');
+    frequencyPeriod.tabIndex = -1;
     var imageInput = document.getElementById('image');
     var imageName = document.getElementById('image_file_name');
     var imageExistingName = @json($campaign->exists ? basename($campaign->image_path) : null);
@@ -127,6 +138,62 @@
       frequencyLimitField.hidden = !hasFrequencyLimit;
       frequencyLimit.required = hasFrequencyLimit;
       if (!hasFrequencyLimit) frequencyLimit.value = '';
+      frequencyValue.textContent = frequencyPeriod.selectedOptions[0].textContent;
+      frequencyOptions.forEach(function (option) {
+        option.setAttribute('aria-selected', String(option.dataset.value === frequencyPeriod.value));
+      });
+    });
+    function closeFrequencyMenu(returnFocus) {
+      frequencyMenu.hidden = true;
+      frequencyTrigger.setAttribute('aria-expanded', 'false');
+      if (returnFocus) frequencyTrigger.focus();
+    }
+    function openFrequencyMenu() {
+      frequencyMenu.hidden = false;
+      frequencyTrigger.setAttribute('aria-expanded', 'true');
+      var selected = frequencyOptions.find(function (option) {
+        return option.dataset.value === frequencyPeriod.value;
+      });
+      if (selected) selected.focus();
+    }
+    function selectFrequencyOption(option) {
+      frequencyPeriod.value = option.dataset.value;
+      frequencyPeriod.dispatchEvent(new Event('change', { bubbles: true }));
+      closeFrequencyMenu(true);
+    }
+    frequencyTrigger.addEventListener('click', function () {
+      if (frequencyMenu.hidden) openFrequencyMenu();
+      else closeFrequencyMenu(false);
+    });
+    frequencyOptions.forEach(function (option) {
+      option.addEventListener('click', function () { selectFrequencyOption(option); });
+      option.addEventListener('keydown', function (event) {
+        var index = frequencyOptions.indexOf(option);
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          frequencyOptions[(index + (event.key === 'ArrowDown' ? 1 : -1) + frequencyOptions.length) % frequencyOptions.length].focus();
+        } else if (event.key === 'Home' || event.key === 'End') {
+          event.preventDefault();
+          frequencyOptions[event.key === 'Home' ? 0 : frequencyOptions.length - 1].focus();
+        } else if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectFrequencyOption(option);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          closeFrequencyMenu(true);
+        } else if (event.key === 'Tab') {
+          closeFrequencyMenu(false);
+        }
+      });
+    });
+    frequencyTrigger.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openFrequencyMenu();
+      }
+    });
+    document.addEventListener('click', function (event) {
+      if (!frequencyMenu.hidden && !event.target.closest('.ads-select-wrap')) closeFrequencyMenu(false);
     });
     function updateTypeFields() {
       var isSponsored = type.value === 'sponsored';
