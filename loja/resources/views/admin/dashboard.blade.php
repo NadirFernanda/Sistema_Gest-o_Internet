@@ -658,6 +658,7 @@
             <a href="{{ route('admin.reports') }}" class="adm-btn primary">📈 Relatórios →</a>
             <a href="{{ route('admin.reconciliation.gpo') }}" class="adm-btn">💳 Reconciliação GPO</a>
             <a href="{{ route('admin.site_stats.index') }}" class="adm-btn">📊 Estatísticas da Página</a>
+            <a href="{{ route('admin.purchase-help-video.index') }}" class="adm-btn">🎬 Vídeo de Ajuda da Compra</a>
             <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual de Vouchers</a>
             <a href="{{ route('admin.activity.index') }}" class="adm-btn">🕐 Actividade</a>
           </div>

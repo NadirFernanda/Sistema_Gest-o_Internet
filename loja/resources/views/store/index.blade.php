@@ -236,6 +236,8 @@
         <p style="margin-top:.65rem;">Adquira o seu voucher AngolaWiFi, conecte-se a um dos nossos pontos de acesso e desfrute de uma experiência de internet rápida, estável e sem complicações.</p>
       </div>
 
+      @include('partials.purchase-help', ['context' => 'plans'])
+
       <div class="plans-grid plans-grid--individual" aria-live="polite">
         @forelse ($individualPlans as $plan)
           <div class="plan-card-modern plan-card--individual plan-card--{{ $plan->slug }}{{ $plan->slug === 'semanal' ? ' plan-card--featured' : '' }}">

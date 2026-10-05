@@ -234,6 +234,9 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     // Percentagens da rede de revendedores (admin-configurable)
     Route::get('/configuracoes/rede', [NetworkSettingsAdminController::class, 'index'])->name('admin.network-settings.index');
     Route::put('/configuracoes/rede', [NetworkSettingsAdminController::class, 'update'])->name('admin.network-settings.update');
+    Route::get('/ajuda-compra/video', [\App\Http\Controllers\Admin\PurchaseHelpVideoAdminController::class, 'index'])->name('admin.purchase-help-video.index');
+    Route::post('/ajuda-compra/video', [\App\Http\Controllers\Admin\PurchaseHelpVideoAdminController::class, 'store'])->name('admin.purchase-help-video.store');
+    Route::post('/ajuda-compra/video/remover', [\App\Http\Controllers\Admin\PurchaseHelpVideoAdminController::class, 'destroy'])->name('admin.purchase-help-video.destroy');
 
     // Gestão de produtos (equipamentos)
     Route::get('/equipamentos', [ProductAdminController::class, 'index'])->name('admin.equipment.products.index');

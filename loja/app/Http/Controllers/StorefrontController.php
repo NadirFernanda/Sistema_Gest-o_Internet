@@ -11,6 +11,8 @@ use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class StorefrontController extends Controller
@@ -46,6 +48,7 @@ class StorefrontController extends Controller
         return view('store.index', [
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
+            'purchaseHelpVideoUrl' => $this->purchaseHelpVideoUrl(),
             'activeClientCount' => $this->fetchActiveClientCount(),
             'vouchersSoldToday' => $vouchersSoldToday,
             'totalDelivered'    => $totalDelivered,
@@ -203,7 +206,15 @@ class StorefrontController extends Controller
         return view('store.checkout', [
             'plan' => $plan,
             'bonusCampaign' => $bonusCampaign,
+            'purchaseHelpVideoUrl' => $this->purchaseHelpVideoUrl(),
         ]);
+    }
+
+    private function purchaseHelpVideoUrl(): ?string
+    {
+        $videoPath = DB::table('purchase_help_videos')->where('id', 1)->value('video_path');
+
+        return $videoPath ? Storage::disk('public')->url($videoPath) : null;
     }
  
     public function processCheckout(Request $request, AutovendaOrderService $orderService)

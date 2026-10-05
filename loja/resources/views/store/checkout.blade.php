@@ -374,6 +374,7 @@
       @endif
     </div>
   @endif
+  @include('partials.purchase-help', ['context' => 'checkout'])
   <form method="POST" action="{{ route('store.checkout.process') }}" id="checkoutForm">
     @csrf
     <input type="hidden" name="plan_id" value="{{ $plan->slug }}">
