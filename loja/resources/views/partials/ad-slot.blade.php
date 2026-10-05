@@ -58,7 +58,7 @@
       .sponsored-ad__eyebrow{color:#f7b500;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
       .sponsored-ad__content strong{max-width:100%;font-size:clamp(1.25rem,2.4vw,1.8rem);line-height:1.15;overflow-wrap:anywhere}
       .sponsored-ad__content>span:not(.sponsored-ad__button):not(.sponsored-ad__eyebrow){color:#cbd5e1;font-size:.95rem;line-height:1.55}
-      .sponsored-ad__button{display:inline-flex;align-items:center;gap:.5rem;margin-top:.2rem;padding:.7rem 1.1rem;border-radius:8px;background:#f7b500;color:#1a202c;font-size:.88rem;font-weight:800;box-shadow:0 5px 14px rgba(247,181,0,.24);transition:transform .2s ease,background .2s ease}
+      .sponsored-ad__button{display:inline-flex;align-items:center;gap:.5rem;margin-top:.2rem;padding:.75rem 1.15rem;border-radius:8px;background:#f7b500;color:#1a202c;font-size:.93rem;font-weight:800;box-shadow:0 5px 14px rgba(247,181,0,.24);transition:transform .2s ease,background .2s ease}
       .sponsored-ad__link:hover .sponsored-ad__button{transform:translateX(3px);background:#e0a800}
       .sponsored-ad__button::after{content:"→";font-size:1.1rem}
       .sponsored-popup[hidden]{display:none}
