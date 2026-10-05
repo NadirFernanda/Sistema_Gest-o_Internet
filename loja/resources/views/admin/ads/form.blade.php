@@ -20,6 +20,7 @@
       <div class="ads-field"><label class="ads-label" for="placement">Posição *</label><select class="ads-control" id="placement" name="placement" required>@foreach(\App\Models\AdCampaign::PLACEMENTS as $key => $label)<option value="{{ $key }}" @selected(old('placement', $campaign->placement) === $key)>{{ $label }}</option>@endforeach</select></div>
       <div class="ads-field ads-full"><label class="ads-label" for="title">Título *</label><input class="ads-control" id="title" name="title" maxlength="160" required value="{{ old('title', $campaign->title) }}"></div>
       <div class="ads-field ads-full"><label class="ads-label" for="description">Descrição</label><textarea class="ads-control" id="description" name="description" maxlength="500" rows="3">{{ old('description', $campaign->description) }}</textarea></div>
+      <div class="ads-field ads-full" id="description_suggestion" hidden><p class="ads-help" style="margin-bottom:.5rem" id="description_suggestion_text" aria-live="polite"></p><button class="ads-btn ads-muted" type="button" id="use_description_suggestion">Usar descrição sugerida</button></div>
       <div class="ads-field ads-full" id="bonus_toggle_field">
         <label class="ads-check"><input type="checkbox" id="has_bonus" name="has_bonus" value="1" @checked(old('has_bonus', $campaign->bonus_plan_slug ? '1' : ''))> A campanha oferece um voucher WiFi gratuito após uma compra</label>
       </div>
@@ -28,14 +29,14 @@
         <div class="ads-plan-list">
           @php $selectedPurchasePlans = old('purchase_plan_slugs', $campaign->qualifyingPlans->pluck('slug')->all()); @endphp
           @foreach($voucherPlans as $voucherPlan)
-            <label class="ads-plan-option"><input type="checkbox" name="purchase_plan_slugs[]" value="{{ $voucherPlan->slug }}" @checked(in_array($voucherPlan->slug, $selectedPurchasePlans, true))> {{ $voucherPlan->name }}</label>
+            <label class="ads-plan-option"><input type="checkbox" name="purchase_plan_slugs[]" value="{{ $voucherPlan->slug }}" data-plan-name="{{ $voucherPlan->name }}" @checked(in_array($voucherPlan->slug, $selectedPurchasePlans, true))> {{ $voucherPlan->name }}</label>
           @endforeach
         </div>
         <label class="ads-label" for="bonus_plan_slug" style="margin-top:.85rem">Voucher WiFi gratuito a entregar *</label>
         <select class="ads-control" id="bonus_plan_slug" name="bonus_plan_slug">
           <option value="">Escolha o plano de bónus</option>
           @foreach($voucherPlans as $voucherPlan)
-            <option value="{{ $voucherPlan->slug }}" @selected(old('bonus_plan_slug', $campaign->bonus_plan_slug) === $voucherPlan->slug)>{{ $voucherPlan->name }} — {{ $voucherPlan->validity_label }}</option>
+            <option value="{{ $voucherPlan->slug }}" data-plan-name="{{ $voucherPlan->name }}" data-validity="{{ $voucherPlan->validity_label }}" @selected(old('bonus_plan_slug', $campaign->bonus_plan_slug) === $voucherPlan->slug)>{{ $voucherPlan->name }} — {{ $voucherPlan->validity_label }}</option>
           @endforeach
         </select>
         <p class="ads-help" style="margin-top:.5rem">Ao confirmar o pagamento de um plano elegível, o cliente recebe também um segundo código WiFi do plano de bónus. É necessário ter códigos desse plano em stock.</p>
@@ -60,12 +61,62 @@
     var bonusFields = document.getElementById('bonus_fields');
     var bonusPlan = document.getElementById('bonus_plan_slug');
     var purchasePlans = document.querySelectorAll('input[name="purchase_plan_slugs[]"]');
+    var description = document.getElementById('description');
+    var descriptionSuggestion = document.getElementById('description_suggestion');
+    var descriptionSuggestionText = document.getElementById('description_suggestion_text');
+    var useDescriptionSuggestion = document.getElementById('use_description_suggestion');
+    var generatedDescription = null;
+    var descriptionEdited = description.value.trim() !== '';
     var destination = document.getElementById('destination_url');
     var destinationRequired = document.getElementById('destination_required');
     var destinationHelp = document.getElementById('destination_help');
     var imageInput = document.getElementById('image');
     var imageName = document.getElementById('image_file_name');
     var imageExistingName = @json($campaign->exists ? basename($campaign->image_path) : null);
+    function planName(value) {
+      return value.replace(/^Plano\s+/i, '').trim();
+    }
+    function buildDescriptionSuggestion() {
+      var selectedPlans = Array.from(purchasePlans)
+        .filter(function (plan) { return plan.checked; })
+        .map(function (plan) { return planName(plan.dataset.planName || ''); });
+      var selectedBonus = bonusPlan.options[bonusPlan.selectedIndex];
+      if (!selectedPlans.length || !selectedBonus || !selectedBonus.value) return '';
+
+      var purchaseNames = selectedPlans.length > 1
+        ? selectedPlans.slice(0, -1).join(', ') + ' ou ' + selectedPlans[selectedPlans.length - 1]
+        : selectedPlans[0];
+      var bonusName = planName(selectedBonus.dataset.planName || '');
+      var validity = selectedBonus.dataset.validity || '';
+      return 'Na compra de um plano ' + purchaseNames + ', recebe um voucher WiFi ' + bonusName +
+        (validity ? ' de ' + validity : '') + '.';
+    }
+    function updateDescriptionSuggestion() {
+      var suggestion = buildDescriptionSuggestion();
+      var visible = type.value !== 'sponsored' && hasBonus.checked && Boolean(suggestion);
+      descriptionSuggestion.hidden = !visible;
+      if (!visible) return;
+
+      descriptionSuggestionText.textContent = 'Sugestão: ' + suggestion;
+      if (!descriptionEdited || description.value === generatedDescription) {
+        description.value = suggestion;
+        generatedDescription = suggestion;
+      }
+    }
+    description.addEventListener('input', function () {
+      if (description.value !== generatedDescription) descriptionEdited = true;
+    });
+    useDescriptionSuggestion.addEventListener('click', function () {
+      var suggestion = buildDescriptionSuggestion();
+      if (!suggestion) return;
+      description.value = suggestion;
+      generatedDescription = suggestion;
+      descriptionEdited = false;
+    });
+    purchasePlans.forEach(function (plan) {
+      plan.addEventListener('change', updateDescriptionSuggestion);
+    });
+    bonusPlan.addEventListener('change', updateDescriptionSuggestion);
     function updateTypeFields() {
       var isSponsored = type.value === 'sponsored';
       advertiser.hidden = !isSponsored;
@@ -85,6 +136,7 @@
         : (showBonus
           ? 'Opcional. Se ficar vazio, o botão abrirá o checkout do primeiro plano elegível.'
           : 'Opcional. Se ficar vazio, o botão abrirá a página inicial da AngolaWiFi.');
+      updateDescriptionSuggestion();
     }
     type.addEventListener('change', updateTypeFields);
     hasBonus.addEventListener('change', updateTypeFields);
