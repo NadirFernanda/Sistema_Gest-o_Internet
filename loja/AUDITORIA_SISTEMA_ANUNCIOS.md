@@ -25,8 +25,9 @@ Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta
 - **Publicidade de anunciante:** campanha de uma empresa externa, com o nome do anunciante, para venda comercial de espaço publicitário.
 - Os dois tipos usam o mesmo gestor, posições e métricas. A etiqueta pública distingue “Campanha promocional AngolaWiFi” de “Publicidade · [anunciante]”.
 - A campanha começa pausada e só aparece quando activada e dentro das datas definidas.
+- A administração pode definir um máximo de exibições por campanha por dia, semana ou mês. Ao atingir o limite, a campanha deixa de ser elegível até ao início do próximo período; o limite é um tecto, não uma garantia de entrega. A contagem semanal reinicia à segunda-feira e a contagem segue o fuso horário configurado para a aplicação.
 - As campanhas elegíveis numa posição são escolhidas aleatoriamente. Para compras abrangidas por mais de uma promoção, aplica-se a campanha própria elegível mais recente.
-- O painel apresenta impressões, cliques e CTR calculado a partir desses totais.
+- O painel apresenta impressões totais, limite configurado e impressões contabilizadas no período actual, além dos cliques e CTR.
 - A imagem é carregada no servidor da loja; o destino aceita URLs HTTP/HTTPS.
 - As imagens públicas são servidas por uma rota da aplicação, sem depender de um link simbólico de armazenamento no servidor.
 - As rotas administrativas são protegidas pelo middleware `sg-admin`.
@@ -35,7 +36,7 @@ O prémio implementado é um segundo código de acesso WiFi de um plano existent
 
 ## Métricas e privacidade
 
-Uma impressão é contabilizada quando pelo menos metade do anúncio entra no ecrã. A mesma campanha não volta a contar para a mesma sessão durante 30 minutos. Os cliques são contabilizados quando o utilizador segue o link de encaminhamento.
+Uma impressão é contabilizada quando pelo menos metade do anúncio entra no ecrã. A mesma campanha não volta a contar para a mesma sessão durante 30 minutos; por isso, os limites representam exibições contabilizadas segundo esta regra, não carregamentos brutos de página. Os cliques são contabilizados quando o utilizador segue o link de encaminhamento.
 
 O sistema não guarda endereços IP, perfis, localização ou comportamento de navegação para publicidade e não utiliza pixels de terceiros. As métricas são agregadas e indicativas; não garantem vendas nem alcance único. Robôs, bloqueadores e cliques repetidos podem afectar os números. A Política de Privacidade foi actualizada para descrever a contagem das campanhas.
 

@@ -7,6 +7,7 @@ use App\Models\AdCampaign;
 use App\Models\VoucherPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -17,6 +18,15 @@ class AdCampaignAdminController extends Controller
     public function index(): View
     {
         $campaigns = AdCampaign::with('bonusPlan')->orderByDesc('id')->paginate(25);
+        foreach ($campaigns as $campaign) {
+            $campaign->period_impressions_count = $campaign->frequency_limit === null
+                ? null
+                : (int) DB::table('ad_campaign_period_impressions')
+                    ->where('ad_campaign_id', $campaign->id)
+                    ->where('frequency_period', $campaign->frequency_period)
+                    ->where('period_start', AdCampaign::periodStart($campaign->frequency_period))
+                    ->value('impressions_count');
+        }
 
         return view('admin.ads.index', compact('campaigns'));
     }
@@ -97,6 +107,8 @@ class AdCampaignAdminController extends Controller
             'placement' => ['required', Rule::in(array_keys(AdCampaign::PLACEMENTS))],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => $endDateRules,
+            'frequency_period' => ['nullable', 'required_with:frequency_limit', Rule::in(array_keys(AdCampaign::FREQUENCY_PERIODS))],
+            'frequency_limit' => ['nullable', 'required_with:frequency_period', 'integer', 'min:1', 'max:1000000'],
             'has_bonus' => ['nullable', 'boolean'],
             'bonus_plan_slug' => [$hasBonus ? 'required' : 'nullable', 'exists:voucher_plans,slug'],
             'purchase_plan_slugs' => [$hasBonus ? 'required' : 'nullable', 'array', $hasBonus ? 'min:1' : 'sometimes'],
@@ -125,6 +137,12 @@ class AdCampaignAdminController extends Controller
             'starts_at.date' => 'A data de início não é válida.',
             'ends_at.date' => 'A data de fim não é válida.',
             'ends_at.after' => 'A data de fim deve ser posterior à data de início.',
+            'frequency_period.required_with' => 'Seleccione o período para o limite de exibições.',
+            'frequency_period.in' => 'O período de exibição seleccionado não é válido.',
+            'frequency_limit.required_with' => 'Indique o número máximo de exibições no período.',
+            'frequency_limit.integer' => 'O limite de exibições deve ser um número inteiro.',
+            'frequency_limit.min' => 'O limite deve ser pelo menos 1 exibição.',
+            'frequency_limit.max' => 'O limite não pode exceder 1.000.000 de exibições.',
             'bonus_plan_slug.required' => 'Seleccione o voucher WiFi que será oferecido.',
             'bonus_plan_slug.exists' => 'O plano de voucher seleccionado não existe.',
             'purchase_plan_slugs.required' => 'Seleccione pelo menos um plano de compra elegível.',
@@ -143,6 +161,8 @@ class AdCampaignAdminController extends Controller
             'placement' => 'posição',
             'starts_at' => 'data de início',
             'ends_at' => 'data de fim',
+            'frequency_period' => 'período de exibição',
+            'frequency_limit' => 'limite de exibições',
             'bonus_plan_slug' => 'voucher bónus',
             'purchase_plan_slugs' => 'planos de compra elegíveis',
         ]);

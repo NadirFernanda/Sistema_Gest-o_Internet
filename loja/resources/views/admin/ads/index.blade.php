@@ -11,10 +11,10 @@
     <div><h1>Campanhas e anúncios</h1><p class="ads-sub">Promoções próprias gratuitas e publicidade patrocinada de terceiros.</p></div>
     <div><a class="ads-btn" href="{{ route('admin.ads.create') }}">+ Nova campanha</a> <a class="ads-btn ads-btn-muted" href="{{ route('admin.dashboard') }}">Dashboard</a></div>
   </header>
-  <div class="ads-note"><strong>Como funciona:</strong> as campanhas próprias AngolaWiFi são gratuitas e servem para divulgar ofertas da empresa. As campanhas patrocinadas são de anunciantes externos. Ambas podem usar as mesmas posições; a activação e o período são definidos pela administração. As métricas não guardam IP nem identificadores pessoais e não garantem vendas.</div>
+  <div class="ads-note"><strong>Como funciona:</strong> as campanhas próprias AngolaWiFi são gratuitas e servem para divulgar ofertas da empresa. As campanhas patrocinadas são de anunciantes externos. Ambas podem usar as mesmas posições; a activação, o período e o limite máximo de exibições são definidos pela administração. O limite é contado por campanha e reinicia no início do dia, da semana (segunda-feira) ou do mês. As métricas não guardam IP nem identificadores pessoais e não garantem vendas.</div>
   @if(session('success'))<div class="ads-success">{{ session('success') }}</div>@endif
   <div class="ads-table-wrap"><table class="ads-table">
-    <thead><tr><th>Tipo</th><th>Anunciante / campanha</th><th>Posição</th><th>Período</th><th>Estado</th><th>Impressões</th><th>Cliques</th><th>CTR</th><th>Acções</th></tr></thead>
+    <thead><tr><th>Tipo</th><th>Anunciante / campanha</th><th>Posição</th><th>Período</th><th>Estado</th><th>Limite de exibição</th><th>Impressões totais</th><th>Cliques</th><th>CTR</th><th>Acções</th></tr></thead>
     <tbody>
     @forelse($campaigns as $campaign)
       <tr>
@@ -25,6 +25,7 @@
         <td>{{ \App\Models\AdCampaign::PLACEMENTS[$campaign->placement] ?? $campaign->placement }}</td>
         <td>{{ $campaign->starts_at?->format('d/m/Y H:i') ?? 'Sem início' }}<br>{{ $campaign->ends_at?->format('d/m/Y H:i') ?? 'Sem fim' }}</td>
         <td class="ads-state">{{ $campaign->active ? 'Activa' : 'Pausada' }}</td>
+        <td>@if($campaign->frequency_limit)<strong>{{ number_format($campaign->period_impressions_count, 0, ',', '.') }} / {{ number_format($campaign->frequency_limit, 0, ',', '.') }}</strong><br><small>por {{ strtolower(\App\Models\AdCampaign::FREQUENCY_PERIODS[$campaign->frequency_period]) }}</small>@else Sem limite @endif</td>
         <td>{{ number_format($campaign->impressions_count, 0, ',', '.') }}</td>
         <td>{{ number_format($campaign->clicks_count, 0, ',', '.') }}</td>
         <td>{{ $campaign->impressions_count ? number_format($campaign->clicks_count / $campaign->impressions_count * 100, 2, ',', '.') : '0,00' }}%</td>
@@ -35,7 +36,7 @@
         </td>
       </tr>
     @empty
-      <tr><td class="ads-empty" colspan="9">Ainda não existem campanhas. Crie uma para começar.</td></tr>
+      <tr><td class="ads-empty" colspan="10">Ainda não existem campanhas. Crie uma para começar.</td></tr>
     @endforelse
     </tbody>
   </table></div>

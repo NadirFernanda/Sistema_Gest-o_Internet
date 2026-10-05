@@ -21,6 +21,8 @@
       <div class="ads-field ads-full"><label class="ads-label" for="title">Título *</label><input class="ads-control" id="title" name="title" maxlength="160" required value="{{ old('title', $campaign->title) }}"></div>
       <div class="ads-field ads-full"><label class="ads-label" for="description">Descrição</label><textarea class="ads-control" id="description" name="description" maxlength="500" rows="3">{{ old('description', $campaign->description) }}</textarea></div>
       <div class="ads-field ads-full" id="description_suggestion" hidden><p class="ads-help" style="margin-bottom:.5rem" id="description_suggestion_text" aria-live="polite"></p><button class="ads-btn ads-muted" type="button" id="use_description_suggestion">Usar descrição sugerida</button></div>
+      <div class="ads-field"><label class="ads-label" for="frequency_period">Limite de exibições</label><select class="ads-control" id="frequency_period" name="frequency_period"><option value="">Sem limite</option>@foreach(\App\Models\AdCampaign::FREQUENCY_PERIODS as $key => $label)<option value="{{ $key }}" @selected(old('frequency_period', $campaign->frequency_period) === $key)>Máximo por {{ strtolower($label) }}</option>@endforeach</select></div>
+      <div class="ads-field" id="frequency_limit_field"><label class="ads-label" for="frequency_limit">Número máximo no período</label><input class="ads-control" id="frequency_limit" name="frequency_limit" type="number" min="1" max="1000000" step="1" value="{{ old('frequency_limit', $campaign->frequency_limit) }}" placeholder="Ex.: 1000"><small class="ads-sub">Ao atingir o limite, a campanha deixa de aparecer até ao próximo período. Conta uma impressão quando pelo menos metade do anúncio fica visível; a mesma campanha só conta uma vez por sessão a cada 30 minutos.</small></div>
       <div class="ads-field ads-full" id="bonus_toggle_field">
         <label class="ads-check"><input type="checkbox" id="has_bonus" name="has_bonus" value="1" @checked(old('has_bonus', $campaign->bonus_plan_slug ? '1' : ''))> A campanha oferece um voucher WiFi gratuito após uma compra</label>
       </div>
@@ -70,6 +72,9 @@
     var destination = document.getElementById('destination_url');
     var destinationRequired = document.getElementById('destination_required');
     var destinationHelp = document.getElementById('destination_help');
+    var frequencyPeriod = document.getElementById('frequency_period');
+    var frequencyLimit = document.getElementById('frequency_limit');
+    var frequencyLimitField = document.getElementById('frequency_limit_field');
     var imageInput = document.getElementById('image');
     var imageName = document.getElementById('image_file_name');
     var imageExistingName = @json($campaign->exists ? basename($campaign->image_path) : null);
@@ -117,6 +122,12 @@
       plan.addEventListener('change', updateDescriptionSuggestion);
     });
     bonusPlan.addEventListener('change', updateDescriptionSuggestion);
+    frequencyPeriod.addEventListener('change', function () {
+      var hasFrequencyLimit = frequencyPeriod.value !== '';
+      frequencyLimitField.hidden = !hasFrequencyLimit;
+      frequencyLimit.required = hasFrequencyLimit;
+      if (!hasFrequencyLimit) frequencyLimit.value = '';
+    });
     function updateTypeFields() {
       var isSponsored = type.value === 'sponsored';
       advertiser.hidden = !isSponsored;
@@ -137,6 +148,7 @@
           ? 'Opcional. Se ficar vazio, o botão abrirá o checkout do primeiro plano elegível.'
           : 'Opcional. Se ficar vazio, o botão abrirá a página inicial da AngolaWiFi.');
       updateDescriptionSuggestion();
+      frequencyPeriod.dispatchEvent(new Event('change'));
     }
     type.addEventListener('change', updateTypeFields);
     hasBonus.addEventListener('change', updateTypeFields);

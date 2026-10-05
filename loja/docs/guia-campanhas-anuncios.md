@@ -42,9 +42,12 @@ Preencha os campos apresentados:
 | Link de destino | Para anunciantes externos, indique o endereço HTTP/HTTPS da página de destino. Em campanhas próprias é opcional: se ficar vazio, campanhas com bónus levam ao checkout do primeiro plano elegível; as restantes levam à página inicial. |
 | Texto do botão | Por exemplo, “Saber mais”, “Ver oferta” ou “Comprar”. |
 | Início e fim | Datas opcionais para programar a campanha. |
+| Limite de exibições | Opcional. Escolha um máximo por dia, semana ou mês e indique a quantidade. Ao atingir esse tecto, a campanha deixa de aparecer até ao início do período seguinte. |
 | Campanha activa | Marque apenas quando a campanha estiver revista e pronta para publicação. |
 
 Uma campanha nova começa desactivada. Enquanto estiver desactivada, fora das datas definidas ou sem uma posição elegível, não aparece aos visitantes. Para interromper temporariamente uma campanha, edite-a e desmarque **Campanha activa**.
+
+O limite é individual por campanha e controla o máximo de impressões contabilizadas, não garante atingir essa quantidade. O dia e o mês seguem o calendário e o fuso horário da aplicação; a semana começa à segunda-feira. A contagem de impressões mantém a regra de não voltar a contar a mesma campanha na mesma sessão durante 30 minutos. A lista de campanhas mostra as impressões totais e o progresso do período actual (por exemplo, `35 / 100 por dia`).
 
 O botão de imagem usa as opções **Escolher ficheiro** e **Nenhum ficheiro seleccionado** em português. Ao seleccionar uma imagem, o nome do ficheiro aparece junto ao botão.
 
@@ -87,7 +90,7 @@ Não são apresentados anúncios no checkout, na página de pagamento, na confir
 
 Na lista de campanhas, cada linha apresenta:
 
-- **Impressões:** contagem técnica quando pelo menos metade do anúncio entra no ecrã. A mesma campanha não volta a contar na mesma sessão durante 30 minutos.
+- **Impressões:** contagem técnica quando pelo menos metade do anúncio entra no ecrã. A mesma campanha não volta a contar na mesma sessão durante 30 minutos; quando há limite, a lista mostra também quantas impressões foram contabilizadas no período actual.
 - **Cliques:** cliques que passam pelo link de encaminhamento do anúncio.
 - **CTR:** percentagem calculada como `cliques ÷ impressões × 100`.
 
