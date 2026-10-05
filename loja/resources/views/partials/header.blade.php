@@ -1,4 +1,4 @@
-<header class="store-header">
+<header class="store-header {{ request()->is('/') ? 'store-header--home' : '' }}">
   <div class="store-header-inner">
     <a href="/" class="store-brand">
       <img src="{{ asset('img/logo2.jpeg') }}" alt="{{ config('app.name', 'Loja') }}" class="store-logo">
