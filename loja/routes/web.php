@@ -46,6 +46,9 @@ Route::get('/sg/equipment-catalog', [\App\Http\Controllers\StoreProxyController:
 Route::post('/sg/orders/sync', [\App\Http\Controllers\StoreProxyController::class, 'sendOrder'])->middleware('throttle:10,1');
 Route::get('/sg/active-clients', [\App\Http\Controllers\StoreProxyController::class, 'activeClients']);
 Route::get('/store/live-stats', [\App\Http\Controllers\StorefrontController::class, 'liveStats'])->middleware('throttle:30,1')->name('store.live-stats');
+Route::get('/ads/{campaign}/image', [AdTrackingController::class, 'image'])
+    ->whereNumber('campaign')
+    ->name('ads.image');
 Route::post('/ads/{campaign}/impression', [AdTrackingController::class, 'impression'])
     ->middleware('throttle:60,1')
     ->whereNumber('campaign')

@@ -6,9 +6,26 @@ use App\Models\AdCampaign;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class AdTrackingController extends Controller
 {
+    public function image(int $campaign): Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $ad = AdCampaign::query()
+            ->where('active', true)
+            ->where(fn ($query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->findOrFail($campaign);
+
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($ad->image_path), 404);
+
+        return response()->file($disk->path($ad->image_path), [
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
+    }
+
     public function impression(Request $request, int $campaign): Response
     {
         $data = $request->validate([

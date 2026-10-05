@@ -14,7 +14,7 @@ Implementar um gestor de campanhas da loja com dois usos: divulgar gratuitamente
 | Página inicial (`/`) | Abaixo do destaque principal e das estatísticas, antes dos planos individuais | Dá visibilidade a campanhas próprias e anúncios sem interromper o fluxo de compra dos planos. |
 | Catálogo de equipamentos (`/equipamentos`) | Antes da grelha de produtos | Mantém campanhas num contexto relacionado com conectividade, acessórios e equipamentos. |
 
-Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta do cliente, suporte ou painel do revendedor. Nessas páginas o utilizador está a concluir uma tarefa; publicidade pode causar distracção, reduzir confiança e prejudicar conversões. Pop-ups e intersticiais também não são recomendados nesta primeira fase.
+Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta do cliente, suporte ou painel do revendedor. Nessas páginas o utilizador está a concluir uma tarefa; publicidade pode causar distracção, reduzir confiança e prejudicar conversões. A posição da página inicial apresenta o anúncio em destaque abaixo do carrossel e pode abrir uma janela promocional após alguns segundos, no máximo uma vez por sessão, com controlos para fechar; não se usam intersticiais noutras páginas.
 
 ## Como funciona
 
@@ -28,6 +28,7 @@ Não colocar anúncios no checkout, pagamento, confirmação de encomenda, conta
 - As campanhas elegíveis numa posição são escolhidas aleatoriamente. Para compras abrangidas por mais de uma promoção, aplica-se a campanha própria elegível mais recente.
 - O painel apresenta impressões, cliques e CTR calculado a partir desses totais.
 - A imagem é carregada no servidor da loja; o destino aceita URLs HTTP/HTTPS.
+- As imagens públicas são servidas por uma rota da aplicação, sem depender de um link simbólico de armazenamento no servidor.
 - As rotas administrativas são protegidas pelo middleware `sg-admin`.
 
 O prémio implementado é um segundo código de acesso WiFi de um plano existente, não um saldo monetário numa carteira do cliente ou do SG. A validade do bónus é a validade do plano de voucher seleccionado. A oferta é registada na encomenda quando esta é criada; se a campanha terminar enquanto o cliente conclui o pagamento, a oferta dessa encomenda mantém-se. É necessário carregar stock de códigos do plano bónus. Se o stock se esgotar entre checkout e confirmação de pagamento, a encomenda é assinalada no painel de recargas para intervenção da equipa.
