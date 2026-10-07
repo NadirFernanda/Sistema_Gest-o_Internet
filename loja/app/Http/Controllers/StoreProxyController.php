@@ -100,7 +100,9 @@ class StoreProxyController extends Controller
         // Chave fixa (sem MD5 de params) para que o SG consiga invalidar via bustPlanCache()
         $cached = Cache::get(self::PLAN_CACHE_KEY);
         if ($cached !== null) {
-            return response($cached, 200)->header('Content-Type', 'application/json');
+            return response($cached, 200)
+                ->header('Content-Type', 'application/json')
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
         }
 
         $sg = rtrim(config('services.sg.url', env('SG_URL', 'http://127.0.0.1:8000')) , '/');
@@ -120,7 +122,8 @@ class StoreProxyController extends Controller
             }
 
             return response($clean, $res->getStatusCode())
-                ->header('Content-Type', 'application/json');
+                ->header('Content-Type', 'application/json')
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -343,4 +346,3 @@ class StoreProxyController extends Controller
         }
     }
 }
-

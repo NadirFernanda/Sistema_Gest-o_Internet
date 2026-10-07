@@ -7,7 +7,9 @@ use App\Mail\AutovendaWifiCodeMail;
 use App\Models\AutovendaOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class CustomerAccountController extends Controller
 {
@@ -58,6 +60,20 @@ class CustomerAccountController extends Controller
         // Generate a 6-digit numeric OTP
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
+        if (in_array(config('mail.default'), ['log', 'array'], true)) {
+            return redirect()->route('account.index')
+                ->with('error', 'O serviço de email não está configurado para entrega. O código não foi enviado; tente novamente mais tarde ou contacte o suporte.');
+        }
+
+        try {
+            Mail::to($email)->send(new AccountOtpMail($otp));
+        } catch (TransportExceptionInterface $e) {
+            Log::error('Falha ao enviar código OTP da conta', ['error' => $e->getMessage()]);
+
+            return redirect()->route('account.index')
+                ->with('error', 'Não foi possível enviar o código por email. Tente novamente mais tarde ou contacte o suporte.');
+        }
+
         // Store OTP as SHA-256 hash — never store plaintext in session
         $request->session()->put('account_otp_email',      $email);
         $request->session()->put('account_otp_code',       hash('sha256', $otp));
@@ -65,8 +81,6 @@ class CustomerAccountController extends Controller
         $request->session()->put('account_otp_attempts',   0);
         // Invalidate any previous authenticated session
         $request->session()->forget('customer_email');
-
-        Mail::to($email)->send(new AccountOtpMail($otp));
 
         return redirect()->route('account.index')
             ->with('status', 'Enviámos um código de 6 dígitos para ' . $email . '. Verifique a sua caixa de entrada (e o spam).');
@@ -199,4 +213,3 @@ class CustomerAccountController extends Controller
         $order->meta = $meta;
     }
 }
-

@@ -46,6 +46,15 @@ function renderFamilyCard(plan) {
 		+ '</div></div></div>';
 }
 
+function familyPlanBucket(plan) {
+	var type = String(plan.tipo || plan.category || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+	var name = String(plan.name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+	if (type.indexOf('institucional') !== -1 || name.indexOf('institucional') !== -1) return 'institucional';
+	if (type.indexOf('empresa') !== -1 || name.indexOf('empresa') !== -1) return 'empresarial';
+	if (type.indexOf('famil') !== -1 || name.indexOf('famil') !== -1) return 'familiar';
+	return 'familiar';
+}
+
 // Render one equipment card from SG catalog
 function renderEquipmentCard(item) {
 	var imgHtml = item.imagem_url
@@ -133,19 +142,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	var institucionalGrid = document.getElementById('institucional-plans-grid');
 
 	if (familiarGrid || empresarialGrid || institucionalGrid) {
-		fetch('/sg/plan-templates', { credentials: 'same-origin' })
-			.then(function(r) { return r.json(); })
+		fetch('/sg/plan-templates', { credentials: 'same-origin', cache: 'no-store' })
+			.then(function(r) {
+				if (!r.ok) throw new Error('Falha ao carregar o catálogo de planos (' + r.status + ').');
+				return r.json();
+			})
 			.then(function(json) {
-				var plans = json.data || [];
-				var familiar      = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t === 'familia' || t === 'familiar' || t === ''; });
-				var empresarial   = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t.indexOf('empresa') !== -1; });
-				var institucional = plans.filter(function(p) { var t = (p.tipo || p.category || '').toLowerCase(); return t.indexOf('institucional') !== -1; });
-				// Se todos caírem em 'familiar' por tipo vazio, tentar separar pelo nome como fallback
-				if (empresarial.length === 0 && institucional.length === 0 && familiar.length === plans.length && plans.length > 0) {
-					familiar      = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('empresa') === -1 && n.indexOf('institucional') === -1; });
-					empresarial   = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('empresa') !== -1; });
-					institucional = plans.filter(function(p) { var n = (p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return n.indexOf('institucional') !== -1; });
-				}
+				if (!json || !Array.isArray(json.data)) throw new Error('Resposta inválida do catálogo de planos.');
+				var plans = json.data;
+				var familiar      = plans.filter(function(p) { return familyPlanBucket(p) === 'familiar'; });
+				var empresarial   = plans.filter(function(p) { return familyPlanBucket(p) === 'empresarial'; });
+				var institucional = plans.filter(function(p) { return familyPlanBucket(p) === 'institucional'; });
 
 				if (familiarGrid)      familiarGrid.innerHTML      = familiar.length      ? familiar.map(renderFamilyCard).join('')      : FAMILY_EMPTY_HTML;
 				if (empresarialGrid)   empresarialGrid.innerHTML   = empresarial.length   ? empresarial.map(renderFamilyCard).join('')   : FAMILY_EMPTY_HTML;

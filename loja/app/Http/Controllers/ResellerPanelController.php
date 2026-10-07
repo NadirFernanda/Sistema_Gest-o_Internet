@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class ResellerPanelController extends Controller
 {
@@ -249,15 +250,27 @@ class ResellerPanelController extends Controller
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
+        if ($application && in_array(config('mail.default'), ['log', 'array'], true)) {
+            return redirect()->route('reseller.panel')
+                ->with('error', 'O serviço de email não está configurado para entrega. O código não foi enviado; tente novamente mais tarde ou contacte o suporte.');
+        }
+
+        if ($application) {
+            try {
+                Mail::to($email)->send(new AccountOtpMail($otp));
+            } catch (TransportExceptionInterface $e) {
+                Log::error('Falha ao enviar código OTP do revendedor', ['error' => $e->getMessage()]);
+
+                return redirect()->route('reseller.panel')
+                    ->with('error', 'Não foi possível enviar o código por email. Tente novamente mais tarde ou contacte o suporte.');
+            }
+        }
+
         $request->session()->put('reseller_otp_email',      $email);
         $request->session()->put('reseller_otp_code',       hash('sha256', $otp));
         $request->session()->put('reseller_otp_expires_at', now()->addMinutes(self::OTP_TTL)->toIso8601String());
         $request->session()->put('reseller_otp_attempts',   0);
         $request->session()->forget('reseller_id');
-
-        if ($application) {
-            Mail::to($email)->send(new AccountOtpMail($otp));
-        }
 
         return redirect()->route('reseller.panel')
             ->with('status', 'Se o endereço indicado corresponde a um revendedor aprovado, receberá um código de verificação em breve.');
