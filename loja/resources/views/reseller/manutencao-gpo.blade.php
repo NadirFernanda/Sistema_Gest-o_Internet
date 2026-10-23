@@ -68,7 +68,7 @@
           style="width:100%; min-height:520px; border:none; display:block;"
           title="Pagamento seguro EMIS GPO"
           allow="payment"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+          sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation-by-user-activation"
         ></iframe>
         <p class="checkout-note" style="padding:0.75rem 1rem; margin:0; border-top:1px solid #e5e7eb;">
           Pagamento processado pela <strong>EMIS – Gateway de Pagamentos Online</strong>.

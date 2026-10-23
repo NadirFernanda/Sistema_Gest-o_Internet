@@ -448,7 +448,7 @@
             src="{{ $iframeUrl }}"
             title="Pagamento seguro EMIS GPO"
             allow="payment"
-            sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation-by-user-activation"
           ></iframe>
         </div>
         <div class="gpo-iframe-note">
