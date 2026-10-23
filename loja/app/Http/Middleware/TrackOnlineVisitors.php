@@ -20,6 +20,10 @@ class TrackOnlineVisitors
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if ($request->routeIs('ads.portal-wifi')) {
+            return $next($request);
+        }
+
         if (! $request->is('admin*') && ! $request->is('painel-revendedor*')) {
             $sid = session()->getId();
             $now = now();

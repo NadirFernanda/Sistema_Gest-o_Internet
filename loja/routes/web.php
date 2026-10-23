@@ -58,6 +58,10 @@ Route::get('/ads/{campaign}/click', [AdTrackingController::class, 'click'])
     ->whereNumber('campaign')
     ->name('ads.click');
 
+Route::get('/publicidade/portal-wifi', [\App\Http\Controllers\PublicWifiAdController::class, 'index'])
+    ->middleware('throttle:60,1')
+    ->name('ads.portal-wifi');
+
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
 // Checkout rápido pode receber o plano pela URL ou por query string ?plan=

@@ -73,5 +73,9 @@ return [
         'callback_ips'    => env('GPO_CALLBACK_IPS', ''),
     ],
 
+    'sol' => [
+        // Exact HTTPS origins allowed to embed only the public WiFi advertising page.
+        'ads_frame_origins' => env('SOL_ADS_FRAME_ORIGINS', ''),
+    ],
 
 ];
