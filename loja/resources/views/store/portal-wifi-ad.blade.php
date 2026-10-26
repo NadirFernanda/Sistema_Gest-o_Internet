@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Planos WiFi AngolaWiFi</title>
+  <title>{{ $campaign ? 'Publicidade AngolaWiFi' : 'Planos WiFi AngolaWiFi' }}</title>
   <style>
     :root { color-scheme: light; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
     * { box-sizing: border-box; }
@@ -26,6 +26,14 @@
     a { display: inline-block; padding: .65rem .85rem; border-radius: 8px; color: #172033; background: #f7b500; font-weight: 700; text-decoration: none; }
     a:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
     footer { margin-top: 1rem; text-align: center; font-size: .9rem; }
+    .campaign { overflow: hidden; }
+    .campaign img { display: block; width: 100%; max-height: 300px; object-fit: cover; }
+    .campaign__content { padding: 1rem; }
+    .campaign__content h2 { font-size: 1.2rem; }
+    .campaign__content p { color: #475569; line-height: 1.5; }
+    .campaign__actions { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+    .campaign__fallback { padding: .65rem .25rem; color: #334155; background: transparent; text-decoration: underline; }
+    .ad-label { margin: 0 0 .6rem; color: #64748b; font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     @media (max-width: 360px) { body { padding: .65rem; } }
   </style>
 </head>
@@ -35,7 +43,7 @@
     <img src="{{ asset('img/logo2.jpeg') }}" alt="" width="48" height="48">
     <div>
       <h1>Internet WiFi AngolaWiFi</h1>
-      <p>Escolha um plano e continue na loja segura.</p>
+      <p>{{ $campaign ? 'Publicidade para clientes AngolaWiFi.' : 'Escolha um plano e continue na loja segura.' }}</p>
     </div>
   </header>
 
@@ -46,27 +54,48 @@
     </a>
   </div>
 
-  <section aria-label="Planos disponíveis">
-    @forelse($plans as $plan)
-      <article>
-        <h2>{{ $plan->name }}</h2>
-        @if($plan->validity_label)
-          <p class="detail">Duração: {{ $plan->validity_label }}</p>
-        @endif
-        @if($plan->speed_label)
-          <p class="detail">Velocidade: {{ $plan->speed_label }}</p>
-        @endif
-        <p class="price">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} Kz</p>
-        <a href="{{ route('store.checkout', ['plan' => $plan->slug]) }}" target="_top">
-          Ver plano e comprar
-        </a>
+  <section aria-label="{{ $campaign ? 'Publicidade' : 'Planos disponíveis' }}">
+    @if($campaign)
+      <article class="campaign" data-campaign-id="{{ $campaign->id }}" data-impression-url="{{ $impressionUrl }}">
+        <img src="{{ route('ads.sol-image', $campaign->id) }}" alt="{{ $campaign->title }}" width="760" loading="eager">
+        <div class="campaign__content">
+          <p class="ad-label">Publicidade
+            @if($campaign->advertiser_name)
+              · {{ $campaign->advertiser_name }}
+            @endif
+          </p>
+          <h2>{{ $campaign->title }}</h2>
+          @if($campaign->description)
+            <p>{{ $campaign->description }}</p>
+          @endif
+          <div class="campaign__actions">
+            <a href="{{ $clickUrl }}" target="_blank" rel="noopener noreferrer">{{ $campaign->button_text }}</a>
+            <a class="campaign__fallback" href="{{ $clickUrl }}" target="_top">Abrir nesta janela</a>
+          </div>
+        </div>
       </article>
-    @empty
+    @elseif($plans->isNotEmpty())
+      @foreach($plans as $plan)
+        <article>
+          <h2>{{ $plan->name }}</h2>
+          @if($plan->validity_label)
+            <p class="detail">Duração: {{ $plan->validity_label }}</p>
+          @endif
+          @if($plan->speed_label)
+            <p class="detail">Velocidade: {{ $plan->speed_label }}</p>
+          @endif
+          <p class="price">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} Kz</p>
+          <a href="{{ route('store.checkout', ['plan' => $plan->slug]) }}" target="_top">
+            Ver plano e comprar
+          </a>
+        </article>
+      @endforeach
+    @else
       <article>
         <h2>Planos temporariamente indisponíveis</h2>
         <p class="detail">Aceda à loja para consultar as opções disponíveis.</p>
       </article>
-    @endforelse
+    @endif
   </section>
 
   <footer>

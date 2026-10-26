@@ -20,7 +20,12 @@ class TrackOnlineVisitors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->routeIs('ads.portal-wifi')) {
+        if ($request->routeIs(
+            'ads.portal-wifi',
+            'ads.sol-image',
+            'ads.sol-impression',
+            'ads.sol-click'
+        )) {
             return $next($request);
         }
 

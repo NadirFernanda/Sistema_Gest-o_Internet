@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
 
 class AdCampaign extends Model
 {
+    public const SOL_PORTAL_PLACEMENT = 'sol_portal';
+
     public const TYPES = [
         'own' => 'Campanha própria AngolaWiFi',
         'sponsored' => 'Publicidade de anunciante',
@@ -18,6 +20,7 @@ class AdCampaign extends Model
     public const PLACEMENTS = [
         'home_banner' => 'Página inicial — abaixo do destaque',
         'equipment_list' => 'Catálogo de equipamentos — acima dos produtos',
+        self::SOL_PORTAL_PLACEMENT => 'Portal WiFi / SOL',
     ];
 
     public const FREQUENCY_PERIODS = [

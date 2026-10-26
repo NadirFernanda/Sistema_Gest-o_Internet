@@ -49,6 +49,14 @@ Route::get('/store/live-stats', [\App\Http\Controllers\StorefrontController::cla
 Route::get('/ads/{campaign}/image', [AdTrackingController::class, 'image'])
     ->whereNumber('campaign')
     ->name('ads.image');
+Route::get('/ads/sol/{campaign}/image', [AdTrackingController::class, 'solImage'])
+    ->whereNumber('campaign')
+    ->name('ads.sol-image')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
 Route::post('/ads/{campaign}/impression', [AdTrackingController::class, 'impression'])
     ->middleware('throttle:60,1')
     ->whereNumber('campaign')
@@ -57,10 +65,35 @@ Route::get('/ads/{campaign}/click', [AdTrackingController::class, 'click'])
     ->middleware('throttle:60,1')
     ->whereNumber('campaign')
     ->name('ads.click');
+Route::get('/ads/sol/{campaign}/impression/{nonce}', [AdTrackingController::class, 'solImpression'])
+    ->middleware(['signed:relative', 'throttle:60,1'])
+    ->whereNumber('campaign')
+    ->where('nonce', '[a-f0-9]{64}')
+    ->name('ads.sol-impression')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
+Route::get('/ads/sol/{campaign}/click/{nonce}', [AdTrackingController::class, 'solClick'])
+    ->middleware(['signed:relative', 'throttle:60,1'])
+    ->whereNumber('campaign')
+    ->where('nonce', '[a-f0-9]{64}')
+    ->name('ads.sol-click')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
 
 Route::get('/publicidade/portal-wifi', [\App\Http\Controllers\PublicWifiAdController::class, 'index'])
     ->middleware('throttle:60,1')
-    ->name('ads.portal-wifi');
+    ->name('ads.portal-wifi')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
 
 // Storefront routes
 Route::get('/plan/{id}', [\App\Http\Controllers\StorefrontController::class, 'show']);
