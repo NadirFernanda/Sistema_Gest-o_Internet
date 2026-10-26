@@ -47,6 +47,20 @@ return [
             'lock_table' => env('DB_CACHE_LOCK_TABLE'),
         ],
 
+        'sol_ads' => [
+            'driver' => env('SOL_ADS_CACHE_STORE', 'file'),
+            'connection' => env('SOL_ADS_CACHE_STORE') === 'redis'
+                ? env('REDIS_CACHE_CONNECTION', 'cache')
+                : env('DB_CACHE_CONNECTION'),
+            'table' => env('DB_CACHE_TABLE', 'cache'),
+            'lock_connection' => env('SOL_ADS_CACHE_STORE') === 'redis'
+                ? env('REDIS_CACHE_LOCK_CONNECTION')
+                : env('DB_CACHE_LOCK_CONNECTION'),
+            'lock_table' => env('DB_CACHE_LOCK_TABLE'),
+            'path' => storage_path('framework/cache/sol-ads/data'),
+            'lock_path' => storage_path('framework/cache/sol-ads/locks'),
+        ],
+
         'file' => [
             'driver' => 'file',
             'path' => storage_path('framework/cache/data'),

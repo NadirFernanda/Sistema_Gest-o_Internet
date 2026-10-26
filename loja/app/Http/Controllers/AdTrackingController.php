@@ -71,7 +71,7 @@ class AdTrackingController extends Controller
     public function solImpression(int $campaign, string $nonce): Response
     {
         $cacheKey = 'sol_ad_impression:' . hash('sha256', $nonce);
-        if (Cache::add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
+        if (Cache::store('sol_ads')->add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
             try {
                 DB::transaction(function () use ($campaign): void {
                     $ad = AdCampaign::available(AdCampaign::SOL_PORTAL_PLACEMENT)
@@ -81,7 +81,7 @@ class AdTrackingController extends Controller
                     $this->incrementImpression($ad);
                 });
             } catch (\Throwable $exception) {
-                Cache::forget($cacheKey);
+                Cache::store('sol_ads')->forget($cacheKey);
                 throw $exception;
             }
         }
@@ -106,11 +106,11 @@ class AdTrackingController extends Controller
     {
         $ad = AdCampaign::running(AdCampaign::SOL_PORTAL_PLACEMENT)->findOrFail($campaign);
         $cacheKey = 'sol_ad_click:' . hash('sha256', $nonce);
-        if (Cache::add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
+        if (Cache::store('sol_ads')->add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
             try {
                 $ad->increment('clicks_count');
             } catch (\Throwable $exception) {
-                Cache::forget($cacheKey);
+                Cache::store('sol_ads')->forget($cacheKey);
                 throw $exception;
             }
         }

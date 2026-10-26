@@ -132,8 +132,8 @@ class SolAdCampaignIntegrationTest extends TestCase
 
     public function test_signed_sol_impressions_are_deduplicated_and_obey_frequency_limits(): void
     {
-        config(['cache.default' => 'array']);
-        Cache::flush();
+        config(['cache.stores.sol_ads.driver' => 'array']);
+        Cache::store('sol_ads')->flush();
         $campaign = $this->createCampaign([
             'frequency_period' => 'day',
             'frequency_limit' => 1,
@@ -163,8 +163,8 @@ class SolAdCampaignIntegrationTest extends TestCase
 
     public function test_signed_sol_tracking_urls_remain_valid_after_fifteen_minutes_and_expire_after_thirty_days(): void
     {
-        config(['cache.default' => 'array']);
-        Cache::flush();
+        config(['cache.stores.sol_ads.driver' => 'array']);
+        Cache::store('sol_ads')->flush();
         $campaign = $this->createCampaign();
         $url = $this->signedUrl('ads.sol-impression', $campaign, str_repeat('b', 64));
 
@@ -189,8 +189,8 @@ class SolAdCampaignIntegrationTest extends TestCase
 
     public function test_sol_click_counts_once_and_redirects_to_the_campaign_destination(): void
     {
-        config(['cache.default' => 'array']);
-        Cache::flush();
+        config(['cache.stores.sol_ads.driver' => 'array']);
+        Cache::store('sol_ads')->flush();
         $campaign = $this->createCampaign();
         $clickUrl = $this->signedUrl('ads.sol-click', $campaign, str_repeat('d', 64));
         $this->assertStringContainsString('expires=', $clickUrl);
@@ -203,10 +203,10 @@ class SolAdCampaignIntegrationTest extends TestCase
 
     public function test_prune_command_removes_only_expired_sol_tracking_keys_from_database_cache(): void
     {
-        config(['cache.default' => 'database']);
-        $store = Cache::store('database')->getStore();
+        config(['cache.stores.sol_ads.driver' => 'database']);
+        $store = Cache::store('sol_ads')->getStore();
         $prefix = $store->getPrefix();
-        $databaseCache = Cache::store('database');
+        $databaseCache = Cache::store('sol_ads');
         $databaseCache->put('sol_ad_impression:expired', true, 3600);
         $databaseCache->put('sol_ad_impression:active', true, 3600);
         $databaseCache->put('unrelated:expired', true, 3600);
@@ -227,22 +227,29 @@ class SolAdCampaignIntegrationTest extends TestCase
         $this->assertDatabaseHas('cache', ['key' => $prefix . 'unrelated:expired']);
     }
 
-    public function test_prune_command_skips_file_cache_without_touching_entries(): void
+    public function test_prune_command_removes_only_expired_sol_file_cache_entries(): void
     {
-        config(['cache.default' => 'file']);
-        $fileCache = Cache::store('file');
-        $fileCache->put('sol_ad_impression:test', true, 3600);
-        $fileCache->put('unrelated:test', true, 3600);
+        config(['cache.stores.sol_ads.driver' => 'file']);
+        $solCache = Cache::store('sol_ads');
+        $solStore = $solCache->getStore();
+        $solCache->put('sol_ad_impression:expired', true, 3600);
+        $solCache->put('sol_ad_impression:active', true, 3600);
+        $unrelatedCache = Cache::store('file');
+        $unrelatedCache->put('unrelated:expired', true, 3600);
+        $expiredPath = $solStore->path('sol_ad_impression:expired');
+        $contents = file_get_contents($expiredPath);
+        file_put_contents($expiredPath, now()->subMinute()->timestamp . substr($contents, 10));
 
         $this->artisan('ads:prune-sol-tracking-cache')
-            ->expectsOutputToContain('Database cache is not the default store; database cache pruning was skipped.')
+            ->expectsOutputToContain('Pruned 1 expired SOL advertising tracking files.')
             ->assertExitCode(0);
 
-        $this->assertTrue($fileCache->get('sol_ad_impression:test'));
-        $this->assertTrue($fileCache->get('unrelated:test'));
+        $this->assertFileDoesNotExist($expiredPath);
+        $this->assertTrue($solCache->get('sol_ad_impression:active'));
+        $this->assertTrue($unrelatedCache->get('unrelated:expired'));
 
-        $fileCache->forget('sol_ad_impression:test');
-        $fileCache->forget('unrelated:test');
+        $solCache->forget('sol_ad_impression:active');
+        $unrelatedCache->forget('unrelated:expired');
     }
 
     public function test_tracking_prune_is_scheduled_at_0315_angola_time(): void

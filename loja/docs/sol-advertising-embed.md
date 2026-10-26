@@ -58,14 +58,13 @@ usam `Cache-Control: no-store, private`. As assinaturas dependem da `APP_KEY`
 e deixam de validar se esta for rodada.
 
 Cada nonce é aceite uma só vez, por `Cache::add` atómico, e a chave de
-deduplicação tem TTL de 31 dias (prazo do link + um dia de margem). Com cache
-Laravel baseado em base de dados, `ads:prune-sol-tracking-cache` remove
-diariamente apenas as chaves com o prefixo SOL e prazo expirado. Com cache em
-ficheiros, o comando termina sem tocar nos ficheiros: o FileStore respeita o
-TTL e remove um ficheiro expirado quando essa chave é consultada, mas
-ficheiros expirados nunca mais consultados podem permanecer no disco. Não se
-percorre nem limpa o cache geral para evitar afectar outros módulos. Os
-endpoints também têm limite de pedidos.
+deduplicação tem TTL de 31 dias (prazo do link + um dia de margem). O tracking
+usa o store isolado `sol_ads`, que usa `file` por omissão (pode ser
+substituído por `SOL_ADS_CACHE_STORE`). Com cache baseado em base
+de dados, `ads:prune-sol-tracking-cache` remove apenas as chaves SOL expiradas
+pelo prefixo. Com cache em ficheiros, usa um directório dedicado e remove
+apenas os ficheiros expirados desse store; não percorre nem limpa o cache
+geral. Os endpoints também têm limite de pedidos.
 
 O comando está agendado diariamente às 03:15 no fuso `Africa/Luanda`, mesmo
 que o servidor use UTC. Para activar o scheduler desta aplicação sem alterar
@@ -76,10 +75,9 @@ o cron da aplicação principal, instale uma entrada cron independente como:
 ```
 
 Use o utilizador proprietário da aplicação e confirme o caminho do PHP no
-servidor. Com cache em ficheiros, esta tarefa não apaga entradas expiradas;
-monitorize o espaço de `storage/framework/cache/data` e não aplique uma
-limpeza recursiva geral, pois esse directório também pode conter dados de
-cache de outros módulos.
+servidor. Com cache em ficheiros, as entradas SOL ficam isoladas em
+`storage/framework/cache/sol-ads/data`; locks ficam em `.../locks`. A limpeza
+nunca percorre o cache global de `storage/framework/cache/data`.
 
 A campanha tem de continuar activa/elegível: desactivação, fim do período ou
 limite agregado atingido podem fazer a impressão ou clique falhar, mesmo que a
