@@ -436,6 +436,72 @@
 
       {{-- Iframe EMIS (aguarda pagamento) --}}
       <div id="painelIframe">
+        <script>
+          (function () {
+            var diagnosticsEnabled = /(?:^|[?&])gpo_diag=1(?:&|$)/.test(window.location.search);
+
+            if (!diagnosticsEnabled) return;
+
+            var startedAt = Date.now();
+            var frameLoadCount = 0;
+            window.gpoFrameDiagnostics = [];
+
+            window.gpoFrameDiagnostic = function (eventName, details) {
+              var frame = document.getElementById('gpoFrame');
+              var bounds = frame ? frame.getBoundingClientRect() : null;
+              var entry = {
+                elapsed_ms: Date.now() - startedAt,
+                visibility: document.visibilityState,
+                iframe_size: bounds
+                  ? { width: Math.round(bounds.width), height: Math.round(bounds.height) }
+                  : null
+              };
+
+              if (details) {
+                Object.keys(details).forEach(function (key) {
+                  entry[key] = details[key];
+                });
+              }
+
+              entry.event = eventName;
+              window.gpoFrameDiagnostics.push(entry);
+              if (window.gpoFrameDiagnostics.length > 100) {
+                window.gpoFrameDiagnostics.shift();
+              }
+            };
+
+            document.addEventListener('load', function (event) {
+              if (!event.target || event.target.id !== 'gpoFrame') return;
+              frameLoadCount += 1;
+              window.gpoFrameDiagnostic('iframe-load', { load_count: frameLoadCount });
+            }, true);
+
+            document.addEventListener('error', function (event) {
+              if (event.target && event.target.id === 'gpoFrame') {
+                window.gpoFrameDiagnostic('iframe-error-event');
+              }
+            }, true);
+
+            document.addEventListener('securitypolicyviolation', function (event) {
+              window.gpoFrameDiagnostic('parent-csp-violation', {
+                directive: event.violatedDirective,
+                disposition: event.disposition
+              });
+            }, true);
+
+            ['blur', 'focus', 'pagehide', 'pageshow', 'beforeunload'].forEach(function (eventName) {
+              window.addEventListener(eventName, function () {
+                window.gpoFrameDiagnostic('parent-' + eventName);
+              });
+            });
+
+            document.addEventListener('visibilitychange', function () {
+              window.gpoFrameDiagnostic('parent-visibility-change');
+            });
+
+            window.gpoFrameDiagnostic('diagnostics-ready');
+          })();
+        </script>
         <div class="gpo-payment-header">
           <span class="gpo-payment-title">Pagamento seguro</span>
           <span class="gpo-emis-badge">
@@ -543,6 +609,13 @@
 
   window.addEventListener('message', function (event) {
     if (event.origin !== gpoOrigin) return;
+    if (window.gpoFrameDiagnostic) {
+      var frame = document.getElementById('gpoFrame');
+      window.gpoFrameDiagnostic('emis-postmessage', {
+        source_is_payment_frame: !!frame && event.source === frame.contentWindow,
+        has_data: Boolean(event.data)
+      });
+    }
     if (event.data) { tentativas = 0; poll(); }
   }, false);
 
