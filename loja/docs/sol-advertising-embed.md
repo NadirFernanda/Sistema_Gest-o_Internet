@@ -58,14 +58,28 @@ usam `Cache-Control: no-store, private`. As assinaturas dependem da `APP_KEY`
 e deixam de validar se esta for rodada.
 
 Cada nonce é aceite uma só vez, por `Cache::add` atómico, e a chave de
-deduplicação tem TTL de 31 dias (prazo do link + um dia de margem). Para o
-cache Laravel baseado em base de dados, `ads:prune-sol-tracking-cache` remove
-diariamente as chaves SOL expiradas; o scheduler Laravel precisa estar activo
-no servidor. Assim, o volume tende a ficar próximo de 31 dias de chaves
-únicas — por exemplo, 3.000 eventos/dia representam cerca de 93.000 chaves,
-em vez de milhões acumulados por anos. Outros stores com TTL nativo expiram
-as chaves segundo o respectivo backend. Os endpoints também têm limite de
-pedidos.
+deduplicação tem TTL de 31 dias (prazo do link + um dia de margem). Com cache
+Laravel baseado em base de dados, `ads:prune-sol-tracking-cache` remove
+diariamente apenas as chaves com o prefixo SOL e prazo expirado. Com cache em
+ficheiros, o comando termina sem tocar nos ficheiros: o FileStore respeita o
+TTL e remove um ficheiro expirado quando essa chave é consultada, mas
+ficheiros expirados nunca mais consultados podem permanecer no disco. Não se
+percorre nem limpa o cache geral para evitar afectar outros módulos. Os
+endpoints também têm limite de pedidos.
+
+O comando está agendado diariamente às 03:15 no fuso `Africa/Luanda`, mesmo
+que o servidor use UTC. Para activar o scheduler desta aplicação sem alterar
+o cron da aplicação principal, instale uma entrada cron independente como:
+
+```cron
+* * * * * cd /var/www/sgmr/loja && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+```
+
+Use o utilizador proprietário da aplicação e confirme o caminho do PHP no
+servidor. Com cache em ficheiros, esta tarefa não apaga entradas expiradas;
+monitorize o espaço de `storage/framework/cache/data` e não aplique uma
+limpeza recursiva geral, pois esse directório também pode conter dados de
+cache de outros módulos.
 
 A campanha tem de continuar activa/elegível: desactivação, fim do período ou
 limite agregado atingido podem fazer a impressão ou clique falhar, mesmo que a
@@ -79,10 +93,12 @@ separador durante 30 minutos, usando `sessionStorage` sem enviar um
 identificador; pode não estar disponível em todos os captive browsers.
 Não se cria identificador de utilizador para compensar cookies bloqueados.
 Em produção, o cache usado pela aplicação deve ser partilhado por todas as
-instâncias (a configuração padrão Laravel deste projecto usa cache de base de
-dados), para que a deduplicação atómica de nonces funcione entre nós. A
+instâncias para que a deduplicação atómica de nonces funcione entre nós.
+O driver `file` é seguro entre processos no mesmo host, mas não sincroniza
+instâncias em hosts diferentes sem um filesystem partilhado que preserve
+locks. A
 contagem agregada usa a chave única campanha/período existente e uma operação
-atómica `INSERT IGNORE`/`ON CONFLICT DO NOTHING` seguida de
+atómica `ON CONFLICT DO NOTHING` seguida de
 `UPDATE ... WHERE impressions_count < frequency_limit`, dentro de transacção.
 Isto faz o próprio motor de base de dados arbitrar actualizações concorrentes
 e impede ultrapassar o limite. O comportamento foi coberto na suite com

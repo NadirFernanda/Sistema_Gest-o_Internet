@@ -13,7 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withSchedule(function (Schedule $schedule): void {
-        $schedule->command('ads:prune-sol-tracking-cache')->dailyAt('03:15')->withoutOverlapping();
+        $schedule->command('ads:prune-sol-tracking-cache')
+            ->dailyAt('03:15')
+            ->timezone('Africa/Luanda')
+            ->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

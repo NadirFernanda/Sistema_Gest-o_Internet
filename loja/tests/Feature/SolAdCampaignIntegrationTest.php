@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AdCampaign;
 use App\Models\VoucherPlan;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -224,6 +225,36 @@ class SolAdCampaignIntegrationTest extends TestCase
         $this->assertDatabaseMissing('cache', ['key' => $prefix . 'sol_ad_impression:expired']);
         $this->assertDatabaseHas('cache', ['key' => $prefix . 'sol_ad_impression:active']);
         $this->assertDatabaseHas('cache', ['key' => $prefix . 'unrelated:expired']);
+    }
+
+    public function test_prune_command_skips_file_cache_without_touching_entries(): void
+    {
+        config(['cache.default' => 'file']);
+        $fileCache = Cache::store('file');
+        $fileCache->put('sol_ad_impression:test', true, 3600);
+        $fileCache->put('unrelated:test', true, 3600);
+
+        $this->artisan('ads:prune-sol-tracking-cache')
+            ->expectsOutputToContain('Database cache is not the default store; database cache pruning was skipped.')
+            ->assertExitCode(0);
+
+        $this->assertTrue($fileCache->get('sol_ad_impression:test'));
+        $this->assertTrue($fileCache->get('unrelated:test'));
+
+        $fileCache->forget('sol_ad_impression:test');
+        $fileCache->forget('unrelated:test');
+    }
+
+    public function test_tracking_prune_is_scheduled_at_0315_angola_time(): void
+    {
+        $this->artisan('schedule:list')->assertExitCode(0);
+
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($event) => str_contains($event->command, 'ads:prune-sol-tracking-cache'));
+
+        $this->assertNotNull($event);
+        $this->assertSame('15 3 * * *', $event->expression);
+        $this->assertSame('Africa/Luanda', $event->timezone);
     }
 
     private function createCampaign(array $overrides = []): AdCampaign

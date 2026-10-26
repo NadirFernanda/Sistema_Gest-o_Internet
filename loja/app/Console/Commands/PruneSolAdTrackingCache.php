@@ -16,7 +16,7 @@ class PruneSolAdTrackingCache extends Command
     public function handle(): int
     {
         if (config('cache.default') !== 'database') {
-            $this->info('Database cache is not the default store; no tracking cache rows need pruning.');
+            $this->info('Database cache is not the default store; database cache pruning was skipped.');
 
             return self::SUCCESS;
         }
