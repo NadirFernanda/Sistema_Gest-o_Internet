@@ -12,26 +12,37 @@ class SolAdvertisingEmbedTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_advertising_page_allows_only_configured_https_sol_origins(): void
+    public function test_advertising_page_allows_only_the_three_confirmed_sol_origins(): void
     {
-        config(['services.sol.ads_frame_origins' => 'https://portal.sol.example, https://wifi.sol.example:8443']);
+        config([
+            'services.sol.ads_frame_origins' => implode(', ', [
+                'https://na.solnms.net',
+                'https://na.solnms.net:8443',
+                'https://na.solnms.net:8445',
+                'https://untrusted.example',
+                'https://na.solnms.net:9443',
+                'http://na.solnms.net',
+            ]),
+        ]);
         $this->createPlan();
 
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
         $csp = $response->headers->get('Content-Security-Policy');
 
         $this->assertStringContainsString(
-            'frame-ancestors https://portal.sol.example https://wifi.sol.example:8443',
+            'frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445',
             $csp
         );
         $this->assertStringNotContainsString('https://untrusted.example', $csp);
+        $this->assertStringNotContainsString('https://na.solnms.net:9443', $csp);
+        $this->assertStringNotContainsString('http://na.solnms.net', $csp);
         $this->assertFalse($response->headers->has('X-Frame-Options'));
         $this->assertSame(1, count($response->headers->all('content-security-policy')));
     }
 
-    public function test_advertising_page_denies_framing_without_a_valid_sol_origin(): void
+    public function test_advertising_page_denies_framing_without_configuration_or_with_unapproved_origins(): void
     {
-        config(['services.sol.ads_frame_origins' => 'https://portal.sol.example/path, http://insecure.example']);
+        config(['services.sol.ads_frame_origins' => 'https://untrusted.example']);
 
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
 
@@ -40,38 +51,62 @@ class SolAdvertisingEmbedTest extends TestCase
             $response->headers->get('Content-Security-Policy')
         );
         $response->assertHeader('X-Frame-Options', 'DENY');
+
+        config(['services.sol.ads_frame_origins' => '']);
+        $response = $this->get(route('ads.portal-wifi'))->assertOk();
+        $this->assertStringContainsString(
+            "frame-ancestors 'none'",
+            $response->headers->get('Content-Security-Policy')
+        );
+        $response->assertHeader('X-Frame-Options', 'DENY');
     }
 
-    public function test_public_ad_page_uses_only_local_assets_and_top_level_store_links(): void
+    public function test_public_ad_page_has_store_button_and_safe_top_level_navigation_fallback(): void
     {
-        config(['services.sol.ads_frame_origins' => 'https://portal.sol.example']);
+        config(['services.sol.ads_frame_origins' => 'https://na.solnms.net']);
         $this->createPlan();
 
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
         $html = $response->getContent();
-        $document = new \DOMDocument();
+        $document = new \DOMDocument;
         $previousErrorMode = libxml_use_internal_errors(true);
         $document->loadHTML($html);
         libxml_clear_errors();
         libxml_use_internal_errors($previousErrorMode);
 
         $xpath = new \DOMXPath($document);
-        $this->assertSame(0, $xpath->query('//script | //link[@rel="stylesheet"]')->length);
+        $this->assertSame(0, $xpath->query('//link[@rel="stylesheet"]')->length);
+        $this->assertSame(1, $xpath->query('//script[contains(@src, "/js/sol-ads.js")]')->length);
         $this->assertSame(1, $xpath->query('//img[contains(@src, "/img/logo2.jpeg")]')->length);
         $this->assertFileExists(public_path('img/logo2.jpeg'));
         $this->assertSame(
             1,
+            $xpath->query('//button[@id="open-store" and normalize-space(.)="VER A LOJA"]')->length
+        );
+        $this->assertSame(
+            1,
+            $xpath->query('//a[@id="store-fallback-link" and @target="_top" and @href="https://angolawifi.ao/"]')->length
+        );
+        $this->assertSame(
+            1,
             $xpath->query('//a[@target="_top" and contains(@href, "/checkout/sol-test")]')->length
         );
-        $this->assertSame(2, $xpath->query('//a[@target="_top"]')->length);
+        $this->assertSame(3, $xpath->query('//a[@target="_top"]')->length);
         $this->assertStringNotContainsString('csrf-token', $html);
-        $this->assertStringNotContainsString('<script', $html);
+
+        $script = file_get_contents(public_path('js/sol-ads.js'));
+        $this->assertStringContainsString("window.open(storeUrl, '_blank')", $script);
+        $this->assertStringContainsString('opened.opener = null', $script);
+        $this->assertStringContainsString('window.top.location.href = storeUrl', $script);
+        $this->assertStringNotContainsString("'noopener'", $script);
+        $this->assertStringNotContainsString('setTimeout', $script);
+        $this->assertStringNotContainsString('fetch(', $script);
     }
 
     public function test_storefront_and_financial_pages_remain_protected_from_embedding(): void
     {
         config([
-            'services.sol.ads_frame_origins' => 'https://portal.sol.example',
+            'services.sol.ads_frame_origins' => 'https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445',
             'services.gpo.frame_token' => 'test-frame-credential',
             'services.gpo.frame_token_url' => 'https://emis.example/frameToken',
             'services.gpo.webframe_url' => 'https://emis.example/webframe',
@@ -116,6 +151,10 @@ class SolAdvertisingEmbedTest extends TestCase
         );
         $this->assertStringContainsString(
             'frame-src https://pagamentonline.emis.co.ao',
+            $payment->headers->get('Content-Security-Policy')
+        );
+        $this->assertStringNotContainsString(
+            'https://na.solnms.net',
             $payment->headers->get('Content-Security-Policy')
         );
     }

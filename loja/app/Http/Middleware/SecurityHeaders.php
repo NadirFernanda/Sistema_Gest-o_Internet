@@ -20,6 +20,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SecurityHeaders
 {
+    private const SOL_ADS_ALLOWED_FRAME_ORIGINS = [
+        'https://na.solnms.net',
+        'https://na.solnms.net:8443',
+        'https://na.solnms.net:8445',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
@@ -35,6 +41,7 @@ class SecurityHeaders
         $csp = $isSolAdPage
             ? implode('; ', [
                 "default-src 'self'",
+                "script-src 'self'",
                 "style-src 'self' 'unsafe-inline'",
                 "img-src 'self'",
                 "connect-src 'none'",
@@ -51,7 +58,7 @@ class SecurityHeaders
                 "font-src 'self' data: https://fonts.gstatic.com",
                 "img-src 'self' data: https://sg.angolawifi.ao",
                 "connect-src 'self'",
-                "frame-src https://pagamentonline.emis.co.ao",
+                'frame-src https://pagamentonline.emis.co.ao',
                 "frame-ancestors 'none'",
                 "form-action 'self'",
                 "object-src 'none'",
@@ -93,6 +100,10 @@ class SecurityHeaders
             }
 
             if (isset($matches[2]) && ((int) $matches[2] < 1 || (int) $matches[2] > 65535)) {
+                continue;
+            }
+
+            if (! in_array($origin, self::SOL_ADS_ALLOWED_FRAME_ORIGINS, true)) {
                 continue;
             }
 

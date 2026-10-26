@@ -1,124 +1,113 @@
 # Incorporação publicitária AngolaWiFi no portal SOL
 
-## Diagnóstico
+## Origens autorizadas
 
-As respostas HTML públicas inspeccionadas em produção (`/` e
-`/checkout/diario`, GET sem iniciar pagamento) devolvem:
+O portal SOL confirmou HTTPS, hostname `na.solnms.net` e portas 443, 8443 e
+8445. O parser de `SOL_ADS_FRAME_ORIGINS` em
+`app/Http/Middleware/SecurityHeaders.php` separa origens por vírgulas (e
+remove espaços em redor de cada valor); espaços sozinhos não são separadores.
+Configurar exactamente:
 
-- `Content-Security-Policy` com `frame-ancestors 'none'`;
-- `X-Frame-Options: DENY`.
+```env
+SOL_ADS_FRAME_ORIGINS="https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445"
+```
 
-Ambos bloqueiam a incorporação da AngolaWiFi em qualquer iframe, incluindo o
-iframe do portal SOL. A política é definida em
-`app/Http/Middleware/SecurityHeaders.php` e aplicada no grupo web em
-`bootstrap/app.php`. A CSP permite `frame-src` EMIS para páginas AngolaWiFi
-incorporarem a WebFrame; isso não autoriza terceiros a incorporar a loja. Não
-foi encontrada configuração Nginx versionada no projecto. A resposta pública
-tem `Server: nginx/1.18.0 (Ubuntu)`, uma CSP e um X-Frame-Options; isso não
-substitui a inspecção do `nginx -T` no servidor para detectar cabeçalhos
-adicionais configurados fora do Laravel.
+O middleware valida origens HTTPS sem path e só aceita estas três origens
+confirmadas. A directiva `frame-ancestors` com a allowlist aplica-se somente à
+rota `GET /publicidade/portal-wifi`. Homepage, checkout, administração e
+pagamento EMIS continuam com `frame-ancestors 'none'` e
+`X-Frame-Options: DENY`. Se a variável estiver vazia ou sem uma origem
+autorizada, a rota publicitária também falha fechada com esses cabeçalhos.
 
-Há um conflito possível se o Nginx/CDN também definir estes cabeçalhos: a
-remoção de `X-Frame-Options` feita pela resposta Laravel não remove um cabeçalho
-acrescentado depois pelo proxy; um `X-Frame-Options: DENY` duplicado continuará
-a bloquear. Da mesma forma, CSP é cumulativa: uma segunda política que contém
-`frame-ancestors 'none'` continua a bloquear mesmo quando a CSP Laravel permite
-SOL. A configuração activa do servidor não está neste checkout; só `nginx -T`
-e os cabeçalhos da rota após deploy podem confirmar este ponto.
+## Botão «VER A LOJA»
 
-As rotas públicas existentes usam cookie de sessão Secure/SameSite=Lax. O
-conteúdo publicitário novo não lê nem exige sessão, autenticação ou cookies de
-terceiros; assim, o browser pode limitar cookies third-party sem impedir a
-apresentação. O middleware de métricas é ignorado na rota de publicidade para
-não executar geolocalização externa nem associar essa impressão a uma sessão.
+A página publicitária é independente: mostra planos activos, estilos inline e
+recursos locais, sem layout da loja, formulários de pagamento ou iframe EMIS.
+O botão «VER A LOJA» abre `https://angolawifi.ao/` em resposta directa ao clique,
+com `window.open(url, '_blank')` sem a opção `noopener`. Isso permite usar o
+retorno para distinguir um bloqueio: quando o browser devolve uma janela, o
+código define imediatamente `opener = null`; quando o retorno é nulo (ou a
+chamada falha), navega o contexto `_top` para a loja. Não há chamadas de rede,
+promessas ou temporizadores antes da tentativa de abertura. Não se tenta a
+navegação top-level quando uma nova janela foi aberta, evitando abrir os dois
+destinos.
 
-## Implementação isolada
+O link visível «Abrir nesta janela» (`target="_top"`) permanece disponível se
+o browser ou o portal não permitir detecção/abertura de pop-ups ou se o
+JavaScript não carregar. Os links de cada plano também usam `_top` para levar
+o cliente ao checkout fora do iframe publicitário. O portal SOL confirmou que
+não usa sandbox no iframe, não tem iframes aninhados e permite navegação de
+topo.
 
-`GET /publicidade/portal-wifi` (`ads.portal-wifi`) serve uma página independente
-com planos activos, CSS inline e uma única imagem servida no próprio domínio.
-Não carrega JavaScript, Google Fonts, pixels, API de estatísticas, nem inclui o
-layout/cabeçalho/rodapé da loja. Os links dos planos usam `target="_top"` para
-levar o cliente à loja/checkout de topo após clique. O portal SOL deve permitir
-navegação de topo após activação explícita do utilizador no seu iframe; se a
-sandbox deles bloquear esta navegação, será necessário acordar com SOL um
-comportamento de link alternativo suportado pelo portal.
+## Cabeçalhos, proxy e configuração
 
-`target="_blank"` é uma alternativa possível se SOL confirmar que o seu iframe
-permite pop-ups (por exemplo, sandbox com `allow-popups`) e que o portal aceita
-abrir a loja num novo separador após um clique directo. Nesse caso, usar
-`rel="noopener noreferrer"` e testar o comportamento em Android e iOS, incluindo
-o bloqueio de pop-ups. A implementação mantém `target="_top"` até a equipa SOL
-confirmar qual destas opções é suportada e pretendida; não se altera o destino
-de navegação por suposição.
+`SecurityHeaders` é aplicado no grupo web e produz uma única CSP na resposta
+Laravel. Na rota publicitária, quando configurada, espera-se uma política com
+`script-src 'self'`, `frame-src 'none'` e:
 
-A variável `SOL_ADS_FRAME_ORIGINS` aceita uma lista separada por vírgulas de
-origens exactas HTTPS (`scheme + host + porta opcional`, sem path). Deve ser
-preenchida somente com a origem oficial fornecida pela equipa SOL. Cada valor
-é validado; paths, HTTP, wildcard e portas inválidas são ignorados. Se a
-variável estiver vazia ou não contiver origem válida, a rota mantém
-`frame-ancestors 'none'` e `X-Frame-Options: DENY` (fail closed).
-Se SOL servir o portal dentro de vários frames, `frame-ancestors` tem de
-autorizar cada origem ancestral HTTPS da cadeia; pedir a SOL a lista completa,
-não apenas o domínio visível no endereço do portal.
+```text
+frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445
+```
 
-Quando a lista é válida, apenas a rota publicitária recebe CSP restrita a
-recursos self (imagem local, CSS inline, sem scripts, sem subframes) e
-`frame-ancestors` com as origens SOL configuradas. O X-Frame-Options é removido
-somente nessa resposta porque `DENY`/`SAMEORIGIN` não suporta a allowlist de
-origens; não é removido globalmente. Todas as outras páginas continuam com
-`frame-ancestors 'none'` e `X-Frame-Options: DENY`. As páginas de pagamento
-continuam a usar `frame-src https://pagamentonline.emis.co.ao`; nenhuma view ou
-configuração EMIS foi alterada nesta implementação.
+`X-Frame-Options` não é enviado apenas nessa resposta porque não suporta uma
+allowlist de origens. Nas restantes páginas HTML, a CSP contém
+`frame-ancestors 'none'`, `X-Frame-Options: DENY` e mantém
+`frame-src https://pagamentonline.emis.co.ao` para o fluxo EMIS existente.
+Assim, permitir o portal SOL como ancestral não autoriza a loja, o checkout,
+páginas administrativas nem a página EMIS a serem incorporados.
 
-## Domínios necessários na whitelist pré-autenticação
+Não existe configuração Nginx versionada neste checkout; `public/.htaccess`
+não define CSP nem X-Frame-Options. Não é possível inspeccionar a configuração
+activa do Nginx/CDN sem acesso ao servidor. Cabeçalhos adicionais no proxy
+podem anular a política da aplicação: CSP é cumulativa e um
+`X-Frame-Options: DENY` acrescentado pelo proxy continuará a bloquear a rota.
+No servidor, inspeccionar `nginx -T` e criar uma excepção apenas para
+`/publicidade/portal-wifi`, se necessário, sem remover protecções das outras
+rotas.
 
-Na página `/publicidade/portal-wifi`, o HTML e os estilos são inline e a imagem
-é `/img/logo2.jpeg` no próprio host. Links de plano também apontam para o
-próprio host. Assim, a whitelist do dispositivo deve permitir apenas
-`angolawifi.ao` por HTTPS para carregar esta página e o seu recurso visual.
-Não é necessário autorizar `sg.angolawifi.ao`, Google Fonts, EMIS, WhatsApp ou
-outros terceiros para apresentar esta página. Confirmar com SOL como a sua
-whitelist trata redireccionamento e destinos top-level após o cliente tocar
-num plano; o checkout pode precisar de acesso à rede normal ou de whitelist
-adicional que só deve ser decidida após esse teste.
+Após alterar `.env`, limpar e reconstruir a cache de configuração Laravel:
+
+```sh
+php artisan config:clear
+php artisan config:cache
+```
+
+Verificar a resposta da rota sem seguir redireccionamentos e confirmar que
+responde directamente com HTTP 200, os três `frame-ancestors` exactos, um só
+`Content-Security-Policy` e sem `X-Frame-Options`:
+
+```sh
+curl -sS -D - -o /dev/null https://angolawifi.ao/publicidade/portal-wifi
+```
+
+Comparar também a homepage, uma página de checkout, administração e pagamento
+EMIS; estas devem manter CSP restritiva e `X-Frame-Options: DENY`. Verificar
+no Nginx/CDN os cabeçalhos realmente enviados ao cliente, incluindo duplicados
+e redireccionamentos.
 
 ## Testes e homologação
 
-`tests/Feature/SolAdvertisingEmbedTest.php` verifica:
+`tests/Feature/SolAdvertisingEmbedTest.php` verifica as três origens oficiais,
+a rejeição de outras origens e a configuração vazia, o botão e o link de
+fallback top-level, a segurança de framing das páginas sensíveis e a
+preservação de `frame-src` EMIS. A automatização Laravel verifica os
+cabeçalhos da aplicação, não os do proxy ou router.
 
-- origem HTTPS SOL configurada permitida, origem não listada ausente da CSP e
-  um único cabeçalho CSP;
-- configuração vazia/inválida bloqueada por CSP e X-Frame-Options;
-- página dedicada sem JS ou CSS externo, com imagem self e links top-level;
-- homepage, administração e pagamento EMIS continuam bloqueados contra framing
-  externo e a allowlist `frame-src` EMIS permanece intacta.
+Após publicação em staging, testar o portal SOL em Android e iOS: confirmar a
+apresentação do anúncio, tocar em «VER A LOJA», confirmar que abre apenas a
+loja fora do iframe e que a aba aberta não tem acesso a `window.opener`.
+Testar também com pop-ups bloqueados e usar «Abrir nesta janela». Confirmar
+que os links de plano abrem o checkout no contexto de topo e que o fluxo EMIS
+continua no seu checkout normal.
 
-Estes testes automatizados verificam as respostas Laravel, não um router SOL.
-Antes de produção, obter a origem HTTPS exacta e confirmar que não há headers
-de clickjacking duplicados no Nginx/CDN (`nginx -T` e `curl -sS -D -` na rota).
-Instalar primeiro em staging, testar o iframe e os links em Android Chrome,
-Samsung Internet e iPhone Safari, e verificar que o clique em plano abre o
-checkout no contexto de topo. O router deve permitir a origem de incorporação
-e a navegação top-level por activação de utilizador. Confirmar também a
-allowlist pré-autenticação e o retorno à loja.
+## Publicação e rollback
 
-## Deploy e rollback
+1. Configurar a variável exacta acima no ambiente do servidor.
+2. Publicar o commit, executar `php artisan config:clear` e
+   `php artisan config:cache`.
+3. Verificar a resposta HTTP, os cabeçalhos efectivos Nginx/CDN e os testes
+   reais no portal SOL em staging antes de produção.
+4. Para rollback, remover `SOL_ADS_FRAME_ORIGINS` e limpar/reconstruir a cache
+   de configuração; a rota publicitária volta a negar framing.
 
-1. Não configurar `SOL_ADS_FRAME_ORIGINS` até receber por escrito a origem
-   exacta HTTPS oficial do SOL.
-2. Fazer deploy do código em staging; verificar a rota sem configuração
-   (deve negar framing) e, com origem de homologação autorizada, verificar
-   apenas a rota publicitária (sem X-Frame-Options e CSP exacta).
-3. Confirmar no Nginx/CDN que não acrescenta `X-Frame-Options: DENY` ou outra
-   CSP `frame-ancestors` à rota permitida. Se houver regra global, criar
-   excepção apenas para `/publicidade/portal-wifi`, preservando os headers
-   restritivos em todas as outras rotas. Confirmar o resultado HTTP efectivo;
-   headers repetidos fazem o browser aplicar a política mais restritiva.
-4. Após aprovação, configurar a origem SOL exacta, limpar cache de config
-   Laravel e repetir o teste HTTP e no router.
-5. Rollback: remover `SOL_ADS_FRAME_ORIGINS` (a rota falha fechada) ou reverter
-   o deploy. As demais páginas permanecem protegidas em todos os casos.
-
-Não houve deploy, alteração de base de dados, teste físico nem ensaio num
-router SOL nesta tarefa. O funcionamento final de incorporação e de links
-depende da origem, whitelist e sandbox confirmadas pela equipa SOL.
+Não fazer push nem deploy sem uma acção explícita de publicação.

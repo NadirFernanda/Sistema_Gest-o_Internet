@@ -15,6 +15,9 @@
     header img { width: 48px; height: 48px; object-fit: cover; border-radius: 9px; }
     h1 { margin: 0; font-size: 1.2rem; }
     header p { margin: .2rem 0 0; color: #64748b; font-size: .9rem; }
+    .store-action { margin: 1rem 0; text-align: center; }
+    .store-action button { border: 0; cursor: pointer; font: inherit; }
+    .store-fallback { display: block; margin-top: .55rem; color: #334155; font-size: .9rem; text-decoration: underline; }
     section { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr)); gap: .75rem; }
     article { padding: 1rem; }
     h2 { margin: 0 0 .55rem; font-size: 1rem; }
@@ -35,6 +38,13 @@
       <p>Escolha um plano e continue na loja segura.</p>
     </div>
   </header>
+
+  <div class="store-action">
+    <button class="store-button" id="open-store" type="button">VER A LOJA</button>
+    <a class="store-fallback" id="store-fallback-link" href="https://angolawifi.ao/" target="_top">
+      Abrir nesta janela
+    </a>
+  </div>
 
   <section aria-label="Planos disponíveis">
     @forelse($plans as $plan)
@@ -63,5 +73,6 @@
     <a href="{{ url('/') }}" target="_top">Abrir loja AngolaWiFi</a>
   </footer>
 </main>
+<script src="{{ asset('js/sol-ads.js') }}" defer></script>
 </body>
 </html>
