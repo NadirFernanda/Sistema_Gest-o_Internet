@@ -91,7 +91,7 @@ class SolAdvertisingEmbedTest extends TestCase
             1,
             $xpath->query('//a[@target="_top" and contains(@href, "/checkout/sol-test")]')->length
         );
-        $this->assertSame(3, $xpath->query('//a[@target="_top"]')->length);
+        $this->assertSame(2, $xpath->query('//a[@target="_top"]')->length);
         $this->assertStringNotContainsString('csrf-token', $html);
 
         $script = file_get_contents(public_path('js/sol-ads.js'));

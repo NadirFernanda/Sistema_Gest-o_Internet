@@ -58,6 +58,16 @@ class SolAdCampaignIntegrationTest extends TestCase
         $response->assertHeader('cache-control', 'no-store, private');
         $response->assertHeaderMissing('set-cookie');
         $response->assertSee('Campanha SOL de teste');
+        $response->assertSee('class="campaign__media"', false);
+        $response->assertSee('object-fit: contain', false);
+        $response->assertSee('loading="eager"', false);
+        $response->assertSee('fetchpriority="high"', false);
+        $response->assertSee('VER A LOJA');
+        $response->assertSee('font-family: \'Inter\'', false);
+        $response->assertSee('#f7b500', false);
+        $response->assertSee('@media (max-width: 420px)', false);
+        $response->assertSee('prefers-reduced-motion', false);
+        $response->assertDontSee('fonts.googleapis.com');
         $response->assertSee(route('ads.sol-image', $campaign->id), false);
         $response->assertSee('data-impression-url=', false);
         $this->assertStringContainsString('expires=', $response->getContent());
@@ -109,6 +119,11 @@ class SolAdCampaignIntegrationTest extends TestCase
         $this->get(route('ads.portal-wifi'))
             ->assertOk()
             ->assertSee('Plano SOL Teste')
+            ->assertSee('class="plans-grid"', false)
+            ->assertSee('Duração · 24 horas')
+            ->assertSee('Velocidade · Até 10 Mbps')
+            ->assertSee('350 <span>Kz</span>', false)
+            ->assertSee('Comprar Agora')
             ->assertDontSee('Campanha SOL de teste');
 
         $inactive->update(['active' => true, 'ends_at' => now()->subMinute()]);
