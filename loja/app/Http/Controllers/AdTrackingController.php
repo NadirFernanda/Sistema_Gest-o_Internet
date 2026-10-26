@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AdTrackingController extends Controller
 {
-    private const SOL_TRACKING_DEDUPE_YEARS = 10;
+    private const SOL_TRACKING_DEDUPE_DAYS = 31;
 
     public function image(int $campaign): Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
@@ -71,7 +71,7 @@ class AdTrackingController extends Controller
     public function solImpression(int $campaign, string $nonce): Response
     {
         $cacheKey = 'sol_ad_impression:' . hash('sha256', $nonce);
-        if (Cache::add($cacheKey, true, now()->addYears(self::SOL_TRACKING_DEDUPE_YEARS))) {
+        if (Cache::add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
             try {
                 DB::transaction(function () use ($campaign): void {
                     $ad = AdCampaign::available(AdCampaign::SOL_PORTAL_PLACEMENT)
@@ -106,44 +106,45 @@ class AdTrackingController extends Controller
     {
         $ad = AdCampaign::running(AdCampaign::SOL_PORTAL_PLACEMENT)->findOrFail($campaign);
         $cacheKey = 'sol_ad_click:' . hash('sha256', $nonce);
-        if (Cache::add($cacheKey, true, now()->addYears(self::SOL_TRACKING_DEDUPE_YEARS))) {
-            $ad->increment('clicks_count');
+        if (Cache::add($cacheKey, true, now()->addDays(self::SOL_TRACKING_DEDUPE_DAYS))) {
+            try {
+                $ad->increment('clicks_count');
+            } catch (\Throwable $exception) {
+                Cache::forget($cacheKey);
+                throw $exception;
+            }
         }
 
         return redirect()->away($ad->destination_url)->header('Cache-Control', 'no-store, private');
     }
 
-    private function incrementImpression(AdCampaign $ad): void
+    private function incrementImpression(AdCampaign $ad): bool
     {
         if ($ad->frequency_limit !== null) {
             $periodStart = AdCampaign::periodStart($ad->frequency_period);
-            $counter = DB::table('ad_campaign_period_impressions')
+            DB::table('ad_campaign_period_impressions')->insertOrIgnore([
+                'ad_campaign_id' => $ad->id,
+                'frequency_period' => $ad->frequency_period,
+                'period_start' => $periodStart,
+                'impressions_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $incremented = DB::table('ad_campaign_period_impressions')
                 ->where('ad_campaign_id', $ad->id)
                 ->where('frequency_period', $ad->frequency_period)
                 ->where('period_start', $periodStart)
-                ->lockForUpdate()
-                ->first();
+                ->where('impressions_count', '<', $ad->frequency_limit)
+                ->increment('impressions_count', 1, ['updated_at' => now()]);
 
-            if ($counter && $counter->impressions_count >= $ad->frequency_limit) {
-                return;
-            }
-
-            if ($counter) {
-                DB::table('ad_campaign_period_impressions')
-                    ->where('id', $counter->id)
-                    ->increment('impressions_count', 1, ['updated_at' => now()]);
-            } else {
-                DB::table('ad_campaign_period_impressions')->insert([
-                    'ad_campaign_id' => $ad->id,
-                    'frequency_period' => $ad->frequency_period,
-                    'period_start' => $periodStart,
-                    'impressions_count' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            if ($incremented !== 1) {
+                return false;
             }
         }
 
         $ad->increment('impressions_count');
+
+        return true;
     }
 }

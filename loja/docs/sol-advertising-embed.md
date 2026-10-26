@@ -49,21 +49,28 @@ topo.
 A impressão é enviada apenas depois de pelo menos 50% do cartão estar visível,
 através de um pixel GIF da própria AngolaWiFi (`img-src 'self'`). Não usa
 `fetch`, `connect-src`, cookies, dados pessoais nem dependência de sessão de
-terceiro. Os URLs de impressão e clique são assinados sem parâmetro de
-expiração, para continuarem utilizáveis enquanto a página SOL permanecer
-aberta. São relativos à mesma origem, pelo que não dependem do esquema/host
-observado pelo proxy e continuam cobertos por `img-src 'self'`; a CSP não
-bloqueia navegação de links. A resposta HTML e o redirect de clique usam
-`Cache-Control: no-store, private`. As assinaturas dependem da `APP_KEY` e
-deixam de validar se esta for rodada.
+terceiro. Os URLs de impressão e clique são assinados por 30 dias, o que
+permite que uma página SOL permaneça aberta por mais de 15 minutos sem perder
+o tracking. São relativos à mesma origem, pelo que não dependem do
+esquema/host observado pelo proxy e continuam cobertos por `img-src 'self'`;
+a CSP não bloqueia navegação de links. A resposta HTML e o redirect de clique
+usam `Cache-Control: no-store, private`. As assinaturas dependem da `APP_KEY`
+e deixam de validar se esta for rodada.
 
 Cada nonce é aceite uma só vez, por `Cache::add` atómico, e a chave de
-deduplicação fica retida durante 10 anos. Os endpoints também têm limite de
-pedidos. A campanha tem de continuar activa/elegível: desactivação, fim do
-período ou limite agregado atingido podem fazer a impressão ou clique falhar,
-mesmo que a página permaneça aberta. Cliques redireccionam para o destino
-HTTP/HTTPS guardado na campanha e não aceitam um destino fornecido pelo
-navegador.
+deduplicação tem TTL de 31 dias (prazo do link + um dia de margem). Para o
+cache Laravel baseado em base de dados, `ads:prune-sol-tracking-cache` remove
+diariamente as chaves SOL expiradas; o scheduler Laravel precisa estar activo
+no servidor. Assim, o volume tende a ficar próximo de 31 dias de chaves
+únicas — por exemplo, 3.000 eventos/dia representam cerca de 93.000 chaves,
+em vez de milhões acumulados por anos. Outros stores com TTL nativo expiram
+as chaves segundo o respectivo backend. Os endpoints também têm limite de
+pedidos.
+
+A campanha tem de continuar activa/elegível: desactivação, fim do período ou
+limite agregado atingido podem fazer a impressão ou clique falhar, mesmo que a
+página permaneça aberta. Cliques redireccionam para o destino HTTP/HTTPS
+guardado na campanha e não aceitam um destino fornecido pelo navegador.
 
 A deduplicação SOL cobre a repetição do mesmo token; o limite configurado na
 campanha é um máximo agregado por período, não uma frequência individual por
@@ -74,9 +81,13 @@ Não se cria identificador de utilizador para compensar cookies bloqueados.
 Em produção, o cache usado pela aplicação deve ser partilhado por todas as
 instâncias (a configuração padrão Laravel deste projecto usa cache de base de
 dados), para que a deduplicação atómica de nonces funcione entre nós. A
-deduplicação de impressões usa ainda `lockForUpdate` na campanha e na linha do
-contador, dentro de transacção; chamadas simultâneas ficam serializadas e o
-limite agregado não deve ser excedido.
+contagem agregada usa a chave única campanha/período existente e uma operação
+atómica `INSERT IGNORE`/`ON CONFLICT DO NOTHING` seguida de
+`UPDATE ... WHERE impressions_count < frequency_limit`, dentro de transacção.
+Isto faz o próprio motor de base de dados arbitrar actualizações concorrentes
+e impede ultrapassar o limite. O comportamento foi coberto na suite com
+pedidos e nonces distintos; a confirmação sob concorrência real ainda depende
+de validar o motor/configuração efectivamente usado em produção.
 
 ### Acesso antes da autenticação WiFi
 

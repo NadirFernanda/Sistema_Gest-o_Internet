@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\URL;
 
 class PublicWifiAdController extends Controller
 {
+    private const SOL_TRACKING_URL_TTL_DAYS = 30;
+
     public function index(): Response
     {
         $campaigns = AdCampaign::available(AdCampaign::SOL_PORTAL_PLACEMENT)
@@ -36,7 +38,7 @@ class PublicWifiAdController extends Controller
                 ? URL::signedRoute(
                     'ads.sol-impression',
                     ['campaign' => $campaign->id, 'nonce' => $impressionNonce],
-                    null,
+                    now()->addDays(self::SOL_TRACKING_URL_TTL_DAYS),
                     false
                 )
                 : null,
@@ -44,7 +46,7 @@ class PublicWifiAdController extends Controller
                 ? URL::signedRoute(
                     'ads.sol-click',
                     ['campaign' => $campaign->id, 'nonce' => $clickNonce],
-                    null,
+                    now()->addDays(self::SOL_TRACKING_URL_TTL_DAYS),
                     false
                 )
                 : null,

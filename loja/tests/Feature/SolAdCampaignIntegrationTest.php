@@ -59,7 +59,7 @@ class SolAdCampaignIntegrationTest extends TestCase
         $response->assertSee('Campanha SOL de teste');
         $response->assertSee(route('ads.sol-image', $campaign->id), false);
         $response->assertSee('data-impression-url=', false);
-        $this->assertStringNotContainsString('expires=', $response->getContent());
+        $this->assertStringContainsString('expires=', $response->getContent());
 
         $document = new \DOMDocument;
         $previousErrorMode = libxml_use_internal_errors(true);
@@ -160,7 +160,7 @@ class SolAdCampaignIntegrationTest extends TestCase
             ->assertDontSee('Campanha SOL de teste');
     }
 
-    public function test_signed_sol_tracking_urls_do_not_expire_after_fifteen_minutes(): void
+    public function test_signed_sol_tracking_urls_remain_valid_after_fifteen_minutes_and_expire_after_thirty_days(): void
     {
         config(['cache.default' => 'array']);
         Cache::flush();
@@ -180,6 +180,10 @@ class SolAdCampaignIntegrationTest extends TestCase
             ->assertRedirect('https://advertiser.example/offer')
             ->assertHeader('cache-control', 'no-store, private')
             ->assertHeaderMissing('set-cookie');
+
+        $this->travel(31)->days();
+        $this->get($url)->assertForbidden();
+        $this->get($clickUrl)->assertForbidden();
     }
 
     public function test_sol_click_counts_once_and_redirects_to_the_campaign_destination(): void
@@ -188,12 +192,38 @@ class SolAdCampaignIntegrationTest extends TestCase
         Cache::flush();
         $campaign = $this->createCampaign();
         $clickUrl = $this->signedUrl('ads.sol-click', $campaign, str_repeat('d', 64));
-        $this->assertStringNotContainsString('expires=', $clickUrl);
+        $this->assertStringContainsString('expires=', $clickUrl);
 
         $this->get($clickUrl)->assertRedirect('https://advertiser.example/offer');
         $this->get($clickUrl)->assertRedirect('https://advertiser.example/offer');
 
         $this->assertSame(1, (int) $campaign->fresh()->clicks_count);
+    }
+
+    public function test_prune_command_removes_only_expired_sol_tracking_keys_from_database_cache(): void
+    {
+        config(['cache.default' => 'database']);
+        $store = Cache::store('database')->getStore();
+        $prefix = $store->getPrefix();
+        $databaseCache = Cache::store('database');
+        $databaseCache->put('sol_ad_impression:expired', true, 3600);
+        $databaseCache->put('sol_ad_impression:active', true, 3600);
+        $databaseCache->put('unrelated:expired', true, 3600);
+
+        DB::table('cache')
+            ->where('key', $prefix . 'sol_ad_impression:expired')
+            ->update(['expiration' => now()->subMinute()->timestamp]);
+        DB::table('cache')
+            ->where('key', $prefix . 'unrelated:expired')
+            ->update(['expiration' => now()->subMinute()->timestamp]);
+
+        $this->artisan('ads:prune-sol-tracking-cache')
+            ->expectsOutputToContain('Pruned 1 expired SOL advertising tracking keys.')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseMissing('cache', ['key' => $prefix . 'sol_ad_impression:expired']);
+        $this->assertDatabaseHas('cache', ['key' => $prefix . 'sol_ad_impression:active']);
+        $this->assertDatabaseHas('cache', ['key' => $prefix . 'unrelated:expired']);
     }
 
     private function createCampaign(array $overrides = []): AdCampaign
@@ -228,10 +258,10 @@ class SolAdCampaignIntegrationTest extends TestCase
 
     private function signedUrl(string $route, AdCampaign $campaign, string $nonce): string
     {
-        return URL::signedRoute(
+        return URL::temporarySignedRoute(
             $route,
+            now()->addDays(30),
             ['campaign' => $campaign->id, 'nonce' => $nonce],
-            null,
             false
         );
     }
