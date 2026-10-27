@@ -24,7 +24,7 @@ class SolAdCampaignIntegrationTest extends TestCase
         $this->withSession(['sg_admin_authenticated' => true])
             ->get(route('admin.ads.create'))
             ->assertOk()
-            ->assertSee('value="' . AdCampaign::SOL_PORTAL_PLACEMENT . '"', false)
+            ->assertSee('value="'.AdCampaign::SOL_PORTAL_PLACEMENT.'"', false)
             ->assertSee('Portal WiFi / SOL');
     }
 
@@ -66,6 +66,9 @@ class SolAdCampaignIntegrationTest extends TestCase
         $response->assertSee('font-family: \'Inter\'', false);
         $response->assertSee('#f7b500', false);
         $response->assertSee('@media (max-width: 420px)', false);
+        $response->assertSee('@media (max-width: 430px) and (max-height: 680px)', false);
+        $response->assertSee('@media (min-width: 421px) and (max-width: 820px)', false);
+        $response->assertSee('.intro { display: none; }', false);
         $response->assertSee('prefers-reduced-motion', false);
         $response->assertDontSee('fonts.googleapis.com');
         $response->assertSee(route('ads.sol-image', $campaign->id), false);
@@ -81,15 +84,15 @@ class SolAdCampaignIntegrationTest extends TestCase
 
         $this->assertSame(1, $xpath->query('//article[contains(@class,"campaign")]//img')->length);
         $imageUrl = $xpath->query('//article[contains(@class,"campaign")]//img')->item(0)->getAttribute('src');
-        $this->assertStringStartsWith('/ads/sol/' . $campaign->id . '/image', parse_url($imageUrl, PHP_URL_PATH));
+        $this->assertStringStartsWith('/ads/sol/'.$campaign->id.'/image', parse_url($imageUrl, PHP_URL_PATH));
         $impressionUrl = $xpath->query('//article[contains(@class,"campaign")]')->item(0)->getAttribute('data-impression-url');
-        $this->assertStringStartsWith('/ads/sol/' . $campaign->id . '/impression/', $impressionUrl);
+        $this->assertStringStartsWith('/ads/sol/'.$campaign->id.'/impression/', $impressionUrl);
         $this->assertSame(
             1,
             $xpath->query('//article[contains(@class,"campaign")]//a[@target="_blank" and contains(@rel,"noopener") and contains(@href,"/ads/sol/") and contains(@href,"/click/")]')->length
         );
         $clickUrl = $xpath->query('//article[contains(@class,"campaign")]//a[@target="_blank"]')->item(0)->getAttribute('href');
-        $this->assertStringStartsWith('/ads/sol/' . $campaign->id . '/click/', $clickUrl);
+        $this->assertStringStartsWith('/ads/sol/'.$campaign->id.'/click/', $clickUrl);
         $this->assertSame(
             1,
             $xpath->query('//article[contains(@class,"campaign")]//a[@target="_top" and normalize-space(.)="Abrir nesta janela"]')->length
@@ -183,7 +186,7 @@ class SolAdCampaignIntegrationTest extends TestCase
         $campaign = $this->createCampaign();
         $url = $this->signedUrl('ads.sol-impression', $campaign, str_repeat('b', 64));
 
-        $this->get($url . '&tampered=1')->assertForbidden();
+        $this->get($url.'&tampered=1')->assertForbidden();
         $this->travel(16)->minutes();
 
         $this->get($url)
@@ -227,19 +230,19 @@ class SolAdCampaignIntegrationTest extends TestCase
         $databaseCache->put('unrelated:expired', true, 3600);
 
         DB::table('cache')
-            ->where('key', $prefix . 'sol_ad_impression:expired')
+            ->where('key', $prefix.'sol_ad_impression:expired')
             ->update(['expiration' => now()->subMinute()->timestamp]);
         DB::table('cache')
-            ->where('key', $prefix . 'unrelated:expired')
+            ->where('key', $prefix.'unrelated:expired')
             ->update(['expiration' => now()->subMinute()->timestamp]);
 
         $this->artisan('ads:prune-sol-tracking-cache')
             ->expectsOutputToContain('Pruned 1 expired SOL advertising tracking keys.')
             ->assertExitCode(0);
 
-        $this->assertDatabaseMissing('cache', ['key' => $prefix . 'sol_ad_impression:expired']);
-        $this->assertDatabaseHas('cache', ['key' => $prefix . 'sol_ad_impression:active']);
-        $this->assertDatabaseHas('cache', ['key' => $prefix . 'unrelated:expired']);
+        $this->assertDatabaseMissing('cache', ['key' => $prefix.'sol_ad_impression:expired']);
+        $this->assertDatabaseHas('cache', ['key' => $prefix.'sol_ad_impression:active']);
+        $this->assertDatabaseHas('cache', ['key' => $prefix.'unrelated:expired']);
     }
 
     public function test_prune_command_removes_only_expired_sol_file_cache_entries(): void
@@ -253,7 +256,7 @@ class SolAdCampaignIntegrationTest extends TestCase
         $unrelatedCache->put('unrelated:expired', true, 3600);
         $expiredPath = $solStore->path('sol_ad_impression:expired');
         $contents = file_get_contents($expiredPath);
-        file_put_contents($expiredPath, now()->subMinute()->timestamp . substr($contents, 10));
+        file_put_contents($expiredPath, now()->subMinute()->timestamp.substr($contents, 10));
 
         $this->artisan('ads:prune-sol-tracking-cache')
             ->expectsOutputToContain('Pruned 1 expired SOL advertising tracking files.')

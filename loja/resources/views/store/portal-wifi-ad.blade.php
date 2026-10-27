@@ -214,6 +214,29 @@
       .plan { padding: 16px; }
     }
 
+    @media (max-width: 430px) and (max-height: 680px) {
+      body { padding: 8px; line-height: 1.45; }
+      .masthead { margin-bottom: 8px; }
+      .brand__mark { width: 34px; height: 34px; flex-basis: 34px; }
+      .brand__tagline { display: none; }
+      .store-button { min-height: 34px; padding: 0 9px; font-size: .64rem; }
+      .store-fallback { margin-top: 2px; font-size: .64rem; }
+      .intro { display: none; }
+      .campaign__media { min-height: 96px; height: 96px; max-height: 96px; padding: 4px; }
+      .campaign__content { padding: 12px; }
+      .campaign__label { gap: 5px; margin-bottom: 5px; font-size: .62rem; }
+      .campaign__title { font-size: clamp(1.05rem, 4.8vw, 1.25rem); line-height: 1.12; }
+      .campaign__description { margin-top: 6px; font-size: .8rem; line-height: 1.35; }
+      .campaign__actions { gap: 5px; margin-top: 9px; }
+      .campaign__actions .button { min-height: 40px; padding: 0 12px; }
+      .campaign__fallback { padding: 2px; font-size: .75rem; }
+      .page-note { margin-top: 6px; font-size: .62rem; }
+    }
+
+    @media (min-width: 421px) and (max-width: 820px) and (min-height: 681px) and (max-height: 820px) {
+      .campaign__media { height: min(46vw, 338px); max-height: 338px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
