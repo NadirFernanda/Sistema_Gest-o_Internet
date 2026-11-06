@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
 /**
  * GpoController — Pagamento via webframe EMIS GPO (cartão + Multicaixa Express).
@@ -42,15 +43,27 @@ class GpoController extends Controller
             return redirect()->away(URL::signedRoute('store.checkout.confirm', ['order' => $order->id]));
         }
 
-        // Reutiliza a referência existente se a ordem já está em pagamento pendente.
-        // Gerar uma nova referência a cada refresh sobrescreveria a BD, tornando
-        // callbacks anteriores do GPO incapazes de encontrar a ordem ("order_not_found").
+        $meta = $order->meta ?? [];
+        $attempt = $meta['gpo_attempt'] ?? [];
+        $attemptExpiry = is_string($attempt['expires_at'] ?? null)
+            ? Carbon::parse($attempt['expires_at'])
+            : null;
+        $terminalStatuses = [
+            AutovendaOrder::STATUS_FAILED,
+            AutovendaOrder::STATUS_CANCELLED,
+            AutovendaOrder::STATUS_EXPIRED,
+        ];
+        $canReuseToken = ($attempt['reference'] ?? null) === $order->payment_reference
+            && is_string($attempt['url'] ?? null)
+            && $attemptExpiry?->isFuture()
+            && ! in_array($order->status, $terminalStatuses, true);
+
+        // Reuse the same EMIS token during refresh while it is valid. Once it
+        // expires, create a fresh unique merchant reference and retain old ones
+        // so a delayed callback can still be associated with this order.
         $needsNewReference = empty($order->payment_reference)
-            || in_array($order->status, [
-                AutovendaOrder::STATUS_FAILED,
-                AutovendaOrder::STATUS_CANCELLED,
-                AutovendaOrder::STATUS_EXPIRED,
-            ], true);
+            || ! $canReuseToken
+            || in_array($order->status, $terminalStatuses, true);
 
         if ($needsNewReference) {
             $reference = 'AW' . $order->id . strtoupper(Str::random(4));
@@ -59,25 +72,73 @@ class GpoController extends Controller
             $reference = $order->payment_reference;
         }
 
-        $callbackUrl = route('webhooks.gpo');
+        $iframeUrl = $canReuseToken ? $attempt['url'] : null;
+        if (! $canReuseToken) {
+            $callbackUrl = route('webhooks.gpo');
 
-        try {
-            $iframeUrl = $this->gpo->createPurchaseToken((float) $order->amount_aoa, $reference, $callbackUrl);
-        } catch (\Throwable $e) {
-            Log::error('GPO: erro ao iniciar pagamento', [
-                'order_id' => $order->id,
-                'error'    => $e->getMessage(),
-            ]);
-            return back()->withErrors([
-                'gateway' => 'Não foi possível iniciar o pagamento. Tente novamente ou contacte o suporte.',
-            ]);
+            try {
+                $token = $this->gpo->createPurchaseTokenDetails(
+                    (float) $order->amount_aoa,
+                    $reference,
+                    $callbackUrl
+                );
+                $iframeUrl = $token['url'];
+                $previousReferences = $meta['gpo_references'] ?? [];
+                if ($order->payment_reference && $order->payment_reference !== $reference) {
+                    $previousReferences[] = $order->payment_reference;
+                }
+
+                $meta['gpo_references'] = array_values(array_unique($previousReferences));
+                $meta['gpo_attempt'] = [
+                    'reference'  => $reference,
+                    'url'        => $iframeUrl,
+                    'expires_at' => $token['time_to_live_ms']
+                        ? now()->addMilliseconds($token['time_to_live_ms'])->toIso8601String()
+                        : null,
+                ];
+            } catch (\Throwable $e) {
+                Log::error('GPO: erro ao iniciar pagamento', [
+                    'order_id' => $order->id,
+                    'error'    => $e->getMessage(),
+                ]);
+                return back()->withErrors([
+                    'gateway' => 'Não foi possível iniciar o pagamento. Tente novamente ou contacte o suporte.',
+                ]);
+            }
         }
 
-        $order->update([
-            'payment_reference' => $reference,
-            'payment_gateway'   => 'gpo',
-            'status'            => AutovendaOrder::STATUS_AWAITING_PAYMENT,
-        ]);
+        $paymentStarted = DB::transaction(function () use ($order, $reference, $meta) {
+            $lockedOrder = AutovendaOrder::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if ($lockedOrder->isPaid()) {
+                return false;
+            }
+
+            $storedMeta = $lockedOrder->meta ?? [];
+            $references = array_merge(
+                $storedMeta['gpo_references'] ?? [],
+                $meta['gpo_references'] ?? []
+            );
+            if ($lockedOrder->payment_reference && $lockedOrder->payment_reference !== $reference) {
+                $references[] = $lockedOrder->payment_reference;
+            }
+            $storedMeta['gpo_references'] = array_values(array_unique($references));
+            $storedMeta['gpo_attempt'] = $meta['gpo_attempt'] ?? $storedMeta['gpo_attempt'] ?? [];
+
+            $lockedOrder->update([
+                'payment_reference' => $reference,
+                'payment_gateway'   => 'gpo',
+                'status'            => AutovendaOrder::STATUS_AWAITING_PAYMENT,
+                'meta'              => $storedMeta,
+            ]);
+
+            return true;
+        });
+
+        if (! $paymentStarted) {
+            return redirect()->away(URL::signedRoute('store.checkout.confirm', ['order' => $order->id]));
+        }
+
+        $order->refresh();
 
         // Regista o ID da ordem na sessão para que apenas esta sessão possa
         // fazer polling do estado e receber o código WiFi (protege contra IDOR).
@@ -98,19 +159,24 @@ class GpoController extends Controller
         $data = $request->all();
 
         Log::info('GPO: callback recebido', [
-            'ip'   => $request->ip(),
-            'body' => $data,
+            'ip'              => $request->ip(),
+            'merchant_ref'    => $data['merchantReferenceNumber'] ?? $data['merchantReference'] ?? null,
+            'transaction_id'  => $data['id'] ?? null,
+            'transaction_type'=> $data['transactionType'] ?? null,
+            'state'           => $data['status'] ?? $data['state'] ?? null,
         ]);
 
         $parsed = $this->gpo->parseCallback($data);
 
         $merchantRef = $parsed['merchant_ref'];
         if (! $merchantRef) {
-            Log::warning('GPO: callback sem merchantReference', ['body' => $data]);
+            Log::warning('GPO: callback sem merchantReference', ['fields' => array_keys($data)]);
             return response()->json(['error' => 'missing_reference'], 400);
         }
 
-        $order = AutovendaOrder::where('payment_reference', $merchantRef)->first();
+        $order = AutovendaOrder::where('payment_reference', $merchantRef)
+            ->orWhereJsonContains('meta->gpo_references', $merchantRef)
+            ->first();
         if (! $order) {
             Log::warning('GPO: ordem não encontrada para referência', ['ref' => $merchantRef]);
             return response()->json(['error' => 'order_not_found'], 404);
@@ -134,11 +200,18 @@ class GpoController extends Controller
         }
 
         if ($parsed['successful']) {
+            if (! is_numeric($parsed['amount']) || (float) $parsed['amount'] <= 0
+                || strtoupper((string) $parsed['currency']) !== 'AOA'
+            ) {
+                Log::error('GPO: callback de pagamento sem montante ou moeda válidos', [
+                    'ref'      => $merchantRef,
+                    'currency' => $parsed['currency'],
+                ]);
+                return response()->json(['error' => 'missing_payment_details'], 400);
+            }
+
             try {
-                $this->orderService->confirmPaymentAndDeliver(
-                    $order,
-                    $parsed['transaction_id'] ?? $merchantRef
-                );
+                $this->orderService->confirmPaymentAndDeliver($order);
             } catch (\Throwable $e) {
                 Log::error('GPO: erro ao confirmar pagamento', [
                     'ref'   => $merchantRef,
@@ -146,7 +219,9 @@ class GpoController extends Controller
                 ]);
                 return response()->json(['error' => 'delivery_failed'], 500);
             }
-        } elseif (in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)) {
+        } elseif ($order->payment_reference === $merchantRef
+            && in_array($parsed['status'], ['rejected', 'cancelled', 'expired', 'reversed'], true)
+        ) {
             $order->update(['status' => AutovendaOrder::STATUS_FAILED]);
         }
 
@@ -164,15 +239,18 @@ class GpoController extends Controller
         $data = $request->all();
 
         Log::info('GPO Revendedor: callback recebido', [
-            'ip'   => $request->ip(),
-            'body' => $data,
+            'ip'               => $request->ip(),
+            'merchant_ref'     => $data['merchantReferenceNumber'] ?? $data['merchantReference'] ?? null,
+            'transaction_id'   => $data['id'] ?? null,
+            'transaction_type' => $data['transactionType'] ?? null,
+            'state'            => $data['status'] ?? $data['state'] ?? null,
         ]);
 
         $parsed = $this->gpo->parseCallback($data);
 
         $merchantRef = $parsed['merchant_ref'];
         if (! $merchantRef) {
-            Log::warning('GPO Revendedor: callback sem merchantReference', ['body' => $data]);
+            Log::warning('GPO Revendedor: callback sem merchantReference', ['fields' => array_keys($data)]);
             return response()->json(['error' => 'missing_reference'], 400);
         }
 
@@ -192,6 +270,20 @@ class GpoController extends Controller
         }
 
         if ($parsed['successful']) {
+            $expectedAmount = (float) $purchases->sum('net_amount_aoa');
+            if (! is_numeric($parsed['amount']) || (float) $parsed['amount'] <= 0
+                || strtoupper((string) $parsed['currency']) !== 'AOA'
+                || abs((float) $parsed['amount'] - $expectedAmount) > 0.01
+            ) {
+                Log::error('GPO Revendedor: montante/moeda do callback não correspondem às compras', [
+                    'reference' => $merchantRef,
+                    'expected'  => $expectedAmount,
+                    'received'  => $parsed['amount'],
+                    'currency'  => $parsed['currency'],
+                ]);
+                return response()->json(['error' => 'payment_details_mismatch'], 400);
+            }
+
             $planSlugs = $purchases->pluck('plan_slug')->toArray();
             $planMap   = VoucherPlan::whereIn('slug', $planSlugs)->get()->keyBy('slug');
 
@@ -266,8 +358,11 @@ class GpoController extends Controller
         $data = $request->all();
 
         Log::info('GPO Manutenção: callback recebido', [
-            'ip'   => $request->ip(),
-            'body' => $data,
+            'ip'               => $request->ip(),
+            'merchant_ref'     => $data['merchantReferenceNumber'] ?? $data['merchantReference'] ?? null,
+            'transaction_id'   => $data['id'] ?? null,
+            'transaction_type' => $data['transactionType'] ?? null,
+            'state'            => $data['status'] ?? $data['state'] ?? null,
         ]);
 
         $parsed = $this->gpo->parseCallback($data);
@@ -300,6 +395,20 @@ class GpoController extends Controller
         }
 
         if ($parsed['successful']) {
+            $expectedAmount = $application->maintenanceFeeAoa();
+            if (! is_numeric($parsed['amount']) || (float) $parsed['amount'] <= 0
+                || strtoupper((string) $parsed['currency']) !== 'AOA'
+                || abs((float) $parsed['amount'] - $expectedAmount) > 0.01
+            ) {
+                Log::error('GPO Manutenção: montante/moeda do callback não correspondem à taxa', [
+                    'reference' => $merchantRef,
+                    'expected'  => $expectedAmount,
+                    'received'  => $parsed['amount'],
+                    'currency'  => $parsed['currency'],
+                ]);
+                return response()->json(['error' => 'payment_details_mismatch'], 400);
+            }
+
             $application->update([
                 'maintenance_paid_year'  => $year,
                 'maintenance_paid_month' => $month,
@@ -346,16 +455,21 @@ class GpoController extends Controller
     /**
      * Verifica a origem de callbacks GPO.
      *
-     * Camada 1 — IP allowlist (quando GPO_CALLBACK_IPS está definido em .env).
-     *   Configurar com os IPs reais do EMIS após confirmação com o suporte EMIS.
-     *   Exemplo: GPO_CALLBACK_IPS=197.218.x.x,197.218.y.y
+     * IP allowlist. Em produção, configurar apenas os IPs confirmados com a EMIS.
      *
-     * Nota: o EMIS GPO não fornece assinatura HMAC por omissão.
-     * Quando disponível, implementar verificação de assinatura em GpoService::parseCallback().
+     * O manual EMIS disponível não documenta assinatura HMAC para este callback.
      */
     private function verifyCallbackSource(Request $request, string $context): void
     {
         $allowed = array_filter(array_map('trim', explode(',', config('services.gpo.callback_ips', ''))));
+
+        if (empty($allowed)) {
+            Log::critical("{$context}: callback GPO sem allowlist de IP configurada", ['ip' => $request->ip()]);
+            if (app()->environment('production')) {
+                abort(503, 'Callback GPO temporariamente indisponível.');
+            }
+        }
+
         if (! empty($allowed) && ! in_array($request->ip(), $allowed, true)) {
             Log::warning("{$context}: callback rejeitado — IP não autorizado", ['ip' => $request->ip()]);
             abort(403);

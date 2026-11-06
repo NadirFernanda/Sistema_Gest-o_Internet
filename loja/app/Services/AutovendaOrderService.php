@@ -35,18 +35,27 @@ class AutovendaOrderService
             return $order;
         }
 
-        $now = Carbon::now();
-
-        if ($paymentReference) {
-            $order->payment_reference = $paymentReference;
-        }
+        $orderId = $order->getKey();
 
         // Envolve a atribuição do código WiFi e o guardado da ordem numa transacção
-        // com bloqueio pessimista (lockForUpdate) para impedir que dois pedidos
-        // simultâneos retirem o mesmo código do stock (race condition).
+        // com bloqueio pessimista da ordem e do stock para impedir entregas duplicadas
+        // quando o gateway repetir callbacks simultâneos.
         $stockExausted = false;
+        $alreadyPaid = false;
 
-        DB::transaction(function () use (&$order, &$stockExausted, $now) {
+        DB::transaction(function () use ($orderId, $paymentReference, &$order, &$stockExausted, &$alreadyPaid) {
+            $order = AutovendaOrder::whereKey($orderId)->lockForUpdate()->firstOrFail();
+            if ($order->isPaid()) {
+                $alreadyPaid = true;
+                return;
+            }
+
+            $now = Carbon::now();
+
+            if ($paymentReference) {
+                $order->payment_reference = $paymentReference;
+            }
+
             // Marca como pago — o pagamento foi confirmado pelo gateway
             $order->status = AutovendaOrder::STATUS_PAID;
             $order->paid_at = $now;
@@ -114,6 +123,10 @@ class AutovendaOrderService
 
             $order->save();
         }); // fim da transacção — lock libertado antes do envio do e-mail
+
+        if ($alreadyPaid) {
+            return $order;
+        }
 
         // Se stock esgotado: ordem fica paga sem código — admin entrega manualmente
         if ($stockExausted) {

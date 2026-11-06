@@ -27,6 +27,17 @@ class GpoService
         string $reference,
         string $callbackUrl,
     ): string {
+        return $this->createPurchaseTokenDetails($amountAoa, $reference, $callbackUrl)['url'];
+    }
+
+    /**
+     * Creates a purchase token and returns the official WebFrame URL and TTL.
+     */
+    public function createPurchaseTokenDetails(
+        float $amountAoa,
+        string $reference,
+        string $callbackUrl,
+    ): array {
         $amount = number_format($amountAoa, 2, '.', '');
 
         $payload = [
@@ -47,7 +58,6 @@ class GpoService
             Log::error('GPO: falha ao criar token de compra', [
                 'reference' => $reference,
                 'status'    => $response->status(),
-                'body'      => $response->body(),
             ]);
             throw new \RuntimeException('Não foi possível iniciar o pagamento GPO. Tente novamente.');
         }
@@ -60,57 +70,69 @@ class GpoService
                 'reference' => $reference,
                 'code'      => $code,
                 'message'   => $message,
-                'body'      => $response->body(),
             ]);
             throw new \RuntimeException('Resposta inválida do gateway GPO (código: ' . ($code ?? 'desconhecido') . ').');
         }
 
         Log::info('GPO: token de compra criado', [
             'reference'    => $reference,
-            'token_id'     => $tokenId,
             'time_to_live' => $response->json('timeToLive'),
         ]);
 
-        return $this->webframeUrl . '/frame?token=' . $tokenId;
+        return [
+            'url' => $this->webframeUrl . '/frame?token=' . $tokenId,
+            'time_to_live_ms' => is_numeric($response->json('timeToLive'))
+                ? (int) $response->json('timeToLive')
+                : null,
+        ];
     }
 
     /**
      * Interpreta o payload do callback server-to-server enviado pelo GPO
      * após a conclusão (ou falha) da operação de pagamento.
      *
-     * O GPO envia o mesmo objeto JSON que devolve em "Consulta de uma Transação".
-     * Campos relevantes observados: id, state, merchantReference, amount.
-     *
-     * Estados conhecidos do GPO:
-     *   AUTHORIZED → autorizado (aguarda captura)
-     *   PURCHASED  → compra confirmada (sucesso)
-     *   DECLINED   → recusado
-     *   CANCELLED  → cancelado
-     *   REVERSED   → revertido
-     *   EXPIRED    → expirado
+     * O GPO documenta o mesmo objecto JSON da "Consulta de uma Transação".
+     * Apenas status ACCEPTED + transactionType PAYMENT representa um pagamento
+     * confirmado para entrega; uma autorização não equivale a uma compra paga.
      */
     public function parseCallback(array $data): array
     {
-        $state = strtoupper($data['state'] ?? $data['transactionStatus'] ?? $data['status'] ?? '');
+        $stateValue = $data['status'] ?? $data['state'] ?? $data['transactionStatus'] ?? '';
+        $typeValue = $data['transactionType'] ?? '';
+        $state = is_string($stateValue) ? strtoupper($stateValue) : '';
+        $transactionType = is_string($typeValue) ? strtoupper($typeValue) : '';
+        $reference = $data['reference'] ?? null;
+        if (is_array($reference)) {
+            $reference = $reference['id'] ?? null;
+        }
 
-        $successful = in_array($state, ['ACCEPTED', 'PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true);
+        $merchantReference = $data['merchantReferenceNumber']
+            ?? $data['merchantReference']
+            ?? (is_string($reference) ? $reference : null);
+        if (! is_string($merchantReference) || $merchantReference === '') {
+            $merchantReference = null;
+        }
+        $successful = $state === 'ACCEPTED' && $transactionType === 'PAYMENT';
 
         $status = match (true) {
-            in_array($state, ['ACCEPTED', 'PURCHASED', 'AUTHORIZED', 'APPROVED', 'SUCCESS', 'PAID'], true) => 'approved',
-            in_array($state, ['DECLINED', 'REJECTED'], true)                                   => 'rejected',
-            in_array($state, ['CANCELLED'], true)                                              => 'cancelled',
-            in_array($state, ['REVERSED'], true)                                               => 'reversed',
-            in_array($state, ['EXPIRED'], true)                                                => 'expired',
-            default                                                                            => 'unknown',
+            $successful                                                => 'approved',
+            in_array($state, ['DECLINED', 'REJECTED'], true)           => 'rejected',
+            in_array($state, ['CANCELLED', 'CANCELED'], true)          => 'cancelled',
+            $state === 'REVERSED'                                       => 'reversed',
+            $state === 'EXPIRED'                                        => 'expired',
+            $state === 'AUTHORIZED' || $transactionType === 'AUTHORIZATION' => 'pending',
+            default                                                    => 'unknown',
         };
 
         return [
             'transaction_id'   => $data['id'] ?? null,
-            'merchant_ref'     => $data['merchantReference'] ?? $data['reference'] ?? null,
+            'merchant_ref'     => $merchantReference,
             'state'            => $state,
+            'transaction_type' => $transactionType,
             'status'           => $status,
             'successful'       => $successful,
             'amount'           => $data['amount'] ?? null,
+            'currency'         => $data['currency'] ?? null,
         ];
     }
 }

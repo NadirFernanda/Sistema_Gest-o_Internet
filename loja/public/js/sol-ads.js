@@ -34,6 +34,29 @@
     campaignSlots.forEach((slot) => observer.observe(slot));
   }
 
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealItems = document.querySelectorAll('.campaign, .plans-heading, .plan, .empty-state');
+
+  if (!reduceMotion && 'IntersectionObserver' in window && revealItems.length) {
+    document.documentElement.classList.add('motion-ready');
+
+    const revealObserver = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add('is-visible');
+        currentObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
+
+    revealItems.forEach((item) => {
+      item.classList.add('reveal-on-scroll');
+      revealObserver.observe(item);
+    });
+  }
+
   const button = document.getElementById('open-store');
   const fallback = document.getElementById('store-fallback-link');
   const storeUrl = 'https://angolawifi.ao/';

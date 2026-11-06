@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Previews do redesign AngolaWiFi / SOL</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; color: #0F172A; background: #F8FAFC; font: 16px/1.5 Inter, system-ui, sans-serif; }
+    main { width: min(100%, 1200px); margin: 0 auto; }
+    h1 { margin: 0 0 8px; }
+    p { color: #475569; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+    figure { min-width: 0; margin: 0; padding: 14px; border: 1px solid #E2E8F0; border-radius: 18px; background: #fff; box-shadow: 0 1px 3px rgba(15,23,42,.05), 0 6px 16px rgba(15,23,42,.05); }
+    figcaption { margin: 0 0 10px; font-weight: 750; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #E2E8F0; border-radius: 10px; }
+    .compact { max-width: 320px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Redesign publicitário AngolaWiFi / SOL</h1>
+  <p>Previews locais com conteúdo fictício. O modo compacto mantém o CTA e a alternativa de navegação visíveis em 320 × 480.</p>
+  <section class="gallery" aria-label="Capturas do redesign">
+    <figure>
+      <figcaption>Campanha — mobile (390 × 844)</figcaption>
+      <img src="sol-campaign-mobile.png" alt="Campanha publicitária na versão mobile">
+    </figure>
+    <figure>
+      <figcaption>Campanha — desktop (1440 × 1000)</figcaption>
+      <img src="sol-campaign-desktop.png" alt="Campanha publicitária na versão desktop">
+    </figure>
+    <figure>
+      <figcaption>Fallback de planos — mobile (390 px, página completa)</figcaption>
+      <img src="sol-plans-mobile.png" alt="Planos WiFi na versão mobile">
+    </figure>
+    <figure>
+      <figcaption>Fallback de planos — desktop (1440 × 1000)</figcaption>
+      <img src="sol-plans-desktop.png" alt="Planos WiFi na versão desktop">
+    </figure>
+    <figure class="compact">
+      <figcaption>Iframe compacto — 320 × 480</figcaption>
+      <img src="sol-campaign-iframe-320x480.png" alt="Primeira viewport da campanha dentro de um iframe compacto">
+    </figure>
+  </section>
+</main>
+</body>
+</html>

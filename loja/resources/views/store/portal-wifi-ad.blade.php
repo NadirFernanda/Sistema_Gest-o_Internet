@@ -24,30 +24,29 @@
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      --brand: #f7b500;
-      --brand-dark: #d4980a;
-      --text-dark: #0F172A;
-      --text-muted: #475569;
-      --text-light: #64748b;
+      --brand: #f4b400;
+      --brand-dark: #d99a00;
+      --text-dark: #101828;
+      --text-muted: #526071;
+      --text-light: #758195;
       --surface: #FFFFFF;
-      --surface-alt: #f1f5f9;
-      --muted-border: #E2E8F0;
-      --radius-card: 1.125rem;
-      --shadow-sm: 0 1px 3px rgba(15,23,42,.05), 0 6px 16px rgba(15,23,42,.05);
-      --shadow-brand: 0 8px 32px rgba(247,181,0,.18);
+      --surface-alt: #f4f6f9;
+      --muted-border: #e4e8ee;
+      --radius-card: 1rem;
+      --shadow-sm: 0 8px 24px rgba(16,24,40,.07);
     }
 
     * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       min-width: 280px;
       min-height: 100vh;
       margin: 0;
-      padding: clamp(12px, 3vw, 28px);
-      background:
-        radial-gradient(ellipse at 50% -18%, rgba(247, 181, 0, .1), transparent 38rem),
-        #F8FAFC;
-      line-height: 1.7;
+      padding: 18px clamp(14px, 3vw, 28px) 28px;
+      background: #f5f7fa;
+      line-height: 1.5;
     }
 
     a { color: inherit; }
@@ -58,187 +57,220 @@
       outline-offset: 3px;
     }
 
-    .page { width: min(100%, 820px); margin: 0 auto; }
+    .page { width: min(100%, 760px); margin: 0 auto; }
 
     .masthead {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      margin: 0 0 18px;
+      margin: 0 0 14px;
     }
 
     .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
 
     .brand__mark {
       display: grid;
-      width: 44px;
-      height: 44px;
-      flex: 0 0 44px;
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
       place-items: center;
       overflow: hidden;
-      border: 1px solid rgba(226, 232, 240, .65);
-      border-radius: 8px;
+      border: 1px solid var(--muted-border);
+      border-radius: 10px;
       background: var(--surface);
-      box-shadow: var(--shadow-sm);
     }
 
     .brand__mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .brand__name { margin: 0; color: var(--text-dark); font-size: .96rem; font-weight: 800; letter-spacing: -.025em; }
-    .brand__tagline { margin: 3px 0 0; color: var(--text-light); font-size: .76rem; }
+    .brand__name { margin: 0; color: var(--text-dark); font-size: .92rem; font-weight: 750; letter-spacing: -.025em; }
+    .brand__tagline { margin: 2px 0 0; color: var(--text-light); font-size: .7rem; }
 
     .store-button {
-      min-height: 42px;
-      padding: 0 15px;
+      min-height: 38px;
+      padding: 0 13px;
       border: 1px solid var(--muted-border);
-      border-radius: 999px;
-      color: var(--text-dark);
+      border-radius: 9px;
+      color: #344054;
       background: var(--surface);
-      box-shadow: var(--shadow-sm);
       cursor: pointer;
       font: inherit;
-      font-size: .76rem;
-      font-weight: 850;
-      letter-spacing: .045em;
+      font-size: .75rem;
+      font-weight: 700;
       white-space: nowrap;
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
 
-    .store-button:hover { transform: translateY(-1px); border-color: rgba(247, 181, 0, .5); box-shadow: var(--shadow-brand); }
+    .store-button:hover { border-color: var(--brand-dark); color: var(--text-dark); }
 
     .store-fallback {
       display: block;
       margin-top: 6px;
       color: var(--text-muted);
-      font-size: .72rem;
+      font-size: .68rem;
       text-align: center;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 3px;
+      text-decoration: none;
     }
 
-    .intro { margin: 0 0 15px; }
-    .eyebrow { margin: 0 0 6px; color: #78350f; font-size: .7rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
-    .intro h1 { margin: 0; color: var(--text-dark); font-size: clamp(1.35rem, 5vw, 2rem); line-height: 1.12; letter-spacing: -.045em; }
-    .intro__copy { max-width: 58ch; margin: 7px 0 0; color: var(--text-muted); font-size: .91rem; line-height: 1.55; }
+    .motion-ready .plans-heading { animation: hero-enter .5s cubic-bezier(.2,.7,.25,1) both; }
+    .motion-ready .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .45s ease, transform .45s cubic-bezier(.2,.7,.25,1);
+    }
+    .motion-ready .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+    .motion-ready .plan:nth-child(2) { transition-delay: 70ms; }
+    .motion-ready .plan:nth-child(3) { transition-delay: 140ms; }
+    .motion-ready .plan:nth-child(4) { transition-delay: 210ms; }
+
+    @keyframes hero-enter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .campaign,
     .plan {
       overflow: hidden;
-      border: 1.5px solid rgba(226, 232, 240, .65);
+      border: 1px solid var(--muted-border);
       border-radius: var(--radius-card);
       background: var(--surface);
       box-shadow: var(--shadow-sm);
     }
 
-    .campaign { border-top: 3px solid var(--brand); }
+    .campaign-section { margin: 0 0 18px; }
+    .campaign-section__heading { display: flex; align-items: center; gap: 7px; margin: 0 0 7px; }
+    .campaign-section__heading p { margin: 0; color: var(--text-light); font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .campaign-section__heading p::before { display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--brand); content: ""; vertical-align: 1px; }
+    .campaign-section__heading h2 { margin: 0; color: var(--text-muted); font-size: .72rem; font-weight: 600; }
+    .campaign { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); margin: 0; }
     .campaign__media {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       min-width: 0;
-      min-height: 170px;
-      height: min(48vw, 350px);
-      max-height: 350px;
+      min-height: 135px;
+      height: min(24vw, 190px);
+      max-height: 190px;
       place-items: center;
       overflow: hidden;
       padding: 8px;
-      background: #f8fafc;
+      background: #eef1f5;
     }
 
     .campaign__media img { display: block; width: 100%; max-width: 100%; min-width: 0; height: 100%; object-fit: contain; }
-    .campaign__content { padding: clamp(18px, 4vw, 30px); }
-    .campaign__label { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 11px; color: #78350f; font-size: .7rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .campaign__content { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(12px, 2.5vw, 20px); }
+    .campaign__label { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 8px; color: #79550a; font-size: .66rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
     .campaign__label::before { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); content: ""; }
     .campaign__advertiser { color: var(--text-light); font-weight: 700; letter-spacing: .02em; }
-    .campaign__title { max-width: 24ch; margin: 0; color: var(--text-dark); font-size: clamp(1.5rem, 5.4vw, 2.45rem); line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
-    .campaign__description { max-width: 62ch; margin: 12px 0 0; color: var(--text-muted); font-size: .97rem; line-height: 1.65; overflow-wrap: anywhere; }
-    .campaign__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 22px; }
+    .campaign__title { max-width: 24ch; margin: 0; color: var(--text-dark); font-size: clamp(1.3rem, 4vw, 2rem); line-height: 1.12; letter-spacing: -.035em; overflow-wrap: anywhere; }
+    .campaign__description { max-width: 62ch; margin: 8px 0 0; color: var(--text-muted); font-size: .88rem; line-height: 1.55; overflow-wrap: anywhere; }
+    .campaign__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 11px; }
 
     .button {
       display: inline-flex;
-      min-height: 49px;
+      min-height: 44px;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 0 21px;
+      padding: 0 18px;
       border: 0;
-      border-radius: 8px;
-      color: #111827;
+      border-radius: 9px;
+      color: #1d2735;
       background: var(--brand);
-      box-shadow: 0 4px 16px rgba(247,181,0,.28);
-      font-size: .9rem;
-      font-weight: 850;
+      box-shadow: 0 4px 12px rgba(16,24,40,.12);
+      font-size: .82rem;
+      font-weight: 750;
       line-height: 1.2;
       text-align: center;
       text-decoration: none;
-      transition: transform .18s ease, box-shadow .18s ease;
+      transition: background .18s ease, transform .18s ease;
     }
 
-    .button:hover { transform: translateY(-2px); background: #e0a800; box-shadow: 0 8px 24px rgba(247,181,0,.32); }
+    .button:hover { transform: translateY(-1px); background: #e6a900; }
     .button__arrow { font-size: 1.15rem; line-height: 1; }
     .campaign__fallback { color: var(--text-muted); font-size: .83rem; font-weight: 650; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
-    .plans-heading { margin: 18px 0 13px; }
-    .plans-heading h1 { margin: 0; color: var(--text-dark); font-size: clamp(1.4rem, 5vw, 1.9rem); line-height: 1.15; letter-spacing: -.04em; }
-    .plans-heading p { margin: 6px 0 0; color: var(--text-muted); font-size: .9rem; line-height: 1.5; }
-    .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+    .plans-section { margin-top: 8px; scroll-margin-top: 14px; }
+    .plans-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
+    .plans-heading__copy { min-width: 0; }
+    .plans-heading__price { flex: 0 0 auto; padding: 8px 10px; border: 1px solid #f0dfae; border-radius: 9px; color: #71520b; background: #fff8e6; font-size: .66rem; font-weight: 700; white-space: nowrap; }
+    .plans-heading h1,
+    .plans-heading h2 { margin: 0; color: var(--text-dark); font-size: clamp(1.25rem, 4vw, 1.7rem); font-weight: 750; line-height: 1.15; letter-spacing: -.035em; }
+    .plans-heading p { margin: 4px 0 0; color: var(--text-muted); font-size: .78rem; line-height: 1.4; }
+    .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 225px), 1fr)); gap: 11px; }
 
-    .plan { display: flex; min-width: 0; flex-direction: column; padding: 18px; border-radius: var(--radius-card); }
+    .plan { position: relative; display: flex; min-width: 0; flex-direction: column; padding: 16px; border-radius: 13px; }
+    .plan--popular { border-color: #d5a11a; box-shadow: 0 8px 24px rgba(16,24,40,.09); }
     .plan__topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .plan__name { margin: 0; color: var(--text-dark); font-size: 1.04rem; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
-    .plan__badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgba(247,181,0,.3); border-radius: .35rem; color: #78350f; background: rgba(247,181,0,.1); font-size: .65rem; font-weight: 800; }
-    .plan__details { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; }
-    .plan__detail { padding: 7px 9px; border: 1px solid rgba(226,232,240,.55); border-radius: .35rem; color: var(--text-muted); background: #f1f5f9; font-size: .76rem; line-height: 1.2; }
-    .plan__price { margin: 16px 0 14px; color: var(--text-dark); font-size: 1.58rem; font-weight: 900; letter-spacing: -.04em; }
-    .plan__price span { color: var(--text-muted); font-size: .77rem; font-weight: 700; letter-spacing: 0; }
-    .plan__button { width: 100%; min-height: 44px; margin-top: auto; }
+    .plan__name { margin: 0; color: var(--text-dark); font-size: .95rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+    .plan__badge { flex: 0 0 auto; padding: 4px 7px; border-radius: 5px; color: #72510c; background: #fff4d5; font-size: .62rem; font-weight: 700; }
+    .plan__details { display: flex; flex-wrap: wrap; gap: 6px; margin: 11px 0 0; }
+    .plan__detail { padding: 5px 7px; border: 1px solid #e8ebf0; border-radius: 5px; color: #475467; background: #f7f8fa; font-size: .68rem; line-height: 1.2; }
+    .plan__price { margin: 13px 0 12px; color: var(--text-dark); font-size: 1.55rem; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+    .plan__price span { color: var(--text-muted); font-size: .72rem; font-weight: 650; letter-spacing: 0; }
+    .plan__button { width: 100%; min-height: 42px; margin-top: auto; }
 
     .empty-state { padding: 22px; border: 1px solid var(--muted-border); border-radius: var(--radius-card); background: var(--surface); }
     .empty-state h1 { margin: 0; color: var(--text-dark); font-size: 1.05rem; }
     .empty-state p { margin: 7px 0 0; color: var(--text-muted); font-size: .88rem; line-height: 1.5; }
 
-    .page-note { margin: 15px 0 0; color: var(--text-light); font-size: .72rem; line-height: 1.45; text-align: center; }
+    .page-note { margin: 16px 0 0; color: var(--text-light); font-size: .67rem; line-height: 1.4; text-align: center; }
 
     @media (max-width: 420px) {
-      body { padding: 12px; }
-      .masthead { gap: 8px; margin-bottom: 15px; }
+      body { padding: 12px 12px 20px; }
+      .masthead { gap: 8px; margin-bottom: 11px; }
       .brand { gap: 8px; }
-      .brand__mark { width: 39px; height: 39px; flex-basis: 39px; border-radius: 8px; }
-      .brand__name { font-size: .84rem; }
-      .brand__tagline { font-size: .68rem; }
-      .store-button { min-height: 39px; padding: 0 11px; font-size: .68rem; }
-      .campaign__media { min-height: 150px; height: 52vw; }
-      .campaign__actions { align-items: stretch; flex-direction: column; }
-      .campaign__actions .button { width: 100%; }
-      .campaign__fallback { align-self: center; padding: 4px; }
+      .brand__mark { width: 36px; height: 36px; flex-basis: 36px; }
+      .brand__name { font-size: .82rem; }
+      .brand__tagline { font-size: .65rem; }
+      .store-button { min-height: 36px; padding: 0 10px; font-size: .68rem; }
+      .campaign { grid-template-columns: 1fr; }
+      .campaign__media { min-height: 82px; height: 27vw; max-height: 110px; padding: 5px; }
+      .campaign__content { padding: 12px; }
+      .campaign__actions { width: 100%; flex-direction: row; gap: 8px 12px; margin-top: 9px; }
+      .campaign__actions .button { min-height: 38px; }
+      .campaign__fallback { align-self: center; padding: 4px 0; }
       .plans-grid { grid-template-columns: 1fr; }
-      .plan { padding: 16px; }
+      .plans-section { margin-top: 18px; }
+      .plan { padding: 14px; }
     }
 
     @media (max-width: 430px) and (max-height: 680px) {
-      body { padding: 8px; line-height: 1.45; }
+      body { padding: 8px; line-height: 1.4; }
       .masthead { margin-bottom: 8px; }
-      .brand__mark { width: 34px; height: 34px; flex-basis: 34px; }
+      .brand__mark { width: 32px; height: 32px; flex-basis: 32px; }
       .brand__tagline { display: none; }
-      .store-button { min-height: 34px; padding: 0 9px; font-size: .64rem; }
-      .store-fallback { margin-top: 2px; font-size: .64rem; }
-      .intro { display: none; }
-      .campaign__media { min-height: 96px; height: 96px; max-height: 96px; padding: 4px; }
-      .campaign__content { padding: 12px; }
-      .campaign__label { gap: 5px; margin-bottom: 5px; font-size: .62rem; }
-      .campaign__title { font-size: clamp(1.05rem, 4.8vw, 1.25rem); line-height: 1.12; }
-      .campaign__description { margin-top: 6px; font-size: .8rem; line-height: 1.35; }
-      .campaign__actions { gap: 5px; margin-top: 9px; }
-      .campaign__actions .button { min-height: 40px; padding: 0 12px; }
-      .campaign__fallback { padding: 2px; font-size: .75rem; }
+      .store-button { min-height: 32px; padding: 0 9px; font-size: .64rem; }
+      .store-fallback { margin-top: 2px; font-size: .6rem; }
+      .plans-heading { align-items: flex-start; gap: 7px; margin-bottom: 10px; }
+      .plans-heading h1 { font-size: 1.18rem; }
+      .plans-heading p { font-size: .69rem; }
+      .plans-heading__price { padding: 6px 7px; font-size: .58rem; }
+      .campaign-section { margin-bottom: 13px; }
+      .campaign__media { min-height: 68px; height: 68px; max-height: 68px; padding: 3px; }
+      .campaign__content { padding: 9px 11px; }
+      .campaign__label { gap: 5px; margin-bottom: 5px; font-size: .58rem; }
+      .campaign__title { font-size: 1.1rem; line-height: 1.12; }
+      .campaign__description { margin-top: 6px; font-size: .75rem; line-height: 1.35; }
+      .campaign__actions { gap: 5px 9px; margin-top: 7px; }
+      .campaign__actions .button { width: auto; min-height: 34px; padding: 0 10px; font-size: .68rem; }
+      .campaign__fallback { padding: 2px 0; font-size: .64rem; }
+      .plans-section { margin-top: 0; }
+      .plans-heading { margin-bottom: 9px; }
+      .plans-heading h1, .plans-heading h2 { font-size: 1.2rem; }
+      .plans-heading p { font-size: .72rem; }
+      .plan { padding: 12px; }
+      .plan__details { margin-top: 8px; gap: 5px; }
+      .plan__detail { padding: 4px 6px; font-size: .62rem; }
+      .plan__price { margin: 10px 0; font-size: 1.4rem; }
+      .plan__button { min-height: 38px; }
       .page-note { margin-top: 6px; font-size: .62rem; }
     }
 
     @media (min-width: 421px) and (max-width: 820px) and (min-height: 681px) and (max-height: 820px) {
-      .campaign__media { height: min(46vw, 338px); max-height: 338px; }
+      .campaign__media { height: min(38vw, 300px); max-height: 300px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
@@ -255,7 +287,7 @@
       </div>
     </div>
     <div>
-      <button class="store-button" id="open-store" type="button">VER A LOJA</button>
+      <button class="store-button" id="open-store" type="button">Abrir loja</button>
       <a class="store-fallback" id="store-fallback-link" href="https://angolawifi.ao/" target="_top">
         Abrir nesta janela
       </a>
@@ -263,21 +295,18 @@
   </header>
 
   @if($campaign)
-    <section aria-labelledby="campaign-title">
-      <div class="intro">
-        <p class="eyebrow">Descubra algo especial</p>
-        <h1>Uma oportunidade para si</h1>
-        <p class="intro__copy">Conheça esta oferta apresentada pela AngolaWiFi.</p>
+    <section class="campaign-section" aria-labelledby="campaign-section-title">
+      <div class="campaign-section__heading">
+        <p>Em destaque</p>
+        <h2 id="campaign-section-title">Uma oferta para si</h2>
       </div>
-
       <article class="campaign" data-campaign-id="{{ $campaign->id }}" data-impression-url="{{ $impressionUrl }}">
         <div class="campaign__media">
           <img
             src="{{ route('ads.sol-image', $campaign->id) }}"
             alt="{{ $campaign->title }}"
             width="760"
-            loading="eager"
-            fetchpriority="high"
+            loading="lazy"
           >
         </div>
         <div class="campaign__content">
@@ -301,16 +330,24 @@
         </div>
       </article>
     </section>
-  @elseif($plans->isNotEmpty())
-    <section aria-labelledby="plans-title">
+  @endif
+
+  @if($plans->isNotEmpty())
+    <section class="plans-section" id="planos" aria-labelledby="plans-title">
       <div class="plans-heading">
-        <p class="eyebrow">Conecte-se à sua maneira</p>
-        <h1 id="plans-title">Escolha o seu plano WiFi</h1>
-        <p>Internet rápida e simples, com opções para o seu dia.</p>
+        <div class="plans-heading__copy">
+          <p class="eyebrow">AngolaWiFi · Internet à sua medida</p>
+          <h1 id="plans-title">Escolha o seu plano WiFi</h1>
+          <p>Escolha uma opção e comece a navegar.</p>
+        </div>
+        @php($startingPlan = $plans->sortBy('price_public_aoa')->first())
+        @if($startingPlan)
+          <span class="plans-heading__price">Desde {{ number_format($startingPlan->price_public_aoa, 0, ',', '.') }} Kz</span>
+        @endif
       </div>
       <div class="plans-grid">
         @foreach($plans as $plan)
-          <article class="plan">
+          <article class="plan{{ $plan->slug === 'semanal' ? ' plan--popular' : '' }}">
             <div class="plan__topline">
               <h2 class="plan__name">{{ $plan->name }}</h2>
               @if($plan->slug === 'semanal')

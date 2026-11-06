@@ -53,22 +53,33 @@ class SolAdCampaignIntegrationTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('ads/sol.png', $this->samplePng());
         $campaign = $this->createCampaign();
+        $this->createPlan();
 
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
         $response->assertHeader('cache-control', 'no-store, private');
         $response->assertHeaderMissing('set-cookie');
         $response->assertSee('Campanha SOL de teste');
+        $response->assertSee('class="campaign-section"', false);
+        $response->assertSee('class="plans-section" id="planos"', false);
+        $this->assertLessThan(
+            strpos($response->getContent(), '<section class="plans-section"'),
+            strpos($response->getContent(), '<section class="campaign-section"')
+        );
+        $response->assertSee('Desde 350 Kz');
+        $response->assertSee('Escolha o seu plano WiFi');
+        $response->assertSee('Plano SOL Teste');
+        $response->assertSee('Comprar Agora');
         $response->assertSee('class="campaign__media"', false);
         $response->assertSee('object-fit: contain', false);
-        $response->assertSee('loading="eager"', false);
-        $response->assertSee('fetchpriority="high"', false);
-        $response->assertSee('VER A LOJA');
+        $response->assertSee('loading="lazy"', false);
+        $response->assertSee('Abrir loja');
         $response->assertSee('font-family: \'Inter\'', false);
         $response->assertSee('#f7b500', false);
         $response->assertSee('@media (max-width: 420px)', false);
         $response->assertSee('@media (max-width: 430px) and (max-height: 680px)', false);
         $response->assertSee('@media (min-width: 421px) and (max-width: 820px)', false);
-        $response->assertSee('.intro { display: none; }', false);
+        $response->assertSee('.campaign { display: grid;', false);
+        $response->assertSee('.campaign__media { min-height: 68px; height: 68px; max-height: 68px;', false);
         $response->assertSee('prefers-reduced-motion', false);
         $response->assertDontSee('fonts.googleapis.com');
         $response->assertSee(route('ads.sol-image', $campaign->id), false);
@@ -97,6 +108,10 @@ class SolAdCampaignIntegrationTest extends TestCase
             1,
             $xpath->query('//article[contains(@class,"campaign")]//a[@target="_top" and normalize-space(.)="Abrir nesta janela"]')->length
         );
+        $this->assertSame(
+            1,
+            $xpath->query('//section[@aria-labelledby="plans-title"]//a[@target="_top" and contains(@href, "/checkout/sol-test")]')->length
+        );
         $this->assertStringContainsString("connect-src 'none'", $response->headers->get('Content-Security-Policy'));
         $this->assertStringContainsString("img-src 'self'", $response->headers->get('Content-Security-Policy'));
         $this->assertStringContainsString("script-src 'self'", $response->headers->get('Content-Security-Policy'));
@@ -104,6 +119,9 @@ class SolAdCampaignIntegrationTest extends TestCase
         $script = file_get_contents(public_path('js/sol-ads.js'));
         $this->assertStringContainsString('new Image()', $script);
         $this->assertStringContainsString('sessionStorage', $script);
+        $this->assertStringContainsString("matchMedia('(prefers-reduced-motion: reduce)')", $script);
+        $this->assertStringContainsString("'reveal-on-scroll'", $script);
+        $this->assertStringContainsString('new IntersectionObserver', $script);
         $this->assertStringNotContainsString('fetch(', $script);
 
         $visitorLogCount = DB::table('visitor_logs')->count();

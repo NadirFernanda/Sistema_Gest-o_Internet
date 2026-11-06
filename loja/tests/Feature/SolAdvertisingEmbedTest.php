@@ -81,7 +81,7 @@ class SolAdvertisingEmbedTest extends TestCase
         $this->assertFileExists(public_path('img/logo2.jpeg'));
         $this->assertSame(
             1,
-            $xpath->query('//button[@id="open-store" and normalize-space(.)="VER A LOJA"]')->length
+            $xpath->query('//button[@id="open-store" and normalize-space(.)="Abrir loja"]')->length
         );
         $this->assertSame(
             1,

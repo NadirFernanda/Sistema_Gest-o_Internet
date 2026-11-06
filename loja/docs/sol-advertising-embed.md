@@ -22,7 +22,8 @@ autorizada, a rota publicitária também falha fechada com esses cabeçalhos.
 ## Botão «VER A LOJA»
 
 A página publicitária é independente: mostra uma campanha elegível gerida no
-painel AngolaWiFi ou, quando não existe campanha válida, os planos activos.
+painel AngolaWiFi acima dos planos activos, mantendo a compra disponível mesmo
+quando há publicidade; sem campanha válida, apresenta directamente os planos.
 Usa estilos inline e recursos locais, sem formulários de pagamento ou iframe
 EMIS. No formulário de campanhas, seleccionar o placement «Portal WiFi / SOL»
 torna obrigatório definir um limite de frequência; campanhas inactivas,

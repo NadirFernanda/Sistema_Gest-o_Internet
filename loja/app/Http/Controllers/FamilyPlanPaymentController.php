@@ -235,8 +235,14 @@ class FamilyPlanPaymentController extends Controller
      */
     public function gpoCallback(Request $request)
     {
-        // Verificar origem do callback (IP allowlist quando GPO_CALLBACK_IPS configurado)
+        // A allowlist de origem é obrigatória em produção.
         $allowedIps = array_filter(array_map('trim', explode(',', config('services.gpo.callback_ips', ''))));
+        if (empty($allowedIps)) {
+            Log::critical('GPO Família: callback sem allowlist de IP configurada', ['ip' => $request->ip()]);
+            if (app()->environment('production')) {
+                abort(503, 'Callback GPO temporariamente indisponível.');
+            }
+        }
         if (! empty($allowedIps) && ! in_array($request->ip(), $allowedIps, true)) {
             Log::warning('GPO Família: callback rejeitado — IP não autorizado', ['ip' => $request->ip()]);
             abort(403);
@@ -245,8 +251,11 @@ class FamilyPlanPaymentController extends Controller
         $data = $request->all();
 
         Log::info('GPO Família: callback recebido', [
-            'ip'   => $request->ip(),
-            'body' => $data,
+            'ip'               => $request->ip(),
+            'merchant_ref'     => $data['merchantReferenceNumber'] ?? $data['merchantReference'] ?? null,
+            'transaction_id'   => $data['id'] ?? null,
+            'transaction_type' => $data['transactionType'] ?? null,
+            'state'            => $data['status'] ?? $data['state'] ?? null,
         ]);
 
         $gpoService = app(\App\Services\GpoService::class);
@@ -282,6 +291,16 @@ class FamilyPlanPaymentController extends Controller
         }
 
         if ($parsed['successful']) {
+            if (! is_numeric($parsed['amount']) || (float) $parsed['amount'] <= 0
+                || strtoupper((string) $parsed['currency']) !== 'AOA'
+            ) {
+                Log::error('GPO Família: callback de pagamento sem montante ou moeda válidos', [
+                    'ref'      => $gpoRef,
+                    'currency' => $parsed['currency'],
+                ]);
+                return response()->json(['error' => 'missing_payment_details'], 400);
+            }
+
             $familyRequest->update([
                 'payment_reference' => $parsed['transaction_id'] ?? $familyRequest->payment_reference,
             ]);
