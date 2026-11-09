@@ -3,16 +3,17 @@
 ## Origens autorizadas
 
 O portal SOL confirmou HTTPS, hostname `na.solnms.net` e portas 443, 8443 e
-8445. O parser de `SOL_ADS_FRAME_ORIGINS` em
+8445, e posteriormente a origem HTTPS `https://www.5wifi.net`. O parser de
+`SOL_ADS_FRAME_ORIGINS` em
 `app/Http/Middleware/SecurityHeaders.php` separa origens por vírgulas (e
 remove espaços em redor de cada valor); espaços sozinhos não são separadores.
 Configurar exactamente:
 
 ```env
-SOL_ADS_FRAME_ORIGINS="https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445"
+SOL_ADS_FRAME_ORIGINS="https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445,https://www.5wifi.net"
 ```
 
-O middleware valida origens HTTPS sem path e só aceita estas três origens
+O middleware valida origens HTTPS sem path e só aceita estas quatro origens
 confirmadas. A directiva `frame-ancestors` com a allowlist aplica-se somente à
 rota `GET /publicidade/portal-wifi`. Homepage, checkout, administração e
 pagamento EMIS continuam com `frame-ancestors 'none'` e
@@ -134,7 +135,7 @@ Laravel. Na rota publicitária, quando configurada, espera-se uma política com
 `script-src 'self'`, `frame-src 'none'` e:
 
 ```text
-frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445
+frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445 https://www.5wifi.net
 ```
 
 `X-Frame-Options` não é enviado apenas nessa resposta porque não suporta uma
@@ -161,8 +162,8 @@ php artisan config:cache
 ```
 
 Verificar a resposta da rota sem seguir redireccionamentos e confirmar que
-responde directamente com HTTP 200, os três `frame-ancestors` exactos, um só
-`Content-Security-Policy` e sem `X-Frame-Options`:
+responde directamente com HTTP 200, as quatro origens exactas em
+`frame-ancestors`, um só `Content-Security-Policy` e sem `X-Frame-Options`:
 
 ```sh
 curl -sS -D - -o /dev/null https://angolawifi.ao/publicidade/portal-wifi
@@ -175,7 +176,7 @@ e redireccionamentos.
 
 ## Testes e homologação
 
-`tests/Feature/SolAdvertisingEmbedTest.php` verifica as três origens oficiais,
+`tests/Feature/SolAdvertisingEmbedTest.php` verifica as quatro origens oficiais,
 a rejeição de outras origens e a configuração vazia, o botão e o link de
 fallback top-level, a segurança de framing das páginas sensíveis e a
 preservação de `frame-src` EMIS. `tests/Feature/SolAdCampaignIntegrationTest.php`
@@ -185,8 +186,10 @@ frequência com nonces distintos. A automatização Laravel verifica os cabeçal
 da aplicação, não os do proxy ou router; o bloqueio efectivo pré-autenticação
 precisa de ser confirmado na configuração do captive gateway SOL.
 
-Após publicação em staging, testar o portal SOL em Android e iOS: confirmar a
-apresentação do anúncio, tocar em «VER A LOJA», confirmar que abre apenas a
+Após publicação em staging, solicitar à SOL novo teste de carregamento no
+Android a partir de `https://www.5wifi.net`, e registar se o erro
+`ERR_BLOCKED_BY_RESPONSE` desapareceu. Testar também o portal SOL em iOS:
+confirmar a apresentação do anúncio, tocar em «VER A LOJA», confirmar que abre apenas a
 loja fora do iframe e que a aba aberta não tem acesso a `window.opener`.
 Testar também com pop-ups bloqueados e usar «Abrir nesta janela». Confirmar
 que os links de plano abrem o checkout no contexto de topo e que o fluxo EMIS

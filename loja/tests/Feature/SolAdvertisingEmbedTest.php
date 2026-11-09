@@ -12,14 +12,17 @@ class SolAdvertisingEmbedTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_advertising_page_allows_only_the_three_confirmed_sol_origins(): void
+    public function test_advertising_page_allows_only_the_four_confirmed_sol_origins(): void
     {
         config([
             'services.sol.ads_frame_origins' => implode(', ', [
                 'https://na.solnms.net',
                 'https://na.solnms.net:8443',
                 'https://na.solnms.net:8445',
+                'https://www.5wifi.net',
                 'https://untrusted.example',
+                'https://5wifi.net',
+                'https://www.5wifi.net:8443',
                 'https://na.solnms.net:9443',
                 'http://na.solnms.net',
             ]),
@@ -29,11 +32,13 @@ class SolAdvertisingEmbedTest extends TestCase
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
         $csp = $response->headers->get('Content-Security-Policy');
 
-        $this->assertStringContainsString(
-            'frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445',
-            $csp
+        $this->assertSame(
+            'frame-ancestors https://na.solnms.net https://na.solnms.net:8443 https://na.solnms.net:8445 https://www.5wifi.net',
+            collect(explode('; ', $csp))->first(fn (string $directive) => str_starts_with($directive, 'frame-ancestors '))
         );
         $this->assertStringNotContainsString('https://untrusted.example', $csp);
+        $this->assertStringNotContainsString('https://5wifi.net', $csp);
+        $this->assertStringNotContainsString('https://www.5wifi.net:8443', $csp);
         $this->assertStringNotContainsString('https://na.solnms.net:9443', $csp);
         $this->assertStringNotContainsString('http://na.solnms.net', $csp);
         $this->assertFalse($response->headers->has('X-Frame-Options'));
@@ -106,7 +111,7 @@ class SolAdvertisingEmbedTest extends TestCase
     public function test_storefront_and_financial_pages_remain_protected_from_embedding(): void
     {
         config([
-            'services.sol.ads_frame_origins' => 'https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445',
+            'services.sol.ads_frame_origins' => 'https://na.solnms.net,https://na.solnms.net:8443,https://na.solnms.net:8445,https://www.5wifi.net',
             'services.gpo.frame_token' => 'test-frame-credential',
             'services.gpo.frame_token_url' => 'https://emis.example/frameToken',
             'services.gpo.webframe_url' => 'https://emis.example/webframe',
@@ -125,6 +130,7 @@ class SolAdvertisingEmbedTest extends TestCase
             "frame-ancestors 'none'",
             $home->headers->get('Content-Security-Policy')
         );
+        $this->assertStringNotContainsString('https://www.5wifi.net', $home->headers->get('Content-Security-Policy'));
 
         $admin = $this->get('/admin');
         $admin->assertHeader('X-Frame-Options', 'DENY');
@@ -155,6 +161,10 @@ class SolAdvertisingEmbedTest extends TestCase
         );
         $this->assertStringNotContainsString(
             'https://na.solnms.net',
+            $payment->headers->get('Content-Security-Policy')
+        );
+        $this->assertStringNotContainsString(
+            'https://www.5wifi.net',
             $payment->headers->get('Content-Security-Policy')
         );
     }

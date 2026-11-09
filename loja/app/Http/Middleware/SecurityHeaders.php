@@ -24,6 +24,7 @@ class SecurityHeaders
         'https://na.solnms.net',
         'https://na.solnms.net:8443',
         'https://na.solnms.net:8445',
+        'https://www.5wifi.net',
     ];
 
     public function handle(Request $request, Closure $next): Response
