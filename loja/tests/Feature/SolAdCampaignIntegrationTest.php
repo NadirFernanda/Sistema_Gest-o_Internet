@@ -124,6 +124,7 @@ class SolAdCampaignIntegrationTest extends TestCase
             $xpath->query('//section[@aria-labelledby="plans-title"]//a[@target="_top" and contains(@href, "/checkout/diario")]')->length
         );
         $this->assertSame(1, $xpath->query('//section[@aria-labelledby="plans-title"]//article[contains(@class,"plan")]')->length);
+        $this->assertSame(1, $xpath->query('//section[@aria-labelledby="plans-title"]//svg[contains(@class,"plan__clock") and @aria-hidden="true"]')->length);
         $moreOptions = $xpath->query('//a[contains(@class,"more-options") and @target="_top"]');
         $this->assertSame(1, $moreOptions->length);
         $this->assertSame(url('/').'#planos', $moreOptions->item(0)->getAttribute('href'));

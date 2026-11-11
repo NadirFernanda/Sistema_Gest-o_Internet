@@ -174,7 +174,9 @@
     .plan__name { margin: 0; color: #fff; font-size: clamp(1.35rem, 4vw, 2rem); font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
     .plan__details { display: flex; flex-wrap: wrap; gap: 6px; margin: 11px 0 0; }
     .plan__detail { padding: 6px 9px; border: 1px solid rgba(255,255,255,.35); border-radius: 6px; color: #fff; background: rgba(255,255,255,.14); font-size: .72rem; line-height: 1.2; }
-    .plan__price { margin: 15px 0 20px; color: #fff; font-size: clamp(3.5rem, 11vw, 6.5rem); font-weight: 850; letter-spacing: -.07em; line-height: 1; text-shadow: 0 4px 12px rgba(0,24,96,.25); }
+    .plan__offer { display: flex; align-items: center; gap: clamp(8px, 2vw, 24px); min-width: 0; }
+    .plan__clock { display: block; width: clamp(82px, 30%, 175px); height: auto; flex: 0 0 auto; filter: drop-shadow(0 7px 9px rgba(0,22,92,.28)); }
+    .plan__price { min-width: 0; margin: 15px 0 20px; color: #fff; font-size: clamp(2.5rem, 9vw, 6.5rem); font-weight: 850; letter-spacing: -.07em; line-height: 1; text-shadow: 0 4px 12px rgba(0,24,96,.25); white-space: nowrap; }
     .plan__price span { color: #ffcf18; font-size: .5em; font-weight: 800; letter-spacing: 0; }
     .plan__button { width: 100%; min-height: 54px; margin-top: auto; border-radius: 12px; color: #071955; background: linear-gradient(180deg, #ffe528, #ffb800); font-size: 1rem; }
     .more-options { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; border: 2px solid #0755ba; border-radius: 10px; color: #0755ba; background: #fff; font-size: .84rem; font-weight: 750; text-align: center; text-decoration: none; }
@@ -203,6 +205,8 @@
       .plans-grid { grid-template-columns: 1fr; }
       .plans-section { margin-top: 18px; }
       .plan { padding: 20px; }
+      .plan__clock { width: 72px; }
+      .plan__price { font-size: clamp(2.2rem, 9vw, 3.5rem); }
     }
 
     @media (max-width: 430px) and (max-height: 680px) {
@@ -229,7 +233,7 @@
       .plan { padding: 16px; }
       .plan__details { margin-top: 8px; gap: 5px; }
       .plan__detail { padding: 4px 6px; font-size: .62rem; }
-      .plan__price { margin: 10px 0; font-size: 3.5rem; }
+      .plan__price { margin: 10px 0; font-size: 2.2rem; }
       .plan__button { min-height: 38px; }
       .more-options { min-height: 40px; margin-top: 8px; }
       .page-note { margin-top: 6px; font-size: .62rem; }
@@ -317,7 +321,23 @@
                 <span class="plan__detail">Velocidade · {{ $dailyPlan->speed_label }}</span>
               @endif
             </div>
-            <p class="plan__price">{{ number_format($dailyPlan->price_public_aoa, 0, ',', '.') }} <span>Kz</span></p>
+            <div class="plan__offer">
+              <svg class="plan__clock" viewBox="0 0 220 220" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="clock-rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#36d9ff"/><stop offset=".55" stop-color="#0879e5"/><stop offset="1" stop-color="#00399c"/></linearGradient>
+                  <linearGradient id="clock-arrow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ffdb27"/><stop offset="1" stop-color="#ffac00"/></linearGradient>
+                </defs>
+                <circle cx="110" cy="106" r="91" fill="url(#clock-rim)"/>
+                <circle cx="110" cy="106" r="75" fill="#fff" stroke="#063a9a" stroke-width="4"/>
+                <g stroke="#0753bb" stroke-width="5" stroke-linecap="round">
+                  <path d="M110 44v10M110 158v10M48 106h10M162 106h10M66 62l7 7M147 143l7 7M154 62l-7 7M73 143l-7 7"/>
+                </g>
+                <text x="110" y="124" fill="#052a83" font-size="48" font-weight="800" font-family="Inter,Arial,sans-serif" text-anchor="middle">24h</text>
+                <path d="M30 153c26 55 116 72 168 21" fill="none" stroke="url(#clock-arrow)" stroke-width="18" stroke-linecap="round"/>
+                <path d="m182 163 21 8-2-25" fill="none" stroke="#ffbe00" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p class="plan__price">{{ number_format($dailyPlan->price_public_aoa, 0, ',', '.') }} <span>Kz</span></p>
+            </div>
             <a class="button plan__button" href="{{ route('store.checkout', ['plan' => $dailyPlan->slug]) }}" target="_top">
               Comprar Agora
               <span class="button__arrow" aria-hidden="true">→</span>
