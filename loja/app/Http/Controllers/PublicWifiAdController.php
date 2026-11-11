@@ -50,7 +50,7 @@ class PublicWifiAdController extends Controller
                     false
                 )
                 : null,
-            'plans' => VoucherPlan::active()->get([
+            'dailyPlan' => VoucherPlan::active()->where('slug', 'diario')->first([
                 'slug',
                 'name',
                 'validity_label',

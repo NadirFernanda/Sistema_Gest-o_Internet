@@ -45,7 +45,7 @@
       min-height: 100vh;
       margin: 0;
       padding: 18px clamp(14px, 3vw, 28px) 28px;
-      background: #f5f7fa;
+      background: linear-gradient(145deg, #1d2546 0%, #747b91 55%, #1d2546 100%);
       line-height: 1.5;
     }
 
@@ -57,7 +57,7 @@
       outline-offset: 3px;
     }
 
-    .page { width: min(100%, 760px); margin: 0 auto; }
+    .page { width: min(100%, 760px); margin: 0 auto; padding: clamp(18px, 4vw, 34px); border-radius: 24px; background: #fff; box-shadow: 0 24px 55px rgba(5,20,65,.25); }
 
     .masthead {
       display: flex;
@@ -82,33 +82,8 @@
     }
 
     .brand__mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .brand__name { margin: 0; color: var(--text-dark); font-size: .92rem; font-weight: 750; letter-spacing: -.025em; }
+    .brand__name { margin: 0; color: #071955; font-size: 1.2rem; font-weight: 800; letter-spacing: -.035em; }
     .brand__tagline { margin: 2px 0 0; color: var(--text-light); font-size: .7rem; }
-
-    .store-button {
-      min-height: 38px;
-      padding: 0 13px;
-      border: 1px solid var(--muted-border);
-      border-radius: 9px;
-      color: #344054;
-      background: var(--surface);
-      cursor: pointer;
-      font: inherit;
-      font-size: .75rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .store-button:hover { border-color: var(--brand-dark); color: var(--text-dark); }
-
-    .store-fallback {
-      display: block;
-      margin-top: 6px;
-      color: var(--text-muted);
-      font-size: .68rem;
-      text-align: center;
-      text-decoration: none;
-    }
 
     .motion-ready .plans-heading { animation: hero-enter .5s cubic-bezier(.2,.7,.25,1) both; }
     .motion-ready .reveal-on-scroll {
@@ -117,9 +92,6 @@
       transition: opacity .45s ease, transform .45s cubic-bezier(.2,.7,.25,1);
     }
     .motion-ready .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
-    .motion-ready .plan:nth-child(2) { transition-delay: 70ms; }
-    .motion-ready .plan:nth-child(3) { transition-delay: 140ms; }
-    .motion-ready .plan:nth-child(4) { transition-delay: 210ms; }
 
     @keyframes hero-enter {
       from { opacity: 0; transform: translateY(10px); }
@@ -192,35 +164,35 @@
     .plans-heading__copy { min-width: 0; }
     .plans-heading__price { flex: 0 0 auto; padding: 8px 10px; border: 1px solid #f0dfae; border-radius: 9px; color: #71520b; background: #fff8e6; font-size: .66rem; font-weight: 700; white-space: nowrap; }
     .plans-heading h1,
-    .plans-heading h2 { margin: 0; color: var(--text-dark); font-size: clamp(1.25rem, 4vw, 1.7rem); font-weight: 750; line-height: 1.15; letter-spacing: -.035em; }
+    .plans-heading h2 { margin: 0; color: #071955; font-size: clamp(1.9rem, 6vw, 3.4rem); font-weight: 850; line-height: 1.07; letter-spacing: -.055em; }
     .plans-heading p { margin: 4px 0 0; color: var(--text-muted); font-size: .78rem; line-height: 1.4; }
-    .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 225px), 1fr)); gap: 11px; }
+    .plans-grid { display: grid; grid-template-columns: 1fr; gap: 11px; }
 
-    .plan { position: relative; display: flex; min-width: 0; flex-direction: column; padding: 16px; border-radius: 13px; }
-    .plan--popular { border-color: #d5a11a; box-shadow: 0 8px 24px rgba(16,24,40,.09); }
+    .plan { position: relative; display: flex; min-width: 0; flex-direction: column; padding: clamp(20px, 4vw, 34px); border: 0; border-radius: 22px; background: linear-gradient(150deg, #098ee9 0%, #0758c4 42%, #072e91 100%); box-shadow: 0 14px 28px rgba(0,68,181,.24); }
     .plan__topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .plan__name { margin: 0; color: var(--text-dark); font-size: .95rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
-    .plan__badge { flex: 0 0 auto; padding: 4px 7px; border-radius: 5px; color: #72510c; background: #fff4d5; font-size: .62rem; font-weight: 700; }
+    .plan__name { margin: 0; color: #fff; font-size: clamp(1.35rem, 4vw, 2rem); font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
     .plan__details { display: flex; flex-wrap: wrap; gap: 6px; margin: 11px 0 0; }
-    .plan__detail { padding: 5px 7px; border: 1px solid #e8ebf0; border-radius: 5px; color: #475467; background: #f7f8fa; font-size: .68rem; line-height: 1.2; }
-    .plan__price { margin: 13px 0 12px; color: var(--text-dark); font-size: 1.55rem; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
-    .plan__price span { color: var(--text-muted); font-size: .72rem; font-weight: 650; letter-spacing: 0; }
-    .plan__button { width: 100%; min-height: 42px; margin-top: auto; }
+    .plan__detail { padding: 6px 9px; border: 1px solid rgba(255,255,255,.35); border-radius: 6px; color: #fff; background: rgba(255,255,255,.14); font-size: .72rem; line-height: 1.2; }
+    .plan__price { margin: 15px 0 20px; color: #fff; font-size: clamp(3.5rem, 11vw, 6.5rem); font-weight: 850; letter-spacing: -.07em; line-height: 1; text-shadow: 0 4px 12px rgba(0,24,96,.25); }
+    .plan__price span { color: #ffcf18; font-size: .5em; font-weight: 800; letter-spacing: 0; }
+    .plan__button { width: 100%; min-height: 54px; margin-top: auto; border-radius: 12px; color: #071955; background: linear-gradient(180deg, #ffe528, #ffb800); font-size: 1rem; }
+    .more-options { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; border: 2px solid #0755ba; border-radius: 10px; color: #0755ba; background: #fff; font-size: .84rem; font-weight: 750; text-align: center; text-decoration: none; }
+    .more-options:hover { background: #eff6ff; }
 
     .empty-state { padding: 22px; border: 1px solid var(--muted-border); border-radius: var(--radius-card); background: var(--surface); }
     .empty-state h1 { margin: 0; color: var(--text-dark); font-size: 1.05rem; }
     .empty-state p { margin: 7px 0 0; color: var(--text-muted); font-size: .88rem; line-height: 1.5; }
 
-    .page-note { margin: 16px 0 0; color: var(--text-light); font-size: .67rem; line-height: 1.4; text-align: center; }
+    .page-note { margin: 25px -8px -8px; padding: 17px; border-radius: 0 0 18px 18px; color: #fff; background: linear-gradient(110deg, #049cea, #07399d); font-size: .84rem; font-style: italic; font-weight: 750; line-height: 1.4; text-align: right; }
 
     @media (max-width: 420px) {
       body { padding: 12px 12px 20px; }
+      .page { padding: 15px; border-radius: 18px; }
       .masthead { gap: 8px; margin-bottom: 11px; }
       .brand { gap: 8px; }
       .brand__mark { width: 36px; height: 36px; flex-basis: 36px; }
-      .brand__name { font-size: .82rem; }
+      .brand__name { font-size: 1rem; }
       .brand__tagline { font-size: .65rem; }
-      .store-button { min-height: 36px; padding: 0 10px; font-size: .68rem; }
       .campaign { grid-template-columns: 1fr; }
       .campaign__media { min-height: 82px; height: 27vw; max-height: 110px; padding: 5px; }
       .campaign__content { padding: 12px; }
@@ -229,7 +201,7 @@
       .campaign__fallback { align-self: center; padding: 4px 0; }
       .plans-grid { grid-template-columns: 1fr; }
       .plans-section { margin-top: 18px; }
-      .plan { padding: 14px; }
+      .plan { padding: 20px; }
     }
 
     @media (max-width: 430px) and (max-height: 680px) {
@@ -237,12 +209,9 @@
       .masthead { margin-bottom: 8px; }
       .brand__mark { width: 32px; height: 32px; flex-basis: 32px; }
       .brand__tagline { display: none; }
-      .store-button { min-height: 32px; padding: 0 9px; font-size: .64rem; }
-      .store-fallback { margin-top: 2px; font-size: .6rem; }
       .plans-heading { align-items: flex-start; gap: 7px; margin-bottom: 10px; }
-      .plans-heading h1 { font-size: 1.18rem; }
+      .plans-heading h1 { font-size: 1.8rem; }
       .plans-heading p { font-size: .69rem; }
-      .plans-heading__price { padding: 6px 7px; font-size: .58rem; }
       .campaign-section { margin-bottom: 13px; }
       .campaign__media { min-height: 68px; height: 68px; max-height: 68px; padding: 3px; }
       .campaign__content { padding: 9px 11px; }
@@ -256,11 +225,12 @@
       .plans-heading { margin-bottom: 9px; }
       .plans-heading h1, .plans-heading h2 { font-size: 1.2rem; }
       .plans-heading p { font-size: .72rem; }
-      .plan { padding: 12px; }
+      .plan { padding: 16px; }
       .plan__details { margin-top: 8px; gap: 5px; }
       .plan__detail { padding: 4px 6px; font-size: .62rem; }
-      .plan__price { margin: 10px 0; font-size: 1.4rem; }
+      .plan__price { margin: 10px 0; font-size: 3.5rem; }
       .plan__button { min-height: 38px; }
+      .more-options { min-height: 40px; margin-top: 8px; }
       .page-note { margin-top: 6px; font-size: .62rem; }
     }
 
@@ -285,12 +255,6 @@
         <p class="brand__name">AngolaWiFi</p>
         <p class="brand__tagline">Internet WiFi em Angola</p>
       </div>
-    </div>
-    <div>
-      <button class="store-button" id="open-store" type="button">Abrir loja</button>
-      <a class="store-fallback" id="store-fallback-link" href="https://angolawifi.ao/" target="_top">
-        Abrir nesta janela
-      </a>
     </div>
   </header>
 
@@ -332,53 +296,46 @@
     </section>
   @endif
 
-  @if($plans->isNotEmpty())
+  @if($dailyPlan)
     <section class="plans-section" id="planos" aria-labelledby="plans-title">
       <div class="plans-heading">
         <div class="plans-heading__copy">
           <p class="eyebrow">AngolaWiFi · Internet à sua medida</p>
-          <h1 id="plans-title">Escolha o seu plano WiFi</h1>
-          <p>Escolha uma opção e comece a navegar.</p>
+          <h1 id="plans-title">Navegue 24 horas sem limites</h1>
+          <p>Plano Diário · Internet WiFi para o seu dia.</p>
         </div>
-        @php($startingPlan = $plans->sortBy('price_public_aoa')->first())
-        @if($startingPlan)
-          <span class="plans-heading__price">Desde {{ number_format($startingPlan->price_public_aoa, 0, ',', '.') }} Kz</span>
-        @endif
       </div>
       <div class="plans-grid">
-        @foreach($plans as $plan)
-          <article class="plan{{ $plan->slug === 'semanal' ? ' plan--popular' : '' }}">
+          <article class="plan">
             <div class="plan__topline">
-              <h2 class="plan__name">{{ $plan->name }}</h2>
-              @if($plan->slug === 'semanal')
-                <span class="plan__badge">Mais popular</span>
-              @endif
+              <h2 class="plan__name">{{ $dailyPlan->name }}</h2>
             </div>
             <div class="plan__details" aria-label="Detalhes do plano">
-              @if($plan->validity_label)
-                <span class="plan__detail">Duração · {{ $plan->validity_label }}</span>
+              @if($dailyPlan->validity_label)
+                <span class="plan__detail">Duração · {{ $dailyPlan->validity_label }}</span>
               @endif
-              @if($plan->speed_label)
-                <span class="plan__detail">Velocidade · {{ $plan->speed_label }}</span>
+              @if($dailyPlan->speed_label)
+                <span class="plan__detail">Velocidade · {{ $dailyPlan->speed_label }}</span>
               @endif
             </div>
-            <p class="plan__price">{{ number_format($plan->price_public_aoa, 0, ',', '.') }} <span>Kz</span></p>
-            <a class="button plan__button" href="{{ route('store.checkout', ['plan' => $plan->slug]) }}" target="_top">
+            <p class="plan__price">{{ number_format($dailyPlan->price_public_aoa, 0, ',', '.') }} <span>Kz</span></p>
+            <a class="button plan__button" href="{{ route('store.checkout', ['plan' => $dailyPlan->slug]) }}" target="_top">
               Comprar Agora
               <span class="button__arrow" aria-hidden="true">→</span>
             </a>
           </article>
-        @endforeach
       </div>
+      <a class="more-options" href="{{ url('/').'#planos' }}" target="_top">Ver Mais Opções <span aria-hidden="true">⌄</span></a>
     </section>
   @else
     <section class="empty-state" aria-labelledby="empty-title">
       <h1 id="empty-title">Planos temporariamente indisponíveis</h1>
       <p>Aceda à loja AngolaWiFi para consultar as opções disponíveis.</p>
+      <a class="more-options" href="{{ url('/').'#planos' }}" target="_top">Ver Mais Opções <span aria-hidden="true">⌄</span></a>
     </section>
   @endif
 
-  <p class="page-note">AngolaWiFi</p>
+  <p class="page-note">AngolaWiFi – Sempre consigo!</p>
 </main>
 <script src="{{ asset('js/sol-ads.js') }}" defer></script>
 </body>

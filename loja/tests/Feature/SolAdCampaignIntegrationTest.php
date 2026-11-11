@@ -54,6 +54,17 @@ class SolAdCampaignIntegrationTest extends TestCase
         Storage::disk('public')->put('ads/sol.png', $this->samplePng());
         $campaign = $this->createCampaign();
         $this->createPlan();
+        VoucherPlan::create([
+            'slug' => 'semanal',
+            'name' => 'Plano Semanal',
+            'validity_label' => '7 dias',
+            'validity_minutes' => 10080,
+            'speed_label' => 'Até 10 Mbps',
+            'price_public_aoa' => 1000,
+            'price_reseller_aoa' => 750,
+            'active' => true,
+            'sort_order' => 2,
+        ]);
 
         $response = $this->get(route('ads.portal-wifi'))->assertOk();
         $response->assertHeader('cache-control', 'no-store, private');
@@ -65,14 +76,14 @@ class SolAdCampaignIntegrationTest extends TestCase
             strpos($response->getContent(), '<section class="plans-section"'),
             strpos($response->getContent(), '<section class="campaign-section"')
         );
-        $response->assertSee('Desde 350 Kz');
-        $response->assertSee('Escolha o seu plano WiFi');
-        $response->assertSee('Plano SOL Teste');
+        $response->assertSee('Navegue 24 horas sem limites');
+        $response->assertSee('Plano Diário');
+        $response->assertDontSee('Plano Semanal');
         $response->assertSee('Comprar Agora');
+        $response->assertSee('Ver Mais Opções');
         $response->assertSee('class="campaign__media"', false);
         $response->assertSee('object-fit: contain', false);
         $response->assertSee('loading="lazy"', false);
-        $response->assertSee('Abrir loja');
         $response->assertSee('font-family: \'Inter\'', false);
         $response->assertSee('#f7b500', false);
         $response->assertSee('@media (max-width: 420px)', false);
@@ -110,8 +121,12 @@ class SolAdCampaignIntegrationTest extends TestCase
         );
         $this->assertSame(
             1,
-            $xpath->query('//section[@aria-labelledby="plans-title"]//a[@target="_top" and contains(@href, "/checkout/sol-test")]')->length
+            $xpath->query('//section[@aria-labelledby="plans-title"]//a[@target="_top" and contains(@href, "/checkout/diario")]')->length
         );
+        $this->assertSame(1, $xpath->query('//section[@aria-labelledby="plans-title"]//article[contains(@class,"plan")]')->length);
+        $moreOptions = $xpath->query('//a[contains(@class,"more-options") and @target="_top"]');
+        $this->assertSame(1, $moreOptions->length);
+        $this->assertSame(url('/').'#planos', $moreOptions->item(0)->getAttribute('href'));
         $this->assertStringContainsString("connect-src 'none'", $response->headers->get('Content-Security-Policy'));
         $this->assertStringContainsString("img-src 'self'", $response->headers->get('Content-Security-Policy'));
         $this->assertStringContainsString("script-src 'self'", $response->headers->get('Content-Security-Policy'));
@@ -139,7 +154,7 @@ class SolAdCampaignIntegrationTest extends TestCase
 
         $this->get(route('ads.portal-wifi'))
             ->assertOk()
-            ->assertSee('Plano SOL Teste')
+            ->assertSee('Plano Diário')
             ->assertSee('class="plans-grid"', false)
             ->assertSee('Duração · 24 horas')
             ->assertSee('Velocidade · Até 10 Mbps')
@@ -151,7 +166,7 @@ class SolAdCampaignIntegrationTest extends TestCase
 
         $this->get(route('ads.portal-wifi'))
             ->assertOk()
-            ->assertSee('Plano SOL Teste')
+            ->assertSee('Plano Diário')
             ->assertDontSee('Campanha SOL de teste');
     }
 
@@ -162,7 +177,7 @@ class SolAdCampaignIntegrationTest extends TestCase
 
         $this->get(route('ads.portal-wifi'))
             ->assertOk()
-            ->assertSee('Plano SOL Teste')
+            ->assertSee('Plano Diário')
             ->assertDontSee('Campanha SOL de teste');
     }
 
@@ -318,8 +333,8 @@ class SolAdCampaignIntegrationTest extends TestCase
     private function createPlan(): VoucherPlan
     {
         return VoucherPlan::create([
-            'slug' => 'sol-test',
-            'name' => 'Plano SOL Teste',
+            'slug' => 'diario',
+            'name' => 'Plano Diário',
             'validity_label' => '24 horas',
             'validity_minutes' => 1440,
             'speed_label' => 'Até 10 Mbps',
