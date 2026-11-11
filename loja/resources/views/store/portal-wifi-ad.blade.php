@@ -300,9 +300,7 @@
     <section class="plans-section" id="planos" aria-labelledby="plans-title">
       <div class="plans-heading">
         <div class="plans-heading__copy">
-          <p class="eyebrow">AngolaWiFi · Internet à sua medida</p>
           <h1 id="plans-title">Navegue 24 horas sem limites</h1>
-          <p>Plano Diário · Internet WiFi para o seu dia.</p>
         </div>
       </div>
       <div class="plans-grid">
