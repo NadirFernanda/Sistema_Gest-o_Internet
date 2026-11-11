@@ -165,6 +165,7 @@
     .plans-heading__price { flex: 0 0 auto; padding: 8px 10px; border: 1px solid #f0dfae; border-radius: 9px; color: #71520b; background: #fff8e6; font-size: .66rem; font-weight: 700; white-space: nowrap; }
     .plans-heading h1,
     .plans-heading h2 { margin: 0; color: #071955; font-size: clamp(1.9rem, 6vw, 3.4rem); font-weight: 850; line-height: 1.07; letter-spacing: -.055em; }
+    .plans-heading__duration { display: inline-block; padding: .06em .22em .13em; border-radius: .24em; color: #fff; background: linear-gradient(135deg, #067bea, #0646bd); box-shadow: 0 5px 13px rgba(0,72,180,.22); white-space: nowrap; }
     .plans-heading p { margin: 4px 0 0; color: var(--text-muted); font-size: .78rem; line-height: 1.4; }
     .plans-grid { display: grid; grid-template-columns: 1fr; gap: 11px; }
 
@@ -300,7 +301,7 @@
     <section class="plans-section" id="planos" aria-labelledby="plans-title">
       <div class="plans-heading">
         <div class="plans-heading__copy">
-          <h1 id="plans-title">Navegue 24 horas sem limites</h1>
+          <h1 id="plans-title">Navegue <span class="plans-heading__duration">24 horas</span><br>sem limites</h1>
         </div>
       </div>
       <div class="plans-grid">

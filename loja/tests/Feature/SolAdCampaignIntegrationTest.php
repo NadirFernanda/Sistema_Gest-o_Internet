@@ -76,7 +76,7 @@ class SolAdCampaignIntegrationTest extends TestCase
             strpos($response->getContent(), '<section class="plans-section"'),
             strpos($response->getContent(), '<section class="campaign-section"')
         );
-        $response->assertSee('Navegue 24 horas sem limites');
+        $response->assertSee('Navegue <span class="plans-heading__duration">24 horas</span><br>sem limites', false);
         $response->assertSee('Plano Diário');
         $response->assertDontSee('Plano Semanal');
         $response->assertSee('Comprar Agora');
