@@ -68,6 +68,9 @@
   @if(session('success'))
     <div class="ap-ok">{{ session('success') }}</div>
   @endif
+  @if($errors->any())
+    <div class="ap-err">{{ $errors->first() }}</div>
+  @endif
 
   @if(($paidWithoutCode ?? 0) > 0)
     <div class="ap-err" style="margin-bottom:1rem;">
@@ -84,7 +87,7 @@
 
   <div class="ap-recon">
     <strong>Reconcilia&ccedil;&atilde;o com o extracto GPO/EMIS:</strong> Use o filtro de per&iacute;odo abaixo para seleccionar o intervalo de datas do extracto. Depois exporte o CSV &mdash; a coluna <strong>Refer&ecirc;ncia GPO</strong> corresponde ao campo <em>merchantReference</em> no extracto da EMIS.<br>
-    Apenas ordens com estado <strong>Pago</strong> geram cobran&ccedil;a no gateway.
+    Um pedido pode estar a aguardar aqui apesar de a EMIS ter cobrado. Confirme na EMIS a referência, o valor, o estado final e o ID da transacção antes de reconciliar. Se houver duas cobranças para o mesmo pedido, entregue apenas um voucher e trate a cobrança excedente separadamente.
   </div>
 
   {{-- Totais do período filtrado --}}
@@ -165,6 +168,7 @@
           <th>Cliente</th>
           <th>C&oacute;digo WiFi</th>
           <th>B&oacute;nus promocional</th>
+          <th>Recupera&ccedil;&atilde;o</th>
         </tr>
       </thead>
       <tbody>
@@ -238,10 +242,27 @@
                 <span class="dim">&mdash;</span>
               @endif
             </td>
+            <td>
+              @if(!$order->isPaid() && $order->payment_gateway === 'gpo' && $order->payment_reference)
+                <details>
+                  <summary style="cursor:pointer;white-space:nowrap;">Confirmar na EMIS</summary>
+                  <form method="post" action="{{ route('admin.autovenda.reconcile', $order) }}" style="min-width:220px;display:grid;gap:.45rem;padding:.6rem 0;">
+                    @csrf
+                    <label>Referência EMIS<input class="ap-ctrl" name="payment_reference" required value="{{ $order->payment_reference }}"></label>
+                    <label>Valor recebido (AOA)<input class="ap-ctrl" type="number" name="amount_aoa" min="1" required value="{{ $order->amount_aoa }}"></label>
+                    <label>ID da transacção EMIS<input class="ap-ctrl" name="transaction_id" maxlength="100" required></label>
+                    <label style="font-size:.75rem;"><input type="checkbox" name="confirmed_in_emis" value="1" required> Confirmei no extracto EMIS que a transacção foi aceite e pertence a este pedido.</label>
+                    <button class="ap-btn ap-btn-primary ap-btn-sm" type="submit">Entregar voucher</button>
+                  </form>
+                </details>
+              @else
+                <span class="dim">&mdash;</span>
+              @endif
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="9">
+            <td colspan="10">
               <div class="ap-empty">
                 <p class="ap-empty-t">Nenhuma recarga encontrada</p>
                 <p class="ap-empty-s">Ajuste os filtros ou aguarde novas compras.</p>

@@ -252,6 +252,7 @@ Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::delete('/anuncios/{campaign}', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'destroy'])->whereNumber('campaign')->name('admin.ads.destroy');
     Route::get('/recargas', [AutovendaOrderAdminController::class, 'index'])->name('admin.autovenda.index');
     Route::get('/recargas/exportar', [AutovendaOrderAdminController::class, 'export'])->name('admin.autovenda.export');
+    Route::post('/recargas/{order}/reconciliar-gpo', [AutovendaOrderAdminController::class, 'reconcile'])->middleware('throttle:5,1')->name('admin.autovenda.reconcile');
     Route::get('/reconciliacao-gpo', [GpoReconciliationController::class, 'index'])->name('admin.reconciliation.gpo');
     Route::get('/reconciliacao-gpo/exportar', [GpoReconciliationController::class, 'export'])->name('admin.reconciliation.gpo.export');
     Route::get('/relatorios', [AdminDashboardController::class, 'reports'])->name('admin.reports');

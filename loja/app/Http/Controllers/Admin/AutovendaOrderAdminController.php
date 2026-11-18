@@ -4,10 +4,65 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AutovendaOrder;
+use App\Services\AutovendaOrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AutovendaOrderAdminController extends Controller
 {
+    public function reconcile(Request $request, AutovendaOrder $order, AutovendaOrderService $delivery)
+    {
+        $data = $request->validate([
+            'payment_reference' => ['required', 'string', 'max:100'],
+            'transaction_id' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
+            'amount_aoa' => ['required', 'integer', 'min:1'],
+            'confirmed_in_emis' => ['accepted'],
+        ]);
+
+        DB::transaction(function () use ($order, $data, $delivery, $request) {
+            $locked = AutovendaOrder::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if ($locked->isPaid() || $locked->payment_gateway !== 'gpo') {
+                throw ValidationException::withMessages(['transaction_id' => 'Este pedido já foi pago ou não pertence ao GPO.']);
+            }
+
+            $references = array_merge([$locked->payment_reference], $locked->meta['gpo_references'] ?? []);
+            if (! in_array($data['payment_reference'], $references, true)
+                || (int) $data['amount_aoa'] !== (int) $locked->amount_aoa) {
+                throw ValidationException::withMessages(['payment_reference' => 'A referência ou o valor não correspondem ao pedido.']);
+            }
+
+            if (AutovendaOrder::where('manual_gpo_transaction_id', $data['transaction_id'])->exists()) {
+                throw ValidationException::withMessages(['transaction_id' => 'Esta transacção já foi usada noutra reconciliação.']);
+            }
+
+            $locked->manual_gpo_transaction_id = $data['transaction_id'];
+            $meta = $locked->meta ?? [];
+            $meta['manual_gpo_reconciliation'] = [
+                'payment_reference' => $data['payment_reference'],
+                'verified_at' => now()->toIso8601String(),
+            ];
+            $locked->meta = $meta;
+            $locked->save();
+
+            $delivery->confirmPaymentAndDeliver($locked);
+            Log::warning('GPO: pagamento reconciliado manualmente pelo admin', [
+                'order_id' => $locked->id,
+                'reference' => $data['payment_reference'],
+                'transaction_id' => $data['transaction_id'],
+                'admin_ip' => $request->ip(),
+            ]);
+        });
+
+        $message = $order->fresh()->wifi_code
+            ? 'Pagamento reconciliado e voucher atribuído. Confirme que o cliente recebeu o código.'
+            : 'Pagamento reconciliado, mas não havia voucher em stock. Entregue um código manualmente ou providencie reembolso.';
+
+        return redirect()->route('admin.autovenda.index', ['q' => $order->id])
+            ->with('success', $message);
+    }
+
     public function index(Request $request)
     {
         $query = $this->buildQuery($request);
