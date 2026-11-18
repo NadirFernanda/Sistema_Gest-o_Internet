@@ -224,10 +224,11 @@ class StorefrontController extends Controller
             'payment_method' => 'required|string|in:' . AutovendaOrder::METHOD_GPO,
             'customer_name'  => 'nullable|string|max:100',
             'customer_email' => 'nullable|email|max:150',
-            'customer_phone' => ['nullable', 'regex:/^(244)?9[0-9]{8}$/'],
+            'customer_phone' => ['required', 'regex:/^(244)?9[0-9]{8}$/'],
             'create_account' => 'nullable|boolean',
         ], [
             'customer_email.email' => 'Introduza um e-mail válido.',
+            'customer_phone.required' => 'Introduza o seu número de telemóvel para receber o voucher.',
             'customer_phone.regex' => 'Número inválido. Formato: 9XXXXXXXX ou 2449XXXXXXXX.',
         ]);
 
@@ -239,8 +240,8 @@ class StorefrontController extends Controller
                 ->withErrors(['plan_id' => 'Plano inválido. Volte à página inicial e escolha novamente.']);
         }
 
-        $phone = $validated['customer_phone'] ?? null;
-        if ($phone !== null && !str_starts_with($phone, '244')) {
+        $phone = $validated['customer_phone'];
+        if (!str_starts_with($phone, '244')) {
             $phone = '244' . $phone;
         }
 
@@ -254,8 +255,8 @@ class StorefrontController extends Controller
             'quantity'              => 1,
             'amount_aoa'            => $plan->price_public_aoa,
             'currency'              => 'AOA',
-            'customer_name'         => $validated['customer_name'],
-            'customer_email'        => $validated['customer_email'],
+            'customer_name'         => $validated['customer_name'] ?? null,
+            'customer_email'        => $validated['customer_email'] ?? null,
             'customer_phone'        => $phone,
             'customer_nif'          => null,
             'status'                => AutovendaOrder::STATUS_AWAITING_PAYMENT,

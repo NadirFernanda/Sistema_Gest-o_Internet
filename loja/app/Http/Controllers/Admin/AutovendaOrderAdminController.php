@@ -88,6 +88,19 @@ class AutovendaOrderAdminController extends Controller
             ->whereNotNull('bonus_plan_slug')
             ->whereNull('bonus_wifi_code')
             ->count();
+        $failedAutomaticDelivery = AutovendaOrder::where('status', AutovendaOrder::STATUS_PAID)
+            ->whereNotNull('wifi_code')
+            ->where('delivery_retry_count', '>=', 5)
+            ->where(function ($query) {
+                $query->where(function ($email) {
+                    $email->whereNotNull('customer_email')->where('customer_email', '!=', '')
+                        ->where('delivered_via_email', false);
+                })->orWhere(function ($whatsapp) {
+                    $whatsapp->whereNotNull('customer_phone')->where('customer_phone', '!=', '')
+                        ->where('delivered_via_whatsapp', false);
+                });
+            })
+            ->count();
 
         return view('admin.orders.index', [
             'orders'          => $orders,
@@ -97,6 +110,7 @@ class AutovendaOrderAdminController extends Controller
             'plans'           => $plans,
             'paidWithoutCode' => $paidWithoutCode,
             'paidWithoutBonus' => $paidWithoutBonus,
+            'failedAutomaticDelivery' => $failedAutomaticDelivery,
         ]);
     }
 

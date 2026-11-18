@@ -84,6 +84,12 @@
       <br><small>Verifique o stock do plano de bónus e contacte o cliente para completar a entrega.</small>
     </div>
   @endif
+  @if(($failedAutomaticDelivery ?? 0) > 0)
+    <div class="ap-err" style="margin-bottom:1rem;">
+      <strong>⚠️ {{ $failedAutomaticDelivery }} ordem(ns) paga(s) com reenvio automático esgotado</strong>
+      <br><small>O voucher foi atribuído, mas pelo menos um canal de envio não confirmou aceitação após cinco tentativas. Verifique os contactos e entregue o código ao cliente.</small>
+    </div>
+  @endif
 
   <div class="ap-recon">
     <strong>Reconcilia&ccedil;&atilde;o com o extracto GPO/EMIS:</strong> Use o filtro de per&iacute;odo abaixo para seleccionar o intervalo de datas do extracto. Depois exporte o CSV &mdash; a coluna <strong>Refer&ecirc;ncia GPO</strong> corresponde ao campo <em>merchantReference</em> no extracto da EMIS.<br>

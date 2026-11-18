@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Mail;
  */
 class AutovendaOrderService
 {
+    private const MAX_DELIVERY_ATTEMPTS = 5;
 
     public function confirmPaymentAndDeliver(AutovendaOrder $order, ?string $paymentReference = null): AutovendaOrder
     {
@@ -117,8 +118,6 @@ class AutovendaOrderService
 
             if (!$stockExausted) {
                 $order->delivered_at           = $now;
-                $order->delivered_via_email    = !empty($order->customer_email);
-                $order->delivered_via_whatsapp = !empty($order->customer_phone);
             }
 
             $order->save();
@@ -138,38 +137,90 @@ class AutovendaOrderService
             return $order;
         }
 
-        // Envia e-mail com o código apenas se o cliente tiver providenciado e-mail.
-        // Mantido FORA da transacção para não segurar o lock durante uma operação de rede.
-        // Para planos individuais rápidos, o e-mail não é obrigatório.
-        if (!empty($order->customer_email)) {
+        // A reconciliação manual pode envolver uma transacção exterior.
+        // Só iniciar chamadas de rede quando a confirmação estiver persistida.
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit(fn () => $this->retryDelivery($order));
+
+            return $order;
+        }
+
+        return $this->retryDelivery($order);
+    }
+
+    /** Envia apenas por canais ainda pendentes, com reserva atómica da tentativa. */
+    public function retryDelivery(AutovendaOrder $order): AutovendaOrder
+    {
+        $claimed = DB::transaction(function () use ($order): ?AutovendaOrder {
+            $locked = AutovendaOrder::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            $needsEmail = ! empty($locked->customer_email) && ! $locked->delivered_via_email;
+            $needsWhatsapp = ! empty($locked->customer_phone) && ! $locked->delivered_via_whatsapp;
+
+            if (! $locked->isPaid() || ! $locked->wifi_code || (! $needsEmail && ! $needsWhatsapp)
+                || $locked->delivery_retry_count >= self::MAX_DELIVERY_ATTEMPTS
+                || $locked->delivery_next_attempt_at?->isFuture()) {
+                return null;
+            }
+
+            $attempt = $locked->delivery_retry_count + 1;
+            $delays = [1 => 5, 2 => 15, 3 => 30, 4 => 60, 5 => 120];
+            $locked->delivery_retry_count = $attempt;
+            $locked->delivery_next_attempt_at = now()->addMinutes($delays[$attempt]);
+            $locked->save();
+
+            return $locked;
+        });
+
+        if (! $claimed) {
+            return $order->fresh();
+        }
+
+        $emailSent = false;
+        $whatsappSent = false;
+
+        if ($claimed->customer_email && ! $claimed->delivered_via_email) {
             try {
-                Mail::to($order->customer_email)->send(new AutovendaWifiCodeMail($order));
+                Mail::to($claimed->customer_email)->send(new AutovendaWifiCodeMail($claimed));
+                $emailSent = true;
             } catch (\Throwable $e) {
-                Log::warning('Falha ao enviar e-mail de código WiFi para ordem ' . $order->id . ': ' . $e->getMessage());
+                Log::warning('Falha ao enviar e-mail de código WiFi', ['order_id' => $claimed->id, 'error' => $e->getMessage()]);
             }
         }
 
-        // Envia WhatsApp com o código WiFi se o cliente forneceu telefone.
-        if (!empty($order->customer_phone)) {
+        if ($claimed->customer_phone && ! $claimed->delivered_via_whatsapp) {
             try {
-                $this->enviarWhatsAppCodigo($order);
+                $this->enviarWhatsAppCodigo($claimed);
+                $whatsappSent = true;
             } catch (\Throwable $e) {
-                Log::warning('Falha ao enviar WhatsApp de código WiFi para ordem ' . $order->id . ': ' . $e->getMessage());
+                Log::warning('Falha ao enviar WhatsApp de código WiFi', ['order_id' => $claimed->id, 'error' => $e->getMessage()]);
             }
         }
 
-        Log::info('Ordem de autovenda ' . $order->id . ' paga e código WiFi entregue.', [
-            'order_id'  => $order->id,
-            'wifi_code' => $order->wifi_code,
-        ]);
+        $updated = DB::transaction(function () use ($claimed, $emailSent, $whatsappSent): AutovendaOrder {
+            $locked = AutovendaOrder::whereKey($claimed->id)->lockForUpdate()->firstOrFail();
+            $locked->delivered_via_email = $locked->delivered_via_email || $emailSent;
+            $locked->delivered_via_whatsapp = $locked->delivered_via_whatsapp || $whatsappSent;
+            if ((! $locked->customer_email || $locked->delivered_via_email)
+                && (! $locked->customer_phone || $locked->delivered_via_whatsapp)) {
+                $locked->delivery_next_attempt_at = null;
+            }
+            $locked->save();
 
-        return $order;
+            return $locked;
+        });
+
+        if ($updated->delivery_retry_count >= self::MAX_DELIVERY_ATTEMPTS
+            && $updated->delivery_next_attempt_at !== null) {
+            Log::error('Autovenda: tentativas automáticas de envio esgotadas', ['order_id' => $updated->id]);
+        }
+
+        return $updated;
     }
 
     private function enviarWhatsAppCodigo(AutovendaOrder $order): void
     {
         if (! config('services.evolution.enabled')) {
-            return;
+            throw new \RuntimeException('Evolution API desactivada');
         }
 
         $url      = rtrim((string) config('services.evolution.url'), '/');
@@ -177,8 +228,7 @@ class AutovendaOrderService
         $instance = (string) config('services.evolution.instance');
 
         if (! $url || ! $key || ! $instance) {
-            Log::warning('WhatsApp autovenda: Evolution API não configurada — variáveis em falta.');
-            return;
+            throw new \RuntimeException('Evolution API não configurada');
         }
 
         // Normaliza o número: remove não-dígitos; adiciona 244 se for número local de 9 dígitos
@@ -188,7 +238,7 @@ class AutovendaOrderService
         }
 
         if (empty($numero)) {
-            return;
+            throw new \RuntimeException('Número de WhatsApp inválido');
         }
 
         $nome     = $order->customer_name ? "Prezado(a) *{$order->customer_name}*,\n\n" : '';
@@ -217,7 +267,7 @@ class AutovendaOrderService
         $response = Http::withHeaders([
             'apikey'       => $key,
             'Content-Type' => 'application/json',
-        ])->post("{$url}/message/sendText/{$instance}", [
+        ])->timeout(15)->post("{$url}/message/sendText/{$instance}", [
             'number' => $numero,
             'text'   => $mensagem,
         ]);

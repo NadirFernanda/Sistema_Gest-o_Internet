@@ -57,6 +57,8 @@ class AutovendaOrder extends Model
         'delivered_at',
         'delivered_via_email',
         'delivered_via_whatsapp',
+        'delivery_retry_count',
+        'delivery_next_attempt_at',
         'meta',
     ];
 
@@ -65,6 +67,8 @@ class AutovendaOrder extends Model
         'delivered_at' => 'datetime',
         'delivered_via_email' => 'boolean',
         'delivered_via_whatsapp' => 'boolean',
+        'delivery_retry_count' => 'integer',
+        'delivery_next_attempt_at' => 'datetime',
         'meta' => 'array',
     ];
 
