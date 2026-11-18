@@ -43,6 +43,14 @@ class GpoController extends Controller
             return redirect()->away(URL::signedRoute('store.checkout.confirm', ['order' => $order->id]));
         }
 
+        // Without a callback source allowlist, production rejects every payment
+        // notification. Do not offer another charge that cannot deliver a code.
+        if (app()->environment('production') && ! array_filter(array_map('trim', explode(',', (string) config('services.gpo.callback_ips', ''))))) {
+            Log::critical('GPO: pagamento indisponível — callback sem allowlist', ['order_id' => $order->id]);
+
+            return response()->view('store.payment-unavailable', ['order' => $order], 503);
+        }
+
         $meta = $order->meta ?? [];
         $attempt = $meta['gpo_attempt'] ?? [];
         $attemptExpiry = is_string($attempt['expires_at'] ?? null)

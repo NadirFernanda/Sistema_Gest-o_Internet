@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AutovendaOrder;
+use App\Models\WifiCode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -43,6 +44,67 @@ class GpoIntegrationSafetyTest extends TestCase
         config(['services.gpo.callback_ips' => '']);
 
         $this->postJson(route('webhooks.gpo'), [])->assertServiceUnavailable();
+    }
+
+    public function test_production_does_not_start_payment_when_callbacks_cannot_be_accepted(): void
+    {
+        $this->app->detectEnvironment(static fn () => 'production');
+        config(['services.gpo.callback_ips' => '']);
+        Http::fake();
+
+        $order = $this->pendingOrder('AW310TEST');
+
+        $this->get(route('gpo.show', $order))
+            ->assertServiceUnavailable()
+            ->assertSee('não volte a pagar')
+            ->assertSee('AW310TEST');
+        Http::assertNothingSent();
+        $this->assertSame(AutovendaOrder::STATUS_AWAITING_PAYMENT, $order->fresh()->status);
+    }
+
+    public function test_accepted_payment_delivers_one_voucher_and_status_returns_it_to_the_checkout_session(): void
+    {
+        config(['services.gpo.callback_ips' => '127.0.0.1']);
+        $order = $this->pendingOrder('AW310TEST');
+        WifiCode::create(['code' => 'WIFI-TEST-001', 'plan_id' => 'daily', 'status' => WifiCode::STATUS_AVAILABLE]);
+        WifiCode::create(['code' => 'WIFI-TEST-002', 'plan_id' => 'daily', 'status' => WifiCode::STATUS_AVAILABLE]);
+        $callback = [
+            'merchantReferenceNumber' => 'AW310TEST',
+            'status' => 'ACCEPTED',
+            'transactionType' => 'PAYMENT',
+            'amount' => '350.00',
+            'currency' => 'AOA',
+        ];
+
+        $this->postJson(route('webhooks.gpo'), $callback)->assertOk();
+        $this->postJson(route('webhooks.gpo'), $callback)->assertOk();
+
+        $this->assertSame(AutovendaOrder::STATUS_PAID, $order->fresh()->status);
+        $this->assertSame('WIFI-TEST-001', $order->fresh()->wifi_code);
+        $this->assertSame(1, WifiCode::where('status', WifiCode::STATUS_USED)->count());
+        $this->withSession(['gpo_order_ids' => [$order->id]])
+            ->getJson(route('gpo.status', $order))
+            ->assertOk()
+            ->assertJsonPath('is_paid', true)
+            ->assertJsonPath('wifi_code', 'WIFI-TEST-001');
+    }
+
+    private function pendingOrder(string $reference): AutovendaOrder
+    {
+        return AutovendaOrder::create([
+            'plan_id' => 'daily',
+            'plan_name' => 'Plano Diário',
+            'quantity' => 1,
+            'amount_aoa' => 350,
+            'currency' => 'AOA',
+            'customer_name' => 'Teste',
+            'customer_email' => '',
+            'customer_phone' => '',
+            'status' => AutovendaOrder::STATUS_AWAITING_PAYMENT,
+            'payment_method' => AutovendaOrder::METHOD_GPO,
+            'payment_reference' => $reference,
+            'payment_gateway' => 'gpo',
+        ]);
     }
 
     public function test_refresh_reuses_the_live_emis_purchase_token_and_reference(): void

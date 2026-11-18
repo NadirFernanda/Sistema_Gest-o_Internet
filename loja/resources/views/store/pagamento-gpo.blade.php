@@ -151,6 +151,16 @@
   100% { box-shadow: 0 0 0 0 rgba(247,181,0,0); }
 }
 .gpo-status-label { font-weight: 600; color: #374151; }
+.gpo-pending-help {
+  margin: 0 1.5rem 1.25rem;
+  padding: .9rem 1rem;
+  border-radius: 10px;
+  background: #fff7e5;
+  color: #5c430d;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+.gpo-pending-help a { color: #684800; font-weight: 700; }
 
 /* ── Payment card ──────────────────────────── */
 .gpo-payment-header {
@@ -415,6 +425,12 @@
         <span class="gpo-status-dot gpo-status-dot--waiting" id="statusDot"></span>
         <span class="gpo-status-label" id="statusTexto">A aguardar pagamento</span>
       </div>
+      <div class="gpo-pending-help" id="pendingHelp" role="status" style="display:none;">
+        A confirmação está a demorar. Se a EMIS já mostrou “Compra efectuada com sucesso”, não faça outra compra.
+        Mantenha esta página aberta; continuaremos a verificar o pedido.
+        Se o voucher não aparecer, <a href="mailto:suporte@angolawifi.ao?subject={{ rawurlencode('Voucher pendente - '.$order->payment_reference) }}">contacte o suporte</a>
+        e indique a referência <strong>{{ $order->payment_reference }}</strong>.
+      </div>
 
       {{-- Código WiFi (aparece no painel esquerdo após aprovação) --}}
       <div id="wifiCodeSection" style="display:none; padding: 1.25rem 1.5rem; border-top: 1px solid #f1f5f9;">
@@ -573,8 +589,11 @@
 (function () {
   var statusUrl     = '{{ route("gpo.status", $order) }}';
   var gpoOrigin     = 'https://pagamentonline.emis.co.ao';
-  var tentativas    = 0;
-  var maxTentativas = 36;
+  var startedAt     = Date.now();
+  var pollTimer     = null;
+  var polling       = false;
+  var resolved      = false;
+  var failures      = 0;
 
   function setStatus(label, dotClass) {
     var dot = document.getElementById('statusDot');
@@ -583,10 +602,23 @@
     if (txt) { txt.textContent = label; }
   }
 
+  function queuePoll(delay) {
+    if (resolved) return;
+    clearTimeout(pollTimer);
+    pollTimer = setTimeout(poll, delay);
+  }
+
+  function showPendingHelp() {
+    document.getElementById('pendingHelp').style.display = 'block';
+  }
+
   function poll() {
+    if (polling || resolved) return;
+    polling = true;
     fetch(statusUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.json(); })
       .then(function (data) {
+        failures = 0;
         if (data.status_pt || data.status) {
           setStatus(data.status_pt || data.status, 'gpo-status-dot--waiting');
         }
@@ -598,12 +630,20 @@
           mostrarRecusado();
           return;
         }
-        tentativas++;
-        if (tentativas < maxTentativas) setTimeout(poll, 5000);
       })
       .catch(function () {
-        tentativas++;
-        if (tentativas < maxTentativas) setTimeout(poll, 5000);
+        failures++;
+        if (failures >= 2) {
+          setStatus('A confirmação ainda não está disponível', 'gpo-status-dot--waiting');
+          showPendingHelp();
+        }
+      })
+      .finally(function () {
+        polling = false;
+        if (!resolved) {
+          if (Date.now() - startedAt >= 60000) showPendingHelp();
+          queuePoll(5000);
+        }
       });
   }
 
@@ -616,13 +656,20 @@
         has_data: Boolean(event.data)
       });
     }
-    if (event.data) { tentativas = 0; poll(); }
+    if (event.data) { queuePoll(0); }
   }, false);
 
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) queuePoll(0);
+  });
+
   function mostrarAprovado(code, redirectUrl) {
+    resolved = true;
+    clearTimeout(pollTimer);
     document.getElementById('painelIframe').style.display   = 'none';
     document.getElementById('painelAprovado').style.display = 'block';
     document.getElementById('painelRecusado').style.display = 'none';
+    document.getElementById('pendingHelp').style.display = 'none';
     setStatus('Pago', 'gpo-status-dot--paid');
 
     if (code) {
@@ -635,9 +682,12 @@
   }
 
   function mostrarRecusado() {
+    resolved = true;
+    clearTimeout(pollTimer);
     document.getElementById('painelIframe').style.display   = 'none';
     document.getElementById('painelAprovado').style.display = 'none';
     document.getElementById('painelRecusado').style.display = 'block';
+    document.getElementById('pendingHelp').style.display = 'none';
     setStatus('Não concluído', 'gpo-status-dot--failed');
   }
 
@@ -655,7 +705,7 @@
   @if($order->isPaid())
     mostrarAprovado('{{ $order->wifi_code }}', '{{ \Illuminate\Support\Facades\URL::signedRoute("store.checkout.confirm", ["order" => $order->id]) }}');
   @else
-    setTimeout(poll, 6000);
+    queuePoll(6000);
   @endif
 })();
 </script>
