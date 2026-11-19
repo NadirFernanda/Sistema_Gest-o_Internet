@@ -244,6 +244,10 @@ Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name(
 // Todas as restantes rotas admin requerem sessão válida.
 Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::post('/anuncios/comercial/autorizar', [\App\Http\Controllers\Admin\CommercialAdsAccessController::class, 'store'])
+        ->middleware('throttle:5,1')->name('admin.ads.commercial.authorize');
+    Route::post('/anuncios/comercial/terminar', [\App\Http\Controllers\Admin\CommercialAdsAccessController::class, 'destroy'])
+        ->name('admin.ads.commercial.revoke');
     Route::get('/anuncios', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'index'])->name('admin.ads.index');
     Route::get('/anuncios/criar', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'create'])->name('admin.ads.create');
     Route::post('/anuncios', [\App\Http\Controllers\Admin\AdCampaignAdminController::class, 'store'])->name('admin.ads.store');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\CommercialAdsAccess;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,7 @@ class VerifySgAdminAccess
         // para reduzir o risco de fuga do token em headers Referer ou logs de proxy.
         $incomingToken = (string) $request->query('sg_sso', '');
         if ($incomingToken !== '' && hash_equals($expected, (string) $incomingToken)) {
+            CommercialAdsAccess::revoke($request);
             $request->session()->put('sg_admin_authenticated', true);
             return redirect($request->url()); // url() exclui query string
         }

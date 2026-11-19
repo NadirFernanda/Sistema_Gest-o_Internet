@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CommercialAdsAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,6 +63,9 @@ class AdCampaign extends Model
             ->where('active', true)
             ->where(fn (Builder $campaign) => $campaign->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
             ->where(fn (Builder $campaign) => $campaign->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
+        if (! CommercialAdsAccess::enabled()) {
+            $query->where('campaign_type', 'own');
+        }
         return $query;
     }
 

@@ -107,47 +107,44 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .campaign-section { margin: 0 0 18px; }
-    .campaign-section__heading { display: flex; align-items: center; gap: 7px; margin: 0 0 7px; }
-    .campaign-section__heading p { margin: 0; color: var(--text-light); font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-    .campaign-section__heading p::before { display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--brand); content: ""; vertical-align: 1px; }
-    .campaign-section__heading h2 { margin: 0; color: var(--text-muted); font-size: .72rem; font-weight: 600; }
-    .campaign { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); margin: 0; }
+    .campaign-section { margin: 0 0 20px; }
+    .campaign-section__heading { margin: 0 0 8px; }
+    .campaign-section__heading h2 { margin: 0; color: #526071; font-size: .69rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+    .campaign-section__heading h2::before { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--brand); content: ""; vertical-align: 1px; }
+    .campaign { display: grid; grid-template-columns: minmax(0, 1fr) 156px; gap: 16px; align-items: center; margin: 0; padding: 16px; border-left: 4px solid #0876d9; background: #f7faff; }
     .campaign__media {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       min-width: 0;
-      min-height: 135px;
-      height: min(24vw, 190px);
-      max-height: 190px;
+      height: 112px;
       place-items: center;
       overflow: hidden;
-      padding: 8px;
-      background: #eef1f5;
+      border: 1px solid #dce7f5;
+      border-radius: 10px;
+      background: #edf3fa;
     }
 
     .campaign__media img { display: block; width: 100%; max-width: 100%; min-width: 0; height: 100%; object-fit: contain; }
-    .campaign__content { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(12px, 2.5vw, 20px); }
-    .campaign__label { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 8px; color: #79550a; font-size: .66rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-    .campaign__label::before { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); content: ""; }
-    .campaign__advertiser { color: var(--text-light); font-weight: 700; letter-spacing: .02em; }
-    .campaign__title { max-width: 24ch; margin: 0; color: var(--text-dark); font-size: clamp(1.3rem, 4vw, 2rem); line-height: 1.12; letter-spacing: -.035em; overflow-wrap: anywhere; }
-    .campaign__description { max-width: 62ch; margin: 8px 0 0; color: var(--text-muted); font-size: .88rem; line-height: 1.55; overflow-wrap: anywhere; }
-    .campaign__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 11px; }
+    .campaign__content { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; order: -1; }
+    .campaign__label { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 0 5px; color: #805b0d; font-size: .64rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .campaign__advertiser { color: #526071; font-weight: 700; letter-spacing: .02em; }
+    .campaign__title { margin: 0; color: #071955; font-size: clamp(1.08rem, 2.4vw, 1.4rem); font-weight: 800; line-height: 1.18; letter-spacing: -.025em; overflow-wrap: anywhere; }
+    .campaign__description { margin: 5px 0 0; color: var(--text-muted); font-size: .79rem; line-height: 1.4; overflow-wrap: anywhere; }
+    .campaign__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 13px; margin-top: 10px; }
 
     .button {
       display: inline-flex;
-      min-height: 44px;
+      min-height: 40px;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 0 18px;
+      padding: 0 14px;
       border: 0;
       border-radius: 9px;
       color: #1d2735;
       background: var(--brand);
       box-shadow: 0 4px 12px rgba(16,24,40,.12);
-      font-size: .82rem;
+      font-size: .78rem;
       font-weight: 750;
       line-height: 1.2;
       text-align: center;
@@ -157,7 +154,7 @@
 
     .button:hover { transform: translateY(-1px); background: #e6a900; }
     .button__arrow { font-size: 1.15rem; line-height: 1; }
-    .campaign__fallback { color: var(--text-muted); font-size: .83rem; font-weight: 650; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    .campaign__fallback { color: #345477; font-size: .73rem; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 
     .plans-section { margin-top: 8px; scroll-margin-top: 14px; }
     .plans-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
@@ -196,11 +193,12 @@
       .brand__mark { width: 36px; height: 36px; flex-basis: 36px; }
       .brand__name { font-size: 1rem; }
       .brand__tagline { font-size: .65rem; }
-      .campaign { grid-template-columns: 1fr; }
-      .campaign__media { min-height: 82px; height: 27vw; max-height: 110px; padding: 5px; }
-      .campaign__content { padding: 12px; }
-      .campaign__actions { width: 100%; flex-direction: row; gap: 8px 12px; margin-top: 9px; }
-      .campaign__actions .button { min-height: 38px; }
+      .campaign { grid-template-columns: minmax(0, 1fr) 76px; gap: 10px; padding: 11px; }
+      .campaign__media { height: 76px; }
+      .campaign__title { font-size: 1.04rem; }
+      .campaign__description { font-size: .73rem; }
+      .campaign__actions { width: 100%; gap: 6px 10px; margin-top: 8px; }
+      .campaign__actions .button { min-height: 36px; }
       .campaign__fallback { align-self: center; padding: 4px 0; }
       .plans-grid { grid-template-columns: 1fr; }
       .plans-section { margin-top: 18px; }
@@ -218,10 +216,10 @@
       .plans-heading h1 { font-size: 1.8rem; }
       .plans-heading p { font-size: .69rem; }
       .campaign-section { margin-bottom: 13px; }
-      .campaign__media { min-height: 68px; height: 68px; max-height: 68px; padding: 3px; }
-      .campaign__content { padding: 9px 11px; }
-      .campaign__label { gap: 5px; margin-bottom: 5px; font-size: .58rem; }
-      .campaign__title { font-size: 1.1rem; line-height: 1.12; }
+      .campaign { grid-template-columns: minmax(0, 1fr) 64px; gap: 8px; padding: 9px; }
+      .campaign__media { height: 64px; }
+      .campaign__label { gap: 5px; margin-bottom: 4px; font-size: .58rem; }
+      .campaign__title { font-size: 1rem; line-height: 1.15; }
       .campaign__description { margin-top: 6px; font-size: .75rem; line-height: 1.35; }
       .campaign__actions { gap: 5px 9px; margin-top: 7px; }
       .campaign__actions .button { width: auto; min-height: 34px; padding: 0 10px; font-size: .68rem; }
@@ -240,12 +238,12 @@
     }
 
     @media (min-width: 421px) and (max-width: 820px) and (min-height: 681px) and (max-height: 820px) {
-      .campaign__media { height: min(38vw, 300px); max-height: 300px; }
+      .campaign__media { height: 112px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
@@ -266,13 +264,12 @@
   @if($campaign)
     <section class="campaign-section" aria-labelledby="campaign-section-title">
       <div class="campaign-section__heading">
-        <p>Em destaque</p>
-        <h2 id="campaign-section-title">Uma oferta para si</h2>
+        <h2 id="campaign-section-title">Em destaque</h2>
       </div>
       <article class="campaign" data-campaign-id="{{ $campaign->id }}" data-impression-url="{{ $impressionUrl }}">
         <div class="campaign__media">
           <img
-            src="{{ route('ads.sol-image', $campaign->id) }}"
+            src="{{ route('ads.sol-image', ['campaign' => $campaign->id, 'v' => substr(sha1($campaign->image_path), 0, 12)]) }}"
             alt="{{ $campaign->title }}"
             width="760"
             loading="lazy"
@@ -280,8 +277,8 @@
         </div>
         <div class="campaign__content">
           <p class="campaign__label">
-            Publicidade
-            @if($campaign->advertiser_name)
+            {{ $campaign->campaign_type === 'own' ? 'Oferta AngolaWiFi' : 'Publicidade' }}
+            @if($campaign->campaign_type === 'sponsored' && $campaign->advertiser_name)
               <span class="campaign__advertiser">{{ $campaign->advertiser_name }}</span>
             @endif
           </p>

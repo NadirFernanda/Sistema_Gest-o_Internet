@@ -17,6 +17,16 @@ class SolAdCampaignIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'services.ads_commercial.enabled' => true,
+            'services.ads_commercial.secret' => str_repeat('c', 32),
+        ]);
+    }
+
     public function test_sol_campaign_placement_is_available_in_the_admin_form(): void
     {
         config(['services.sg.admin_token' => 'test-admin-token']);
@@ -35,7 +45,7 @@ class SolAdCampaignIntegrationTest extends TestCase
 
         $this->withSession(['sg_admin_authenticated' => true])
             ->post(route('admin.ads.store'), [
-                'campaign_type' => 'sponsored',
+                'campaign_type' => 'own',
                 'advertiser_name' => 'Anunciante de teste',
                 'title' => 'Campanha SOL de teste',
                 'image' => UploadedFile::fake()->image('sol.jpg'),
@@ -90,8 +100,13 @@ class SolAdCampaignIntegrationTest extends TestCase
         $response->assertSee('@media (max-width: 430px) and (max-height: 680px)', false);
         $response->assertSee('@media (min-width: 421px) and (max-width: 820px)', false);
         $response->assertSee('.campaign { display: grid;', false);
-        $response->assertSee('.campaign__media { min-height: 68px; height: 68px; max-height: 68px;', false);
+        $response->assertSee('.campaign__media { height: 64px;', false);
+        $response->assertSee('grid-template-columns: minmax(0, 1fr) 76px', false);
+        $response->assertDontSee('animation: ad-button-glow', false);
+        $response->assertSee('animation: none !important', false);
         $response->assertSee('prefers-reduced-motion', false);
+        $response->assertSee('Publicidade');
+        $response->assertDontSee('Uma oferta para si');
         $response->assertDontSee('fonts.googleapis.com');
         $response->assertSee(route('ads.sol-image', $campaign->id), false);
         $response->assertSee('data-impression-url=', false);
@@ -146,6 +161,31 @@ class SolAdCampaignIntegrationTest extends TestCase
             ->assertHeader('cache-control', 'max-age=3600, public')
             ->assertHeaderMissing('set-cookie');
         $this->assertSame($visitorLogCount, DB::table('visitor_logs')->count());
+    }
+
+    public function test_sol_image_url_changes_when_the_creative_is_replaced(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('ads/first.png', $this->samplePng());
+        Storage::disk('public')->put('ads/second.png', $this->samplePng());
+        $campaign = $this->createCampaign(['image_path' => 'ads/first.png']);
+
+        $firstUrl = route('ads.sol-image', [
+            'campaign' => $campaign->id,
+            'v' => substr(sha1('ads/first.png'), 0, 12),
+        ]);
+        $this->get(route('ads.portal-wifi'))->assertOk()->assertSee($firstUrl, false);
+
+        $campaign->update(['image_path' => 'ads/second.png']);
+        $secondUrl = route('ads.sol-image', [
+            'campaign' => $campaign->id,
+            'v' => substr(sha1('ads/second.png'), 0, 12),
+        ]);
+        $this->assertNotSame($firstUrl, $secondUrl);
+        $this->get(route('ads.portal-wifi'))
+            ->assertOk()
+            ->assertSee($secondUrl, false)
+            ->assertDontSee($firstUrl, false);
     }
 
     public function test_inactive_or_expired_sol_campaign_falls_back_to_plans(): void

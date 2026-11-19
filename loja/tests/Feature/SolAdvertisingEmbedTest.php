@@ -66,7 +66,7 @@ class SolAdvertisingEmbedTest extends TestCase
         $response->assertHeader('X-Frame-Options', 'DENY');
     }
 
-    public function test_public_ad_page_has_store_button_and_safe_top_level_navigation_fallback(): void
+    public function test_public_ad_page_has_safe_top_level_store_navigation(): void
     {
         config(['services.sol.ads_frame_origins' => 'https://na.solnms.net']);
         $this->createPlan();
@@ -86,24 +86,17 @@ class SolAdvertisingEmbedTest extends TestCase
         $this->assertFileExists(public_path('img/logo2.jpeg'));
         $this->assertSame(
             1,
-            $xpath->query('//button[@id="open-store" and normalize-space(.)="Abrir loja"]')->length
+            $xpath->query('//a[@target="_top" and contains(@href, "/checkout/diario")]')->length
         );
-        $this->assertSame(
-            1,
-            $xpath->query('//a[@id="store-fallback-link" and @target="_top" and @href="https://angolawifi.ao/"]')->length
-        );
-        $this->assertSame(
-            1,
-            $xpath->query('//a[@target="_top" and contains(@href, "/checkout/sol-test")]')->length
-        );
+        $moreOptions = $xpath->query('//a[contains(@class,"more-options") and @target="_top"]');
+        $this->assertSame(1, $moreOptions->length);
+        $this->assertSame(url('/').'#planos', $moreOptions->item(0)->getAttribute('href'));
         $this->assertSame(2, $xpath->query('//a[@target="_top"]')->length);
         $this->assertStringNotContainsString('csrf-token', $html);
 
         $script = file_get_contents(public_path('js/sol-ads.js'));
-        $this->assertStringContainsString("window.open(storeUrl, '_blank')", $script);
-        $this->assertStringContainsString('opened.opener = null', $script);
-        $this->assertStringContainsString('window.top.location.href = storeUrl', $script);
-        $this->assertStringNotContainsString("'noopener'", $script);
+        $this->assertStringContainsString('IntersectionObserver', $script);
+        $this->assertStringNotContainsString('window.top.location', $script);
         $this->assertStringNotContainsString('setTimeout', $script);
         $this->assertStringNotContainsString('fetch(', $script);
     }
@@ -172,7 +165,7 @@ class SolAdvertisingEmbedTest extends TestCase
     private function createPlan(): VoucherPlan
     {
         return VoucherPlan::create([
-            'slug' => 'sol-test',
+            'slug' => 'diario',
             'name' => 'Plano SOL Teste',
             'validity_label' => '24 horas',
             'validity_minutes' => 1440,

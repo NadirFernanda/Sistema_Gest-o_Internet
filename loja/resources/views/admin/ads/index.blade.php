@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Anúncios patrocinados — Admin')
+@section('title', 'Campanhas — Admin')
 
 @section('content')
 <style>
@@ -8,10 +8,27 @@
 </style>
 <div class="ads-admin"><div class="ads-wrap">
   <header class="ads-head">
-    <div><h1>Campanhas e anúncios</h1><p class="ads-sub">Promoções próprias gratuitas e publicidade patrocinada de terceiros.</p></div>
+    <div><h1>Campanhas e anúncios</h1><p class="ads-sub">Promoções próprias AngolaWiFi.@if($commercialAuthorized) Publicidade patrocinada de terceiros.@endif</p></div>
     <div><a class="ads-btn" href="{{ route('admin.ads.create') }}">+ Nova campanha</a> <a class="ads-btn ads-btn-muted" href="{{ route('admin.dashboard') }}">Dashboard</a></div>
   </header>
-  <div class="ads-note"><strong>Como funciona:</strong> as campanhas próprias AngolaWiFi são gratuitas e servem para divulgar ofertas da empresa. As campanhas patrocinadas são de anunciantes externos. Ambas podem usar as mesmas posições; a activação, o período e o limite máximo de exibições são definidos pela administração. O limite é contado por campanha e reinicia no início do dia, da semana (segunda-feira) ou do mês. As métricas não guardam IP nem identificadores pessoais e não garantem vendas.</div>
+  <div class="ads-note"><strong>Como funciona:</strong> as campanhas próprias AngolaWiFi são gratuitas e servem para divulgar ofertas da empresa. @if($commercialAuthorized) As campanhas patrocinadas são de anunciantes externos. Ambas podem usar as mesmas posições. @endif A activação, o período e o limite máximo de exibições são definidos pela administração. O limite é contado por campanha e reinicia no início do dia, da semana (segunda-feira) ou do mês. As métricas não guardam IP nem identificadores pessoais e não garantem vendas.</div>
+  @if(\App\Support\CommercialAdsAccess::enabled())
+    @if($commercialAuthorized)
+      <form method="POST" action="{{ route('admin.ads.commercial.revoke') }}" class="ads-note">
+        @csrf
+        <span>Acesso comercial activo.</span>
+        <button class="ads-btn ads-btn-muted" type="submit">Terminar acesso comercial</button>
+      </form>
+    @else
+      <form method="POST" action="{{ route('admin.ads.commercial.authorize') }}" class="ads-note">
+        @csrf
+        <label for="commercial_secret">Autorização comercial separada</label>
+        <input id="commercial_secret" name="commercial_secret" type="password" required autocomplete="off" maxlength="512">
+        <button class="ads-btn" type="submit">Autorizar</button>
+        @error('commercial_secret')<span role="alert">{{ $message }}</span>@enderror
+      </form>
+    @endif
+  @endif
   @if(session('success'))<div class="ads-success">{{ session('success') }}</div>@endif
   <div class="ads-table-wrap"><table class="ads-table">
     <thead><tr><th>Tipo</th><th>Anunciante / campanha</th><th>Posição</th><th>Período</th><th>Estado</th><th>Limite de exibição</th><th>Impressões totais</th><th>Cliques</th><th>CTR</th><th>Acções</th></tr></thead>

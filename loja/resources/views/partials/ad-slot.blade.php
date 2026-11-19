@@ -19,7 +19,7 @@
          data-placement="{{ $placement }}">
     <span class="sponsored-ad__label">{{ $campaign->campaign_type === 'own' ? 'Campanha promocional AngolaWiFi' : 'Publicidade · ' . $campaign->advertiser_name }}</span>
     <a class="sponsored-ad__link" href="{{ route('ads.click', $campaign->id) }}" @if($campaign->campaign_type === 'sponsored') rel="sponsored" @endif>
-      <img class="sponsored-ad__image" src="{{ route('ads.image', $campaign->id) }}" alt="{{ $campaign->title }}" loading="lazy">
+      <img class="sponsored-ad__image" src="{{ route('ads.image', ['campaign' => $campaign->id, 'v' => substr(sha1($campaign->image_path), 0, 12)]) }}" alt="{{ $campaign->title }}" loading="lazy">
       <span class="sponsored-ad__content">
         <span class="sponsored-ad__eyebrow">{{ $campaign->campaign_type === 'own' ? 'Oferta especial' : 'Conheça esta oferta' }}</span>
         <strong>{{ $campaign->title }}</strong>
@@ -36,7 +36,7 @@
         <button class="sponsored-popup__close" type="button" aria-label="Fechar anúncio" data-popup-close>&times;</button>
         <span class="sponsored-ad__label">{{ $campaign->campaign_type === 'own' ? 'Campanha promocional AngolaWiFi' : 'Publicidade · ' . $campaign->advertiser_name }}</span>
         <a class="sponsored-popup__link" href="{{ route('ads.click', $campaign->id) }}" @if($campaign->campaign_type === 'sponsored') rel="sponsored" @endif>
-          <img class="sponsored-popup__image" src="{{ route('ads.image', $campaign->id) }}" alt="{{ $campaign->title }}" loading="eager">
+          <img class="sponsored-popup__image" src="{{ route('ads.image', ['campaign' => $campaign->id, 'v' => substr(sha1($campaign->image_path), 0, 12)]) }}" alt="{{ $campaign->title }}" loading="eager">
           <span class="sponsored-popup__content">
             <strong id="sponsoredPopupTitle-{{ $campaign->id }}">{{ $campaign->title }}</strong>
             @if($campaign->description)<span>{{ $campaign->description }}</span>@endif

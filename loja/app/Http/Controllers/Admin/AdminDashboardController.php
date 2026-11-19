@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\CommercialAdsAccess;
 use App\Http\Controllers\Controller;
 use App\Models\AutovendaOrder;
 use App\Models\EquipmentOrder;
@@ -30,6 +31,7 @@ class AdminDashboardController extends Controller
 
         if ($ssoToken !== '' && $expected !== '' && hash_equals($expected, $ssoToken)) {
             $request->session()->regenerate();
+            CommercialAdsAccess::revoke($request);
             $request->session()->put('sg_admin_authenticated', true);
             return redirect()->route('admin.dashboard');
         }
@@ -51,6 +53,7 @@ class AdminDashboardController extends Controller
 
         if ($expected !== '' && hash_equals($expected, $request->input('password'))) {
             $request->session()->regenerate();
+            CommercialAdsAccess::revoke($request);
             $request->session()->put('sg_admin_authenticated', true);
 
             return redirect()->intended(route('admin.dashboard'));
@@ -62,6 +65,7 @@ class AdminDashboardController extends Controller
     /** Terminar sessão admin. */
     public function logout(Request $request)
     {
+        CommercialAdsAccess::revoke($request);
         $request->session()->forget('sg_admin_authenticated');
         $request->session()->regenerate();
 

@@ -78,4 +78,9 @@ return [
         'ads_frame_origins' => env('SOL_ADS_FRAME_ORIGINS', ''),
     ],
 
+    'ads_commercial' => [
+        'enabled' => env('ADS_COMMERCIAL_ENABLED', false),
+        'secret' => env('ADS_COMMERCIAL_SECRET', ''),
+    ],
+
 ];

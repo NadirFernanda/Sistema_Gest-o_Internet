@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdCampaign;
 use App\Models\VoucherPlan;
+use App\Support\CommercialAdsAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,12 @@ class AdCampaignAdminController extends Controller
 {
     public function index(): View
     {
-        $campaigns = AdCampaign::with('bonusPlan')->orderByDesc('id')->paginate(25);
+        $commercialAuthorized = CommercialAdsAccess::authorized(request());
+        $query = AdCampaign::with('bonusPlan')->orderByDesc('id');
+        if (! $commercialAuthorized) {
+            $query->where('campaign_type', 'own');
+        }
+        $campaigns = $query->paginate(25);
         foreach ($campaigns as $campaign) {
             $campaign->period_impressions_count = $campaign->frequency_limit === null
                 ? null
@@ -28,7 +34,7 @@ class AdCampaignAdminController extends Controller
                     ->value('impressions_count');
         }
 
-        return view('admin.ads.index', compact('campaigns'));
+        return view('admin.ads.index', compact('campaigns', 'commercialAuthorized'));
     }
 
     public function create(): View
@@ -36,11 +42,14 @@ class AdCampaignAdminController extends Controller
         return view('admin.ads.form', [
             'campaign' => new AdCampaign(),
             'voucherPlans' => VoucherPlan::where('active', true)->orderBy('sort_order')->get(),
+            'campaignTypes' => $this->allowedTypes(),
+            'commercialAuthorized' => CommercialAdsAccess::authorized(request()),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorizeSubmittedType($request);
         $data = $this->validated($request);
         $purchasePlanSlugs = $data['purchase_plan_slugs'] ?? [];
         $data['image_path'] = $this->storeImage($request);
@@ -55,14 +64,17 @@ class AdCampaignAdminController extends Controller
     public function edit(int $campaign): View
     {
         return view('admin.ads.form', [
-            'campaign' => AdCampaign::with('qualifyingPlans')->findOrFail($campaign),
+            'campaign' => $this->findManageable($campaign),
             'voucherPlans' => VoucherPlan::where('active', true)->orderBy('sort_order')->get(),
+            'campaignTypes' => $this->allowedTypes(),
+            'commercialAuthorized' => CommercialAdsAccess::authorized(request()),
         ]);
     }
 
     public function update(Request $request, int $campaign): RedirectResponse
     {
-        $ad = AdCampaign::findOrFail($campaign);
+        $ad = $this->findManageable($campaign);
+        $this->authorizeSubmittedType($request);
         $oldImage = $ad->image_path;
         $data = $this->validated($request, $ad);
         $purchasePlanSlugs = $data['purchase_plan_slugs'] ?? [];
@@ -80,7 +92,7 @@ class AdCampaignAdminController extends Controller
 
     public function destroy(int $campaign): RedirectResponse
     {
-        $ad = AdCampaign::findOrFail($campaign);
+        $ad = $this->findManageable($campaign);
         $imagePath = $ad->image_path;
         $ad->delete();
         Storage::disk('public')->delete($imagePath);
@@ -204,5 +216,29 @@ class AdCampaignAdminController extends Controller
         }
 
         return $path;
+    }
+
+    private function findManageable(int $campaign): AdCampaign
+    {
+        $query = AdCampaign::with('qualifyingPlans');
+        if (! CommercialAdsAccess::authorized(request())) {
+            $query->where('campaign_type', 'own');
+        }
+
+        return $query->findOrFail($campaign);
+    }
+
+    private function allowedTypes(): array
+    {
+        return CommercialAdsAccess::authorized(request())
+            ? AdCampaign::TYPES
+            : ['own' => AdCampaign::TYPES['own']];
+    }
+
+    private function authorizeSubmittedType(Request $request): void
+    {
+        if ($request->input('campaign_type') === 'sponsored') {
+            abort_unless(CommercialAdsAccess::authorized($request), 403);
+        }
     }
 }
