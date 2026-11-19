@@ -53,7 +53,7 @@ try {
   const preview = pathToFileURL(resolve('screenshots/portal-campaign-preview.html')).href;
   await command('Page.enable');
   for (const [name, width, height, mobile] of [
-    ['desktop', 1366, 900, false],
+    ['desktop', 1366, 1050, false],
     ['android-small', 320, 640, true],
     ['android', 360, 800, true],
     ['android-wide', 412, 915, true],

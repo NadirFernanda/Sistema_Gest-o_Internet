@@ -26,6 +26,8 @@
       -moz-osx-font-smoothing: grayscale;
       --brand: #f4b400;
       --brand-dark: #d99a00;
+      --button-yellow: linear-gradient(180deg, #ffe528, #ffb800);
+      --button-yellow-hover: linear-gradient(180deg, #ffdc20, #e9a600);
       --text-dark: #101828;
       --text-muted: #526071;
       --text-light: #758195;
@@ -140,9 +142,9 @@
       gap: 10px;
       padding: 0 14px;
       border: 0;
-      border-radius: 9px;
-      color: #1d2735;
-      background: var(--brand);
+      border-radius: 12px;
+      color: #071955;
+      background: var(--button-yellow);
       box-shadow: 0 4px 12px rgba(16,24,40,.12);
       font-size: .78rem;
       font-weight: 750;
@@ -152,7 +154,8 @@
       transition: background .18s ease, transform .18s ease;
     }
 
-    .button:hover { transform: translateY(-1px); background: #e6a900; }
+    .button:hover { transform: translateY(-1px); background: var(--button-yellow-hover); }
+    .button:focus-visible { outline: 3px solid #0755ba; outline-offset: 3px; }
     .button__arrow { font-size: 1.15rem; line-height: 1; }
     .campaign__fallback { color: #345477; font-size: .73rem; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 
@@ -175,7 +178,7 @@
     .plan__clock { display: block; width: clamp(82px, 30%, 175px); height: auto; flex: 0 0 auto; filter: drop-shadow(0 7px 9px rgba(0,22,92,.28)); }
     .plan__price { min-width: 0; margin: 15px 0 20px; color: #fff; font-size: clamp(2.5rem, 9vw, 6.5rem); font-weight: 850; letter-spacing: -.07em; line-height: 1; text-shadow: 0 4px 12px rgba(0,24,96,.25); white-space: nowrap; }
     .plan__price span { color: #ffcf18; font-size: .5em; font-weight: 800; letter-spacing: 0; }
-    .plan__button { width: 100%; min-height: 54px; margin-top: auto; border-radius: 12px; color: #071955; background: linear-gradient(180deg, #ffe528, #ffb800); font-size: 1rem; }
+    .plan__button { width: 100%; min-height: 54px; margin-top: auto; font-size: 1rem; }
     .more-options { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; border: 2px solid #0755ba; border-radius: 10px; color: #0755ba; background: #fff; font-size: .84rem; font-weight: 750; text-align: center; text-decoration: none; }
     .more-options:hover { background: #eff6ff; }
 
@@ -183,7 +186,7 @@
     .empty-state h1 { margin: 0; color: var(--text-dark); font-size: 1.05rem; }
     .empty-state p { margin: 7px 0 0; color: var(--text-muted); font-size: .88rem; line-height: 1.5; }
 
-    .page-note { margin: 25px -8px -8px; padding: 17px; border-radius: 0 0 18px 18px; color: #fff; background: linear-gradient(110deg, #049cea, #07399d); font-size: .84rem; font-style: italic; font-weight: 750; line-height: 1.4; text-align: right; }
+    .page-note { margin: 25px -8px -8px; padding: 17px; border-radius: 0 0 18px 18px; color: #fff; background: linear-gradient(110deg, #049cea, #07399d); font-size: .84rem; font-style: italic; font-weight: 750; line-height: 1.4; text-align: center; }
 
     @media (max-width: 420px) {
       body { padding: 12px 12px 20px; }
