@@ -43,7 +43,7 @@
     @if($__env->hasSection('og_image'))
       <meta property="og:image" content="@yield('og_image')">
     @else
-      <meta property="og:image" content="{{ asset('img/carrossel1.webp') }}">
+      <meta property="og:image" content="{{ isset($heroSlides) && $heroSlides->isNotEmpty() ? $heroSlides->first()->image_url : asset('img/logo2.jpeg') }}">
     @endif
 
     {{-- Twitter Card --}}
@@ -63,7 +63,7 @@
     @if($__env->hasSection('og_image'))
       <meta name="twitter:image" content="@yield('og_image')">
     @else
-      <meta name="twitter:image" content="{{ asset('img/carrossel1.webp') }}">
+      <meta name="twitter:image" content="{{ isset($heroSlides) && $heroSlides->isNotEmpty() ? $heroSlides->first()->image_url : asset('img/logo2.jpeg') }}">
     @endif
 
     {{-- Dados estruturados por página --}}
@@ -81,8 +81,9 @@
       @vite(['resources/js/app.js'])
     @endif
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    {{-- Preload da primeira imagem do carrossel (LCP) --}}
-    <link rel="preload" as="image" href="/img/carrossel1.webp" type="image/webp" fetchpriority="high">
+    @if(isset($heroSlides) && $heroSlides->isNotEmpty())
+      <link rel="preload" as="image" href="{{ $heroSlides->first()->image_url }}" fetchpriority="high">
+    @endif
   </head>
   <body>
     @include('partials.header')

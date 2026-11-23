@@ -82,74 +82,55 @@
 
 @section('content')
   {{-- Hero Carousel --}}
+  @if($heroSlides->isNotEmpty())
   <section class="hero" id="hero" aria-roledescription="carousel" aria-label="Destaques">
     <div class="hero__track" id="heroTrack">
-
-      <div class="hero__slide" style="background-image:url('/img/carrossel1.webp')">
+      @foreach($heroSlides as $slide)
+      <div class="hero__slide" @if($loop->first) style="background-image:url('{{ $slide->image_url }}')" @else data-bg="{{ $slide->image_url }}" @endif>
         <div class="hero__card">
+          @if($slide->eyebrow)
           <span class="hero__eyebrow">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
-            Internet Residencial
+            {{ $slide->eyebrow }}
           </span>
-          <h1 class="hero__title">WiFi Ilimitada<br><strong>A partir de 6&nbsp;Mbps</strong></h1>
-          <p class="hero__desc">Planos para famílias, estudantes e profissionais — streaming, jogos e navegação sem interrupções. Velocidades reais, preços claros.</p>
+          @endif
+          @if($loop->first)
+            <h1 class="hero__title">{{ $slide->title }}@if($slide->highlighted_title)<br><strong>{{ $slide->highlighted_title }}</strong>@endif</h1>
+          @else
+            <h2 class="hero__title">{{ $slide->title }}@if($slide->highlighted_title)<br><strong>{{ $slide->highlighted_title }}</strong>@endif</h2>
+          @endif
+          @if($slide->description)<p class="hero__desc">{{ $slide->description }}</p>@endif
           <div class="hero__actions">
-            <a href="#planos" class="btn-primary">Ver Planos</a>
-            <a href="/como-comprar" class="btn-ghost">Saiba Mais</a>
+            @if($slide->primary_label && $slide->primary_url)<a href="{{ $slide->primary_url }}" class="btn-primary">{{ $slide->primary_label }}</a>@endif
+            @if($slide->secondary_label && $slide->secondary_url)<a href="{{ $slide->secondary_url }}" class="btn-ghost">{{ $slide->secondary_label }}</a>@endif
           </div>
         </div>
       </div>
-
-      <div class="hero__slide" data-bg="/img/carrossel2.webp">
-        <div class="hero__card">
-          <span class="hero__eyebrow">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
-            Soluções Empresariais
-          </span>
-          <h1 class="hero__title">Internet para<br><strong>o seu negócio</strong></h1>
-          <p class="hero__desc">SLA dedicado, suporte técnico prioritário e ligações estáveis para PMEs e grandes empresas. Planos de 25 a +150&nbsp;Mbps.</p>
-          <div class="hero__actions">
-            <a href="#planos-empresariais" class="btn-primary">Ver Soluções</a>
-            <a href="/como-comprar" class="btn-ghost">Fale Connosco</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero__slide" data-bg="/img/carrossel3.webp">
-        <div class="hero__card">
-          <span class="hero__eyebrow">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="3"/></svg>
-            Instalação Rápida
-          </span>
-          <h1 class="hero__title">Instalamos<br><strong>em até 48 horas</strong></h1>
-          <p class="hero__desc">Técnicos especializados, equipamentos incluídos e activação imediata. Sem burocracia, sem surpresas.</p>
-          <div class="hero__actions">
-            <a href="#planos" class="btn-primary">Escolher Plano</a>
-            <a href="/como-comprar" class="btn-ghost">Como Funciona</a>
-          </div>
-        </div>
-      </div>
-
+      @endforeach
     </div>
-
+    @if($heroSlides->count() > 1)
     <button class="hero__arrow hero__arrow--prev" aria-label="Slide anterior">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 4L7 10L13 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <button class="hero__arrow hero__arrow--next" aria-label="Próximo slide">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
+    @endif
 
     {{-- Scroll hint --}}
     <a href="#planos" class="hero__scroll-hint" aria-label="Ver planos">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
     </a>
 
-    <div class="hero__dots" role="tablist" aria-label="Navegar slides">
-      <button class="hero__dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-slide="0"></button>
-      <button class="hero__dot"           role="tab" aria-selected="false" aria-label="Slide 2" data-slide="1"></button>
-      <button class="hero__dot"           role="tab" aria-selected="false" aria-label="Slide 3" data-slide="2"></button>
-    </div>
+    @if($heroSlides->count() > 1)
+      <div class="hero__dots" role="tablist" aria-label="Navegar slides">
+        @foreach($heroSlides as $slide)
+          <button class="hero__dot {{ $loop->first ? 'is-active' : '' }}" role="tab" aria-selected="{{ $loop->first ? 'true' : 'false' }}" aria-label="Slide {{ $loop->iteration }}" data-slide="{{ $loop->index }}"></button>
+        @endforeach
+      </div>
+    @endif
   </section>
+  @endif
 
   {{-- Stat Bar --}}
   <div class="stat-bar">

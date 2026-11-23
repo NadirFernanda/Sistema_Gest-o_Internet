@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	// Hero carousel
 	var heroEl = document.getElementById('hero');
-	if (heroEl) {
+	if (heroEl && heroEl.querySelectorAll('.hero__slide').length) {
 		var heroTrack  = heroEl.querySelector('#heroTrack');
 		var heroDots   = heroEl.querySelectorAll('.hero__dot');
 		var heroPrev   = heroEl.querySelector('.hero__arrow--prev');
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		function heroPlay()  { heroTid = window.setInterval(function() { heroGoTo(heroCur + 1); }, 10000); }
+		function heroPlay()  { if (heroCount > 1) heroTid = window.setInterval(function() { heroGoTo(heroCur + 1); }, 10000); }
 		function heroPause() { window.clearInterval(heroTid); heroTid = null; }
 		function heroReset() { heroPause(); heroPlay(); }
 

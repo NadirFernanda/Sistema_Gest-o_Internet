@@ -37,6 +37,7 @@ use App\Http\Controllers\ResellerPanelController;
 Route::get('/', function () {
     return app(\App\Http\Controllers\StorefrontController::class)->index();
 });
+Route::get('/imagens-carrossel/{slide}', [\App\Http\Controllers\StorefrontController::class, 'heroImage'])->name('hero-slides.image');
 
 // Proxy endpoints — loja → SG (necessários em todos os ambientes)
 Route::get('/sg/plans', [\App\Http\Controllers\StoreProxyController::class, 'plans']);
@@ -244,6 +245,12 @@ Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name(
 // Todas as restantes rotas admin requerem sessão válida.
 Route::prefix('admin')->middleware('sg-admin')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/carrossel', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'index'])->name('admin.hero-slides.index');
+    Route::get('/carrossel/criar', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'create'])->name('admin.hero-slides.create');
+    Route::post('/carrossel', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'store'])->name('admin.hero-slides.store');
+    Route::get('/carrossel/{slide}/editar', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'edit'])->name('admin.hero-slides.edit');
+    Route::put('/carrossel/{slide}', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'update'])->name('admin.hero-slides.update');
+    Route::delete('/carrossel/{slide}', [\App\Http\Controllers\Admin\HeroSlideAdminController::class, 'destroy'])->name('admin.hero-slides.destroy');
     Route::post('/anuncios/comercial/autorizar', [\App\Http\Controllers\Admin\CommercialAdsAccessController::class, 'store'])
         ->middleware('throttle:5,1')->name('admin.ads.commercial.authorize');
     Route::post('/anuncios/comercial/terminar', [\App\Http\Controllers\Admin\CommercialAdsAccessController::class, 'destroy'])

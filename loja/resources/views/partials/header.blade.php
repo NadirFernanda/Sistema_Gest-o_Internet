@@ -62,6 +62,10 @@
               <span class="store-dropdown-item__title">Relatórios</span>
             </span>
           </a>
+          <a href="{{ route('admin.hero-slides.index') }}" class="store-dropdown-item" role="menuitem">
+            <span class="store-dropdown-item__icon">🖼️</span>
+            <span class="store-dropdown-item__body"><span class="store-dropdown-item__title">Carrossel da página inicial</span></span>
+          </a>
           <a href="{{ route('admin.equipment.products.index') }}" class="store-dropdown-item" role="menuitem">
             <span class="store-dropdown-item__icon">📦</span>
             <span class="store-dropdown-item__body">

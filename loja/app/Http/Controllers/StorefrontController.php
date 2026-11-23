@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AutovendaOrder;
 use App\Models\AdCampaign;
+use App\Models\HeroSlide;
 use App\Models\SiteStat;
 use App\Models\VoucherPlan;
 use App\Services\AutovendaOrderService;
@@ -17,6 +18,13 @@ use Exception;
 
 class StorefrontController extends Controller
 {
+    public function heroImage(HeroSlide $slide)
+    {
+        abort_unless(str_starts_with($slide->image_path, 'hero-slides/') && Storage::disk('public')->exists($slide->image_path), 404);
+
+        return Storage::disk('public')->response($slide->image_path, null, ['Cache-Control' => 'no-cache']);
+    }
+
     public function index()
     {
         // Planos individuais carregados da base de dados (tabela voucher_plans)
@@ -46,6 +54,7 @@ class StorefrontController extends Controller
         }
 
         return view('store.index', [
+            'heroSlides' => HeroSlide::where('active', true)->orderBy('sort_order')->orderBy('id')->get(),
             'individualPlans'   => $individualPlans,
             'siteStats'         => $siteStats,
             'purchaseHelpVideoUrl' => $this->purchaseHelpVideoUrl(),
