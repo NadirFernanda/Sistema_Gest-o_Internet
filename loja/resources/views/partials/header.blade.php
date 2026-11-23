@@ -123,7 +123,9 @@
     <div class="store-mobile-submenu">
       <a href="/admin/recargas" class="store-mobile-link">Gestão de recargas</a>
       <a href="/admin/relatorios" class="store-mobile-link">Relatórios</a>
-      <a href="{{ route('admin.equipment.products.index') }}" class="store-mobile-link">Produtos</a>
+      <a href="{{ route('admin.equipment.products.index') }}" class="store-mobile-link">Catálogo</a>
+      <a href="{{ route('admin.ads.index') }}" class="store-mobile-link">Anúncios</a>
+      <a href="{{ route('admin.hero-slides.index') }}" class="store-mobile-link">Carrossel</a>
       <a href="{{ route('admin.equipment.orders.index') }}" class="store-mobile-link">Encomendas</a>
       <a href="{{ route('admin.appointments.index') }}" class="store-mobile-link">Agendamentos</a>
     </div>

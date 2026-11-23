@@ -533,8 +533,64 @@
           </div>
           <div class="adm-actions">
             <a href="{{ route('admin.equipment.orders.index') }}" class="adm-btn primary">Ver encomendas →</a>
-            <a href="{{ route('admin.equipment.products.index') }}" class="adm-btn">Produtos</a>
-            <a href="{{ route('admin.ads.index') }}" class="adm-btn">Anúncios</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Gestão do conteúdo da loja --}}
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('catalogo')" aria-expanded="false" aria-controls="adm-body-catalogo">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🛍️</span>
+          <span class="adm-menu-label">Catálogo</span>
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-catalogo">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-catalogo" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">📦 Produtos e equipamentos</div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.equipment.products.index') }}" class="adm-btn primary">Gerir catálogo →</a>
+            <a href="{{ route('admin.equipment.products.create') }}" class="adm-btn">Adicionar produto</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('anuncios')" aria-expanded="false" aria-controls="adm-body-anuncios">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">📣</span>
+          <span class="adm-menu-label">Anúncios</span>
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-anuncios">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-anuncios" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">📣 Campanhas e publicidade</div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.ads.index') }}" class="adm-btn primary">Gerir anúncios →</a>
+            <a href="{{ route('admin.ads.create') }}" class="adm-btn">Criar anúncio</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-menu-item">
+      <button class="adm-menu-btn" onclick="admToggle('carrossel')" aria-expanded="false" aria-controls="adm-body-carrossel">
+        <span class="adm-menu-btn-left">
+          <span class="adm-menu-icon">🖼️</span>
+          <span class="adm-menu-label">Carrossel</span>
+        </span>
+        <span class="adm-menu-chevron" id="adm-chev-carrossel">›</span>
+      </button>
+      <div class="adm-menu-body" id="adm-body-carrossel" style="display:none;">
+        <div class="adm-panel" style="margin-bottom:0;">
+          <div class="adm-panel-title">🖼️ Destaques da página inicial</div>
+          <div class="adm-actions">
+            <a href="{{ route('admin.hero-slides.index') }}" class="adm-btn primary">Gerir carrossel →</a>
+            <a href="{{ route('admin.hero-slides.create') }}" class="adm-btn">Adicionar slide</a>
           </div>
         </div>
       </div>
@@ -658,7 +714,6 @@
             <a href="{{ route('admin.reports') }}" class="adm-btn primary">📈 Relatórios →</a>
             <a href="{{ route('admin.reconciliation.gpo') }}" class="adm-btn">💳 Reconciliação GPO</a>
             <a href="{{ route('admin.site_stats.index') }}" class="adm-btn">📊 Estatísticas da Página</a>
-            <a href="{{ route('admin.hero-slides.index') }}" class="adm-btn primary">🖼️ Carrossel da Página Inicial</a>
             <a href="{{ route('admin.purchase-help-video.index') }}" class="adm-btn">🎬 Vídeo de Ajuda da Compra</a>
             <a href="{{ route('admin.manual_voucher_sale.create') }}" class="adm-btn purple">🛒 Venda Manual de Vouchers</a>
             <a href="{{ route('admin.activity.index') }}" class="adm-btn">🕐 Actividade</a>
@@ -683,6 +738,7 @@ function admToggle(id) {
   if (body) body.style.display = open ? 'none' : 'block';
   if (chev) chev.classList.toggle('open', !open);
   if (btn)  btn.classList.toggle('open', !open);
+  if (btn)  btn.setAttribute('aria-expanded', open ? 'false' : 'true');
 }
 
 // ── Estatísticas do site (polling /store/live-stats) ──────────────────────
